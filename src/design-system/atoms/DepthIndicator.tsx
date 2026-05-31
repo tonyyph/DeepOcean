@@ -1,0 +1,85 @@
+import React, { useEffect } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring
+} from "react-native-reanimated";
+import { useTheme } from "../useTheme";
+import { useThemedStyles } from "../useThemedStyles";
+import type { AppTheme } from "../themes";
+import { ZONE_TABLE, type OceanZone } from "@/features/ocean/zones";
+
+type Props = {
+  depthMeters: number;
+  zone: OceanZone;
+};
+
+export const DepthIndicator = React.memo(function DepthIndicator({
+  depthMeters,
+  zone
+}: Props) {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const scale = useSharedValue(0.92);
+
+  useEffect(() => {
+    scale.value = 0.92;
+    scale.value = withSpring(1, { damping: 18, stiffness: 220 });
+  }, [zone, scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }]
+  }));
+
+  return (
+    <Animated.View style={[styles.capsule, animatedStyle]}>
+      <View style={styles.row}>
+        <View style={[styles.dot, { backgroundColor: t.colors.accent }]} />
+        <Text style={styles.label}>{ZONE_TABLE[zone].label.toUpperCase()}</Text>
+      </View>
+      <Text style={styles.depth}>
+        {Math.round(depthMeters).toLocaleString()} m
+      </Text>
+    </Animated.View>
+  );
+});
+
+const makeStyles = (t: AppTheme) =>
+  StyleSheet.create({
+    capsule: {
+      alignSelf: "center",
+      paddingHorizontal: t.spacing[5],
+      paddingVertical: t.spacing[2] + 2,
+      borderRadius: t.radii.pill,
+      backgroundColor: "rgba(2,8,28,0.55)",
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.glassEdge,
+      alignItems: "center"
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[2] - 2
+    },
+    dot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      shadowColor: t.colors.accent,
+      shadowOpacity: 0.9,
+      shadowRadius: 6
+    },
+    label: {
+      color: t.colors.textSecondary,
+      fontSize: 10,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label
+    },
+    depth: {
+      color: t.colors.text,
+      fontSize: 13,
+      marginTop: 2,
+      fontFamily: t.fonts.mono
+    }
+  });

@@ -1,0 +1,154 @@
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useTheme } from "../useTheme";
+import { useThemedStyles } from "../useThemedStyles";
+import type { AppTheme } from "../themes";
+import { Sheet } from "../atoms/Sheet";
+import { PressableCard } from "../atoms/PressableCard";
+import { useTranslations, type Language } from "@/core/i18n";
+
+const LANGUAGES: { code: Language; label: string; native: string }[] = [
+  { code: "en", label: "English", native: "EN" },
+  { code: "vi", label: "Tiếng Việt", native: "VI" }
+];
+
+type Props = {
+  visible: boolean;
+  current: Language;
+  onConfirm: (lang: Language) => void;
+  onDismiss: () => void;
+};
+
+export function LanguagePickerSheet({
+  visible,
+  current,
+  onConfirm,
+  onDismiss
+}: Props) {
+  const t = useTheme();
+  const tr = useTranslations();
+  const styles = useThemedStyles(makeStyles);
+  const [selected, setSelected] = useState<Language>(current);
+
+  useEffect(() => {
+    if (visible) setSelected(current);
+  }, [visible, current]);
+
+  const confirm = useCallback(() => onConfirm(selected), [onConfirm, selected]);
+
+  return (
+    <Sheet visible={visible} onDismiss={onDismiss}>
+      <Text style={styles.title}>{tr.profile.language}</Text>
+      <Text style={styles.subtitle}>{tr.profile.languageDesc}</Text>
+
+      <View style={styles.list}>
+        {LANGUAGES.map(({ code, label, native }) => {
+          const active = selected === code;
+          return (
+            <Pressable
+              key={code}
+              onPress={() => setSelected(code)}
+              style={[styles.row, active && styles.rowActive]}
+            >
+              <View style={[styles.radio, active && styles.radioActive]}>
+                {active ? <View style={styles.radioDot} /> : null}
+              </View>
+              <Text
+                style={[styles.label, active && { color: t.colors.accent }]}
+              >
+                {label}
+              </Text>
+              <Text
+                style={[styles.native, active && { color: t.colors.accent }]}
+              >
+                {native}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.actions}>
+        <PressableCard haptic="medium" onPress={confirm} glow>
+          <Text style={styles.confirmText}>{tr.profile.confirm}</Text>
+        </PressableCard>
+      </View>
+    </Sheet>
+  );
+}
+
+const makeStyles = (t: AppTheme) =>
+  StyleSheet.create({
+    title: {
+      color: t.colors.text,
+      fontSize: 20,
+      fontFamily: t.fonts.display,
+      letterSpacing: t.fonts.displayLetterSpacing,
+      marginBottom: t.spacing[1]
+    },
+    subtitle: {
+      color: t.colors.textMuted,
+      fontSize: 13,
+      fontFamily: t.fonts.body,
+      marginBottom: t.spacing[5]
+    },
+    list: {
+      gap: t.spacing[2] + 2
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[3] + 2,
+      paddingVertical: t.spacing[3] + 2,
+      paddingHorizontal: t.spacing[4],
+      borderRadius: t.radii.md,
+      backgroundColor: t.colors.glass,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.border
+    },
+    rowActive: {
+      backgroundColor: "rgba(34,228,255,0.07)",
+      borderColor: t.colors.accent
+    },
+    radio: {
+      width: 18,
+      height: 18,
+      borderRadius: 9,
+      borderWidth: 1.5,
+      borderColor: t.colors.border,
+      alignItems: "center",
+      justifyContent: "center"
+    },
+    radioActive: { borderColor: t.colors.accent },
+    radioDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: t.colors.accent
+    },
+    label: {
+      flex: 1,
+      color: t.colors.text,
+      fontSize: 15,
+      fontFamily: t.fonts.body
+    },
+    native: {
+      color: t.colors.textMuted,
+      fontSize: 13,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label
+    },
+    actions: {
+      marginTop: t.spacing[8],
+      marginBottom: t.spacing[6],
+      gap: t.spacing[3.5]
+    },
+    confirmText: {
+      color: t.colors.text,
+      textAlign: "center",
+      letterSpacing: 1,
+      fontSize: 13,
+      fontFamily: t.fonts.mono,
+      paddingVertical: t.spacing[1]
+    }
+  });
