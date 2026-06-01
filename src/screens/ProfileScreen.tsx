@@ -1,56 +1,75 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing
-} from "react-native-reanimated";
-import { MotiView } from "moti";
-import { LinearGradient } from "expo-linear-gradient";
+import { useTranslations, type Language } from "@/core/i18n";
+import { storage, StorageKeys } from "@/core/storage/mmkv";
+import { container } from "@/data/container";
 import {
-  ZoneBackground,
-  UnderwaterCanvas,
   GlassCard,
+  GlowText,
+  LanguagePickerSheet,
+  LevelUpModal,
+  OptionPill,
+  PaywallSheet,
+  PremiumBadge,
   PressableCard,
-  AppHeader,
   SectionLabel,
   SettingRow,
-  OptionPill,
-  PremiumBadge,
   ThemePickerSheet,
-  LanguagePickerSheet,
-  PaywallSheet,
-  LevelUpModal,
+  THEMES,
   TitleAchievementModal,
+  UnderwaterCanvas,
   useTheme,
   useThemedStyles,
-  THEMES,
+  ZoneBackground,
   type AppTheme,
   type ThemeId
 } from "@/design-system";
 import {
+  checkNewAchievements,
+  computeLevelUp,
   useDiverProfile,
   useUpdateDiver,
-  computeLevelUp,
-  xpForNextLevel,
-  checkNewAchievements
+  xpForNextLevel
 } from "@/features/diver";
-import {
-  useSettings,
-  useThemeStore,
-  usePremium,
-  useAchievements
-} from "@/stores";
-import { container } from "@/data/container";
-import { storage, StorageKeys } from "@/core/storage/mmkv";
-import { useTranslations, type Language } from "@/core/i18n";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
+import {
+  useAchievements,
+  usePremium,
+  useSettings,
+  useThemeStore
+} from "@/stores";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { MotiView } from "moti";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Keyboard,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming
+} from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
+const SOUND_LEVELS = [
+  { key: "off", value: 0 },
+  { key: "low", value: 0.35 },
+  { key: "full", value: 0.65 }
+] as const;
+type SoundLevelKey = (typeof SOUND_LEVELS)[number]["key"];
+
+function volumeToKey(v: number): SoundLevelKey {
+  if (v <= 0) return "off";
+  if (v < 0.5) return "low";
+  return "full";
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -74,6 +93,31 @@ export default function ProfileScreen() {
   const [intentTheme, setIntentTheme] = useState<ThemeId | undefined>(
     undefined
   );
+
+  // ─── Name editing ─────────────────────────────────────────────────────────
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [draftName, setDraftName] = useState("");
+  const nameInputRef = useRef<TextInput>(null);
+
+  const startEditName = useCallback(() => {
+    setDraftName(profile?.name ?? "");
+    setIsEditingName(true);
+    setTimeout(() => nameInputRef.current?.focus(), 80);
+  }, [profile?.name]);
+
+  const confirmEditName = useCallback(() => {
+    const trimmed = draftName.trim();
+    if (trimmed && trimmed !== profile?.name) {
+      updateDiver({ name: trimmed });
+    }
+    setIsEditingName(false);
+    Keyboard.dismiss();
+  }, [draftName, profile?.name, updateDiver]);
+
+  const cancelEditName = useCallback(() => {
+    setIsEditingName(false);
+    Keyboard.dismiss();
+  }, []);
 
   // ─── Level-up reward queue ────────────────────────────────────────────────
   type RewardItem =
@@ -170,12 +214,82 @@ export default function ProfileScreen() {
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
-          <AppHeader
-            eyebrow={tr.profile.title}
-            title={profile?.name ?? tr.home.diver}
-            subtitle={tr.profile.level(profile?.level ?? 1)}
-            size={34}
-          />
+          {/* ── Profile header with inline name-edit button ── */}
+          <View style={styles.profileHeader}>
+            {!isEditingName && (
+              <Text style={styles.headerEyebrow}>{tr.profile.title}</Text>
+            )}
+            <View style={styles.headerNameRow}>
+              {/* Name edit card — slides in below header when editing */}
+              {isEditingName ? (
+                <GlassCard
+                  style={styles.nameEditCard}
+                  radius={t.radii.sm}
+                  padding={t.spacing[4]}
+                >
+                  <SectionLabel>{tr.profile.editNameTitle}</SectionLabel>
+                  <View style={styles.nameEditRow}>
+                    <TextInput
+                      ref={nameInputRef}
+                      value={draftName}
+                      onChangeText={setDraftName}
+                      placeholder={tr.profile.editNamePlaceholder}
+                      placeholderTextColor={t.colors.textMuted}
+                      style={styles.nameInput}
+                      returnKeyType="done"
+                      onSubmitEditing={confirmEditName}
+                      autoCapitalize="words"
+                      maxLength={32}
+                    />
+                    <View style={styles.nameEditActions}>
+                      <PressableCard
+                        haptic="light"
+                        onPress={cancelEditName}
+                        radius={t.radii.sm}
+                        padding={t.spacing[2]}
+                      >
+                        <Ionicons
+                          name="close"
+                          size={18}
+                          color={t.colors.textMuted}
+                        />
+                      </PressableCard>
+                      <PressableCard
+                        haptic="medium"
+                        onPress={confirmEditName}
+                        radius={t.radii.sm}
+                        padding={t.spacing[2]}
+                      >
+                        <Ionicons
+                          name="checkmark"
+                          size={18}
+                          color={t.colors.accent}
+                        />
+                      </PressableCard>
+                    </View>
+                  </View>
+                </GlassCard>
+              ) : (
+                <GlowText size={34}>{profile?.name ?? tr.home.diver}</GlowText>
+              )}
+
+              <PressableCard
+                haptic="light"
+                onPress={startEditName}
+                radius={t.radii.s}
+                padding={t.spacing[2]}
+              >
+                <Ionicons
+                  name="pencil-outline"
+                  size={16}
+                  color={t.colors.textSecondary}
+                />
+              </PressableCard>
+            </View>
+            <Text style={styles.headerSub}>
+              {tr.profile.level(profile?.level ?? 1)}
+            </Text>
+          </View>
 
           {/* XP Card */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
@@ -238,6 +352,39 @@ export default function ProfileScreen() {
               value={settings.hapticsEnabled}
               onChange={(v) => settings.update({ hapticsEnabled: v })}
             />
+            {/* Ambient sound */}
+            <View style={styles.preferredBlock}>
+              <Text style={styles.preferredTitle}>
+                {tr.profile.soundVolume}
+              </Text>
+              <Text style={styles.preferredSub}>
+                {tr.profile.soundVolumeDesc}
+              </Text>
+              <View style={styles.pillRow}>
+                {SOUND_LEVELS.map(({ key, value }) => (
+                  <OptionPill
+                    key={key}
+                    label={
+                      key === "off"
+                        ? tr.profile.soundOff
+                        : key === "low"
+                          ? tr.profile.soundLow
+                          : tr.profile.soundFull
+                    }
+                    active={volumeToKey(settings.ambientVolume) === key}
+                    onPress={() => settings.update({ ambientVolume: value })}
+                    containerStyle={styles.pillItem}
+                  />
+                ))}
+              </View>
+            </View>
+            <SettingRow
+              type="switch"
+              title={tr.profile.showDiscoveries}
+              subtitle={tr.profile.showDiscoveriesDesc}
+              value={settings.showDiscoveryAlerts}
+              onChange={(v) => settings.update({ showDiscoveryAlerts: v })}
+            />
             <View style={styles.preferredBlock}>
               <Text style={styles.preferredTitle}>
                 {tr.profile.preferredLength}
@@ -256,6 +403,19 @@ export default function ProfileScreen() {
                 ))}
               </View>
             </View>
+          </GlassCard>
+
+          {/* Notifications */}
+          <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
+            <SectionLabel>NOTIFICATIONS</SectionLabel>
+            <SettingRow
+              type="switch"
+              title={tr.profile.diveReminders}
+              subtitle={tr.profile.diveRemindersDesc}
+              value={settings.diveRemindersEnabled}
+              onChange={(v) => settings.update({ diveRemindersEnabled: v })}
+              divider={false}
+            />
           </GlassCard>
 
           {/* Account / Onboarding */}
@@ -277,6 +437,33 @@ export default function ProfileScreen() {
               }}
               divider={false}
             />
+            {/* <SettingRow
+              type="nav"
+              title={tr.profile.restorePurchases}
+              icon={
+                <Ionicons
+                  name="receipt-outline"
+                  size={22}
+                  color={t.colors.textSecondary}
+                />
+              }
+              onPress={() => {}}
+              divider={false}
+            /> */}
+          </GlassCard>
+
+          {/* About */}
+          <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
+            <SectionLabel>{tr.profile.about}</SectionLabel>
+            <View style={styles.aboutRow}>
+              <Text style={styles.aboutLabel}>{tr.profile.appVersion}</Text>
+              <Text style={styles.aboutValue}>
+                {tr.profile.appVersionValue}
+              </Text>
+            </View>
+            <View style={[styles.aboutRow, { marginTop: t.spacing[2] }]}>
+              <Text style={styles.aboutTagline}>{tr.profile.builtWith}</Text>
+            </View>
           </GlassCard>
         </ScrollView>
       </SafeAreaView>
@@ -392,6 +579,30 @@ const makeStyles = (t: AppTheme) =>
       paddingBottom: t.spacing[24],
       gap: t.spacing[4]
     },
+    // Custom profile header
+    profileHeader: {
+      paddingVertical: t.spacing[4],
+      gap: t.spacing[1]
+    },
+    headerEyebrow: {
+      color: t.colors.textMuted,
+      fontSize: 11,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label
+    },
+    headerNameRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: t.spacing[5]
+    },
+    headerSub: {
+      color: t.colors.textSecondary,
+      marginTop: t.spacing[1] + 2,
+      fontSize: 14,
+      lineHeight: 20,
+      fontFamily: t.fonts.body
+    },
     xpTrack: {
       height: 10,
       borderRadius: t.radii.pill,
@@ -420,6 +631,58 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[2]
     },
     pillItem: { flex: 1 },
+    preferredSub: {
+      color: t.colors.textMuted,
+      fontSize: 12,
+      fontFamily: t.fonts.body,
+      marginTop: 2
+    },
+    // Name editing
+    nameEditRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[2],
+      marginTop: t.spacing[2]
+    },
+    nameInput: {
+      flex: 1,
+      color: t.colors.text,
+      fontSize: 18,
+      fontFamily: t.fonts.body,
+      paddingVertical: t.spacing[2],
+      paddingHorizontal: t.spacing[3],
+      borderRadius: t.radii.sm,
+      backgroundColor: t.colors.glass,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.borderStrong
+    },
+    nameEditActions: {
+      flexDirection: "row",
+      gap: t.spacing[1]
+    },
+    // About
+    aboutRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: t.spacing[3]
+    },
+    aboutLabel: {
+      color: t.colors.textSecondary,
+      fontSize: 14,
+      fontFamily: t.fonts.body
+    },
+    aboutValue: {
+      color: t.colors.text,
+      fontSize: 14,
+      fontFamily: t.fonts.mono
+    },
+    aboutTagline: {
+      color: t.colors.textMuted,
+      fontSize: 12,
+      fontFamily: t.fonts.body,
+      fontStyle: "italic"
+    },
     premiumActiveRow: {
       flexDirection: "row",
       alignItems: "center",
@@ -444,5 +707,9 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 12,
       marginTop: 2,
       fontFamily: t.fonts.body
+    },
+    nameEditCard: {
+      flex: 1,
+      marginTop: t.spacing[2]
     }
   });

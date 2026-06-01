@@ -81,6 +81,7 @@ function renderTrailing(
       <Switch
         value={props.value}
         onValueChange={props.onChange}
+        style={styles.trailingSwitch}
         trackColor={{
           false: "rgba(255,255,255,0.14)",
           true: t.colors.accent
@@ -152,5 +153,9 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.textMuted,
       fontSize: 22,
       lineHeight: 22
+    },
+    trailingSwitch: {
+      transform: [{ scale: 0.8 }],
+      marginRight: -4
     }
   });

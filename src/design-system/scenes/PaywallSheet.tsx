@@ -91,7 +91,7 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             haptic="heavy"
             onPress={handleLifetime}
             glow
-            radius={t.radii.lg}
+            radius={t.radii.pill}
           >
             <View style={styles.ctaContent}>
               <Text style={styles.ctaPrimary}>{tr.paywall.lifetimeCta}</Text>
@@ -103,7 +103,7 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             <PressableCard
               haptic="medium"
               onPress={handleSinglePack}
-              radius={t.radii.lg}
+              radius={t.radii.pill}
             >
               <View style={styles.ctaContent}>
                 <Text style={styles.ctaSecondary}>
@@ -116,14 +116,18 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             </PressableCard>
           ) : null}
 
-          <PressableCard haptic="light" onPress={onDismiss}>
+          <PressableCard
+            haptic="light"
+            onPress={onDismiss}
+            radius={t.radii.pill}
+          >
             <Text style={styles.skip}>
               {isPremium ? tr.profile.cancel : tr.paywall.maybeLater}
             </Text>
           </PressableCard>
         </View>
 
-        <Text style={styles.disclaimer}>{tr.paywall.disclaimer}</Text>
+        {/* <Text style={styles.disclaimer}>{tr.paywall.disclaimer}</Text> */}
       </MotiView>
     </Sheet>
   );
@@ -232,7 +236,7 @@ const makeStyles = (t: AppTheme) =>
     skip: {
       color: t.colors.textMuted,
       textAlign: "center",
-      fontSize: 12,
+      fontSize: 14,
       letterSpacing: 1,
       fontFamily: t.fonts.label,
       paddingVertical: t.spacing[1]

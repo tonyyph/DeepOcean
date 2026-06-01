@@ -8,7 +8,9 @@ const DEFAULT: AppSettings = {
   ambientVolume: 0.65,
   reducedMotion: false,
   preferredSessionMinutes: 25,
-  language: "en"
+  language: "en",
+  diveRemindersEnabled: false,
+  showDiscoveryAlerts: true
 };
 
 type SettingsState = AppSettings & {

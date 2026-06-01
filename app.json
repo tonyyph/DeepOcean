@@ -7,6 +7,7 @@
         "scheme": "deepocean",
         "userInterfaceStyle": "dark",
         "newArchEnabled": true,
+        "icon": "./assets/deepocean.png",
         "ios": {
             "supportsTablet": true,
             "bundleIdentifier": "com.tony.deepocean",
@@ -19,6 +20,7 @@
         "android": {
             "package": "com.tony.deepocean",
             "adaptiveIcon": {
+                "foregroundImage": "./assets/deepocean.png",
                 "backgroundColor": "#020617"
             }
         },

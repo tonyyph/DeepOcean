@@ -1,6 +1,7 @@
 // Ocean zones — the spine of the entire progression system.
 // Depth is measured in meters; every other subsystem (audio, visuals,
 // haptics, discovery RNG) keys off `OceanZone`.
+import { Ionicons } from "@expo/vector-icons";
 
 export const OCEAN_ZONES = [
   "surface",
@@ -104,3 +105,22 @@ export function depthToZone(depthMeters: number): OceanZone {
 export function minutesToZone(minutes: number): OceanZone {
   return depthToZone(minutesToDepth(minutes));
 }
+
+export const QUICK_DURATIONS = [15, 25, 45, 60] as const;
+
+// Zone visual config
+export const ZONE_COLORS: Record<OceanZone, [string, string]> = {
+  surface: ["#4FC3F7", "#0288D1"],
+  twilight: ["#7E57C2", "#4527A0"],
+  midnight: ["#26C6DA", "#00838F"],
+  abyss: ["#42A5F5", "#1565C0"],
+  trench: ["#80DEEA", "#00ACC1"]
+};
+
+export const ZONE_ICONS: Record<OceanZone, keyof typeof Ionicons.glyphMap> = {
+  surface: "sunny-outline",
+  twilight: "partly-sunny-outline",
+  midnight: "moon-outline",
+  abyss: "planet-outline",
+  trench: "infinite-outline"
+};

@@ -52,4 +52,8 @@ export type AppSettings = {
   reducedMotion: boolean;
   preferredSessionMinutes: number;
   language: Language;
+  /** Mock dive-reminder daily notification toggle. */
+  diveRemindersEnabled: boolean;
+  /** Show discovery pop-up cards during a live dive session. */
+  showDiscoveryAlerts: boolean;
 };

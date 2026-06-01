@@ -51,12 +51,39 @@ export const LEVEL_TITLES: Record<number, string> = {
   20: "Bất tử dưới biển"
 };
 
+/** Fun English rank titles keyed by minimum level. */
+export const LEVEL_TITLES_EN: Record<number, string> = {
+  1: "Bubble Rookie",
+  2: "Trainee Diver",
+  3: "Water Detective",
+  4: "Black Pearl Diver",
+  5: "Coral Whistleblower",
+  6: "Bubble Explorer",
+  7: "Vuýp Diver",
+  8: "Ocean Special Agent",
+  9: "Blue Light Knight",
+  10: "King of the Eastern Sea",
+  11: "Dark Abyss Explorer",
+  12: "Fearless of the Dark",
+  13: "Deep Sea Legend",
+  14: "Giant Squid Leader",
+  15: "Lord of the Deep Sea",
+  16: "Soul of the Ocean",
+  17: "Shark Sleeper",
+  18: "Abyss Legend",
+  19: "Reborn Sea God",
+  20: "Immortal Under the Sea"
+};
+
 /** Returns the rank title for a level (falls back to the closest lower defined entry). */
-export function getLevelTitle(level: number): string {
+export function getLevelTitle(level: number, isEnglish: boolean): string {
   const keys = (Object.keys(LEVEL_TITLES) as string[])
     .map(Number)
     .filter((l) => l <= level)
     .sort((a, b) => b - a);
+
   const key = keys[0] ?? 1;
-  return LEVEL_TITLES[key] ?? "Tân binh bong bóng";
+  return isEnglish
+    ? (LEVEL_TITLES_EN[key] ?? "Bubble Rookie")
+    : (LEVEL_TITLES[key] ?? "Tân binh bong bóng");
 }

@@ -27,8 +27,8 @@ export const coralGardenTheme: AppTheme = {
     premium: "#FFD27A"
   },
   gradients: {
-    surface: ["#FFC8DD", "#FF8DBF", "#9C5A9E"],
-    twilight: ["#FF8DBF", "#9C5A9E", "#5C2E66"],
+    surface: ["#9C5A9E", "#FF8DBF", "#9C5A9E"],
+    twilight: ["#9C5A9E", "#FF8DBF", "#5C2E66"],
     midnight: ["#9C5A9E", "#5C2E66", "#321A43"],
     abyss: ["#5C2E66", "#321A43", "#1B1023"],
     trench: ["#321A43", "#1B1023", "#0A0410"],

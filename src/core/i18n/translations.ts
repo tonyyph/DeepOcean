@@ -56,7 +56,23 @@ export const translations = {
       restorePurchases: "Restore purchases",
       replayOnboarding: "Replay onboarding",
       confirm: "Confirm",
-      cancel: "Cancel"
+      cancel: "Cancel",
+      editNameTitle: "DIVER NAME",
+      editNamePlaceholder: "Enter your name",
+      editNameSave: "SAVE",
+      soundVolume: "Ambient sound",
+      soundVolumeDesc: "Volume level of underwater ambience",
+      soundOff: "Off",
+      soundLow: "Low",
+      soundFull: "Full",
+      diveReminders: "Dive reminders",
+      diveRemindersDesc: "Daily nudge to keep your streak alive",
+      showDiscoveries: "Discovery alerts",
+      showDiscoveriesDesc: "Show pop-ups when you encounter something",
+      about: "ABOUT",
+      appVersion: "Version",
+      appVersionValue: "#Ynot",
+      builtWith: "Built with care for the deep"
     },
     home: {
       greeting: {
@@ -76,7 +92,14 @@ export const translations = {
       level: "Level",
       diver: "Diver",
       min: "minutes",
-      minShort: "m"
+      minShort: "m",
+      lastDiveTitle: "LAST DIVE",
+      lastDiveZone: "Zone",
+      lastDiveMinutes: (n: number) => `${n} min`,
+      lastDiveXp: (n: number) => `+${n} XP`,
+      zoneProgressTitle: "DEPTH PROGRESS",
+      zoneLocked: "Locked",
+      noSessions: "No dives yet"
     },
     ai: {
       title: "Marine Guide",
@@ -169,7 +192,7 @@ export const translations = {
       lifetimePrice: "$14.99 · one-time",
       singlePackCta: "UNLOCK THIS THEME ONLY",
       singlePackPrice: "$3.99",
-      maybeLater: "Maybe later",
+      maybeLater: "MAYBE LATER",
       disclaimer:
         "Mock IAP — tapping unlock toggles a local flag. Wire RevenueCat / react-native-iap for real billing."
     },
@@ -239,7 +262,23 @@ export const translations = {
       restorePurchases: "Khôi phục thanh toán",
       replayOnboarding: "Xem lại phần giới thiệu",
       confirm: "Xác nhận",
-      cancel: "Huỷ"
+      cancel: "Huỷ",
+      editNameTitle: "TÊN CỦA BẠN",
+      editNamePlaceholder: "Nhập tên thợ lặn",
+      editNameSave: "LƯU LẠI",
+      soundVolume: "Âm thanh biển",
+      soundVolumeDesc: "Mức âm lượng tiếng sóng khi lặn",
+      soundOff: "Tắt",
+      soundLow: "Nhỏ",
+      soundFull: "To",
+      diveReminders: "Nhắc nhở lặn",
+      diveRemindersDesc: "Nhắc bạn nhảy xuống mỗi ngày để giữ streak",
+      showDiscoveries: "Thông báo khám phá",
+      showDiscoveriesDesc: "Hiện pop-up khi bắt gặp sinh vật/cổ vật",
+      about: "VỀ ỨNG DỤNG",
+      appVersion: "Phiên bản",
+      appVersionValue: "#Ynot",
+      builtWith: "Làm ra bởi tình yêu với biển sâu"
     },
     home: {
       greeting: {
@@ -259,7 +298,14 @@ export const translations = {
       level: "Cấp độ",
       diver: "Thợ lặn",
       min: "phút",
-      minShort: "ph"
+      minShort: "ph",
+      lastDiveTitle: "CHUYẾN LẶN TRƯỚC",
+      lastDiveZone: "Vùng",
+      lastDiveMinutes: (n: number) => `${n} phút`,
+      lastDiveXp: (n: number) => `+${n} XP`,
+      zoneProgressTitle: "TIẾN ĐỘ ĐỘ SÂU",
+      zoneLocked: "Chưa mở",
+      noSessions: "Chưa lặn lần nào"
     },
     ai: {
       title: "La Bàn Biển Cả",
@@ -352,7 +398,7 @@ export const translations = {
       lifetimePrice: "349.000đ · một lần",
       singlePackCta: "CHỈ MỞ THEME NÀY",
       singlePackPrice: "99.000đ",
-      maybeLater: "Để sau",
+      maybeLater: "ĐỂ SAU",
       disclaimer:
         "IAP giả lập — nút unlock chỉ bật flag local. Tích hợp RevenueCat / react-native-iap khi lên prod."
     },
