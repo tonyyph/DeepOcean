@@ -109,7 +109,7 @@ export const ConfirmModal = React.memo(function ConfirmModal({
                   { borderColor: accent, shadowColor: accent }
                 ]}
               >
-                <Ionicons name={icon} size={22} color={accent} />
+                <Ionicons name={icon} size={32} color={accent} />
               </View>
             ) : null}
 
@@ -174,6 +174,7 @@ const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[6]
     },
     card: {
+      overflow: "hidden",
       width: "100%",
       maxWidth: 360,
       borderRadius: t.radii.xl,
@@ -186,9 +187,9 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[3]
     },
     iconWrap: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
+      width: 64,
+      height: 64,
+      borderRadius: 32,
       borderWidth: 1,
       alignItems: "center",
       justifyContent: "center",
@@ -215,35 +216,40 @@ const makeStyles = (t: AppTheme) =>
     },
     actions: {
       flexDirection: "row",
-      gap: t.spacing[3],
-      width: "100%",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: t.spacing[8],
+      flexWrap: "wrap",
       marginTop: t.spacing[3]
     },
     btn: {
       flex: 1,
-      paddingVertical: t.spacing[3] + 2,
+      paddingVertical: t.spacing[3.5],
       borderRadius: t.radii.md,
       alignItems: "center",
       justifyContent: "center"
     },
     cancelBtn: {
-      backgroundColor: "rgba(255,255,255,0.06)",
+      backgroundColor: t.colors.surfaceElevated,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.border
     },
     confirmBtn: {
+      backgroundColor: t.colors.accent
       // backgroundColor set inline per tone
     },
     cancelText: {
       color: t.colors.text,
       fontFamily: t.fonts.label,
       fontSize: 13,
-      letterSpacing: 1
+      letterSpacing: 1,
+      textAlign: "center"
     },
     confirmText: {
       fontFamily: t.fonts.label,
       fontSize: 13,
       letterSpacing: 1,
-      fontWeight: "700"
+      fontWeight: "700",
+      textAlign: "center"
     }
   });

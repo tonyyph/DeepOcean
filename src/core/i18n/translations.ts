@@ -150,7 +150,7 @@ export const translations = {
       surfaceTitle: "Surface now?",
       surfaceMsg: "You can return to the deep anytime.",
       keepDiving: "Keep diving",
-      abortTitle: "Abort dive?",
+      abortTitle: "ABORT DIVE?",
       abortMsg: "This dive will be discarded.",
       continue: "Continue"
     },
@@ -172,6 +172,10 @@ export const translations = {
       maybeLater: "Maybe later",
       disclaimer:
         "Mock IAP — tapping unlock toggles a local flag. Wire RevenueCat / react-native-iap for real billing."
+    },
+    achievement: {
+      zoneUnlocked: "ZONE UNLOCKED",
+      tapToDismiss: "Tap anywhere to continue"
     }
   },
   vi: {
@@ -319,7 +323,7 @@ export const translations = {
       surfaceTitle: "Về mặt nước thôi?",
       surfaceMsg: "Biển lúc nào cũng ở đây chờ bạn.",
       keepDiving: "Chưa, lặn thêm chút",
-      abortTitle: "Bỏ cuộc rồi à?",
+      abortTitle: "BỎ CUỘC RỒI À?",
       abortMsg: "Chuyến này sẽ không được lưu lại đâu nhé.",
       continue: "Không, lặn tiếp"
     },
@@ -341,6 +345,10 @@ export const translations = {
       maybeLater: "Để sau",
       disclaimer:
         "IAP giả lập — nút unlock chỉ bật flag local. Tích hợp RevenueCat / react-native-iap khi lên prod."
+    },
+    achievement: {
+      zoneUnlocked: "VÙNG MỚI MỞ KHOÁ",
+      tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
     }
   }
 } as const;

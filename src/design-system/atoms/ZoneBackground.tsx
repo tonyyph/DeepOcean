@@ -12,7 +12,7 @@ import type { OceanZone } from "@/features/ocean/zones";
 
 type Props = ViewProps & {
   zone?: OceanZone;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 /**
@@ -56,7 +56,7 @@ export function ZoneBackground({
           style={StyleSheet.absoluteFill}
         />
       </Animated.View>
-      {children}
+      {children && children}
     </View>
   );
 }

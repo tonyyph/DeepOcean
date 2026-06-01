@@ -16,6 +16,7 @@ export { AppHeader } from "./atoms/AppHeader";
 export { PremiumBadge } from "./atoms/PremiumBadge";
 export { ThemeSwatch } from "./atoms/ThemeSwatch";
 export { ConfirmModal } from "./atoms/ConfirmModal";
+export { AchievementModal } from "./atoms/AchievementModal";
 
 // Scene-level reusable composites
 export { ThemePickerSheet } from "./scenes/ThemePickerSheet";

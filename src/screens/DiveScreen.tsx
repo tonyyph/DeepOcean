@@ -1,9 +1,15 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef
+} from "react";
 import { View, Text, StyleSheet, Pressable, BackHandler } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { useDiveSession } from "@/stores";
+import { useDiveSession, useAchievements } from "@/stores";
 import {
   ZoneBackground,
   UnderwaterCanvas,
@@ -14,11 +20,13 @@ import {
   Sheet,
   PressableCard,
   ConfirmModal,
+  AchievementModal,
   useTheme,
   useThemedStyles,
   type AppTheme
 } from "@/design-system";
 import { useTranslations } from "@/core/i18n";
+import { OceanZone } from "@/features/ocean/zones";
 
 type DialogConfig = {
   title: string;
@@ -46,6 +54,10 @@ export default function DiveScreen() {
 
   const [dialog, setDialog] = useState<DialogConfig | null>(null);
   const [abortOpen, setAbortOpen] = useState(false);
+  const [achievedZone, setAchievedZone] = useState<OceanZone | null>(null);
+
+  const prevZoneRef = useRef<OceanZone | null>(null);
+  const unlockZone = useAchievements((s) => s.unlockZone);
   const tr = useTranslations();
 
   useEffect(() => {
@@ -80,6 +92,22 @@ export default function DiveScreen() {
     return () => sub.remove();
   }, [session?.status, confirmSurface]);
 
+  // Detect zone changes and show achievement on first-ever entry
+  useEffect(() => {
+    const currentZone = session?.zone ?? null;
+    if (
+      currentZone &&
+      currentZone !== "surface" &&
+      currentZone !== prevZoneRef.current
+    ) {
+      const isNew = unlockZone(currentZone);
+      if (isNew) {
+        setAchievedZone(currentZone);
+      }
+    }
+    prevZoneRef.current = currentZone;
+  }, [session?.zone, unlockZone]);
+
   const progress = useMemo(() => {
     if (!session) return 0;
     if (!session.targetSeconds)
@@ -92,7 +120,7 @@ export default function DiveScreen() {
   };
 
   if (!session) {
-    return <ZoneBackground zone="surface">{null}</ZoneBackground>;
+    return <ZoneBackground zone="surface" />;
   }
 
   const isPaused = session.status === "paused";
@@ -197,6 +225,12 @@ export default function DiveScreen() {
           cancel();
           router.replace("/(tabs)");
         }}
+      />
+
+      <AchievementModal
+        visible={achievedZone !== null}
+        zone={achievedZone!}
+        onDismiss={() => setAchievedZone(null)}
       />
     </ZoneBackground>
   );

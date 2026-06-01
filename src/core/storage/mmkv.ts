@@ -36,5 +36,6 @@ export const StorageKeys = {
   sessions: "sessions.history",
   settings: "app.settings",
   theme: "app.theme",
-  premium: "app.premium"
+  premium: "app.premium",
+  achievements: "app.achievements"
 } as const;
