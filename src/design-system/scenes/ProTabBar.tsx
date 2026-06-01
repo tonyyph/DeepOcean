@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import {
-  Pressable,
-  StyleSheet,
-  View,
-  useWindowDimensions
-} from "react-native";
+import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,16 +29,21 @@ const ICONS: Readonly<Record<string, IconPair>> = {
   collection: { active: "fish", inactive: "fish-outline", size: 24 },
   stats: { active: "pulse", inactive: "pulse-outline", size: 24 },
   ai: { active: "sparkles", inactive: "sparkles-outline", size: 22 },
-  profile: { active: "person-circle", inactive: "person-circle-outline", size: 26 }
+  profile: {
+    active: "person-circle",
+    inactive: "person-circle-outline",
+    size: 26
+  }
 };
 
 // ── Layout constants ──────────────────────────────────────────────────
-const BAR_H = 68;
+const BAR_H = 72;
 const BUBBLE_DIAM = 60;
 const BUBBLE_R = BUBBLE_DIAM / 2; // 30
-const NOTCH_SPREAD = 36; // horizontal half-width of notch (slightly wider than bubble)
-const NOTCH_DEPTH = 26; // how deep the notch dips into the bar from its top edge
-const BAR_CORNER = 26;
+const NOTCH_SPREAD = 32; // horizontal half-width of notch (tight hug around bubble)
+const NOTCH_DEPTH_INNER = 46; // items 2-4 (centre tabs)
+const NOTCH_DEPTH_OUTER = 0; // items 1 & 5 (edge tabs)
+const BAR_CORNER = 24;
 const DURATION = 320;
 const EASE = Easing.bezier(0.34, 1.56, 0.64, 1); // spring-like overshoot
 
@@ -51,12 +51,12 @@ const AnimatedSvgPath = Animated.createAnimatedComponent(Path);
 
 // ── Worklet: builds the rounded-rect bar shape with a concave notch ───
 // Runs on the UI thread so it can access notchX.value every frame.
-function buildNotchPath(cx: number, W: number): string {
+function buildNotchPath(cx: number, W: number, nd: number): string {
   "worklet";
   const H = BAR_H;
   const CR = BAR_CORNER;
   const NR = NOTCH_SPREAD;
-  const ND = NOTCH_DEPTH;
+  const ND = nd;
   // Bezier "smoothing" — how far the curve starts/ends from the notch centre
   const sm = NR * 0.5;
 
@@ -66,15 +66,18 @@ function buildNotchPath(cx: number, W: number): string {
   const rCtrl = Math.min(W - CR - 1, cx + NR);
   const rEntry = Math.min(W - CR - 2, cx + NR + sm);
 
+  // steep: first control point dips immediately so the curve tightly hugs the bubble
+  const stepY = ND * 0.22;
+
   return (
     // top-left corner
     `M 0 ${CR} Q 0 0 ${CR} 0 ` +
     // top edge → left side of notch
     `L ${lEntry} 0 ` +
-    // curved descent into notch
-    `C ${lCtrl} 0 ${lCtrl} ${ND} ${cx} ${ND} ` +
-    // curved ascent out of notch
-    `C ${rCtrl} ${ND} ${rCtrl} 0 ${rEntry} 0 ` +
+    // curved descent into notch (steep start)
+    `C ${lCtrl} ${stepY} ${lCtrl} ${ND} ${cx} ${ND} ` +
+    // curved ascent out of notch (steep finish)
+    `C ${rCtrl} ${ND} ${rCtrl} ${stepY} ${rEntry} 0 ` +
     // top edge → top-right corner
     `L ${W - CR} 0 Q ${W} 0 ${W} ${CR} ` +
     // right side + bottom-right corner
@@ -124,17 +127,25 @@ export function ProTabBar(props: BottomTabBarProps) {
 
   // Shared value: horizontal centre of the active notch + bubble
   const notchX = useSharedValue(state.index * tabW + tabW / 2);
+  const isEdge = (i: number) => i === 0 || i === state.routes.length - 1;
+  const notchDepth = useSharedValue(
+    isEdge(state.index) ? NOTCH_DEPTH_OUTER : NOTCH_DEPTH_INNER
+  );
 
   useEffect(() => {
     notchX.value = withTiming(state.index * tabW + tabW / 2, {
       duration: DURATION,
       easing: EASE
     });
-  }, [state.index, tabW, notchX]);
+    notchDepth.value = withTiming(
+      isEdge(state.index) ? NOTCH_DEPTH_OUTER : NOTCH_DEPTH_INNER,
+      { duration: DURATION, easing: EASE }
+    );
+  }, [state.index, tabW, notchX, notchDepth]);
 
   // ── Animated SVG path ──────────────────────────────────────────────
   const animatedPathProps = useAnimatedProps(() => ({
-    d: buildNotchPath(notchX.value, dockW)
+    d: buildNotchPath(notchX.value, dockW, notchDepth.value)
   }));
 
   // ── Animated bubble position ───────────────────────────────────────
@@ -149,10 +160,7 @@ export function ProTabBar(props: BottomTabBarProps) {
   const barFill = t.colors.surfaceElevated;
   const bottomPad = Math.max(insets.bottom, t.spacing[2]);
 
-  const press = (
-    route: (typeof state.routes)[number],
-    focused: boolean
-  ) => {
+  const press = (route: (typeof state.routes)[number], focused: boolean) => {
     const event = navigation.emit({
       type: "tabPress",
       target: route.key,
@@ -170,10 +178,7 @@ export function ProTabBar(props: BottomTabBarProps) {
   return (
     <View
       pointerEvents="box-none"
-      style={[
-        styles.wrapper,
-        { paddingHorizontal: hPad, height: wrapperH }
-      ]}
+      style={[styles.wrapper, { paddingHorizontal: hPad, height: wrapperH }]}
     >
       {/*
        * barContainer: BUBBLE_R + BAR_H tall so the bubble (top:0, h:BUBBLE_DIAM)
@@ -200,19 +205,11 @@ export function ProTabBar(props: BottomTabBarProps) {
           height={BAR_H}
           style={[styles.svgBar, { top: BUBBLE_R }]}
         >
-          <AnimatedSvgPath
-            animatedProps={animatedPathProps}
-            fill={barFill}
-          />
+          <AnimatedSvgPath animatedProps={animatedPathProps} fill={barFill} />
         </Svg>
 
         {/* ② Flat inactive-tab slots ───────────────────────────────── */}
-        <View
-          style={[
-            styles.tabsRow,
-            { top: BUBBLE_R, height: BAR_H }
-          ]}
-        >
+        <View style={[styles.tabsRow, { top: BUBBLE_R, height: BAR_H }]}>
           {state.routes.map((route, index) => {
             const focused = state.index === index;
             const icons = ICONS[route.name] ?? ICONS.index!;
@@ -287,7 +284,7 @@ export function ProTabBar(props: BottomTabBarProps) {
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
-    bottom: 0,
+    bottom: 24,
     left: 0,
     right: 0,
     alignItems: "center",
@@ -314,7 +311,7 @@ const styles = StyleSheet.create({
   },
   bubble: {
     position: "absolute",
-    top: 0,
+    top: 12,
     left: 0,
     width: BUBBLE_DIAM,
     height: BUBBLE_DIAM,
