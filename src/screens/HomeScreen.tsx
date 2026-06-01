@@ -20,6 +20,7 @@ import { useSettings } from "@/stores";
 import { ZONE_TABLE } from "@/features/ocean";
 import type { AppSettings } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
+import { Ionicons } from "@expo/vector-icons";
 
 const QUICK_DURATIONS = [15, 25, 45, 60] as const;
 
@@ -67,7 +68,7 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.greeting}>{greeting},</Text>
+            <Text style={styles.greeting}>{greeting}</Text>
             <GlowText size={36} pulse>
               {profile?.name ?? tr.home.diver}
             </GlowText>
@@ -76,10 +77,10 @@ export default function HomeScreen() {
 
           <PressableCard
             glow
-            haptic="heavy"
+            haptic="light"
             onPress={() => startDive(preferredMinutes)}
             containerStyle={styles.heroCard}
-            radius={t.radii.xl}
+            radius={t.radii.md}
           >
             <View style={styles.heroContent}>
               <Text style={styles.heroLabel}>{tr.home.beginDive}</Text>
@@ -91,37 +92,34 @@ export default function HomeScreen() {
                 {ZONE_TABLE[zoneForMinutes(preferredMinutes)].label}
               </Text>
             </View>
+            <View style={styles.quickRow}>
+              {QUICK_DURATIONS.map((m) => (
+                <OptionPill
+                  key={m}
+                  label={`${m}${tr.home.minShort}`}
+                  onPress={() => startDive(m)}
+                  containerStyle={styles.quickItem}
+                />
+              ))}
+            </View>
           </PressableCard>
-
-          <View style={styles.quickRow}>
-            {QUICK_DURATIONS.map((m) => (
-              <OptionPill
-                key={m}
-                label={`${m}${tr.home.minShort}`}
-                onPress={() => startDive(m)}
-                containerStyle={styles.quickItem}
-              />
-            ))}
-          </View>
 
           <PressableCard
             haptic="light"
             onPress={() => startDive(null)}
-            radius={t.radii.lg}
+            radius={t.radii.md}
           >
             <View style={styles.row}>
               <View style={styles.flex}>
                 <Text style={styles.cardTitle}>{tr.home.freeDive}</Text>
                 <Text style={styles.cardBody}>{tr.home.freeDiveDesc}</Text>
               </View>
-              <GlowText size={20} color={t.colors.accentSoft}>
-                ∞
-              </GlowText>
+              <Ionicons name="infinite" size={24} color={t.colors.accentSoft} />
             </View>
           </PressableCard>
 
           {dailyRec ? (
-            <GlassCard radius={t.radii.lg}>
+            <GlassCard radius={t.radii.md}>
               <SectionLabel>{tr.home.guideTitle}</SectionLabel>
               <Text style={styles.companionBody}>{dailyRec}</Text>
             </GlassCard>
@@ -168,7 +166,7 @@ const makeStyles = (t: AppTheme) =>
       paddingBottom: t.spacing[24],
       gap: t.spacing[4] + 2
     },
-    header: { paddingVertical: t.spacing[6], gap: t.spacing[1] },
+    header: { paddingVertical: t.spacing[3], gap: t.spacing[1] },
     greeting: {
       color: t.colors.textMuted,
       fontSize: 13,
@@ -177,11 +175,11 @@ const makeStyles = (t: AppTheme) =>
     },
     sub: {
       color: t.colors.textSecondary,
-      marginTop: t.spacing[2] - 2,
+      marginTop: t.spacing[1],
       fontSize: 14,
       fontFamily: t.fonts.body
     },
-    heroCard: { marginTop: t.spacing[2] },
+    heroCard: { marginTop: t.spacing[0] },
     heroContent: { alignItems: "center", paddingVertical: t.spacing[5] },
     heroLabel: {
       color: t.colors.accent,
@@ -192,7 +190,7 @@ const makeStyles = (t: AppTheme) =>
     heroDuration: {
       color: t.colors.text,
       fontSize: 56,
-      fontFamily: t.fonts.mono,
+      fontFamily: t.fonts.display,
       marginTop: t.spacing[2] - 2
     },
     heroHint: {

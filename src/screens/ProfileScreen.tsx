@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -24,16 +24,31 @@ import {
   ThemePickerSheet,
   LanguagePickerSheet,
   PaywallSheet,
+  LevelUpModal,
+  TitleAchievementModal,
   useTheme,
   useThemedStyles,
   THEMES,
   type AppTheme,
   type ThemeId
 } from "@/design-system";
-import { useDiverProfile } from "@/features/diver";
-import { useSettings, useThemeStore, usePremium } from "@/stores";
+import {
+  useDiverProfile,
+  useUpdateDiver,
+  computeLevelUp,
+  xpForNextLevel,
+  checkNewAchievements
+} from "@/features/diver";
+import {
+  useSettings,
+  useThemeStore,
+  usePremium,
+  useAchievements
+} from "@/stores";
+import { container } from "@/data/container";
 import { storage, StorageKeys } from "@/core/storage/mmkv";
 import { useTranslations, type Language } from "@/core/i18n";
+import type { TitleAchievement } from "@/features/diver/titleAchievements";
 
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
 
@@ -44,19 +59,86 @@ export default function ProfileScreen() {
   const tr = useTranslations();
 
   const { data: profile } = useDiverProfile();
+  const { mutate: updateDiver } = useUpdateDiver();
   const settings = useSettings();
   const themeId = useThemeStore((s) => s.themeId);
   const isPremium = usePremium((s) => s.isPremium);
+  const alreadyUnlocked = useAchievements((s) => s.unlockedTitleAchievements);
+  const persistTitleAchievements = useAchievements(
+    (s) => s.persistTitleAchievements
+  );
 
   const [langOpen, setLangOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
-
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [intentTheme, setIntentTheme] = useState<ThemeId | undefined>(
     undefined
   );
 
-  const nextLevelXp = (profile?.level ?? 1) * 500;
+  // ─── Level-up reward queue ────────────────────────────────────────────────
+  type RewardItem =
+    | { type: "levelUp"; from: number; to: number }
+    | { type: "achievement"; achievement: TitleAchievement };
+
+  const [rewardQueue, setRewardQueue] = useState<RewardItem[]>([]);
+  const overflowChecked = useRef(false);
+
+  // Detect XP overflow on profile load and auto-correct + show modal
+  useEffect(() => {
+    if (!profile || overflowChecked.current) return;
+    overflowChecked.current = true;
+
+    const threshold = xpForNextLevel(profile.level);
+    if (profile.xp < threshold) return; // nothing to do
+
+    const {
+      level: newLevel,
+      xp: newXp,
+      levelsGained
+    } = computeLevelUp(profile.level, profile.xp, 0);
+
+    // Persist corrected level immediately
+    updateDiver({ level: newLevel, xp: newXp });
+
+    // Also check if any achievements were just unlocked by the new level
+    const updatedProfile = { ...profile, level: newLevel, xp: newXp };
+    const collectionItems = container.collection
+      ? (() => {
+          try {
+            return (container as any).collection?.allSync?.() ?? [];
+          } catch {
+            return [];
+          }
+        })()
+      : [];
+
+    const newAchievements = checkNewAchievements(
+      updatedProfile,
+      { collectionCount: collectionItems.length },
+      alreadyUnlocked
+    );
+    if (newAchievements.length > 0) {
+      persistTitleAchievements(newAchievements);
+    }
+
+    // Build reward queue
+    const queue: RewardItem[] = [];
+    if (levelsGained > 0) {
+      queue.push({ type: "levelUp", from: profile.level, to: newLevel });
+    }
+    newAchievements.forEach((a) =>
+      queue.push({ type: "achievement", achievement: a })
+    );
+    if (queue.length > 0) setRewardQueue(queue);
+  }, [profile, alreadyUnlocked, persistTitleAchievements, updateDiver]);
+
+  const dismissReward = useCallback(() => {
+    setRewardQueue((q) => q.slice(1));
+  }, []);
+
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const nextLevelXp = xpForNextLevel(profile?.level ?? 1);
   const progress = profile ? Math.min(1, profile.xp / nextLevelXp) : 0;
 
   const currentLangLabel =
@@ -217,6 +299,23 @@ export default function ProfileScreen() {
         visible={paywallOpen}
         onDismiss={() => setPaywallOpen(false)}
         intentTheme={intentTheme}
+      />
+
+      {/* Level-up reward queue */}
+      <LevelUpModal
+        visible={rewardQueue[0]?.type === "levelUp"}
+        prevLevel={rewardQueue[0]?.type === "levelUp" ? rewardQueue[0].from : 1}
+        newLevel={rewardQueue[0]?.type === "levelUp" ? rewardQueue[0].to : 1}
+        onDismiss={dismissReward}
+      />
+      <TitleAchievementModal
+        visible={rewardQueue[0]?.type === "achievement"}
+        achievement={
+          rewardQueue[0]?.type === "achievement"
+            ? rewardQueue[0].achievement
+            : null
+        }
+        onDismiss={dismissReward}
       />
     </ZoneBackground>
   );

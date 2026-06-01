@@ -70,7 +70,7 @@ export default function StatsScreen() {
             <Kpi label={tr.stats.level} value={String(profile?.level ?? 1)} />
           </View>
 
-          <GlassCard radius={t.radii.lg}>
+          <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.stats.weeklyHeatmap}</SectionLabel>
             <Heatmap data={last7Days} />
             <View style={styles.heatLegend}>
@@ -84,7 +84,7 @@ export default function StatsScreen() {
             </View>
           </GlassCard>
 
-          <GlassCard radius={t.radii.lg}>
+          <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.stats.recentExpeditions}</SectionLabel>
             {sessions.length === 0 ? (
               <Text style={styles.empty}>{tr.stats.noDives}</Text>
@@ -239,7 +239,7 @@ const makeStyles = (t: AppTheme) =>
     heatBar: {
       width: "100%",
       height: 72,
-      borderRadius: t.radii.sm - 2
+      borderRadius: t.radii.sm - 3
     },
     empty: {
       color: t.colors.textMuted,

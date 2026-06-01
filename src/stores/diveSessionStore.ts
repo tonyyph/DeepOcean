@@ -16,6 +16,12 @@ import {
   hapticZoneChange
 } from "@/core/haptics";
 import { AmbientAudio } from "@/core/audio/AmbientAudioManager";
+import { computeLevelUp } from "@/features/diver/levelSystem";
+import {
+  checkNewAchievements,
+  type TitleAchievement
+} from "@/features/diver/titleAchievements";
+import { useAchievements } from "./achievementStore";
 
 /**
  * Dive session store — single source of truth for the active dive.
@@ -30,6 +36,10 @@ type State = {
   // engine internals
   _intervalHandle: ReturnType<typeof setInterval> | null;
   _lastRollMinute: number;
+  /** Set after end() — level up info to show to the player (null = no level up). */
+  pendingLevelUp: { from: number; to: number } | null;
+  /** Ordered list of title achievements unlocked this dive. */
+  pendingAchievements: TitleAchievement[];
 };
 
 type Actions = {
@@ -38,6 +48,8 @@ type Actions = {
   resume: () => void;
   end: () => Promise<void>;
   cancel: () => void;
+  /** Clear pending rewards after the UI has consumed them. */
+  clearPendingRewards: () => void;
   /** Internal — used by setInterval. Exposed for testability. */
   tick: () => void;
 };
@@ -49,6 +61,8 @@ export const useDiveSession = create<State & Actions>()(
     session: null,
     _intervalHandle: null,
     _lastRollMinute: 0,
+    pendingLevelUp: null,
+    pendingAchievements: [],
 
     start: (targetMinutes) => {
       // Guard: if a dive is already active, do nothing.
@@ -99,6 +113,10 @@ export const useDiveSession = create<State & Actions>()(
       set({ session: null, _intervalHandle: null, _lastRollMinute: 0 });
     },
 
+    clearPendingRewards: () => {
+      set({ pendingLevelUp: null, pendingAchievements: [] });
+    },
+
     end: async () => {
       const { session, _intervalHandle } = get();
       if (!session) return;
@@ -118,16 +136,42 @@ export const useDiveSession = create<State & Actions>()(
         )
       );
       const profile = await container.diver.get();
-      await container.diver.update({
+      const earnedXp =
+        Math.round(ended.elapsedSeconds / 6) + ended.discoveries.length * 25;
+      const {
+        level: newLevel,
+        xp: newXp,
+        levelsGained
+      } = computeLevelUp(profile.level, profile.xp, earnedXp);
+      const updatedProfile = await container.diver.update({
         totalDives: profile.totalDives + 1,
         totalFocusMinutes:
           profile.totalFocusMinutes + Math.round(ended.elapsedSeconds / 60),
-        xp:
-          profile.xp +
-          Math.round(ended.elapsedSeconds / 6) +
-          ended.discoveries.length * 25
+        xp: newXp,
+        level: newLevel
       });
-      set({ session: ended, _intervalHandle: null });
+
+      // Check title achievements against updated profile
+      const collectionEntries = await container.collection.all();
+      const collectionCount = collectionEntries.filter(
+        (e) => e.count > 0
+      ).length;
+      const achStore = useAchievements.getState();
+      const alreadyUnlocked = achStore.unlockedTitleAchievements;
+      const newAchievements = checkNewAchievements(
+        updatedProfile,
+        { collectionCount },
+        alreadyUnlocked
+      );
+      achStore.persistTitleAchievements(newAchievements);
+
+      set({
+        session: ended,
+        _intervalHandle: null,
+        pendingLevelUp:
+          levelsGained > 0 ? { from: profile.level, to: newLevel } : null,
+        pendingAchievements: newAchievements
+      });
     },
 
     tick: () => {

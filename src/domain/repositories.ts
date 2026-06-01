@@ -32,5 +32,5 @@ export interface IAICompanionGateway {
     profile: DiverProfile,
     language: Language
   ): Promise<string>;
-  sessionSummary(session: DiveSession): Promise<string>;
+  sessionSummary(session: DiveSession, language?: Language): Promise<string>;
 }

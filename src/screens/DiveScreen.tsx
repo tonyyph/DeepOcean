@@ -21,12 +21,15 @@ import {
   PressableCard,
   ConfirmModal,
   AchievementModal,
+  LevelUpModal,
+  TitleAchievementModal,
   useTheme,
   useThemedStyles,
   type AppTheme
 } from "@/design-system";
 import { useTranslations } from "@/core/i18n";
-import { OceanZone } from "@/features/ocean/zones";
+import type { OceanZone } from "@/features/ocean/zones";
+import type { TitleAchievement } from "@/features/diver/titleAchievements";
 
 type DialogConfig = {
   title: string;
@@ -35,6 +38,10 @@ type DialogConfig = {
   confirmLabel: string;
   onConfirm: () => void;
 };
+
+type RewardItem =
+  | { type: "levelUp"; from: number; to: number }
+  | { type: "achievement"; achievement: TitleAchievement };
 
 /**
  * DiveScreen — fullscreen, immersive, minimal chrome.
@@ -55,9 +62,15 @@ export default function DiveScreen() {
   const [dialog, setDialog] = useState<DialogConfig | null>(null);
   const [abortOpen, setAbortOpen] = useState(false);
   const [achievedZone, setAchievedZone] = useState<OceanZone | null>(null);
+  const [rewardQueue, setRewardQueue] = useState<RewardItem[]>([]);
+  const [navigateAfterQueue, setNavigateAfterQueue] = useState(false);
 
   const prevZoneRef = useRef<OceanZone | null>(null);
+  const queueBuiltRef = useRef(false);
   const unlockZone = useAchievements((s) => s.unlockZone);
+  const pendingLevelUp = useDiveSession((s) => s.pendingLevelUp);
+  const pendingAchievements = useDiveSession((s) => s.pendingAchievements);
+  const clearPendingRewards = useDiveSession((s) => s.clearPendingRewards);
   const tr = useTranslations();
 
   useEffect(() => {
@@ -76,10 +89,10 @@ export default function DiveScreen() {
       confirmLabel: tr.dive.surface,
       onConfirm: async () => {
         await end();
-        router.replace("/(tabs)");
+        // Navigation is handled by the useEffect that watches session status
       }
     });
-  }, [tr, end, router]);
+  }, [tr, end]);
 
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -107,6 +120,44 @@ export default function DiveScreen() {
     }
     prevZoneRef.current = currentZone;
   }, [session?.zone, unlockZone]);
+
+  // Build reward queue once session surfaces, then navigate after it's drained
+  useEffect(() => {
+    if (session?.status === "surfaced" && !queueBuiltRef.current) {
+      queueBuiltRef.current = true;
+      const queue: RewardItem[] = [];
+      if (pendingLevelUp) {
+        queue.push({
+          type: "levelUp",
+          from: pendingLevelUp.from,
+          to: pendingLevelUp.to
+        });
+      }
+      for (const a of pendingAchievements) {
+        queue.push({ type: "achievement", achievement: a });
+      }
+      clearPendingRewards();
+      if (queue.length > 0) {
+        setRewardQueue(queue);
+        setNavigateAfterQueue(true);
+      } else {
+        router.replace("/(tabs)");
+      }
+    }
+  }, [
+    session?.status,
+    pendingLevelUp,
+    pendingAchievements,
+    clearPendingRewards,
+    router
+  ]);
+
+  useEffect(() => {
+    if (navigateAfterQueue && rewardQueue.length === 0) {
+      router.replace("/(tabs)");
+      setNavigateAfterQueue(false);
+    }
+  }, [rewardQueue.length, navigateAfterQueue, router]);
 
   const progress = useMemo(() => {
     if (!session) return 0;
@@ -231,6 +282,23 @@ export default function DiveScreen() {
         visible={achievedZone !== null}
         zone={achievedZone!}
         onDismiss={() => setAchievedZone(null)}
+      />
+
+      {/* Post-dive reward queue: level-up first, then title achievements */}
+      <LevelUpModal
+        visible={rewardQueue[0]?.type === "levelUp"}
+        prevLevel={rewardQueue[0]?.type === "levelUp" ? rewardQueue[0].from : 1}
+        newLevel={rewardQueue[0]?.type === "levelUp" ? rewardQueue[0].to : 2}
+        onDismiss={() => setRewardQueue((q) => q.slice(1))}
+      />
+      <TitleAchievementModal
+        visible={rewardQueue[0]?.type === "achievement"}
+        achievement={
+          rewardQueue[0]?.type === "achievement"
+            ? rewardQueue[0].achievement
+            : null
+        }
+        onDismiss={() => setRewardQueue((q) => q.slice(1))}
       />
     </ZoneBackground>
   );

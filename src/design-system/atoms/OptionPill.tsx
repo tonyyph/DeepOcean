@@ -111,7 +111,7 @@ const makeStyles = (t: AppTheme) =>
     pill: {
       paddingVertical: t.spacing[3],
       paddingHorizontal: t.spacing[4],
-      borderRadius: t.radii.md,
+      borderRadius: t.radii.sm,
       backgroundColor: t.colors.glass,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.border,

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,15 +13,17 @@ import {
   OptionPill,
   PaywallSheet,
   PremiumBadge,
+  MoodMapChart,
   useTheme,
   useThemedStyles,
-  type AppTheme
+  type AppTheme,
+  type MoodMapEntry
 } from "@/design-system";
 import { useDailyRecommendation, useSessions } from "@/features/diver";
 import { useQuery } from "@tanstack/react-query";
 import { container } from "@/data/container";
 import { useTranslations } from "@/core/i18n";
-import { usePremium } from "@/stores";
+import { usePremium, useSettings } from "@/stores";
 
 export default function AIScreen() {
   const t = useTheme();
@@ -36,13 +38,14 @@ export default function AIScreen() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const tr = useTranslations();
   const isPremium = usePremium((s) => s.isPremium);
+  const language = useSettings((s) => s.language);
 
   const lastSession = sessions[0];
   const { data: lastSummary } = useQuery({
-    queryKey: ["ai", "summary", lastSession?.id],
+    queryKey: ["ai", "summary", lastSession?.id, language],
     queryFn: () =>
       lastSession
-        ? container.ai.sessionSummary(lastSession)
+        ? container.ai.sessionSummary(lastSession, language)
         : Promise.resolve(""),
     enabled: Boolean(lastSession)
   });
@@ -63,24 +66,20 @@ export default function AIScreen() {
             size={28}
           />
 
-          <GlassCard glow radius={t.radii.lg}>
+          <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.ai.today}</SectionLabel>
             <Text style={styles.body}>
               {isFetching ? tr.ai.listening : (recommendation ?? "—")}
             </Text>
             <View style={styles.askWrap}>
-              <PressableCard
-                haptic="light"
-                onPress={() => refetchRec()}
-                radius={t.radii.md}
-              >
+              <PressableCard haptic="light" onPress={() => refetchRec()}>
                 <Text style={styles.cta}>{tr.ai.askAgain}</Text>
               </PressableCard>
             </View>
           </GlassCard>
 
           {lastSummary ? (
-            <GlassCard radius={t.radii.lg}>
+            <GlassCard radius={t.radii.md}>
               <SectionLabel>{tr.ai.lastExpedition}</SectionLabel>
               <Text style={styles.body}>{lastSummary}</Text>
             </GlassCard>
@@ -92,9 +91,10 @@ export default function AIScreen() {
             onUnlock={handleOpenPaywall}
             theme={t}
             tr={tr}
+            selectedMood={selectedMood}
           />
 
-          <GlassCard radius={t.radii.lg}>
+          <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.ai.mood}</SectionLabel>
             <Text style={styles.bodyMuted}>{tr.ai.moodPrompt}</Text>
             <View style={styles.moodGrid}>
@@ -128,15 +128,37 @@ type ProProps = {
   onUnlock: () => void;
   theme: AppTheme;
   tr: ReturnType<typeof useTranslations>;
+  selectedMood: string | null;
 };
+
+/** Deterministic mock mood scores — shifts when user selects a mood. */
+function buildMoodData(
+  moods: readonly string[],
+  selected: string | null
+): MoodMapEntry[] {
+  const BASE = [0.72, 0.55, 0.68, 0.41];
+  const BOOST = 0.22;
+  return moods.map((label, i) => ({
+    label,
+    value: Math.min(
+      1,
+      (BASE[i % BASE.length] ?? 0.5) + (label === selected ? BOOST : 0)
+    )
+  }));
+}
 
 const ProInsights = React.memo(function ProInsights({
   isPremium,
   onUnlock,
   theme: t,
-  tr
+  tr,
+  selectedMood
 }: ProProps) {
   const styles = useThemedStyles(makeStyles);
+  const moodData = useMemo(
+    () => buildMoodData(tr.ai.moods as readonly string[], selectedMood),
+    [tr.ai.moods, selectedMood]
+  );
 
   if (!isPremium) {
     return (
@@ -153,7 +175,7 @@ const ProInsights = React.memo(function ProInsights({
           />
           <View style={styles.proHeaderRow}>
             <View style={styles.proHeaderTitleWrap}>
-              <Ionicons name="sparkles" size={14} color={t.colors.premium} />
+              <Ionicons name="sparkles" size={18} color={t.colors.premium} />
               <Text style={styles.proHeader}>{tr.ai.proHeader}</Text>
             </View>
             <PremiumBadge variant="lock" />
@@ -177,37 +199,52 @@ const ProInsights = React.memo(function ProInsights({
   }
 
   return (
-    <MotiView
-      from={{ opacity: 0, translateY: 6 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: "timing", duration: 320 }}
-      style={styles.proUnlockedWrap}
-    >
-      <View style={styles.proHeaderRow}>
-        <View style={styles.proHeaderTitleWrap}>
-          <Ionicons name="sparkles" size={14} color={t.colors.premium} />
-          <Text style={styles.proHeader}>{tr.ai.proHeader}</Text>
+    <GlassCard glow radius={t.radii.lg} style={styles.proUnlockedWrap}>
+      <MotiView
+        from={{ opacity: 0, translateY: 6 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: "timing", duration: 320 }}
+        style={{ gap: t.spacing[3] }}
+      >
+        <View style={styles.proHeaderRow}>
+          <View style={styles.proHeaderTitleWrap}>
+            <Ionicons name="sparkles" size={18} color={t.colors.premium} />
+            <Text style={styles.proHeader}>{tr.ai.proHeader}</Text>
+          </View>
         </View>
-      </View>
-      <ProInsightTile
-        title={tr.ai.proPatternTitle}
-        body={tr.ai.proPatternBody}
-        icon="trending-up"
-        t={t}
-      />
-      <ProInsightTile
-        title={tr.ai.proMoodTitle}
-        body={tr.ai.proMoodBody}
-        icon="compass"
-        t={t}
-      />
-      <ProInsightTile
-        title={tr.ai.proRitualTitle}
-        body={tr.ai.proRitualBody}
-        icon="leaf"
-        t={t}
-      />
-    </MotiView>
+        <ProInsightTile
+          title={tr.ai.proPatternTitle}
+          body={tr.ai.proPatternBody}
+          icon="trending-up"
+          t={t}
+        />
+
+        {/* Mood Map — real chart replaces static text */}
+        <View style={styles.proTile}>
+          <View
+            style={[
+              styles.proTileIcon,
+              { borderColor: t.colors.premium + "66" }
+            ]}
+          >
+            <Ionicons name="compass" size={14} color={t.colors.premium} />
+          </View>
+          <View style={styles.flex}>
+            <Text style={styles.proTileTitle}>{tr.ai.proMoodTitle}</Text>
+            <View style={styles.moodChartWrap}>
+              <MoodMapChart data={moodData} />
+            </View>
+          </View>
+        </View>
+
+        <ProInsightTile
+          title={tr.ai.proRitualTitle}
+          body={tr.ai.proRitualBody}
+          icon="leaf"
+          t={t}
+        />
+      </MotiView>
+    </GlassCard>
   );
 });
 
@@ -277,7 +314,7 @@ const makeStyles = (t: AppTheme) =>
 
     // PRO BLOCK
     proLockedCard: {
-      borderRadius: t.radii.lg,
+      borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: "rgba(255,210,122,0.32)",
       padding: t.spacing[4],
@@ -285,12 +322,11 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[3]
     },
     proUnlockedWrap: {
-      borderRadius: t.radii.lg,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: "rgba(255,210,122,0.30)",
       backgroundColor: "rgba(255,210,122,0.05)",
-      padding: t.spacing[4],
-      gap: t.spacing[3]
+      padding: t.spacing[2],
+      gap: t.spacing[6]
     },
     proHeaderRow: {
       flexDirection: "row",
@@ -305,8 +341,8 @@ const makeStyles = (t: AppTheme) =>
     proHeader: {
       color: t.colors.premium,
       fontFamily: t.fonts.label,
-      fontSize: 11,
-      letterSpacing: 2,
+      fontSize: 13,
+      letterSpacing: 1.5,
       fontWeight: "700"
     },
     proLockedBody: {
@@ -368,5 +404,8 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 13,
       lineHeight: 19,
       marginTop: 2
+    },
+    moodChartWrap: {
+      marginTop: t.spacing[2] + 2
     }
   });

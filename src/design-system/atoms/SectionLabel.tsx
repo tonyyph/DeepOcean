@@ -35,10 +35,7 @@ export const SectionLabel = React.memo(function SectionLabel({
 
   return (
     <View style={[styles.row, wrapperStyle]}>
-      <Text
-        style={[styles.label, { color: t.colors.textMuted }, style]}
-        {...rest}
-      >
+      <Text style={[styles.label, , style]} {...rest}>
         {typeof children === "string" ? children.toUpperCase() : children}
       </Text>
       {hint ? <Text style={styles.hint}>{hint}</Text> : null}
@@ -56,8 +53,9 @@ const makeStyles = (t: AppTheme) =>
     wrap: { marginBottom: t.spacing[3] },
     wrapTight: { marginBottom: t.spacing[2] },
     label: {
-      fontSize: 10,
+      fontSize: 12,
       letterSpacing: 1,
+      color: t.colors.textMuted,
       fontFamily: t.fonts.label
     },
     hint: {

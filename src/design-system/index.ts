@@ -17,6 +17,10 @@ export { PremiumBadge } from "./atoms/PremiumBadge";
 export { ThemeSwatch } from "./atoms/ThemeSwatch";
 export { ConfirmModal } from "./atoms/ConfirmModal";
 export { AchievementModal } from "./atoms/AchievementModal";
+export { LevelUpModal } from "./atoms/LevelUpModal";
+export { TitleAchievementModal } from "./atoms/TitleAchievementModal";
+export { MoodMapChart } from "./atoms/MoodMapChart";
+export type { MoodMapEntry } from "./atoms/MoodMapChart";
 
 // Scene-level reusable composites
 export { ThemePickerSheet } from "./scenes/ThemePickerSheet";

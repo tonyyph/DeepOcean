@@ -60,10 +60,10 @@ export const translations = {
     },
     home: {
       greeting: {
-        awake: "Still awake",
-        morning: "Good morning",
-        afternoon: "Good afternoon",
-        evening: "Good evening"
+        awake: "Still awake?",
+        morning: "Good morning,",
+        afternoon: "Good afternoon,",
+        evening: "Good evening,"
       },
       ready: "Ready when you are.",
       beginDive: "BEGIN DIVE",
@@ -175,6 +175,16 @@ export const translations = {
     },
     achievement: {
       zoneUnlocked: "ZONE UNLOCKED",
+      tapToDismiss: "Tap anywhere to continue"
+    },
+    levelUp: {
+      badge: "LEVEL UP",
+      multiLevel: (n: number) => `LEVEL UP ×${n}`,
+      from: (prev: number, next: number) => `Level ${prev} → Level ${next}`,
+      tapToDismiss: "Tap anywhere to continue"
+    },
+    titleAchievement: {
+      badge: "ACHIEVEMENT UNLOCKED",
       tapToDismiss: "Tap anywhere to continue"
     }
   },
@@ -319,7 +329,7 @@ export const translations = {
       resumeDive: "Lặn tiếp",
       pause: "Nghỉ một chút",
       surface: "Nổi lên",
-      abort: "Nghỉ luông",
+      abort: "Nghỉ luôn",
       surfaceTitle: "Về mặt nước thôi?",
       surfaceMsg: "Biển lúc nào cũng ở đây chờ bạn.",
       keepDiving: "Chưa, lặn thêm chút",
@@ -348,6 +358,16 @@ export const translations = {
     },
     achievement: {
       zoneUnlocked: "VÙNG MỚI MỞ KHOÁ",
+      tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
+    },
+    levelUp: {
+      badge: "LÊN CẦP",
+      multiLevel: (n: number) => `LÊN CẦP ×${n}`,
+      from: (prev: number, next: number) => `Cấp ${prev} → Cấp ${next}`,
+      tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
+    },
+    titleAchievement: {
+      badge: "THÀNH TỰU MỚI",
       tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
     }
   }
