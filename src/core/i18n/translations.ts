@@ -87,7 +87,20 @@ export const translations = {
       lastExpedition: "LAST EXPEDITION",
       mood: "MOOD",
       moodPrompt: "How do you want to feel after this dive?",
-      moods: ["Calm", "Focused", "Curious", "Resolute"] as const
+      moods: ["Calm", "Focused", "Curious", "Resolute"] as const,
+      proHeader: "DEEP INSIGHTS · PRO",
+      proLocked:
+        "Personal trend analysis, mood-correlated dive plans, and a private breathing guide — unlock with Pro.",
+      proUnlockCta: "UNLOCK DEEP INSIGHTS",
+      proPatternTitle: "DIVE PATTERN",
+      proPatternBody:
+        "Your focus arcs longer in the evenings. Try a 25 → 12 minute split this week.",
+      proMoodTitle: "MOOD MAP",
+      proMoodBody:
+        "Curious sessions correlate with your deepest reach. Lead with curiosity tomorrow.",
+      proRitualTitle: "BREATHING RITUAL",
+      proRitualBody:
+        "4 in · 7 hold · 8 out. Three rounds before descent stabilises your descent rate."
     },
     stats: {
       title: "Dive Analytics",
@@ -106,7 +119,26 @@ export const translations = {
       title: "Expedition Log",
       catalogued: (found: number, total: number) =>
         `${found} / ${total} catalogued`,
-      undiscovered: "Undiscovered"
+      undiscovered: "Undiscovered",
+      story: {
+        whisperLabel: "WHISPER FROM THE DEEP",
+        firstSeen: "First sighted",
+        sightings: (n: number) =>
+          n === 1 ? "Encountered once" : `Encountered ${n} times`,
+        rarityLabel: "RARITY",
+        zoneLabel: "ZONE",
+        storyTitle: "FIELD ENTRY",
+        proTitle: "EXPEDITION JOURNAL · PRO",
+        proLocked:
+          "Pro divers unlock the full field journal: folklore, theories, sealed witness notes.",
+        proUnlockCta: "UNLOCK FIELD JOURNAL",
+        lockedTitle: "Still in the dark",
+        lockedBody:
+          "This entry has not surfaced yet. Keep diving — every minute below shifts the odds.",
+        close: "Surface",
+        creature: "CREATURE",
+        artifact: "ARTIFACT"
+      }
     },
     dive: {
       discoveries: (n: number) =>
@@ -224,7 +256,20 @@ export const translations = {
       lastExpedition: "CHUYẾN LẶN GẦN NHẤT",
       mood: "TÂM TRẠNG",
       moodPrompt: "Hôm nay muốn cảm thấy thế nào sau khi lặn?",
-      moods: ["Bình yên", "Tập trung", "Tò mò", "Quyết tâm"] as const
+      moods: ["Bình yên", "Tập trung", "Tò mò", "Quyết tâm"] as const,
+      proHeader: "PHÂN TÍCH SÂU · PRO",
+      proLocked:
+        "Phân tích xu hướng cá nhân, kế hoạch lặn theo tâm trạng và bài thở riêng — chỉ có ở bản Pro.",
+      proUnlockCta: "MỞ PHÂN TÍCH SÂU",
+      proPatternTitle: "NHỊP LẶN",
+      proPatternBody:
+        "Buổi tối bạn lặn bền hơn. Thử chia 25 → 12 phút trong tuần này xem sao.",
+      proMoodTitle: "BẢN ĐỒ TÂM TRẠNG",
+      proMoodBody:
+        "Những hôm bạn thấy tò mò lại là những hôm lặn sâu nhất. Mai cứ lặn trong tinh thần đó.",
+      proRitualTitle: "NGHI THỨC HÍT THỞ",
+      proRitualBody:
+        "Hít 4 · giữ 7 · thở 8. Ba vòng trước khi lặn là tốc độ xuống ên như lụa."
     },
     stats: {
       title: "Thống kê chiến tích",
@@ -243,7 +288,26 @@ export const translations = {
       title: "Nhật ký thám hiểm",
       catalogued: (found: number, total: number) =>
         `Tìm được ${found} / ${total} loài`,
-      undiscovered: "Còn ẩn trong bóng tối"
+      undiscovered: "Còn ẩn trong bóng tối",
+      story: {
+        whisperLabel: "TIẾNG THÌ THẦM TỪ ĐÁY BIỂN",
+        firstSeen: "Lần đầu gặp",
+        sightings: (n: number) =>
+          n === 1 ? "Mới gặp 1 lần" : `Đã gặp ${n} lần`,
+        rarityLabel: "ĐỘ HIẾM",
+        zoneLabel: "VÙNG BIỂN",
+        storyTitle: "GHI CHÉP CHUYẾN LẶN",
+        proTitle: "NHẬT KÝ MẬT · PRO",
+        proLocked:
+          "Diver Pro mới được mở trang nhật ký mật: truyền thuyết, giả thuyết, lời khai chưa công bố.",
+        proUnlockCta: "MỞ NHẬT KÝ MẬT",
+        lockedTitle: "Vẫn còn ẩn mình",
+        lockedBody:
+          "Thứ này chưa từng lộ diện với bạn. Cứ lặn tiếp đi — mỗi phút dưới biển là một cơ hội mới.",
+        close: "Nổi lên",
+        creature: "SINH VẬT",
+        artifact: "CỔ VẬT"
+      }
     },
     dive: {
       discoveries: (n: number) =>

@@ -15,11 +15,15 @@ export { Divider } from "./atoms/Divider";
 export { AppHeader } from "./atoms/AppHeader";
 export { PremiumBadge } from "./atoms/PremiumBadge";
 export { ThemeSwatch } from "./atoms/ThemeSwatch";
+export { ConfirmModal } from "./atoms/ConfirmModal";
 
 // Scene-level reusable composites
 export { ThemePickerSheet } from "./scenes/ThemePickerSheet";
 export { LanguagePickerSheet } from "./scenes/LanguagePickerSheet";
 export { PaywallSheet } from "./scenes/PaywallSheet";
+export { CreatureStorySheet } from "./scenes/CreatureStorySheet";
+export type { StoryRow } from "./scenes/CreatureStorySheet";
+export { ProTabBar } from "./scenes/ProTabBar";
 
 // Theme engine
 export { theme } from "./theme";

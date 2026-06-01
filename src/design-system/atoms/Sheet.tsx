@@ -184,8 +184,8 @@ const makeStyles = (t: AppTheme) =>
       backgroundColor: "rgba(255, 255, 255, 0.139)"
     },
     content: {
-      paddingHorizontal: t.spacing[5],
+      paddingHorizontal: t.spacing[6],
       paddingTop: t.spacing[4],
-      paddingBottom: t.spacing[6]
+      paddingBottom: t.spacing[8]
     }
   });

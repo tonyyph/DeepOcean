@@ -13,6 +13,7 @@ import {
   GlowText,
   Sheet,
   PressableCard,
+  ConfirmModal,
   useTheme,
   useThemedStyles,
   type AppTheme
@@ -44,6 +45,7 @@ export default function DiveScreen() {
   const cancel = useDiveSession((s) => s.cancel);
 
   const [dialog, setDialog] = useState<DialogConfig | null>(null);
+  const [abortOpen, setAbortOpen] = useState(false);
   const tr = useTranslations();
 
   useEffect(() => {
@@ -86,16 +88,7 @@ export default function DiveScreen() {
   }, [session]);
 
   const handleCancel = () => {
-    setDialog({
-      title: tr.dive.abortTitle,
-      message: tr.dive.abortMsg,
-      cancelLabel: tr.dive.continue,
-      confirmLabel: tr.dive.abort,
-      onConfirm: () => {
-        cancel();
-        router.replace("/(tabs)");
-      }
-    });
+    setAbortOpen(true);
   };
 
   if (!session) {
@@ -189,6 +182,22 @@ export default function DiveScreen() {
           </View>
         </View>
       </Sheet>
+
+      <ConfirmModal
+        visible={abortOpen}
+        onDismiss={() => setAbortOpen(false)}
+        title={tr.dive.abortTitle}
+        message={tr.dive.abortMsg}
+        cancelLabel={tr.dive.continue}
+        confirmLabel={tr.dive.abort}
+        tone="danger"
+        icon="warning"
+        onConfirm={() => {
+          setAbortOpen(false);
+          cancel();
+          router.replace("/(tabs)");
+        }}
+      />
     </ZoneBackground>
   );
 }

@@ -1,59 +1,79 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Tabs } from "expo-router";
 import { Platform, StyleSheet, View } from "react-native";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
-import { theme } from "@/design-system/theme";
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { ProTabBar, useTheme } from "@/design-system";
+import { usePremium } from "@/stores";
 
 /**
- * Bottom tabs — translucent dock with bio-luminescent active state.
- * Note: @expo/vector-icons ships with Expo SDK; no extra dep needed.
+ * Bottom tabs.
+ * - Free tier: themed translucent dock (theme-reactive).
+ * - Pro tier: custom raised-pill ProTabBar with theme-accent fill.
+ *
+ * Reads the active theme via `useTheme()` so tab colors always match the
+ * currently selected palette (was previously a static snapshot).
  */
 export default function TabsLayout() {
+  const t = useTheme();
+  const isPremium = usePremium((s) => s.isPremium);
+
+  const screenOptions = useMemo(
+    () => ({
+      headerShown: false,
+      tabBarShowLabel: false,
+      tabBarActiveTintColor: t.colors.accent,
+      tabBarInactiveTintColor: t.colors.textMuted,
+      tabBarStyle: {
+        position: "absolute" as const,
+        borderTopWidth: 0,
+        backgroundColor: "transparent",
+        elevation: 0,
+        height: 84,
+        paddingTop: 10
+      },
+      tabBarBackground: () => (
+        <View style={StyleSheet.absoluteFill}>
+          {Platform.OS === "ios" ? (
+            <BlurView
+              intensity={50}
+              tint="dark"
+              style={StyleSheet.absoluteFill}
+            />
+          ) : (
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: t.colors.surface }
+              ]}
+            />
+          )}
+          <View
+            style={{
+              position: "absolute" as const,
+              top: 0,
+              left: 0,
+              right: 0,
+              height: StyleSheet.hairlineWidth,
+              backgroundColor: t.colors.glassEdge
+            }}
+          />
+        </View>
+      )
+    }),
+    [t]
+  );
+
+  const renderProTabBar = useMemo(
+    () => (props: BottomTabBarProps) => <ProTabBar {...props} />,
+    []
+  );
+
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarActiveTintColor: theme.colors.accent,
-        tabBarInactiveTintColor: "rgba(234,246,255,0.45)",
-        tabBarStyle: {
-          position: "absolute",
-          borderTopWidth: 0,
-          backgroundColor: "transparent",
-          elevation: 0,
-          height: 84,
-          paddingTop: 10
-        },
-        tabBarBackground: () => (
-          <View style={StyleSheet.absoluteFill}>
-            {Platform.OS === "ios" ? (
-              <BlurView
-                intensity={50}
-                tint="dark"
-                style={StyleSheet.absoluteFill}
-              />
-            ) : (
-              <View
-                style={[
-                  StyleSheet.absoluteFill,
-                  { backgroundColor: "rgba(2,8,28,0.85)" }
-                ]}
-              />
-            )}
-            <View
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: StyleSheet.hairlineWidth,
-                backgroundColor: theme.colors.glassEdge
-              }}
-            />
-          </View>
-        )
-      }}
+      screenOptions={screenOptions}
+      tabBar={isPremium ? renderProTabBar : undefined}
     >
       <Tabs.Screen
         name="index"

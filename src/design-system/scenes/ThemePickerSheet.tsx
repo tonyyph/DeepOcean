@@ -217,7 +217,6 @@ const makeStyles = (t: AppTheme) =>
     },
     actions: {
       marginTop: t.spacing[8],
-      marginBottom: t.spacing[6],
       gap: t.spacing[3.5]
     },
     applyText: {
