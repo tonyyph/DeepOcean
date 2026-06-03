@@ -26,10 +26,10 @@ import type { OceanZone } from "@/features/ocean";
 import { useTranslations } from "@/core/i18n";
 
 const ZONES: readonly OceanZone[] = [
-  "surface",
-  "twilight",
+  "abyss",
   "midnight",
-  "abyss"
+  "twilight",
+  "surface"
 ];
 
 export default function OnboardingScreen() {

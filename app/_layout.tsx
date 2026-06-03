@@ -1,5 +1,5 @@
 import "../global.css";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -34,6 +34,7 @@ import { queryClient } from "@/core/query/client";
 import { NetworkProvider } from "@/core/network/NetworkProvider";
 import { palette } from "@/design-system";
 import { AmbientAudio } from "@/core/audio/AmbientAudioManager";
+import * as Updates from "expo-updates";
 
 // Keep splash visible while we prime fonts + audio.
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -55,12 +56,30 @@ export default function RootLayout() {
     Manrope_700Bold
   });
 
+  const [, setUpdating] = useState<boolean>(false);
+
+  const checkAndForceUpdates = useCallback(async () => {
+    if (__DEV__) {
+      return;
+    }
+    try {
+      const update = await Updates.checkForUpdateAsync();
+      if (update.isAvailable) {
+        await Updates.fetchUpdateAsync();
+        await Updates.reloadAsync();
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  }, []);
+
   useEffect(() => {
     if (!fontsLoaded) return;
     (async () => {
       await SystemUI.setBackgroundColorAsync(palette.abyss[600]);
       await AmbientAudio.init();
       await SplashScreen.hideAsync();
+      await checkAndForceUpdates();
     })();
   }, [fontsLoaded]);
 

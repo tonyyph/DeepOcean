@@ -1,3 +1,4 @@
+import * as Application from "expo-application";
 import { useTranslations, type Language } from "@/core/i18n";
 import { storage, StorageKeys } from "@/core/storage/mmkv";
 import { container } from "@/data/container";
@@ -458,7 +459,8 @@ export default function ProfileScreen() {
             <View style={styles.aboutRow}>
               <Text style={styles.aboutLabel}>{tr.profile.appVersion}</Text>
               <Text style={styles.aboutValue}>
-                {tr.profile.appVersionValue}
+                {Application.nativeApplicationVersion ??
+                  tr.profile.appVersionValue}
               </Text>
             </View>
             <View style={[styles.aboutRow, { marginTop: t.spacing[2] }]}>
