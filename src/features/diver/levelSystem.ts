@@ -7,6 +7,20 @@ export function xpForNextLevel(level: number): number {
   return level * 500;
 }
 
+/** XP awarded per discovery surfaced during a dive. */
+export const XP_PER_DISCOVERY = 25;
+
+/**
+ * Pure XP reward for a completed dive. Single source of truth shared by the
+ * dive engine and any read-only surface (e.g. session detail).
+ */
+export function xpForSession(
+  elapsedSeconds: number,
+  discoveryCount: number
+): number {
+  return Math.round(elapsedSeconds / 6) + discoveryCount * XP_PER_DISCOVERY;
+}
+
 /**
  * Compute updated level + remaining XP after earning `earnedXp`.
  * Handles multiple level-ups in a single call (e.g. huge XP gain).

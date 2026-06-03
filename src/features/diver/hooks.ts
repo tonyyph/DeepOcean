@@ -1,13 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { container } from "@/data/container";
 import { useSettings } from "@/stores";
+import { buildAIContext } from "@/features/ai";
 import type { Language } from "@/domain/entities";
 
 export const diverKeys = {
   profile: ["diver", "profile"] as const,
   dailyRec: ["diver", "dailyRec"] as const,
   collection: ["collection"] as const,
-  sessions: ["sessions"] as const
+  sessions: ["sessions"] as const,
+  session: (id: string) => ["sessions", id] as const
 };
 
 export function useDiverProfile() {
@@ -31,15 +33,35 @@ export function useSessions() {
   });
 }
 
+export function useSession(id: string | null | undefined) {
+  return useQuery({
+    queryKey: diverKeys.session(id ?? ""),
+    queryFn: () => container.sessions.byId(id as string),
+    enabled: !!id
+  });
+}
+
 export function useDailyRecommendation() {
   const lang = useSettings((s) => s.language ?? "en") as Language;
   return useQuery({
     queryKey: [...diverKeys.dailyRec, lang],
     queryFn: async () => {
-      const profile = await container.diver.get();
-      return container.ai.dailyRecommendation(profile, lang);
+      const context = await buildAIContext(lang);
+      return container.ai.dailyRecommendation(context);
     },
-    staleTime: 1000 * 60 * 60 * 6 // 6h
+    staleTime: 1000 * 60 * 60 * 24 // once per day
+  });
+}
+
+export function useDailyMotivation() {
+  const lang = useSettings((s) => s.language ?? "en") as Language;
+  return useQuery({
+    queryKey: ["diver", "motivation", lang],
+    queryFn: async () => {
+      const context = await buildAIContext(lang);
+      return container.ai.motivation(context);
+    },
+    staleTime: 1000 * 60 * 60 * 24 // once per day
   });
 }
 

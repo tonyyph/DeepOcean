@@ -110,7 +110,7 @@ Semantic — components call `hapticDiveStart()`, never `Haptics.impactAsync(...
 
 To keep the scaffold focused and runnable:
 - Binary assets (audio, Lottie JSON, splash image) — drop your own in.
-- Real backend / auth — `MockAICompanionGateway` simulates the API.
+- Hosted AI keys — `AICompanionRepository` calls OpenAI/Anthropic when `EXPO_PUBLIC_*` keys are present, and falls back to a deterministic offline companion otherwise.
 - Victory Native chart instance — `app/(tabs)/stats.tsx` hand-rolls the weekly heatmap; install Victory and swap when you need richer charts.
 - E2E and unit tests — add Jest + Detox when ready.
 

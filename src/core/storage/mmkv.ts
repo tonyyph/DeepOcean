@@ -37,5 +37,9 @@ export const StorageKeys = {
   settings: "app.settings",
   theme: "app.theme",
   premium: "app.premium",
-  achievements: "app.achievements"
+  achievements: "app.achievements",
+  notifications: "app.notifications.schedule",
+  mood: "app.mood",
+  aiCache: "app.ai.cache",
+  premiumSnapshot: "app.premium.snapshot"
 } as const;

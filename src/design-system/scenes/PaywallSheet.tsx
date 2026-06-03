@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { MotiView } from "moti";
 import { LinearGradient } from "expo-linear-gradient";
@@ -10,6 +10,8 @@ import { THEMES } from "../themes";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { usePremium } from "@/stores";
+import { container } from "@/data/container";
+import type { PurchaseOffering } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
 
 type Props = {
@@ -20,30 +22,85 @@ type Props = {
 };
 
 /**
- * PaywallSheet — mock premium upsell. Toggles `usePremium.purchaseLifetime()`
- * locally; swap with RevenueCat / react-native-iap when production-ready.
+ * PaywallSheet — premium upsell backed by the RevenueCat entitlement gateway.
  *
- * Lists premium benefits sourced from the i18n bundle so copy stays editable.
+ * Prices and availability come from the live store offering; purchases route
+ * through `usePremium` (which delegates to `container.premium`). When billing
+ * is not configured the CTAs are disabled and an "unavailable" note is shown —
+ * never a fake unlock.
  */
 export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
-  const purchase = usePremium((s) => s.purchaseLifetime);
-  const unlockTheme = usePremium((s) => s.unlockTheme);
+  const purchaseLifetime = usePremium((s) => s.purchaseLifetime);
+  const purchaseTheme = usePremium((s) => s.purchaseTheme);
+  const restore = usePremium((s) => s.restore);
   const isPremium = usePremium((s) => s.isPremium);
+  const isConfigured = usePremium((s) => s.isConfigured);
+  const status = usePremium((s) => s.status);
+
+  const [offering, setOffering] = useState<PurchaseOffering | null>(null);
+  const busy = status === "loading";
 
   const intent = intentTheme ? THEMES[intentTheme] : null;
 
-  const handleLifetime = useCallback(() => {
-    purchase();
-    onDismiss();
-  }, [purchase, onDismiss]);
+  useEffect(() => {
+    if (!visible || !isConfigured) return;
+    let active = true;
+    container.premium
+      .offerings()
+      .then((o) => {
+        if (active) setOffering(o);
+      })
+      .catch(() => {
+        if (active) setOffering(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [visible, isConfigured]);
 
-  const handleSinglePack = useCallback(() => {
-    if (intentTheme) unlockTheme(intentTheme);
-    onDismiss();
-  }, [intentTheme, unlockTheme, onDismiss]);
+  const lifetimePrice =
+    offering?.lifetime?.priceString ?? tr.paywall.lifetimePrice;
+  const singlePackPrice = intentTheme
+    ? (offering?.themePacks[intentTheme]?.priceString ??
+      tr.paywall.singlePackPrice)
+    : tr.paywall.singlePackPrice;
+
+  const reportError = useCallback(() => {
+    Alert.alert(tr.paywall.errorTitle, tr.paywall.errorBody);
+  }, [tr]);
+
+  const handleLifetime = useCallback(async () => {
+    if (!isConfigured) return;
+    try {
+      const ok = await purchaseLifetime();
+      if (ok) onDismiss();
+    } catch {
+      reportError();
+    }
+  }, [isConfigured, purchaseLifetime, onDismiss, reportError]);
+
+  const handleSinglePack = useCallback(async () => {
+    if (!isConfigured || !intentTheme) return;
+    try {
+      const ok = await purchaseTheme(intentTheme);
+      if (ok) onDismiss();
+    } catch {
+      reportError();
+    }
+  }, [isConfigured, intentTheme, purchaseTheme, onDismiss, reportError]);
+
+  const handleRestore = useCallback(async () => {
+    if (!isConfigured) return;
+    try {
+      const ok = await restore();
+      if (ok) onDismiss();
+    } catch {
+      reportError();
+    }
+  }, [isConfigured, restore, onDismiss, reportError]);
 
   const benefits = useMemo(() => tr.paywall.benefits, [tr]);
 
@@ -90,12 +147,21 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
           <PressableCard
             haptic="heavy"
             onPress={handleLifetime}
+            disabled={busy || !isConfigured}
             glow
             radius={t.radii.pill}
           >
             <View style={styles.ctaContent}>
-              <Text style={styles.ctaPrimary}>{tr.paywall.lifetimeCta}</Text>
-              <Text style={styles.ctaPrice}>{tr.paywall.lifetimePrice}</Text>
+              {busy ? (
+                <ActivityIndicator color={t.colors.text} />
+              ) : (
+                <>
+                  <Text style={styles.ctaPrimary}>
+                    {tr.paywall.lifetimeCta}
+                  </Text>
+                  <Text style={styles.ctaPrice}>{lifetimePrice}</Text>
+                </>
+              )}
             </View>
           </PressableCard>
 
@@ -103,22 +169,35 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             <PressableCard
               haptic="medium"
               onPress={handleSinglePack}
+              disabled={busy || !isConfigured}
               radius={t.radii.pill}
             >
               <View style={styles.ctaContent}>
                 <Text style={styles.ctaSecondary}>
                   {tr.paywall.singlePackCta}
                 </Text>
-                <Text style={styles.ctaPrice}>
-                  {tr.paywall.singlePackPrice}
-                </Text>
+                <Text style={styles.ctaPrice}>{singlePackPrice}</Text>
               </View>
             </PressableCard>
           ) : null}
 
+          {isConfigured ? (
+            <PressableCard
+              haptic="light"
+              onPress={handleRestore}
+              disabled={busy}
+              radius={t.radii.pill}
+            >
+              <Text style={styles.skip}>{tr.paywall.restore}</Text>
+            </PressableCard>
+          ) : (
+            <Text style={styles.unavailable}>{tr.paywall.unavailable}</Text>
+          )}
+
           <PressableCard
             haptic="light"
             onPress={onDismiss}
+            disabled={busy}
             radius={t.radii.pill}
           >
             <Text style={styles.skip}>
@@ -240,6 +319,14 @@ const makeStyles = (t: AppTheme) =>
       letterSpacing: 1,
       fontFamily: t.fonts.label,
       paddingVertical: t.spacing[1]
+    },
+    unavailable: {
+      color: t.colors.textMuted,
+      textAlign: "center",
+      fontSize: 12,
+      lineHeight: 18,
+      fontFamily: t.fonts.body,
+      paddingVertical: t.spacing[2]
     },
     disclaimer: {
       color: t.colors.textFaint,

@@ -23,11 +23,13 @@ import {
   AchievementModal,
   LevelUpModal,
   TitleAchievementModal,
+  DiscoveryOverlay,
   useTheme,
   useThemedStyles,
   type AppTheme
 } from "@/design-system";
 import { useTranslations } from "@/core/i18n";
+import { useDiveEventEngine } from "@/features/discovery";
 import type { OceanZone } from "@/features/ocean/zones";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 
@@ -72,6 +74,8 @@ export default function DiveScreen() {
   const pendingAchievements = useDiveSession((s) => s.pendingAchievements);
   const clearPendingRewards = useDiveSession((s) => s.clearPendingRewards);
   const tr = useTranslations();
+
+  const liveDiscovery = useDiveEventEngine();
 
   useEffect(() => {
     if (!session) {
@@ -192,6 +196,11 @@ export default function DiveScreen() {
               </GlowText>
             </Animated.View>
           ) : null}
+          <DiscoveryOverlay
+            discovery={liveDiscovery.current}
+            pending={liveDiscovery.pending}
+            onDismiss={liveDiscovery.dismiss}
+          />
         </View>
 
         <View style={styles.ringWrap}>

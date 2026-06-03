@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import {
   ZoneBackground,
   GlassCard,
@@ -20,6 +22,7 @@ export default function StatsScreen() {
   const tr = useTranslations();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
+  const router = useRouter();
 
   const last7Days = useMemo(() => buildLast7Days(sessions), [sessions]);
   const maxDepth = useMemo(
@@ -90,7 +93,12 @@ export default function StatsScreen() {
               <Text style={styles.empty}>{tr.stats.noDives}</Text>
             ) : (
               sessions.slice(0, 6).map((s: DiveSession) => (
-                <View key={s.id} style={styles.sessionRow}>
+                <Pressable
+                  key={s.id}
+                  onPress={() => router.push(`/session/${s.id}`)}
+                  style={styles.sessionRow}
+                  accessibilityRole="button"
+                >
                   <Text style={styles.sessionDate}>
                     {new Date(s.startedAt).toLocaleDateString()}
                   </Text>
@@ -103,7 +111,12 @@ export default function StatsScreen() {
                   >
                     ✦ {s.discoveries.length}
                   </Text>
-                </View>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={16}
+                    color={t.colors.textMuted}
+                  />
+                </Pressable>
               ))
             )}
           </GlassCard>

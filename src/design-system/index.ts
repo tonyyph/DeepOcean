@@ -14,6 +14,7 @@ export { OptionPill } from "./atoms/OptionPill";
 export { Divider } from "./atoms/Divider";
 export { AppHeader } from "./atoms/AppHeader";
 export { PremiumBadge } from "./atoms/PremiumBadge";
+export { PremiumGuard } from "./atoms/PremiumGuard";
 export { ThemeSwatch } from "./atoms/ThemeSwatch";
 export { ConfirmModal } from "./atoms/ConfirmModal";
 export { AchievementModal } from "./atoms/AchievementModal";
@@ -25,9 +26,16 @@ export type { MoodMapEntry } from "./atoms/MoodMapChart";
 // Scene-level reusable composites
 export { ThemePickerSheet } from "./scenes/ThemePickerSheet";
 export { LanguagePickerSheet } from "./scenes/LanguagePickerSheet";
+export { ReminderTimePickerSheet } from "./scenes/ReminderTimePickerSheet";
 export { PaywallSheet } from "./scenes/PaywallSheet";
 export { CreatureStorySheet } from "./scenes/CreatureStorySheet";
 export type { StoryRow } from "./scenes/CreatureStorySheet";
+export { DiscoveryOverlay } from "./scenes/DiscoveryOverlay";
+export type { DiscoveryOverlayProps } from "./scenes/DiscoveryOverlay";
+export { SessionTimeline } from "./scenes/SessionTimeline";
+export type { SessionTimelineProps } from "./scenes/SessionTimeline";
+export { DiscoveryTimeline } from "./scenes/DiscoveryTimeline";
+export type { DiscoveryTimelineProps } from "./scenes/DiscoveryTimeline";
 export { ProTabBar } from "./scenes/ProTabBar";
 
 // Theme engine

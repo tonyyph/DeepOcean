@@ -10,6 +10,8 @@ const DEFAULT: AppSettings = {
   preferredSessionMinutes: 25,
   language: "en",
   diveRemindersEnabled: false,
+  reminderHour: 20,
+  reminderMinute: 0,
   showDiscoveryAlerts: true
 };
 

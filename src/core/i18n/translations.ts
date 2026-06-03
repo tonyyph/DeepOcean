@@ -67,12 +67,22 @@ export const translations = {
       soundFull: "Full",
       diveReminders: "Dive reminders",
       diveRemindersDesc: "Daily nudge to keep your streak alive",
+      reminderTime: "Reminder time",
+      reminderTimeDesc: "When your daily nudge arrives",
       showDiscoveries: "Discovery alerts",
       showDiscoveriesDesc: "Show pop-ups when you encounter something",
       about: "ABOUT",
       appVersion: "Version",
       appVersionValue: "#Ynot",
       builtWith: "Built with care for the deep"
+    },
+    notifications: {
+      reminderTitle: "The deep is calling",
+      reminderBody: "Take a breath and dive. Your streak is waiting.",
+      pickerTitle: "Reminder time",
+      pickerSubtitle: "Pick when your daily nudge arrives",
+      hours: "Hours",
+      minutes: "Minutes"
     },
     home: {
       greeting: {
@@ -107,10 +117,17 @@ export const translations = {
       today: "TODAY",
       listening: "Listening to the currents\u2026",
       askAgain: "ASK AGAIN",
+      nudge: "A NUDGE FOR YOU",
       lastExpedition: "LAST EXPEDITION",
       mood: "MOOD",
       moodPrompt: "How do you want to feel after this dive?",
-      moods: ["Calm", "Focused", "Curious", "Resolute"] as const,
+      moodLabels: {
+        focused: "Focused",
+        tired: "Tired",
+        burned_out: "Burned out",
+        motivated: "Motivated",
+        curious: "Curious"
+      },
       proHeader: "DEEP INSIGHTS · PRO",
       proLocked:
         "Personal trend analysis, mood-correlated dive plans, and a private breathing guide — unlock with Pro.",
@@ -137,6 +154,22 @@ export const translations = {
       noDives: "No dives yet. Your first descent will appear here.",
       less: "less",
       more: "more"
+    },
+    sessionDetail: {
+      title: "Expedition Report",
+      duration: "DURATION",
+      focusMinutes: "FOCUS",
+      xpEarned: "XP EARNED",
+      maxDepth: "MAX DEPTH",
+      discoveries: "DISCOVERIES",
+      levelUp: (from: number, to: number) => `Level ${from} → ${to}`,
+      noLevelChange: "No level change",
+      zoneJourney: "ZONE JOURNEY",
+      discoveryLog: "DISCOVERY LOG",
+      noDiscoveries: "No creatures or artifacts surfaced this dive.",
+      reachedAt: (m: number) => `at ${m} min`,
+      minuteMark: (m: number) => `${m}m`,
+      notFound: "This expedition could not be found."
     },
     collection: {
       title: "Expedition Log",
@@ -166,6 +199,9 @@ export const translations = {
     dive: {
       discoveries: (n: number) =>
         n === 1 ? "1 discovery" : `${n} discoveries`,
+      discovered: "DISCOVERED",
+      creature: "Creature",
+      artifact: "Artifact",
       resumeDive: "Resume dive",
       pause: "Pause",
       surface: "Surface",
@@ -193,8 +229,12 @@ export const translations = {
       singlePackCta: "UNLOCK THIS THEME ONLY",
       singlePackPrice: "$3.99",
       maybeLater: "MAYBE LATER",
+      restore: "RESTORE PURCHASES",
+      unavailable: "Purchases are unavailable on this build.",
+      errorTitle: "Purchase failed",
+      errorBody: "Something went wrong. No charge was made — please try again.",
       disclaimer:
-        "Mock IAP — tapping unlock toggles a local flag. Wire RevenueCat / react-native-iap for real billing."
+        "Billing is handled by RevenueCat. Prices shown are localized by the store."
     },
     achievement: {
       zoneUnlocked: "ZONE UNLOCKED",
@@ -273,12 +313,22 @@ export const translations = {
       soundFull: "To",
       diveReminders: "Nhắc nhở lặn",
       diveRemindersDesc: "Nhắc bạn nhảy xuống mỗi ngày để giữ streak",
+      reminderTime: "Giờ nhắc nhở",
+      reminderTimeDesc: "Thời điểm lời nhắc mỗi ngày xuất hiện",
       showDiscoveries: "Thông báo khám phá",
       showDiscoveriesDesc: "Hiện pop-up khi bắt gặp sinh vật/cổ vật",
       about: "VỀ ỨNG DỤNG",
       appVersion: "Phiên bản",
       appVersionValue: "#Ynot",
       builtWith: "Làm ra bởi tình yêu với biển sâu"
+    },
+    notifications: {
+      reminderTitle: "Biển sâu đang gọi",
+      reminderBody: "Hít một hơi và lặn xuống. Streak của bạn đang đợi.",
+      pickerTitle: "Giờ nhắc nhở",
+      pickerSubtitle: "Chọn thời điểm lời nhắc mỗi ngày",
+      hours: "Giờ",
+      minutes: "Phút"
     },
     home: {
       greeting: {
@@ -313,10 +363,17 @@ export const translations = {
       today: "HÔM NAY",
       listening: "Đang hỏi cá biển xem thế nào\u2026",
       askAgain: "HỎI LẠI",
+      nudge: "LỜI ĐỘNG VIÊN CHO BẠN",
       lastExpedition: "CHUYẾN LẶN GẦN NHẤT",
       mood: "TÂM TRẠNG",
       moodPrompt: "Hôm nay muốn cảm thấy thế nào sau khi lặn?",
-      moods: ["Bình yên", "Tập trung", "Tò mò", "Quyết tâm"] as const,
+      moodLabels: {
+        focused: "Tập trung",
+        tired: "Mệt mỏi",
+        burned_out: "Kiệt sức",
+        motivated: "Hăng hái",
+        curious: "Tò mò"
+      },
       proHeader: "PHÂN TÍCH SÂU · PRO",
       proLocked:
         "Phân tích xu hướng cá nhân, kế hoạch lặn theo tâm trạng và bài thở riêng — chỉ có ở bản Pro.",
@@ -343,6 +400,22 @@ export const translations = {
       noDives: "Chưa có gì cả. Nhảy xuống lặn thử đi, nước ấm lắm!",
       less: "ít",
       more: "nhiều"
+    },
+    sessionDetail: {
+      title: "Báo cáo chuyến lặn",
+      duration: "THỜI LƯỢNG",
+      focusMinutes: "TẬP TRUNG",
+      xpEarned: "XP NHẬN ĐƯỢC",
+      maxDepth: "ĐỘ SÂU",
+      discoveries: "KHÁM PHÁ",
+      levelUp: (from: number, to: number) => `Cấp ${from} → ${to}`,
+      noLevelChange: "Chưa lên cấp",
+      zoneJourney: "HÀNH TRÌNH CÁC TẦNG",
+      discoveryLog: "NHẬT KÝ KHÁM PHÁ",
+      noDiscoveries: "Chuyến này chưa gặp sinh vật hay cổ vật nào.",
+      reachedAt: (m: number) => `phút ${m}`,
+      minuteMark: (m: number) => `phút ${m}`,
+      notFound: "Không tìm thấy chuyến lặn này."
     },
     collection: {
       title: "Nhật ký thám hiểm",
@@ -372,6 +445,9 @@ export const translations = {
     dive: {
       discoveries: (n: number) =>
         n === 1 ? "Tìm thấy 1 thứ!" : `Tìm thấy ${n} thứ!`,
+      discovered: "ĐÃ KHÁM PHÁ",
+      creature: "Sinh vật",
+      artifact: "Cổ vật",
       resumeDive: "Lặn tiếp",
       pause: "Nghỉ một chút",
       surface: "Nổi lên",
@@ -399,8 +475,12 @@ export const translations = {
       singlePackCta: "CHỈ MỞ THEME NÀY",
       singlePackPrice: "99.000đ",
       maybeLater: "ĐỂ SAU",
+      restore: "KHÔI PHỤC GIAO DỊCH",
+      unavailable: "Bản dựng này chưa hỗ trợ mua hàng.",
+      errorTitle: "Mua hàng thất bại",
+      errorBody: "Đã có lỗi xảy ra. Bạn chưa bị trừ tiền — vui lòng thử lại.",
       disclaimer:
-        "IAP giả lập — nút unlock chỉ bật flag local. Tích hợp RevenueCat / react-native-iap khi lên prod."
+        "Thanh toán qua RevenueCat. Giá hiển thị được cửa hàng bản địa hoá."
     },
     achievement: {
       zoneUnlocked: "VÙNG MỚI MỞ KHOÁ",

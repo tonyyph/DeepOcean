@@ -1,0 +1,201 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import { useTheme } from "../useTheme";
+import { useThemedStyles } from "../useThemedStyles";
+import type { AppTheme } from "../themes";
+import { Sheet } from "../atoms/Sheet";
+import { PressableCard } from "../atoms/PressableCard";
+import { useTranslations } from "@/core/i18n";
+
+type Props = {
+  visible: boolean;
+  hour: number;
+  minute: number;
+  onConfirm: (hour: number, minute: number) => void;
+  onDismiss: () => void;
+};
+
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const MINUTES = Array.from({ length: 12 }, (_, i) => i * 5); // 5-min steps
+
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+/**
+ * ReminderTimePickerSheet — lightweight 24h time picker built on the existing
+ * Sheet atom. Avoids pulling a native date-time picker dependency (keeps the
+ * managed-workflow footprint small) while staying fully theme-aware.
+ */
+export function ReminderTimePickerSheet({
+  visible,
+  hour,
+  minute,
+  onConfirm,
+  onDismiss
+}: Props) {
+  const t = useTheme();
+  const tr = useTranslations();
+  const styles = useThemedStyles(makeStyles);
+  const [selHour, setSelHour] = useState(hour);
+  const [selMinute, setSelMinute] = useState(minute);
+
+  useEffect(() => {
+    if (visible) {
+      setSelHour(hour);
+      // Snap to nearest 5-min step so the value always exists in the list.
+      setSelMinute((Math.round(minute / 5) * 5) % 60);
+    }
+  }, [visible, hour, minute]);
+
+  const confirm = useCallback(
+    () => onConfirm(selHour, selMinute),
+    [onConfirm, selHour, selMinute]
+  );
+
+  const preview = useMemo(
+    () => `${pad(selHour)}:${pad(selMinute)}`,
+    [selHour, selMinute]
+  );
+
+  return (
+    <Sheet visible={visible} onDismiss={onDismiss}>
+      <Text style={styles.title}>{tr.notifications.pickerTitle}</Text>
+      <Text style={styles.subtitle}>{tr.notifications.pickerSubtitle}</Text>
+
+      <Text style={styles.preview}>{preview}</Text>
+
+      <View style={styles.columns}>
+        <View style={styles.column}>
+          <Text style={styles.colLabel}>{tr.notifications.hours}</Text>
+          <ScrollView
+            style={styles.scroll}
+            showsVerticalScrollIndicator={false}
+          >
+            {HOURS.map((h) => {
+              const active = h === selHour;
+              return (
+                <Pressable
+                  key={h}
+                  onPress={() => setSelHour(h)}
+                  style={[styles.cell, active && styles.cellActive]}
+                >
+                  <Text
+                    style={[
+                      styles.cellText,
+                      active && { color: t.colors.accent }
+                    ]}
+                  >
+                    {pad(h)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        <View style={styles.column}>
+          <Text style={styles.colLabel}>{tr.notifications.minutes}</Text>
+          <ScrollView
+            style={styles.scroll}
+            showsVerticalScrollIndicator={false}
+          >
+            {MINUTES.map((m) => {
+              const active = m === selMinute;
+              return (
+                <Pressable
+                  key={m}
+                  onPress={() => setSelMinute(m)}
+                  style={[styles.cell, active && styles.cellActive]}
+                >
+                  <Text
+                    style={[
+                      styles.cellText,
+                      active && { color: t.colors.accent }
+                    ]}
+                  >
+                    {pad(m)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      </View>
+
+      <View style={styles.actions}>
+        <PressableCard haptic="medium" onPress={confirm} glow>
+          <Text style={styles.confirmText}>{tr.profile.confirm}</Text>
+        </PressableCard>
+      </View>
+    </Sheet>
+  );
+}
+
+const makeStyles = (t: AppTheme) =>
+  StyleSheet.create({
+    title: {
+      color: t.colors.text,
+      fontSize: 20,
+      fontFamily: t.fonts.display,
+      letterSpacing: t.fonts.displayLetterSpacing,
+      marginBottom: t.spacing[1]
+    },
+    subtitle: {
+      color: t.colors.textMuted,
+      fontSize: 13,
+      fontFamily: t.fonts.body,
+      marginBottom: t.spacing[4]
+    },
+    preview: {
+      color: t.colors.accent,
+      fontSize: 40,
+      fontFamily: t.fonts.display,
+      textAlign: "center",
+      marginBottom: t.spacing[4]
+    },
+    columns: {
+      flexDirection: "row",
+      gap: t.spacing[4],
+      height: 200
+    },
+    column: {
+      flex: 1
+    },
+    colLabel: {
+      color: t.colors.textMuted,
+      fontSize: 12,
+      fontFamily: t.fonts.body,
+      textAlign: "center",
+      marginBottom: t.spacing[2]
+    },
+    scroll: {
+      flex: 1
+    },
+    cell: {
+      paddingVertical: t.spacing[3],
+      borderRadius: t.radii.md,
+      alignItems: "center",
+      marginBottom: t.spacing[1] + 1
+    },
+    cellActive: {
+      backgroundColor: "rgba(34,228,255,0.08)",
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.accent
+    },
+    cellText: {
+      color: t.colors.textSecondary,
+      fontSize: 18,
+      fontFamily: t.fonts.mono
+    },
+    actions: {
+      marginTop: t.spacing[5]
+    },
+    confirmText: {
+      color: t.colors.text,
+      fontSize: 15,
+      fontFamily: t.fonts.body,
+      fontWeight: "600",
+      textAlign: "center"
+    }
+  });

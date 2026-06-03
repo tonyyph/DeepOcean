@@ -5,3 +5,4 @@ export { default as AIScreen } from "./AIScreen";
 export { default as CollectionScreen } from "./CollectionScreen";
 export { default as StatsScreen } from "./StatsScreen";
 export { default as ProfileScreen } from "./ProfileScreen";
+export { default as SessionDetailScreen } from "./SessionDetailScreen";

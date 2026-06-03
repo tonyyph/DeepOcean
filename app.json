@@ -26,7 +26,9 @@
         "backgroundColor": "#020617"
       },
       "permissions": [
-        "android.permission.MODIFY_AUDIO_SETTINGS"
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.SCHEDULE_EXACT_ALARM"
       ]
     },
     "web": {
@@ -48,6 +50,12 @@
           "image": "./assets/logo.png",
           "imageWidth": 200
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#22E4FF"
+        }
       ]
     ],
     "experiments": {
@@ -59,6 +67,13 @@
       },
       "eas": {
         "projectId": "9f7f0961-08c2-4d84-9d99-bd1a55a06e42"
+      },
+      "revenuecat": {
+        "iosKey": "",
+        "androidKey": "",
+        "premiumEntitlement": "premium",
+        "themeEntitlementPrefix": "theme_",
+        "lifetimePackageId": "lifetime"
       }
     },
     "runtimeVersion": {

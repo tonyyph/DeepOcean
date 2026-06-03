@@ -23,6 +23,7 @@ import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
 import { getLevelTitle } from "@/features/diver/levelSystem";
 import { useTranslations } from "@/core/i18n";
+import { useSettings } from "@/stores";
 
 const AUTO_DISMISS_MS = 6000;
 
@@ -48,6 +49,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
+  const settings = useSettings();
 
   const progress = useSharedValue(0);
   const levelScale = useSharedValue(0.4);
@@ -55,7 +57,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const levelsGained = newLevel - prevLevel;
-  const newTitle = getLevelTitle(newLevel);
+  const newTitle = getLevelTitle(newLevel, settings.language === "en");
 
   useEffect(() => {
     if (visible) {

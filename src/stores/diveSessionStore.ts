@@ -16,7 +16,8 @@ import {
   hapticZoneChange
 } from "@/core/haptics";
 import { AmbientAudio } from "@/core/audio/AmbientAudioManager";
-import { computeLevelUp } from "@/features/diver/levelSystem";
+import { computeLevelUp, xpForSession } from "@/features/diver/levelSystem";
+import { computeStreak } from "@/features/diver/streakEngine";
 import {
   checkNewAchievements,
   type TitleAchievement
@@ -121,13 +122,31 @@ export const useDiveSession = create<State & Actions>()(
       const { session, _intervalHandle } = get();
       if (!session) return;
       if (_intervalHandle) clearInterval(_intervalHandle);
+      hapticDiveSurface();
+      await AmbientAudio.stopAll();
+
+      const profile = await container.diver.get();
+      const earnedXp = xpForSession(
+        session.elapsedSeconds,
+        session.discoveries.length
+      );
+      const {
+        level: newLevel,
+        xp: newXp,
+        levelsGained
+      } = computeLevelUp(profile.level, profile.xp, earnedXp);
+
       const ended: DiveSession = {
         ...session,
         status: "surfaced",
-        endedAt: Date.now()
+        endedAt: Date.now(),
+        summary: {
+          xpEarned: earnedXp,
+          levelBefore: profile.level,
+          levelAfter: newLevel,
+          levelsGained
+        }
       };
-      hapticDiveSurface();
-      await AmbientAudio.stopAll();
       await container.sessions.save(ended);
       // record discoveries to collection + bump diver stats
       await Promise.all(
@@ -135,20 +154,24 @@ export const useDiveSession = create<State & Actions>()(
           container.collection.recordSighting(d.entry.id)
         )
       );
-      const profile = await container.diver.get();
-      const earnedXp =
-        Math.round(ended.elapsedSeconds / 6) + ended.discoveries.length * 25;
-      const {
-        level: newLevel,
-        xp: newXp,
-        levelsGained
-      } = computeLevelUp(profile.level, profile.xp, earnedXp);
+
+      // Recompute streak deterministically from full dive history (including
+      // the dive just saved). Source of truth is the timestamps, never a
+      // stored counter — this is self-healing across missed days / clock changes.
+      const allSessions = await container.sessions.list();
+      const streak = computeStreak(
+        allSessions.map((d) => d.startedAt),
+        ended.endedAt ?? Date.now()
+      );
+
       const updatedProfile = await container.diver.update({
         totalDives: profile.totalDives + 1,
         totalFocusMinutes:
           profile.totalFocusMinutes + Math.round(ended.elapsedSeconds / 60),
         xp: newXp,
-        level: newLevel
+        level: newLevel,
+        currentStreakDays: streak.current,
+        longestStreakDays: Math.max(profile.longestStreakDays, streak.longest)
       });
 
       // Check title achievements against updated profile

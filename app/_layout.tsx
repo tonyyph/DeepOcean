@@ -34,10 +34,35 @@ import { queryClient } from "@/core/query/client";
 import { NetworkProvider } from "@/core/network/NetworkProvider";
 import { palette } from "@/design-system";
 import { AmbientAudio } from "@/core/audio/AmbientAudioManager";
+import { NotificationService } from "@/core/notifications/NotificationService";
+import { reconcileDiveReminder } from "@/features/notifications";
+import { useSettings, usePremium } from "@/stores";
+import { translations, type Language } from "@/core/i18n/translations";
 import * as Updates from "expo-updates";
 
 // Keep splash visible while we prime fonts + audio.
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+/**
+ * Reconcile the daily dive reminder with the user's persisted intent on every
+ * cold start. Idempotent — only (re)schedules when the OS state has drifted.
+ */
+async function syncDiveReminders(): Promise<void> {
+  try {
+    await NotificationService.configure();
+    const s = useSettings.getState();
+    const lang = (s.language ?? "en") as Language;
+    const copy = translations[lang].notifications;
+    await reconcileDiveReminder(
+      s.diveRemindersEnabled,
+      s.reminderHour,
+      s.reminderMinute,
+      { title: copy.reminderTitle, body: copy.reminderBody }
+    );
+  } catch (error) {
+    console.log("syncDiveReminders error", error);
+  }
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -80,6 +105,10 @@ export default function RootLayout() {
       await AmbientAudio.init();
       await SplashScreen.hideAsync();
       await checkAndForceUpdates();
+      await syncDiveReminders();
+      // Resolve premium entitlements from the store (offline-safe; no-op when
+      // RevenueCat is not configured).
+      await usePremium.getState().hydrate();
     })();
   }, [fontsLoaded]);
 
@@ -113,6 +142,10 @@ export default function RootLayout() {
                   }}
                 />
                 <Stack.Screen name="(tabs)" />
+                <Stack.Screen
+                  name="session/[id]"
+                  options={{ animation: "slide_from_right" }}
+                />
               </Stack>
             </BottomSheetModalProvider>
           </NetworkProvider>

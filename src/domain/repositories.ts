@@ -1,8 +1,13 @@
 import type {
+  AIContext,
   CollectionEntry,
   DiveSession,
   DiverProfile,
-  Language
+  EntitlementSnapshot,
+  Language,
+  MoodRecord,
+  NotificationSchedule,
+  PurchaseOffering
 } from "@/domain/entities";
 
 /**
@@ -28,9 +33,43 @@ export interface IDiverRepository {
 }
 
 export interface IAICompanionGateway {
-  dailyRecommendation(
-    profile: DiverProfile,
-    language: Language
-  ): Promise<string>;
+  dailyRecommendation(context: AIContext): Promise<string>;
+  motivation(context: AIContext): Promise<string>;
   sessionSummary(session: DiveSession, language?: Language): Promise<string>;
+}
+
+export interface INotificationRepository {
+  getSchedule(): Promise<NotificationSchedule | null>;
+  saveSchedule(schedule: NotificationSchedule): Promise<void>;
+  clearSchedule(): Promise<void>;
+}
+
+export interface IMoodRepository {
+  get(): Promise<MoodRecord>;
+  set(record: MoodRecord): Promise<MoodRecord>;
+  clear(): Promise<void>;
+}
+
+/**
+ * Entitlement gateway — abstracts the store / IAP provider (RevenueCat).
+ * Resolves and persists the user's premium state so it survives reinstall
+ * (entitlements are restored from the store account on the next refresh).
+ */
+export interface IEntitlementGateway {
+  /** True when a real billing provider is configured (API key present). */
+  readonly isConfigured: boolean;
+  /** Initialize the billing SDK. Safe to call multiple times. */
+  configure(): Promise<void>;
+  /** Last-known snapshot from the local cache (synchronous, offline-safe). */
+  cached(): EntitlementSnapshot;
+  /** Re-resolve entitlements from the store and update the cache. */
+  refresh(): Promise<EntitlementSnapshot>;
+  /** Fetch buyable options for the paywall. Null when unavailable. */
+  offerings(): Promise<PurchaseOffering | null>;
+  /** Purchase the lifetime all-access pass. */
+  purchaseLifetime(): Promise<EntitlementSnapshot>;
+  /** Purchase a single premium theme. */
+  purchaseTheme(themeId: string): Promise<EntitlementSnapshot>;
+  /** Restore prior purchases from the store account. */
+  restore(): Promise<EntitlementSnapshot>;
 }

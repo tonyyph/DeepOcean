@@ -11,6 +11,7 @@ import {
   PaywallSheet,
   PremiumBadge,
   PressableCard,
+  ReminderTimePickerSheet,
   SectionLabel,
   SettingRow,
   ThemePickerSheet,
@@ -31,6 +32,7 @@ import {
   xpForNextLevel
 } from "@/features/diver";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
+import { useDiveReminders } from "@/features/notifications";
 import {
   useAchievements,
   usePremium,
@@ -88,9 +90,12 @@ export default function ProfileScreen() {
     (s) => s.persistTitleAchievements
   );
 
+  const reminders = useDiveReminders();
+
   const [langOpen, setLangOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [reminderTimeOpen, setReminderTimeOpen] = useState(false);
   const [intentTheme, setIntentTheme] = useState<ThemeId | undefined>(
     undefined
   );
@@ -413,10 +418,22 @@ export default function ProfileScreen() {
               type="switch"
               title={tr.profile.diveReminders}
               subtitle={tr.profile.diveRemindersDesc}
-              value={settings.diveRemindersEnabled}
-              onChange={(v) => settings.update({ diveRemindersEnabled: v })}
-              divider={false}
+              value={reminders.enabled}
+              onChange={(v) => {
+                void reminders.setEnabled(v);
+              }}
+              divider={reminders.enabled}
             />
+            {reminders.enabled ? (
+              <SettingRow
+                type="nav"
+                title={tr.profile.reminderTime}
+                subtitle={tr.profile.reminderTimeDesc}
+                value={reminders.timeLabel}
+                onPress={() => setReminderTimeOpen(true)}
+                divider={false}
+              />
+            ) : null}
           </GlassCard>
 
           {/* Account / Onboarding */}
@@ -483,6 +500,16 @@ export default function ProfileScreen() {
           setLangOpen(false);
         }}
         onDismiss={() => setLangOpen(false)}
+      />
+      <ReminderTimePickerSheet
+        visible={reminderTimeOpen}
+        hour={reminders.hour}
+        minute={reminders.minute}
+        onConfirm={(h, m) => {
+          void reminders.setTime(h, m);
+          setReminderTimeOpen(false);
+        }}
+        onDismiss={() => setReminderTimeOpen(false)}
       />
       <PaywallSheet
         visible={paywallOpen}

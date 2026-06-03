@@ -19,7 +19,13 @@ import {
   type AppTheme,
   type MoodMapEntry
 } from "@/design-system";
-import { useDailyRecommendation, useSessions } from "@/features/diver";
+import {
+  useDailyRecommendation,
+  useDailyMotivation,
+  useSessions
+} from "@/features/diver";
+import { useMoodRecord, useSetMood, selectCurrentMood } from "@/features/mood";
+import { MOODS, type Mood } from "@/domain/entities";
 import { useQuery } from "@tanstack/react-query";
 import { container } from "@/data/container";
 import { useTranslations } from "@/core/i18n";
@@ -34,7 +40,10 @@ export default function AIScreen() {
     isFetching
   } = useDailyRecommendation();
   const { data: sessions = [] } = useSessions();
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const { data: moodRecord } = useMoodRecord();
+  const { data: motivation } = useDailyMotivation();
+  const { mutate: setMood } = useSetMood();
+  const selectedMood = selectCurrentMood(moodRecord);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const tr = useTranslations();
   const isPremium = usePremium((s) => s.isPremium);
@@ -71,6 +80,12 @@ export default function AIScreen() {
             <Text style={styles.body}>
               {isFetching ? tr.ai.listening : (recommendation ?? "—")}
             </Text>
+            {motivation ? (
+              <>
+                <SectionLabel>{tr.ai.nudge}</SectionLabel>
+                <Text style={styles.nudge}>{motivation}</Text>
+              </>
+            ) : null}
             <View style={styles.askWrap}>
               <PressableCard haptic="light" onPress={() => refetchRec()}>
                 <Text style={styles.cta}>{tr.ai.askAgain}</Text>
@@ -98,13 +113,13 @@ export default function AIScreen() {
             <SectionLabel>{tr.ai.mood}</SectionLabel>
             <Text style={styles.bodyMuted}>{tr.ai.moodPrompt}</Text>
             <View style={styles.moodGrid}>
-              {(tr.ai.moods as readonly string[]).map((m) => (
+              {MOODS.map((m) => (
                 <OptionPill
                   key={m}
-                  label={m}
+                  label={tr.ai.moodLabels[m]}
                   active={selectedMood === m}
                   onPress={() => {
-                    setSelectedMood(m);
+                    setMood(m);
                     refetchRec();
                   }}
                   containerStyle={styles.moodItem}
@@ -128,21 +143,21 @@ type ProProps = {
   onUnlock: () => void;
   theme: AppTheme;
   tr: ReturnType<typeof useTranslations>;
-  selectedMood: string | null;
+  selectedMood: Mood | null;
 };
 
-/** Deterministic mock mood scores — shifts when user selects a mood. */
+/** Deterministic mood scores — shifts when user selects a mood. */
 function buildMoodData(
-  moods: readonly string[],
-  selected: string | null
+  tr: ReturnType<typeof useTranslations>,
+  selected: Mood | null
 ): MoodMapEntry[] {
-  const BASE = [0.72, 0.55, 0.68, 0.41];
+  const BASE = [0.72, 0.55, 0.68, 0.41, 0.6];
   const BOOST = 0.22;
-  return moods.map((label, i) => ({
-    label,
+  return MOODS.map((mood, i) => ({
+    label: tr.ai.moodLabels[mood],
     value: Math.min(
       1,
-      (BASE[i % BASE.length] ?? 0.5) + (label === selected ? BOOST : 0)
+      (BASE[i % BASE.length] ?? 0.5) + (mood === selected ? BOOST : 0)
     )
   }));
 }
@@ -156,8 +171,8 @@ const ProInsights = React.memo(function ProInsights({
 }: ProProps) {
   const styles = useThemedStyles(makeStyles);
   const moodData = useMemo(
-    () => buildMoodData(tr.ai.moods as readonly string[], selectedMood),
-    [tr.ai.moods, selectedMood]
+    () => buildMoodData(tr, selectedMood),
+    [tr, selectedMood]
   );
 
   if (!isPremium) {
@@ -293,6 +308,13 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.textSecondary,
       fontSize: 14,
       lineHeight: 20,
+      fontFamily: t.fonts.body
+    },
+    nudge: {
+      color: t.colors.textSecondary,
+      fontSize: 15,
+      lineHeight: 22,
+      fontStyle: "italic",
       fontFamily: t.fonts.body
     },
     askWrap: { marginTop: t.spacing[4] },
