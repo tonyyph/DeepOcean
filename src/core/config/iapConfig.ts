@@ -25,11 +25,20 @@ export type IapConfig = {
   themeEntitlementPrefix: string;
   /** RevenueCat offering package identifier for the lifetime pass. */
   lifetimePackageId: string;
+  /** RevenueCat offering package identifier for the annual subscription. */
+  annualPackageId: string;
+  /** RevenueCat offering package identifier for the monthly subscription. */
+  monthlyPackageId: string;
+  /** Promo codes are validated locally against this shared secret prefix. */
+  promoCodePrefix: string;
 };
 
 const DEFAULT_PREMIUM_ENTITLEMENT = "premium";
 const DEFAULT_THEME_ENTITLEMENT_PREFIX = "theme_";
 const DEFAULT_LIFETIME_PACKAGE_ID = "lifetime";
+const DEFAULT_ANNUAL_PACKAGE_ID = "annual";
+const DEFAULT_MONTHLY_PACKAGE_ID = "monthly";
+const DEFAULT_PROMO_CODE_PREFIX = "DEEPOCEAN-";
 
 function extraIap(): Record<string, unknown> {
   const extra = (Constants.expoConfig?.extra ?? {}) as Record<string, unknown>;
@@ -80,6 +89,19 @@ export function getIapConfig(): IapConfig {
       pick(
         process.env.EXPO_PUBLIC_REVENUECAT_LIFETIME_PACKAGE,
         iap.lifetimePackageId
-      ) ?? DEFAULT_LIFETIME_PACKAGE_ID
+      ) ?? DEFAULT_LIFETIME_PACKAGE_ID,
+    annualPackageId:
+      pick(
+        process.env.EXPO_PUBLIC_REVENUECAT_ANNUAL_PACKAGE,
+        iap.annualPackageId
+      ) ?? DEFAULT_ANNUAL_PACKAGE_ID,
+    monthlyPackageId:
+      pick(
+        process.env.EXPO_PUBLIC_REVENUECAT_MONTHLY_PACKAGE,
+        iap.monthlyPackageId
+      ) ?? DEFAULT_MONTHLY_PACKAGE_ID,
+    promoCodePrefix:
+      pick(process.env.EXPO_PUBLIC_PROMO_CODE_PREFIX, iap.promoCodePrefix) ??
+      DEFAULT_PROMO_CODE_PREFIX
   };
 }

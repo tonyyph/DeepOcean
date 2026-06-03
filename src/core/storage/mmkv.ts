@@ -41,5 +41,7 @@ export const StorageKeys = {
   notifications: "app.notifications.schedule",
   mood: "app.mood",
   aiCache: "app.ai.cache",
-  premiumSnapshot: "app.premium.snapshot"
+  premiumSnapshot: "app.premium.snapshot",
+  trialState: "app.premium.trial",
+  usedPromoCodes: "app.premium.promo_codes"
 } as const;

@@ -112,8 +112,28 @@ export type EntitlementSnapshot = {
   isPremium: boolean;
   /** Individually-purchased premium theme identifiers. */
   unlockedThemes: string[];
+  /** Active plan tier, null when not subscribed. */
+  activePlan: PlanId | null;
   /** epoch ms the snapshot was resolved (from store or cache). */
   resolvedAt: number;
+};
+
+/** The three plan tiers available on the paywall. */
+export type PlanId = "lifetime" | "annual" | "monthly";
+
+/** Outcome of a promo-code validation. */
+export type PromoCodeResult =
+  | { valid: false; reason: "not_found" | "expired" }
+  | { valid: true; expiresAt: number; discountLabel: string };
+
+/** Persisted state of an active free trial or promo-code unlock. */
+export type TrialState = {
+  /** ISO plan the trial applies to. */
+  planId: PlanId;
+  /** epoch ms when the trial window closes. */
+  expiresAt: number;
+  /** "trial" = 7-day free trial; "promo" = experience-code 3-day unlock. */
+  kind: "trial" | "promo";
 };
 
 /** A single buyable option surfaced on the paywall (price already localized). */
@@ -130,6 +150,10 @@ export type PurchaseOption = {
 export type PurchaseOffering = {
   /** Lifetime all-access option, if configured. */
   lifetime: PurchaseOption | null;
+  /** Annual subscription option, if configured. */
+  annual: PurchaseOption | null;
+  /** Monthly subscription option, if configured. */
+  monthly: PurchaseOption | null;
   /** Per-theme options keyed by theme identifier. */
   themePacks: Record<string, PurchaseOption>;
 };

@@ -30,7 +30,7 @@ export const translations = {
     },
     profile: {
       title: "DIVER PROFILE",
-      level: (n: number) => `Level ${n} Explorer`,
+      level: (n: number) => `Level ${n} - Explorer`,
       xp: "XP",
       settings: "SETTINGS",
       appearance: "APPEARANCE",
@@ -216,25 +216,58 @@ export const translations = {
     paywall: {
       title: "Dive Deeper with Pro",
       subtitle:
-        "Unlock every theme, future premium features, and support a small studio building calmly.",
-      unlockingTheme: (name: string) => `Unlocking “${name}”`,
+        "Unlock every zone, theme, and AI companion. Support a small studio building calmly.",
+      unlockingTheme: (name: string) => `Unlocking "${name}"`,
       benefits: [
-        "All 4 premium themes + future drops",
-        "Unique ambient particle fields per theme",
-        "Custom display font per theme",
-        "Priority for new dive zones & creatures"
+        {
+          icon: "water",
+          title: "Explore Every Depth",
+          body: "Unlock all 5 ocean zones — from the Sunlit Zone to the Hadal Trench."
+        },
+        {
+          icon: "diamond",
+          title: "6 Premium Themes",
+          body: "Unique visual identity for each zone: ambient particles, depth fog, custom typography."
+        },
+        {
+          icon: "sparkles",
+          title: "AI Dive Companion",
+          body: "Personalized coaching that adapts to your diving patterns and focus rhythms."
+        },
+        {
+          icon: "telescope",
+          title: "Exclusive Discoveries",
+          body: "Rare & mythic creatures only accessible to Pro divers. Over 160 entries in your bestiary."
+        }
       ] as const,
-      lifetimeCta: "UNLOCK EVERYTHING",
-      lifetimePrice: "$14.99 · one-time",
-      singlePackCta: "UNLOCK THIS THEME ONLY",
-      singlePackPrice: "$3.99",
+      planLifetime: "LIFETIME",
+      planAnnual: "1 YEAR",
+      planMonthly: "MONTHLY",
+      planLifetimeSub: "one-time",
+      planMonthlySub: "/ month",
+      lifetimeCta: "LIFETIME — UNLOCK EVERYTHING",
+      lifetimePrice: "999.000đ · one-time",
+      annualCta: "1 YEAR — BEST VALUE",
+      annualPrice: "599.000đ / year",
+      annualPricePerMonth: "49.917đ / month",
+      annualSaving: "Save 50%",
+      monthlyCta: "MONTHLY",
+      monthlyPrice: "99.000đ / month",
+      trialBadge: "7-DAY FREE TRIAL",
+      trialDescription: "Try everything free for 7 days. Cancel anytime before renewal.",
+      trialCta: "START FREE TRIAL",
+      promoPlaceholder: "Experience code",
+      promoApply: "APPLY",
+      promoInvalid: "Invalid code",
+      promoExpired: "Code has expired",
+      promoSuccess: (days: number) => `Active · ${days} day${days === 1 ? "" : "s"} left`,
       maybeLater: "MAYBE LATER",
       restore: "RESTORE PURCHASES",
       unavailable: "Purchases are unavailable on this build.",
       errorTitle: "Purchase failed",
       errorBody: "Something went wrong. No charge was made — please try again.",
       disclaimer:
-        "Billing is handled by RevenueCat. Prices shown are localized by the store."
+        "Billing is handled by the App Store / Google Play. Subscriptions renew automatically. Cancel anytime."
     },
     achievement: {
       zoneUnlocked: "ZONE UNLOCKED",
@@ -462,25 +495,58 @@ export const translations = {
     paywall: {
       title: "Lặn sâu hơn với Pro",
       subtitle:
-        "Mở khoá tất cả theme, các tính năng cao cấp sắp tới, và ủng hộ đội ngũ nhỏ đang làm app một cách tử tế.",
-      unlockingTheme: (name: string) => `Mở khoá “${name}”`,
+        "Mở khoá mọi vùng biển, theme và AI Companion. Ủng hộ đội ngũ nhỏ đang làm app.",
+      unlockingTheme: (name: string) => `Mở khoá "${name}"`,
       benefits: [
-        "4 theme premium + các theme sắp ra",
-        "Ambient particle field riêng cho từng theme",
-        "Font chữ hiển thị riêng cho từng theme",
-        "Ưu tiên vùng lặn & sinh vật mới"
+        {
+          icon: "water",
+          title: "Khám phá mọi độ sâu",
+          body: "Mở khoá cả 5 vùng biển — từ Vùng Mặt trời đến Rãnh Hadal."
+        },
+        {
+          icon: "diamond",
+          title: "6 Theme Premium",
+          body: "Giao diện riêng cho từng vùng: ambient particle, sương sâu, font chữ độc quyền."
+        },
+        {
+          icon: "sparkles",
+          title: "AI Dive Companion",
+          body: "Hướng dẫn cá nhân hoá theo nhịp lặn và mức tập trung của bạn."
+        },
+        {
+          icon: "telescope",
+          title: "Khám phá Độc quyền",
+          body: "Sinh vật hiếm và huyền thoại chỉ dành cho Pro. Hơn 160 mục trong bộ sưu tập."
+        }
       ] as const,
-      lifetimeCta: "MỞ TẤT CẢ",
-      lifetimePrice: "349.000đ · một lần",
-      singlePackCta: "CHỈ MỞ THEME NÀY",
-      singlePackPrice: "99.000đ",
+      planLifetime: "MÃI MÃI",
+      planAnnual: "1 NĂM",
+      planMonthly: "THÁNG",
+      planLifetimeSub: "một lần",
+      planMonthlySub: "/ tháng",
+      lifetimeCta: "LIFETIME — MỞR TẤT CẢ",
+      lifetimePrice: "999.000đ · một lần",
+      annualCta: "1 NĂM — TỐT NHẤT",
+      annualPrice: "599.000đ / năm",
+      annualPricePerMonth: "49.917đ / tháng",
+      annualSaving: "Tiết kiệm 50%",
+      monthlyCta: "THEO THÁNG",
+      monthlyPrice: "99.000đ / tháng",
+      trialBadge: "7 NGÀY MIỄN PHÍ",
+      trialDescription: "Trải nghiệm miễn phí 7 ngày. Hủy bất cứ lúc nào trước khi gia hạn.",
+      trialCta: "BẮT ĐẦU DÙNG THỬ MIỄN PHÍ",
+      promoPlaceholder: "Mã trải nghiệm",
+      promoApply: "ÁP DỤNG",
+      promoInvalid: "Mã không hợp lệ",
+      promoExpired: "Mã đã hết hạn",
+      promoSuccess: (days: number) => `Hoạt động · còn ${days} ngày`,
       maybeLater: "ĐỂ SAU",
       restore: "KHÔI PHỤC GIAO DỊCH",
       unavailable: "Bản dựng này chưa hỗ trợ mua hàng.",
       errorTitle: "Mua hàng thất bại",
       errorBody: "Đã có lỗi xảy ra. Bạn chưa bị trừ tiền — vui lòng thử lại.",
       disclaimer:
-        "Thanh toán qua RevenueCat. Giá hiển thị được cửa hàng bản địa hoá."
+        "Thanh toán qua App Store / Google Play. Gói đăng ký tự gia hạn. Hủy bất kỳ lúc nào."
     },
     achievement: {
       zoneUnlocked: "VÙNG MỚI MỞ KHOÁ",

@@ -7,7 +7,9 @@ import type {
   Language,
   MoodRecord,
   NotificationSchedule,
-  PurchaseOffering
+  PromoCodeResult,
+  PurchaseOffering,
+  TrialState
 } from "@/domain/entities";
 
 /**
@@ -68,8 +70,18 @@ export interface IEntitlementGateway {
   offerings(): Promise<PurchaseOffering | null>;
   /** Purchase the lifetime all-access pass. */
   purchaseLifetime(): Promise<EntitlementSnapshot>;
+  /** Purchase the annual subscription. */
+  purchaseAnnual(): Promise<EntitlementSnapshot>;
+  /** Purchase the monthly subscription. */
+  purchaseMonthly(): Promise<EntitlementSnapshot>;
   /** Purchase a single premium theme. */
   purchaseTheme(themeId: string): Promise<EntitlementSnapshot>;
   /** Restore prior purchases from the store account. */
   restore(): Promise<EntitlementSnapshot>;
+  /** Start a 7-day free trial for the given plan. */
+  startTrial(planId: "annual" | "monthly"): Promise<TrialState>;
+  /** Validate a promo/experience code. Returns a 3-day unlock on success. */
+  validatePromoCode(code: string): Promise<PromoCodeResult>;
+  /** Read the current active trial/promo state (null = none). */
+  activeTrial(): TrialState | null;
 }

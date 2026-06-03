@@ -1,49 +1,103 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  Dimensions,
+  type ListRenderItemInfo,
+  type NativeSyntheticEvent,
+  type NativeScrollEvent
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { MotiView } from "moti";
 import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme, ThemeId } from "../themes";
-import { THEMES } from "../themes";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { usePremium } from "@/stores";
 import { container } from "@/data/container";
-import type { PurchaseOffering } from "@/domain/entities";
+import type { PromoCodeResult, PurchaseOffering } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
+
+type PlanId = "lifetime" | "annual" | "monthly";
+
+type BenefitSlide = {
+  readonly icon: string;
+  readonly title: string;
+  readonly body: string;
+};
 
 type Props = {
   visible: boolean;
   onDismiss: () => void;
-  /** If set, indicates which theme the user was trying to unlock. */
   intentTheme?: ThemeId;
 };
 
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+const ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
+  water: "water-outline",
+  diamond: "diamond-outline",
+  sparkles: "sparkles-outline",
+  telescope: "telescope-outline"
+};
+
 /**
- * PaywallSheet — premium upsell backed by the RevenueCat entitlement gateway.
+ * PaywallSheet — full-screen premium upsell with:
+ *   - Benefit carousel (4 slides with icon illustration + title + body)
+ *   - 3 plan cards: Lifetime / Annual (pre-selected, best value) / Monthly
+ *   - 7-day free trial CTA (when no active trial)
+ *   - Experience / promo code input (3-day unlock)
+ *   - Restore Purchases link
  *
- * Prices and availability come from the live store offering; purchases route
- * through `usePremium` (which delegates to `container.premium`). When billing
- * is not configured the CTAs are disabled and an "unavailable" note is shown —
- * never a fake unlock.
+ * Prices come from the live RC offering when configured; VND fallbacks are
+ * rendered from translations when billing is unconfigured — never fake unlock.
  */
-export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
+export function PaywallSheet({
+  visible,
+  onDismiss,
+  intentTheme: _intentTheme
+}: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
+  const insets = useSafeAreaInsets();
+
   const purchaseLifetime = usePremium((s) => s.purchaseLifetime);
-  const purchaseTheme = usePremium((s) => s.purchaseTheme);
+  const purchaseAnnual = usePremium((s) => s.purchaseAnnual);
+  const purchaseMonthly = usePremium((s) => s.purchaseMonthly);
+  const startTrial = usePremium((s) => s.startTrial);
+  const applyPromoCode = usePremium((s) => s.applyPromoCode);
   const restore = usePremium((s) => s.restore);
   const isPremium = usePremium((s) => s.isPremium);
   const isConfigured = usePremium((s) => s.isConfigured);
   const status = usePremium((s) => s.status);
+  const trialState = usePremium((s) => s.trialState);
 
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>("annual");
   const [offering, setOffering] = useState<PurchaseOffering | null>(null);
-  const busy = status === "loading";
+  const [promoInput, setPromoInput] = useState("");
+  const [promoResult, setPromoResult] = useState<PromoCodeResult | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const carouselRef = useRef<FlatList<BenefitSlide>>(null);
 
-  const intent = intentTheme ? THEMES[intentTheme] : null;
+  const busy = status === "loading";
+  const pw = tr.paywall;
 
   useEffect(() => {
     if (!visible || !isConfigured) return;
@@ -53,287 +107,750 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
       .then((o) => {
         if (active) setOffering(o);
       })
-      .catch(() => {
-        if (active) setOffering(null);
-      });
+      .catch(() => {});
     return () => {
       active = false;
     };
   }, [visible, isConfigured]);
 
-  const lifetimePrice =
-    offering?.lifetime?.priceString ?? tr.paywall.lifetimePrice;
-  const singlePackPrice = intentTheme
-    ? (offering?.themePacks[intentTheme]?.priceString ??
-      tr.paywall.singlePackPrice)
-    : tr.paywall.singlePackPrice;
-
-  const reportError = useCallback(() => {
-    Alert.alert(tr.paywall.errorTitle, tr.paywall.errorBody);
-  }, [tr]);
-
-  const handleLifetime = useCallback(async () => {
-    if (!isConfigured) return;
-    try {
-      const ok = await purchaseLifetime();
-      if (ok) onDismiss();
-    } catch {
-      reportError();
+  useEffect(() => {
+    if (isPremium && visible) {
+      onDismiss();
     }
-  }, [isConfigured, purchaseLifetime, onDismiss, reportError]);
+  }, [isPremium, visible, onDismiss]);
 
-  const handleSinglePack = useCallback(async () => {
-    if (!isConfigured || !intentTheme) return;
-    try {
-      const ok = await purchaseTheme(intentTheme);
-      if (ok) onDismiss();
-    } catch {
-      reportError();
+  useEffect(() => {
+    if (!visible) {
+      setPromoInput("");
+      setPromoResult(null);
+      setPromoError(null);
+      setCarouselIndex(0);
+      setSelectedPlan("annual");
     }
-  }, [isConfigured, intentTheme, purchaseTheme, onDismiss, reportError]);
+  }, [visible]);
+
+  const slides = useMemo<BenefitSlide[]>(
+    () =>
+      (pw.benefits as readonly BenefitSlide[]).map((b) => ({
+        icon: b.icon,
+        title: b.title,
+        body: b.body
+      })),
+    [pw.benefits]
+  );
+
+  const trialActive =
+    trialState != null &&
+    trialState.kind === "trial" &&
+    Date.now() < trialState.expiresAt;
+  const promoActive =
+    trialState != null &&
+    trialState.kind === "promo" &&
+    Date.now() < trialState.expiresAt;
+  const showTrialCta = !trialActive && !promoActive;
+
+  const activeBadgeDays =
+    trialState != null
+      ? Math.max(
+          1,
+          Math.ceil((trialState.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))
+        )
+      : 0;
+
+  const handlePurchase = useCallback(async () => {
+    if (busy || !isConfigured) return;
+    try {
+      let success = false;
+      if (selectedPlan === "lifetime") {
+        success = await purchaseLifetime();
+      } else if (selectedPlan === "annual") {
+        success = await purchaseAnnual();
+      } else {
+        success = await purchaseMonthly();
+      }
+      if (success) onDismiss();
+    } catch {
+      Alert.alert(pw.errorTitle, pw.errorBody);
+    }
+  }, [
+    busy,
+    isConfigured,
+    selectedPlan,
+    purchaseLifetime,
+    purchaseAnnual,
+    purchaseMonthly,
+    onDismiss,
+    pw.errorTitle,
+    pw.errorBody
+  ]);
+
+  const handleTrial = useCallback(async () => {
+    if (busy) return;
+    try {
+      const plan = selectedPlan === "lifetime" ? "annual" : selectedPlan;
+      const state = await startTrial(plan as "annual" | "monthly");
+      if (state) onDismiss();
+    } catch {
+      Alert.alert(pw.errorTitle, pw.errorBody);
+    }
+  }, [busy, selectedPlan, startTrial, onDismiss, pw.errorTitle, pw.errorBody]);
 
   const handleRestore = useCallback(async () => {
-    if (!isConfigured) return;
+    if (busy || !isConfigured) return;
     try {
-      const ok = await restore();
-      if (ok) onDismiss();
+      const success = await restore();
+      if (success) onDismiss();
     } catch {
-      reportError();
+      Alert.alert(pw.errorTitle, pw.errorBody);
     }
-  }, [isConfigured, restore, onDismiss, reportError]);
+  }, [busy, isConfigured, restore, onDismiss, pw.errorTitle, pw.errorBody]);
 
-  const benefits = useMemo(() => tr.paywall.benefits, [tr]);
+  const handlePromoApply = useCallback(async () => {
+    if (!promoInput.trim() || promoLoading) return;
+    setPromoLoading(true);
+    setPromoError(null);
+    setPromoResult(null);
+    try {
+      const result = await applyPromoCode(promoInput.trim());
+      if (result.valid) {
+        setPromoResult(result);
+      } else {
+        setPromoError(
+          result.reason === "expired" ? pw.promoExpired : pw.promoInvalid
+        );
+      }
+    } finally {
+      setPromoLoading(false);
+    }
+  }, [
+    promoInput,
+    promoLoading,
+    applyPromoCode,
+    pw.promoExpired,
+    pw.promoInvalid
+  ]);
+
+  const handleCarouselScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+      setCarouselIndex(idx);
+    },
+    []
+  );
+
+  const lifetimePrice = offering?.lifetime?.priceString ?? pw.lifetimePrice;
+  const annualPrice = offering?.annual?.priceString ?? pw.annualPrice;
+  const monthlyPrice = offering?.monthly?.priceString ?? pw.monthlyPrice;
+
+  const renderSlide = useCallback(
+    ({ item }: ListRenderItemInfo<BenefitSlide>) => {
+      const iconName =
+        (ICON_MAP[item.icon] as keyof typeof Ionicons.glyphMap | undefined) ??
+        "star-outline";
+      return (
+        <View style={[styles.slide, { width: SCREEN_WIDTH - 40 }]}>
+          <View style={styles.slideIconWrap}>
+            <LinearGradient
+              colors={[t.colors.accent + "44", t.colors.accent + "11"]}
+              style={StyleSheet.absoluteFill}
+            />
+            <Ionicons name={iconName} size={44} color={t.colors.accent} />
+          </View>
+          <Text style={styles.slideTitle}>{item.title}</Text>
+          <Text style={styles.slideBody}>{item.body}</Text>
+        </View>
+      );
+    },
+    [styles, t.colors.accent]
+  );
+
+  const keyExtractor = useCallback(
+    (_: BenefitSlide, i: number) => String(i),
+    []
+  );
 
   return (
-    <Sheet visible={visible} onDismiss={onDismiss}>
-      <MotiView
-        from={{ opacity: 0, translateY: 8 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: "timing", duration: 360 }}
+    <Sheet
+      visible={visible}
+      onDismiss={onDismiss}
+      snapPoints={["100%"]}
+      noPadding
+      showHandle={false}
+    >
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: Math.max(insets.top, 24),
+            paddingBottom: Math.max(insets.bottom, 24)
+          }
+        ]}
       >
-        <LinearGradient
-          colors={[t.gradients.bioGlow[0], t.gradients.bioGlow[1]]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.crest}
+        <TouchableOpacity
+          style={styles.closeBtn}
+          onPress={onDismiss}
+          hitSlop={{ top: 12, left: 12, bottom: 12, right: 12 }}
+          accessibilityLabel="Close"
         >
-          <Ionicons name="diamond" size={28} color="#fff" />
-        </LinearGradient>
+          <Ionicons name="close" size={28} color={t.colors.textMuted} />
+        </TouchableOpacity>
 
-        <Text style={styles.title}>{tr.paywall.title}</Text>
-        <Text style={styles.subtitle}>{tr.paywall.subtitle}</Text>
+        <Text style={styles.heading}>{pw.title}</Text>
+        <Text style={styles.headingSub}>{pw.subtitle}</Text>
 
-        {intent ? (
-          <View style={styles.intentCard}>
-            <Ionicons name="lock-open" size={14} color={t.colors.premium} />
-            <Text style={styles.intentText}>
-              {tr.paywall.unlockingTheme(intent.name)}
+        {(trialActive || promoActive) && trialState != null && (
+          <View style={styles.activeBanner}>
+            <Ionicons
+              name="checkmark-circle"
+              size={14}
+              color={t.colors.accent}
+            />
+            <Text style={styles.activeBannerText}>
+              {pw.promoSuccess(activeBadgeDays)}
             </Text>
           </View>
-        ) : null}
+        )}
 
-        <View style={styles.benefitList}>
-          {benefits.map((b, i) => (
-            <View key={i} style={styles.benefitRow}>
-              <View style={styles.checkDot}>
-                <Ionicons name="checkmark" size={12} color={t.colors.accent} />
-              </View>
-              <Text style={styles.benefitText}>{b}</Text>
-            </View>
-          ))}
+        <View style={styles.carouselWrap}>
+          <FlatList
+            ref={carouselRef}
+            data={slides}
+            renderItem={renderSlide}
+            keyExtractor={keyExtractor}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleCarouselScroll}
+            scrollEventThrottle={16}
+            bounces={false}
+            getItemLayout={(_, i) => ({
+              length: SCREEN_WIDTH,
+              offset: SCREEN_WIDTH * i,
+              index: i
+            })}
+          />
+          {/* Pagination dots */}
+          <View style={styles.dotsRow}>
+            {slides.map((_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.dot,
+                  i === carouselIndex ? styles.dotActive : styles.dotInactive
+                ]}
+              />
+            ))}
+          </View>
         </View>
 
-        <View style={styles.actions}>
+        <View style={styles.plansRow}>
+          {/* Lifetime */}
           <PressableCard
-            haptic="heavy"
-            onPress={handleLifetime}
-            disabled={busy || !isConfigured}
+            selected={selectedPlan === "lifetime"}
+            onPress={() => setSelectedPlan("lifetime")}
+            containerStyle={{
+              ...styles.planCard,
+              ...(selectedPlan === "lifetime"
+                ? styles.planCardSelected
+                : undefined)
+            }}
+            haptic="light"
+            radius={16}
             glow
-            radius={t.radii.pill}
+            padding={0}
           >
-            <View style={styles.ctaContent}>
+            <View style={styles.planInner}>
+              <Text style={styles.planLabel}>{pw.planLifetime}</Text>
+              <Text style={styles.planPrice}>{lifetimePrice}</Text>
+              <Text style={styles.planSub}>{pw.planLifetimeSub}</Text>
+            </View>
+          </PressableCard>
+          {/* Annual */}
+          <PressableCard
+            selected={selectedPlan === "annual"}
+            onPress={() => setSelectedPlan("annual")}
+            containerStyle={{
+              ...styles.planCard,
+              ...styles.planCardFeatured,
+              ...(selectedPlan === "annual"
+                ? styles.planCardSelected
+                : undefined)
+            }}
+            haptic="light"
+            radius={16}
+            glow
+            padding={0}
+          >
+            <View style={styles.savingBadge}>
+              <Text style={styles.savingBadgeText}>{pw.annualSaving}</Text>
+            </View>
+            <View style={styles.planInner}>
+              <Text style={[styles.planLabel, styles.planLabelAccent]}>
+                {pw.planAnnual}
+              </Text>
+              <Text style={styles.planPrice}>{annualPrice}</Text>
+              <Text style={styles.planSub}>{pw.annualPricePerMonth}</Text>
+            </View>
+          </PressableCard>
+          {/* Monthly */}
+          <PressableCard
+            selected={selectedPlan === "monthly"}
+            onPress={() => setSelectedPlan("monthly")}
+            containerStyle={{
+              ...styles.planCard,
+              ...(selectedPlan === "monthly"
+                ? styles.planCardSelected
+                : undefined)
+            }}
+            haptic="light"
+            radius={16}
+            glow
+            padding={0}
+          >
+            <View style={styles.planInner}>
+              <Text style={styles.planLabel}>{pw.planMonthly}</Text>
+              <Text style={styles.planPrice}>{monthlyPrice}</Text>
+              <Text style={styles.planSub}>{pw.planMonthlySub}</Text>
+            </View>
+          </PressableCard>
+        </View>
+
+        {showTrialCta && (
+          <PressableCard
+            onPress={handleTrial}
+            containerStyle={styles.trialCard}
+            haptic="medium"
+            radius={14}
+            padding={0}
+            disabled={busy}
+          >
+            <LinearGradient
+              colors={[t.colors.accent, t.colors.accent + "AA"]}
+              style={styles.trialGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
               {busy ? (
-                <ActivityIndicator color={t.colors.text} />
+                <ActivityIndicator color="#fff" size="small" />
               ) : (
                 <>
-                  <Text style={styles.ctaPrimary}>
-                    {tr.paywall.lifetimeCta}
-                  </Text>
-                  <Text style={styles.ctaPrice}>{lifetimePrice}</Text>
+                  <View style={styles.trialPill}>
+                    <Text style={styles.trialPillText}>{pw.trialBadge}</Text>
+                  </View>
+                  <Text style={styles.trialCtaLabel}>{pw.trialCta}</Text>
+                  <Text style={styles.trialCtaSub}>{pw.trialDescription}</Text>
                 </>
               )}
-            </View>
+            </LinearGradient>
           </PressableCard>
+        )}
 
-          {intentTheme ? (
-            <PressableCard
-              haptic="medium"
-              onPress={handleSinglePack}
-              disabled={busy || !isConfigured}
-              radius={t.radii.pill}
-            >
-              <View style={styles.ctaContent}>
-                <Text style={styles.ctaSecondary}>
-                  {tr.paywall.singlePackCta}
-                </Text>
-                <Text style={styles.ctaPrice}>{singlePackPrice}</Text>
-              </View>
-            </PressableCard>
-          ) : null}
-
-          {isConfigured ? (
-            <PressableCard
-              haptic="light"
-              onPress={handleRestore}
-              disabled={busy}
-              radius={t.radii.pill}
-            >
-              <Text style={styles.skip}>{tr.paywall.restore}</Text>
-            </PressableCard>
-          ) : (
-            <Text style={styles.unavailable}>{tr.paywall.unavailable}</Text>
-          )}
-
-          <PressableCard
-            haptic="light"
-            onPress={onDismiss}
-            disabled={busy}
-            radius={t.radii.pill}
+        <PressableCard
+          onPress={handlePurchase}
+          containerStyle={styles.purchaseCard}
+          haptic="medium"
+          radius={14}
+          padding={0}
+          disabled={busy || !isConfigured}
+        >
+          <View
+            style={[
+              styles.purchaseInner,
+              (!isConfigured || busy) && styles.purchaseDisabled
+            ]}
           >
-            <Text style={styles.skip}>
-              {isPremium ? tr.profile.cancel : tr.paywall.maybeLater}
-            </Text>
-          </PressableCard>
+            {busy ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.purchaseLabel}>
+                {selectedPlan === "lifetime"
+                  ? pw.lifetimeCta
+                  : selectedPlan === "annual"
+                    ? pw.annualCta
+                    : pw.monthlyCta}
+              </Text>
+            )}
+          </View>
+        </PressableCard>
+
+        {!isConfigured && (
+          <Text style={styles.unavailableNote}>{pw.unavailable}</Text>
+        )}
+
+        <View style={styles.promoRow}>
+          <TextInput
+            style={[
+              styles.promoInput,
+              promoResult?.valid === true && styles.promoInputSuccess
+            ]}
+            value={promoInput}
+            onChangeText={(text) => {
+              setPromoInput(text);
+              setPromoError(null);
+              setPromoResult(null);
+            }}
+            placeholder={pw.promoPlaceholder}
+            placeholderTextColor={t.colors.textMuted}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={handlePromoApply}
+          />
+          <TouchableOpacity
+            style={[
+              styles.promoApplyBtn,
+              (promoLoading || !promoInput.trim()) &&
+                styles.promoApplyBtnDisabled
+            ]}
+            onPress={handlePromoApply}
+            disabled={promoLoading || !promoInput.trim()}
+          >
+            {promoLoading ? (
+              <ActivityIndicator size="small" color={t.colors.accent} />
+            ) : (
+              <Text style={styles.promoApplyText}>{pw.promoApply}</Text>
+            )}
+          </TouchableOpacity>
         </View>
 
-        {/* <Text style={styles.disclaimer}>{tr.paywall.disclaimer}</Text> */}
-      </MotiView>
+        {promoError != null && (
+          <Text style={styles.promoFeedbackError}>{promoError}</Text>
+        )}
+        {promoResult?.valid === true && (
+          <Text style={styles.promoFeedbackSuccess}>
+            {pw.promoSuccess(
+              Math.max(
+                1,
+                Math.ceil(
+                  (promoResult.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)
+                )
+              )
+            )}
+          </Text>
+        )}
+
+        <View style={styles.footerRow}>
+          <TouchableOpacity
+            onPress={handleRestore}
+            disabled={busy || !isConfigured}
+          >
+            <Text
+              style={[
+                styles.restoreLink,
+                (!isConfigured || busy) && styles.restoreLinkDisabled
+              ]}
+            >
+              {pw.restore}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.disclaimer}>{pw.disclaimer}</Text>
+      </View>
     </Sheet>
   );
 }
 
-const makeStyles = (t: AppTheme) =>
-  StyleSheet.create({
-    crest: {
+// ── Styles ─────────────────────────────────────────────────────────────────
+
+function makeStyles(t: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingHorizontal: t.spacing[5]
+    },
+    closeBtn: {
+      alignSelf: "flex-end",
+      padding: t.spacing[2],
+      marginRight: -t.spacing[2],
+      marginBottom: t.spacing[1]
+    },
+    // ── Header ───────────────────────────────────────────────────────────
+    heading: {
+      fontFamily: t.fonts.display,
+      fontSize: 26,
+      color: t.colors.text,
+      textAlign: "center",
+      letterSpacing: t.fonts.displayLetterSpacing,
+      marginBottom: t.spacing[1]
+    },
+    headingSub: {
+      fontFamily: t.fonts.body,
+      fontSize: 13,
+      color: t.colors.textMuted,
+      textAlign: "center",
+      lineHeight: 18,
+      marginBottom: t.spacing[3]
+    },
+    activeBanner: {
+      flexDirection: "row",
+      alignItems: "center",
       alignSelf: "center",
-      width: 64,
-      height: 64,
-      borderRadius: t.radii.xl,
+      gap: 6,
+      backgroundColor: t.colors.accent + "22",
+      borderRadius: 999,
+      paddingHorizontal: t.spacing[3],
+      paddingVertical: t.spacing[1],
+      marginBottom: t.spacing[3]
+    },
+    activeBannerText: {
+      fontFamily: t.fonts.label,
+      fontSize: 11,
+      color: t.colors.accent
+    },
+    // ── Carousel ─────────────────────────────────────────────────────────
+    carouselWrap: {
+      marginBottom: t.spacing[4]
+    },
+    slide: {
+      alignItems: "center",
+      paddingHorizontal: t.spacing[6]
+    },
+    slideIconWrap: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: t.spacing[4],
-      shadowColor: t.colors.accent,
-      shadowOpacity: 0.5,
-      shadowRadius: 14,
-      shadowOffset: { width: 0, height: 0 }
+      overflow: "hidden",
+      marginTop: t.spacing[2],
+      marginBottom: t.spacing[3],
+      backgroundColor: t.colors.surfaceElevated
     },
-    title: {
-      color: t.colors.text,
-      fontSize: 26,
+    slideTitle: {
       fontFamily: t.fonts.display,
-      letterSpacing: t.fonts.displayLetterSpacing,
-      textAlign: "center"
-    },
-    subtitle: {
-      color: t.colors.textSecondary,
-      fontSize: 14,
-      lineHeight: 20,
-      fontFamily: t.fonts.body,
+      fontSize: 20,
+      color: t.colors.text,
       textAlign: "center",
+      letterSpacing: t.fonts.displayLetterSpacing,
+      marginBottom: t.spacing[2]
+    },
+    slideBody: {
+      fontFamily: t.fonts.body,
+      fontSize: 13,
+      color: t.colors.textSecondary,
+      textAlign: "center",
+      lineHeight: 20
+    },
+    dotsRow: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 6,
+      marginTop: t.spacing[3]
+    },
+    dot: {
+      height: 6,
+      borderRadius: 3
+    },
+    dotActive: {
+      width: 20,
+      backgroundColor: t.colors.accent
+    },
+    dotInactive: {
+      width: 6,
+      backgroundColor: t.colors.textMuted,
+      opacity: 0.4
+    },
+    // ── Plan cards ───────────────────────────────────────────────────────
+    plansRow: {
+      flexDirection: "row",
+      gap: t.spacing[2],
+      marginBottom: t.spacing[4]
+    },
+    planCard: {
+      flex: 1,
+      borderWidth: 1.15,
+      borderColor: t.colors.glassEdge,
+      borderRadius: 16
+    },
+    planCardFeatured: {
+      flex: 1.15,
+      borderRadius: 16
+    },
+    planCardSelected: {
+      borderRadius: 16
+    },
+    savingBadge: {
+      backgroundColor: t.colors.accent,
+      borderRadius: 999,
+      paddingHorizontal: t.spacing[2],
+      paddingVertical: 3,
+      alignSelf: "center",
       marginTop: t.spacing[2]
     },
-    intentCard: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[2],
-      marginTop: t.spacing[4],
-      paddingVertical: t.spacing[2] + 2,
-      paddingHorizontal: t.spacing[3],
-      borderRadius: t.radii.pill,
-      backgroundColor: "rgba(255,210,122,0.08)",
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.premium,
-      alignSelf: "center"
-    },
-    intentText: {
-      color: t.colors.premium,
-      fontSize: 12,
+    savingBadgeText: {
       fontFamily: t.fonts.label,
+      fontSize: 10,
+      color: "#fff"
+    },
+    planInner: {
+      paddingVertical: t.spacing[3],
+      paddingHorizontal: t.spacing[1],
+      alignItems: "center"
+    },
+    planLabel: {
+      fontFamily: t.fonts.label,
+      fontSize: 10,
+      color: t.colors.textMuted,
+      letterSpacing: 0.5,
+      marginBottom: t.spacing[1]
+    },
+    planLabelAccent: {
+      color: t.colors.accent
+    },
+    planPrice: {
+      fontFamily: t.fonts.display,
+      fontSize: 13,
+      color: t.colors.text,
+      textAlign: "center",
+      letterSpacing: t.fonts.displayLetterSpacing,
+      marginBottom: 2
+    },
+    planSub: {
+      fontFamily: t.fonts.body,
+      fontSize: 10,
+      color: t.colors.textMuted,
+      textAlign: "center"
+    },
+    // ── Trial CTA ────────────────────────────────────────────────────────
+    trialCard: {
+      marginBottom: t.spacing[3],
+      borderRadius: 14,
+      overflow: "hidden"
+    },
+    trialGradient: {
+      paddingVertical: t.spacing[4],
+      paddingHorizontal: t.spacing[4],
+      alignItems: "center",
+      borderRadius: 14
+    },
+    trialPill: {
+      backgroundColor: "rgba(255,255,255,0.22)",
+      borderRadius: 999,
+      paddingHorizontal: t.spacing[3],
+      paddingVertical: 3,
+      marginBottom: t.spacing[2]
+    },
+    trialPillText: {
+      fontFamily: t.fonts.label,
+      fontSize: 10,
+      color: "#fff",
       letterSpacing: 1
     },
-    benefitList: {
-      marginTop: t.spacing[5],
-      gap: t.spacing[3]
+    trialCtaLabel: {
+      fontFamily: t.fonts.display,
+      fontSize: 18,
+      color: "#fff",
+      letterSpacing: t.fonts.displayLetterSpacing,
+      marginBottom: 4
     },
-    benefitRow: {
-      flexDirection: "row",
-      alignItems: "flex-start",
-      gap: t.spacing[3]
-    },
-    checkDot: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      backgroundColor: "rgba(34,228,255,0.10)",
-      alignItems: "center",
-      justifyContent: "center",
-      marginTop: 1
-    },
-    benefitText: {
-      flex: 1,
-      color: t.colors.text,
-      fontSize: 14,
-      lineHeight: 20,
-      fontFamily: t.fonts.body
-    },
-    actions: {
-      marginTop: t.spacing[6],
-      gap: t.spacing[3]
-    },
-    ctaContent: {
-      alignItems: "center",
-      gap: 2
-    },
-    ctaPrimary: {
-      color: t.colors.text,
-      fontSize: 14,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label
-    },
-    ctaSecondary: {
-      color: t.colors.textSecondary,
-      fontSize: 13,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label
-    },
-    ctaPrice: {
-      color: t.colors.accent,
-      fontSize: 12,
-      fontFamily: t.fonts.mono,
-      marginTop: 2
-    },
-    skip: {
-      color: t.colors.textMuted,
-      textAlign: "center",
-      fontSize: 14,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label,
-      paddingVertical: t.spacing[1]
-    },
-    unavailable: {
-      color: t.colors.textMuted,
-      textAlign: "center",
-      fontSize: 12,
-      lineHeight: 18,
+    trialCtaSub: {
       fontFamily: t.fonts.body,
-      paddingVertical: t.spacing[2]
+      fontSize: 11,
+      color: "rgba(255,255,255,0.72)",
+      textAlign: "center"
+    },
+    // ── Purchase CTA ─────────────────────────────────────────────────────
+    purchaseCard: {
+      marginBottom: t.spacing[2],
+      borderRadius: 14
+    },
+    purchaseInner: {
+      backgroundColor: t.colors.accent,
+      paddingVertical: t.spacing[4],
+      alignItems: "center",
+      borderRadius: 14
+    },
+    purchaseDisabled: {
+      opacity: 0.45
+    },
+    purchaseLabel: {
+      fontFamily: t.fonts.label,
+      fontSize: 13,
+      color: "#fff",
+      letterSpacing: 1
+    },
+    unavailableNote: {
+      fontFamily: t.fonts.body,
+      fontSize: 11,
+      color: t.colors.textMuted,
+      textAlign: "center",
+      marginBottom: t.spacing[2]
+    },
+    // ── Promo code ───────────────────────────────────────────────────────
+    promoRow: {
+      flexDirection: "row",
+      gap: t.spacing[2],
+      marginBottom: t.spacing[1]
+    },
+    promoInput: {
+      flex: 1,
+      height: 44,
+      borderRadius: 10,
+      backgroundColor: t.colors.surfaceElevated,
+      paddingHorizontal: t.spacing[3],
+      fontFamily: t.fonts.body,
+      fontSize: 14,
+      color: t.colors.text,
+      borderWidth: 1,
+      borderColor: t.colors.glassEdge
+    },
+    promoInputSuccess: {
+      borderColor: "#22E4FF"
+    },
+    promoApplyBtn: {
+      height: 44,
+      paddingHorizontal: t.spacing[3],
+      borderRadius: 10,
+      backgroundColor: t.colors.surfaceElevated,
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: t.colors.glassEdge
+    },
+    promoApplyBtnDisabled: {
+      opacity: 0.45
+    },
+    promoApplyText: {
+      fontFamily: t.fonts.label,
+      fontSize: 11,
+      color: t.colors.accent,
+      letterSpacing: 0.5
+    },
+    promoFeedbackError: {
+      fontFamily: t.fonts.body,
+      fontSize: 11,
+      color: "#FF7E9D",
+      textAlign: "center",
+      marginBottom: t.spacing[2]
+    },
+    promoFeedbackSuccess: {
+      fontFamily: t.fonts.body,
+      fontSize: 11,
+      color: "#22E4FF",
+      textAlign: "center",
+      marginBottom: t.spacing[2]
+    },
+    // ── Footer ────────────────────────────────────────────────────────────
+    footerRow: {
+      alignItems: "center",
+      marginVertical: t.spacing[2]
+    },
+    restoreLink: {
+      fontFamily: t.fonts.label,
+      fontSize: 11,
+      color: t.colors.textMuted,
+      letterSpacing: 0.3
+    },
+    restoreLinkDisabled: {
+      opacity: 0.4
     },
     disclaimer: {
-      color: t.colors.textFaint,
-      fontSize: 10,
-      textAlign: "center",
-      marginTop: t.spacing[4],
       fontFamily: t.fonts.body,
-      lineHeight: 14
+      fontSize: 10,
+      color: t.colors.textFaint,
+      textAlign: "center",
+      lineHeight: 16
     }
   });
+}

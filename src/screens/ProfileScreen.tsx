@@ -630,7 +630,7 @@ const makeStyles = (t: AppTheme) =>
       marginTop: t.spacing[1] + 2,
       fontSize: 14,
       lineHeight: 20,
-      fontFamily: t.fonts.body
+      fontFamily: t.fonts.mono
     },
     xpTrack: {
       height: 10,
