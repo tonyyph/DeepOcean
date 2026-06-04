@@ -14,16 +14,32 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 60);
+    };
+
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
     <motion.nav
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.3 }}
+      initial={false}
+      animate={{
+        opacity: 1,
+        y: 0
+      }}
+      transition={{
+        duration: 0.8,
+        delay: 0.3
+      }}
       style={{
         position: "fixed",
         top: 0,
@@ -44,7 +60,13 @@ export default function Navbar() {
       }}
     >
       {/* Logo */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem"
+        }}
+      >
         <div
           style={{
             width: 28,
@@ -66,6 +88,7 @@ export default function Navbar() {
             }}
           />
         </div>
+
         <span
           style={{
             fontFamily: "var(--font-display), Space Grotesk, sans-serif",
@@ -101,14 +124,17 @@ export default function Navbar() {
               textDecoration: "none",
               transition: "color 0.2s"
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#22E4FF")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#7186A5")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#22E4FF";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "#7186A5";
+            }}
           >
             {link.label}
           </a>
         ))}
 
-        {/* CTA */}
         <a
           href="#hero"
           style={{

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import LogoHero from "@/components/effects/WhaleHero";
+import LogoHero from "@/components/effects/LogoHero";
 import DepthIndicator from "@/components/ui/DepthIndicator";
 
 export default function HeroSection() {
