@@ -28,7 +28,6 @@ export function ThemePickerSheet({
   onDismiss,
   onRequestPaywall
 }: Props) {
-  const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
   const activeId = useThemeStore((s) => s.themeId);

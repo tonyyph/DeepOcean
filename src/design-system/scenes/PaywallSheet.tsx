@@ -82,7 +82,9 @@ export function PaywallSheet({
   const startTrial = usePremium((s) => s.startTrial);
   const applyPromoCode = usePremium((s) => s.applyPromoCode);
   const restore = usePremium((s) => s.restore);
-  const isPremium = usePremium((s) => s.isPremium);
+  const isPremium = usePremium((s) => {
+    return s.isPremium;
+  });
   const isConfigured = usePremium((s) => s.isConfigured);
   const status = usePremium((s) => s.status);
   const trialState = usePremium((s) => s.trialState);
@@ -212,6 +214,9 @@ export function PaywallSheet({
     setPromoResult(null);
     try {
       const result = await applyPromoCode(promoInput.trim());
+
+      console.log("🚀 💯 PaywallSheet 💯 result:", result);
+
       if (result.valid) {
         setPromoResult(result);
       } else {

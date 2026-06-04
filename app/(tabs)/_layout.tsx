@@ -17,7 +17,9 @@ import { usePremium } from "@/stores";
  */
 export default function TabsLayout() {
   const t = useTheme();
-  const isPremium = usePremium((s) => s.isPremium);
+  const isPremium = usePremium((s) => {
+    return s.isPremium;
+  });
 
   const screenOptions = useMemo(
     () => ({
