@@ -215,8 +215,6 @@ export function PaywallSheet({
     try {
       const result = await applyPromoCode(promoInput.trim());
 
-      console.log("🚀 💯 PaywallSheet 💯 result:", result);
-
       if (result.valid) {
         setPromoResult(result);
       } else {

@@ -12,7 +12,7 @@ export type ReflectionInput = {
 
 /**
  * AIProvider — the single seam between the app and an LLM backend. Concrete
- * providers (OpenAI, Anthropic) implement this; the rest of the app depends
+ * providers (OpenAI) implement this; the rest of the app depends
  * only on this interface.
  */
 export interface AIProvider {

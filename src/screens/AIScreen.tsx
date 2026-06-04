@@ -39,9 +39,11 @@ export default function AIScreen() {
     refetch: refetchRec,
     isFetching
   } = useDailyRecommendation();
+
   const { data: sessions = [] } = useSessions();
   const { data: moodRecord } = useMoodRecord();
-  const { data: motivation } = useDailyMotivation();
+  const { data: motivation, refetch: refetchMotivation } = useDailyMotivation();
+
   const { mutate: setMood } = useSetMood();
   const selectedMood = selectCurrentMood(moodRecord);
   const [paywallOpen, setPaywallOpen] = useState(false);
@@ -60,6 +62,10 @@ export default function AIScreen() {
   });
 
   const handleOpenPaywall = useCallback(() => setPaywallOpen(true), []);
+  const handleRefreshAI = useCallback(() => {
+    void refetchRec();
+    void refetchMotivation();
+  }, [refetchMotivation, refetchRec]);
 
   return (
     <ZoneBackground zone="twilight">
@@ -87,7 +93,7 @@ export default function AIScreen() {
               </>
             ) : null}
             <View style={styles.askWrap}>
-              <PressableCard haptic="light" onPress={() => refetchRec()}>
+              <PressableCard haptic="light" onPress={handleRefreshAI}>
                 <Text style={styles.cta}>{tr.ai.askAgain}</Text>
               </PressableCard>
             </View>
@@ -120,7 +126,7 @@ export default function AIScreen() {
                   active={selectedMood === m}
                   onPress={() => {
                     setMood(m);
-                    refetchRec();
+                    handleRefreshAI();
                   }}
                   containerStyle={styles.moodItem}
                 />

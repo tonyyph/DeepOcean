@@ -43,6 +43,7 @@ export function useSession(id: string | null | undefined) {
 
 export function useDailyRecommendation() {
   const lang = useSettings((s) => s.language ?? "en") as Language;
+
   return useQuery({
     queryKey: [...diverKeys.dailyRec, lang],
     queryFn: async () => {

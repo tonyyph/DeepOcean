@@ -9,19 +9,17 @@ import Constants from "expo-constants";
  * key simply means that provider is unavailable and the companion runs in
  * offline/cached mode.
  */
-export type AIProviderId = "openai" | "anthropic";
+export type AIProviderId = "gemini";
 
 export type AIConfig = {
   /** Resolved provider to use, or null when none is configured. */
   provider: AIProviderId | null;
-  openAi: { apiKey: string | null; model: string };
-  anthropic: { apiKey: string | null; model: string };
+  gemini: { apiKey: string | null; model: string };
   /** Hard ceiling on request latency before we fall back to cache. */
   timeoutMs: number;
 };
 
-const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
-const DEFAULT_ANTHROPIC_MODEL = "claude-3-5-haiku-latest";
+const DEFAULT_GEMINI_MODEL = "gemini-flash-latest";
 const DEFAULT_TIMEOUT_MS = 12_000;
 
 function extraAI(): Record<string, unknown> {
@@ -44,22 +42,16 @@ function pick(
 export function getAIConfig(): AIConfig {
   const ai = extraAI();
 
-  const openAiKey = pick(
-    process.env.EXPO_PUBLIC_OPENAI_API_KEY,
-    ai.openAiApiKey
-  );
-  const anthropicKey = pick(
-    process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY,
-    ai.anthropicApiKey
+  const geminiKey = pick(
+    process.env.EXPO_PUBLIC_GEMINI_API_KEY,
+    ai.geminiApiKey ?? ai.openAiApiKey
   );
 
-  const openAiModel =
-    pick(process.env.EXPO_PUBLIC_OPENAI_MODEL, ai.openAiModel) ??
-    DEFAULT_OPENAI_MODEL;
-  const anthropicModel =
-    pick(process.env.EXPO_PUBLIC_ANTHROPIC_MODEL, ai.anthropicModel) ??
-    DEFAULT_ANTHROPIC_MODEL;
-
+  const geminiModel =
+    pick(
+      process.env.EXPO_PUBLIC_GEMINI_MODEL,
+      ai.geminiModel ?? ai.openAiModel
+    ) ?? DEFAULT_GEMINI_MODEL;
   const explicit = pick(
     process.env.EXPO_PUBLIC_AI_PROVIDER,
     ai.provider
@@ -67,15 +59,12 @@ export function getAIConfig(): AIConfig {
 
   // Resolve provider: explicit choice wins (if its key exists), else first key found.
   let provider: AIProviderId | null = null;
-  if (explicit === "openai" && openAiKey) provider = "openai";
-  else if (explicit === "anthropic" && anthropicKey) provider = "anthropic";
-  else if (openAiKey) provider = "openai";
-  else if (anthropicKey) provider = "anthropic";
+  if (explicit === "gemini" && geminiKey) provider = "gemini";
+  else if (geminiKey) provider = "gemini";
 
   return {
     provider,
-    openAi: { apiKey: openAiKey, model: openAiModel },
-    anthropic: { apiKey: anthropicKey, model: anthropicModel },
+    gemini: { apiKey: geminiKey, model: geminiModel },
     timeoutMs: DEFAULT_TIMEOUT_MS
   };
 }
