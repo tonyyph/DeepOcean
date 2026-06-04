@@ -85,7 +85,6 @@ export default function LogoHero() {
           <Image
             src={logo}
             alt="Logo"
-            // fill
             priority
             style={{
               objectFit: "contain"
