@@ -42,10 +42,11 @@ export function ThemePickerSheet({
 
   const handlePick = useCallback(
     (id: ThemeId, premium: boolean) => {
-      if (!canUseTheme(id, premium, isPremium, unlocked)) {
-        onRequestPaywall(id);
-        return;
-      }
+      // TODO: remove this ones
+      // if (!canUseTheme(id, premium, isPremium, unlocked)) {
+      //   onRequestPaywall(id);
+      //   return;
+      // }
       setSelected(id);
     },
     [isPremium, unlocked, onRequestPaywall]

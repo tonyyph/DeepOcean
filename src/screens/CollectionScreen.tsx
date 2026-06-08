@@ -301,7 +301,7 @@ const makeStyles = (t: AppTheme) =>
     itemRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[3] + 2
+      gap: t.spacing[3.5]
     },
     iconBubble: {
       width: 44,
@@ -347,14 +347,14 @@ const makeStyles = (t: AppTheme) =>
     desc: {
       color: t.colors.textSecondary,
       fontSize: 13,
-      marginTop: t.spacing[2] - 2,
+      marginTop: t.spacing[1.5],
       lineHeight: 19,
       fontFamily: t.fonts.body
     },
     whisper: {
       color: t.colors.textFaint,
       fontSize: 12,
-      marginTop: t.spacing[2] - 2,
+      marginTop: t.spacing[1.5],
       lineHeight: 17,
       fontFamily: t.fonts.body,
       fontStyle: "italic"

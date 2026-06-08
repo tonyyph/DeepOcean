@@ -627,7 +627,7 @@ const makeStyles = (t: AppTheme) =>
     },
     headerSub: {
       color: t.colors.textSecondary,
-      marginTop: t.spacing[1] + 2,
+      marginTop: t.spacing[1.5],
       fontSize: 14,
       lineHeight: 20,
       fontFamily: t.fonts.mono
@@ -715,7 +715,7 @@ const makeStyles = (t: AppTheme) =>
     premiumActiveRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[3] + 2
+      gap: t.spacing[3.5]
     },
     premiumCrest: {
       width: 44,

@@ -109,7 +109,7 @@ const makeStyles = (t: AppTheme) =>
     row: {
       flexDirection: "row",
       alignItems: "center",
-      paddingVertical: t.spacing[4] - 2,
+      paddingVertical: t.spacing[3.5],
       gap: t.spacing[3]
     },
     rowDivider: {

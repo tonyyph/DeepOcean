@@ -284,7 +284,7 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       gap: 5,
       paddingHorizontal: t.spacing[3],
-      paddingVertical: t.spacing[1] + 2,
+      paddingVertical: t.spacing[1.5],
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.border,
@@ -339,7 +339,7 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.textMuted,
       fontFamily: t.fonts.body,
       fontSize: 11,
-      marginTop: t.spacing[1] + 2
+      marginTop: t.spacing[1.5]
     },
     lockedFoot: {
       flexDirection: "row",

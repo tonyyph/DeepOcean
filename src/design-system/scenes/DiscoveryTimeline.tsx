@@ -108,7 +108,7 @@ const makeStyles = (t: AppTheme) =>
       flexDirection: "row",
       alignItems: "center",
       gap: t.spacing[3],
-      paddingVertical: t.spacing[2] + 2
+      paddingVertical: t.spacing[2.5]
     },
     minute: {
       width: 44,

@@ -57,7 +57,7 @@ const makeStyles = (t: AppTheme) =>
     },
     sub: {
       color: t.colors.textSecondary,
-      marginTop: t.spacing[1] + 2,
+      marginTop: t.spacing[1.5],
       fontSize: 14,
       lineHeight: 20,
       fontFamily: t.fonts.body

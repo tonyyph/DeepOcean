@@ -407,7 +407,7 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.text,
       fontSize: 56,
       fontFamily: t.fonts.display,
-      marginTop: t.spacing[2] - 2,
+      marginTop: t.spacing[1.5],
       lineHeight: 60
     },
     heroDurationSub: {
@@ -422,7 +422,7 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 12,
       fontFamily: t.fonts.body
     },
-    quickRow: { flexDirection: "row", gap: t.spacing[2] + 2 },
+    quickRow: { flexDirection: "row", gap: t.spacing[2.5] },
     quickItem: { flex: 1 },
     row: {
       flexDirection: "row",
@@ -515,7 +515,7 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: 2
     },
     // Stats
-    statsRow: { flexDirection: "row", gap: t.spacing[2] + 2 },
+    statsRow: { flexDirection: "row", gap: t.spacing[2.5] },
     statValueRow: {
       flexDirection: "row",
       alignItems: "baseline",

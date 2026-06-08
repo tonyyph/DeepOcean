@@ -50,7 +50,7 @@ const makeStyles = (t: AppTheme) =>
     capsule: {
       alignSelf: "center",
       paddingHorizontal: t.spacing[5],
-      paddingVertical: t.spacing[2] + 2,
+      paddingVertical: t.spacing[2.5],
       borderRadius: t.radii.pill,
       backgroundColor: "rgba(2,8,28,0.55)",
       borderWidth: StyleSheet.hairlineWidth,
@@ -60,7 +60,7 @@ const makeStyles = (t: AppTheme) =>
     row: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[2] - 2
+      gap: t.spacing[1.5]
     },
     dot: {
       width: 6,

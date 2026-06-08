@@ -321,9 +321,9 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "space-between",
       padding: t.spacing[6]
     },
-    topBlock: { alignItems: "center", gap: t.spacing[4] + 2 },
+    topBlock: { alignItems: "center", gap: t.spacing[4.5] },
     ringWrap: { alignItems: "center" },
-    actions: { gap: t.spacing[3] + 2 },
+    actions: { gap: t.spacing[3.5] },
     row: { flexDirection: "row", gap: t.spacing[3] },
     primaryBtn: { width: "100%" },
     primaryText: {

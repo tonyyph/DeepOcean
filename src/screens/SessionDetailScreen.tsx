@@ -192,7 +192,7 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 13,
       color: t.colors.textSecondary
     },
-    kpiRow: { flexDirection: "row", gap: t.spacing[2] + 2 },
+    kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
     kpiLabel: {
       color: t.colors.textMuted,
       fontSize: 10,
@@ -202,7 +202,7 @@ const makeStyles = (t: AppTheme) =>
     kpiValue: {
       color: t.colors.text,
       fontSize: 24,
-      marginTop: t.spacing[2] - 2,
+      marginTop: t.spacing[1.5],
       fontFamily: t.fonts.mono
     },
     levelRow: { flexDirection: "row", alignItems: "center", gap: t.spacing[2] },

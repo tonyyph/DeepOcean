@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "stop": "kill $(lsof -t -i:3000)",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint"
   },
   "dependencies": {

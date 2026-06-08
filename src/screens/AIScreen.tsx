@@ -86,12 +86,6 @@ export default function AIScreen() {
             <Text style={styles.body}>
               {isFetching ? tr.ai.listening : (recommendation ?? "—")}
             </Text>
-            {motivation ? (
-              <>
-                <SectionLabel>{tr.ai.nudge}</SectionLabel>
-                <Text style={styles.nudge}>{motivation}</Text>
-              </>
-            ) : null}
             <View style={styles.askWrap}>
               <PressableCard haptic="light" onPress={handleRefreshAI}>
                 <Text style={styles.cta}>{tr.ai.askAgain}</Text>
@@ -99,12 +93,19 @@ export default function AIScreen() {
             </View>
           </GlassCard>
 
-          {lastSummary ? (
+          {motivation && (
+            <GlassCard radius={t.radii.md}>
+              <SectionLabel>{tr.ai.nudge}</SectionLabel>
+              <Text style={styles.nudge}>{motivation}</Text>
+            </GlassCard>
+          )}
+
+          {lastSummary && (
             <GlassCard radius={t.radii.md}>
               <SectionLabel>{tr.ai.lastExpedition}</SectionLabel>
               <Text style={styles.body}>{lastSummary}</Text>
             </GlassCard>
-          ) : null}
+          )}
 
           {/* PRO INSIGHTS BLOCK */}
           <ProInsights
@@ -308,7 +309,8 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.text,
       fontSize: 16,
       lineHeight: 24,
-      fontFamily: t.fonts.body
+      fontFamily: t.fonts.body,
+      marginBottom: t.spacing[2]
     },
     bodyMuted: {
       color: t.colors.textSecondary,
@@ -335,8 +337,8 @@ const makeStyles = (t: AppTheme) =>
     moodGrid: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: t.spacing[2] + 2,
-      marginTop: t.spacing[4] - 2
+      gap: t.spacing[2.5],
+      marginTop: t.spacing[3.5]
     },
     moodItem: { flexBasis: "47%", flexGrow: 1 },
 
@@ -380,7 +382,7 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.body
     },
     proPreviewBlur: {
-      gap: t.spacing[1] + 2,
+      gap: t.spacing[1.5],
       paddingVertical: t.spacing[2],
       opacity: 0.45
     },
@@ -434,6 +436,6 @@ const makeStyles = (t: AppTheme) =>
       marginTop: 2
     },
     moodChartWrap: {
-      marginTop: t.spacing[2] + 2
+      marginTop: t.spacing[2.5]
     }
   });

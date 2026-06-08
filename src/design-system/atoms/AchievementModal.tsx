@@ -252,7 +252,7 @@ const makeStyles = (t: AppTheme) =>
     badge: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[1] + 2,
+      gap: t.spacing[1.5],
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[1],
       borderRadius: t.radii.pill,
@@ -287,7 +287,7 @@ const makeStyles = (t: AppTheme) =>
     depthChip: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[1] + 2,
+      gap: t.spacing[1.5],
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[1],
       borderRadius: t.radii.pill,

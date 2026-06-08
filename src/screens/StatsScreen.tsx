@@ -206,7 +206,7 @@ const makeStyles = (t: AppTheme) =>
       paddingBottom: t.spacing[24],
       gap: t.spacing[4]
     },
-    kpiRow: { flexDirection: "row", gap: t.spacing[2] + 2 },
+    kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
     kpiLabel: {
       color: t.colors.textMuted,
       fontSize: 10,
@@ -216,7 +216,7 @@ const makeStyles = (t: AppTheme) =>
     kpiValue: {
       color: t.colors.text,
       fontSize: 26,
-      marginTop: t.spacing[2] - 2,
+      marginTop: t.spacing[1.5],
       fontFamily: t.fonts.mono
     },
     dayLabel: {
@@ -248,11 +248,11 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[2],
       marginTop: t.spacing[3]
     },
-    heatCol: { flex: 1, alignItems: "center", gap: t.spacing[2] - 2 },
+    heatCol: { flex: 1, alignItems: "center", gap: t.spacing[1.5] },
     heatBar: {
       width: "100%",
       height: 72,
-      borderRadius: t.radii.sm - 3
+      borderRadius: t.radii.s
     },
     empty: {
       color: t.colors.textMuted,
@@ -263,7 +263,7 @@ const makeStyles = (t: AppTheme) =>
     sessionRow: {
       flexDirection: "row",
       justifyContent: "space-between",
-      paddingVertical: t.spacing[3] - 2,
+      paddingVertical: t.spacing[2.5],
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: t.colors.border
     },

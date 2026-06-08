@@ -53,7 +53,10 @@ export class AICompanionRepository implements IAICompanionGateway {
       (entry) => this.writeRecommendation(context.language, entry),
       () => composeOfflineCompanion("recommendation", context)
     );
-    return ensureRecommendationQuality(text, context);
+    return polishEmotionalReply(
+      ensureRecommendationQuality(text, context),
+      context.language
+    );
   }
 
   async motivation(context: AIContext): Promise<string> {
@@ -63,7 +66,10 @@ export class AICompanionRepository implements IAICompanionGateway {
       (entry) => this.writeMotivation(context.language, entry),
       () => composeOfflineCompanion("motivation", context)
     );
-    return ensureMotivationQuality(text, context);
+    return polishEmotionalReply(
+      ensureMotivationQuality(text, context),
+      context.language
+    );
   }
 
   async sessionSummary(
@@ -72,12 +78,13 @@ export class AICompanionRepository implements IAICompanionGateway {
   ): Promise<string> {
     const input = toReflectionInput(session);
     const key = `${session.id}:${language}`;
-    return this.run(
+    const text = await this.run(
       () => this.provider?.generateReflection(input, language),
       () => this.readCache().reflections[key],
       (entry) => this.writeReflection(key, entry),
       () => composeOfflineReflection(input, language)
     );
+    return polishEmotionalReply(text, language);
   }
 
   /** Shared orchestration: provider → cache write, else stale cache, else offline. */
@@ -302,4 +309,63 @@ function hasMoodSignal(text: string, language: Language): boolean {
     return /(tập trung|mệt|kiệt sức|động lực|tò mò)/.test(lower);
   }
   return /(focused|tired|burned out|motivated|curious)/.test(lower);
+}
+
+function polishEmotionalReply(text: string, language: Language): string {
+  let out = text.replace(/\s+/g, " ").trim();
+  if (!out) return out;
+
+  out = out
+    .replace(/([.!?])(\S)/g, "$1 $2")
+    .replace(/\s*([,;:])\s*/g, "$1 ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  out = splitRunOnSentence(out, language);
+  out = ensureEndingPunctuation(out);
+  return out;
+}
+
+function splitRunOnSentence(text: string, language: Language): string {
+  if (/[.!?].+[.!?]/.test(text)) return text;
+  if (text.length < 120) return text;
+
+  const patterns =
+    language === "vi"
+      ? [" nhưng ", " và ", " rồi ", " vì ", " để "]
+      : [" but ", " and ", " so ", " then ", " because ", " while "];
+
+  const lower = text.toLowerCase();
+  for (const token of patterns) {
+    const idx = lower.indexOf(token);
+    if (idx > 42 && idx < text.length - 20) {
+      const head = text
+        .slice(0, idx)
+        .trim()
+        .replace(/[,:;]$/, "");
+      const tailRaw = text.slice(idx + token.length).trim();
+      const tail = language === "en" ? capitalizeFirst(tailRaw) : tailRaw;
+      return `${head}. ${tail}`;
+    }
+  }
+
+  const comma = text.indexOf(",");
+  if (comma > 42 && comma < text.length - 20) {
+    const head = text.slice(0, comma).trim();
+    const tailRaw = text.slice(comma + 1).trim();
+    const tail = language === "en" ? capitalizeFirst(tailRaw) : tailRaw;
+    return `${head}. ${tail}`;
+  }
+
+  return text;
+}
+
+function ensureEndingPunctuation(text: string): string {
+  if (/[.!?]$/.test(text)) return text;
+  return `${text}.`;
+}
+
+function capitalizeFirst(text: string): string {
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
