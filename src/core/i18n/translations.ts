@@ -71,6 +71,9 @@ export const translations = {
       reminderTimeDesc: "When your daily nudge arrives",
       showDiscoveries: "Discovery alerts",
       showDiscoveriesDesc: "Show pop-ups when you encounter something",
+      devEnablePremium: "Enable premium",
+      devEnablePremiumDesc:
+        "Local test toggle for premium UI and feature gates",
       about: "ABOUT",
       appVersion: "Version",
       appVersionValue: "#Ynot",
@@ -352,6 +355,9 @@ export const translations = {
       reminderTimeDesc: "Thời điểm lời nhắc mỗi ngày xuất hiện",
       showDiscoveries: "Thông báo khám phá",
       showDiscoveriesDesc: "Hiện pop-up khi bắt gặp sinh vật/cổ vật",
+      devEnablePremium: "Bật premium",
+      devEnablePremiumDesc:
+        "Bật nhanh premium cục bộ để test UI và các tính năng bị khóa",
       about: "VỀ ỨNG DỤNG",
       appVersion: "Phiên bản",
       appVersionValue: "#Ynot",

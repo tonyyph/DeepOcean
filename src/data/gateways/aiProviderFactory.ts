@@ -1,31 +1,60 @@
 import { getAIConfig, type AIConfig } from "@/core/config/aiConfig";
 import type { AIProvider } from "@/features/ai/AIProvider";
 import { makeGeminiProvider } from "./OpenAIProvider";
+import { makeGroqProvider } from "./GroqProvider";
+import { makeOpenRouterProvider } from "./OpenRouterProvider";
 
 /**
- * Resolves the configured {@link AIProvider}, or null when no API key is
- * available (the companion then runs purely from cache + offline composer).
+ * Resolves providers in fallback order. Empty list means no API key is
+ * configured and the companion runs on cache + offline composer.
  */
-export function createAIProvider(
+export function createAIProviders(
   config: AIConfig = getAIConfig()
-): AIProvider | null {
-  switch (config.provider) {
-    case "gemini":
-      if (__DEV__) {
-        console.log("[AICompanion] Gemini provider enabled", {
-          model: config.gemini.model,
-          hasKey: Boolean(config.gemini.apiKey)
-        });
-      }
-      return makeGeminiProvider(config);
-    default:
-      if (__DEV__) {
-        console.warn("[AICompanion] Provider disabled", {
-          provider: config.provider,
-          hasGeminiKey: Boolean(config.gemini.apiKey),
-          geminiModel: config.gemini.model
-        });
-      }
-      return null;
+): AIProvider[] {
+  const providers: AIProvider[] = [];
+  for (const id of config.fallbackOrder) {
+    const candidate =
+      id === "gemini"
+        ? makeGeminiProvider(config)
+        : id === "groq"
+          ? makeGroqProvider(config)
+          : makeOpenRouterProvider(config);
+    if (candidate) providers.push(candidate);
   }
+
+  // if (__DEV__) {
+  //   if (providers.length === 0) {
+  //     console.log(
+  //       "[AICompanion] Providers disabled",
+  //       JSON.stringify(
+  //         {
+  //           fallbackOrder: config.fallbackOrder,
+  //           hasGeminiKey: Boolean(config.gemini.apiKey),
+  //           hasGroqKey: Boolean(config.groq.apiKey),
+  //           hasOpenRouterKey: Boolean(config.openrouter.apiKey)
+  //         },
+  //         null,
+  //         2
+  //       )
+  //     );
+  //   } else {
+  //     console.log(
+  //       "[AICompanion] Provider chain enabled",
+  //       JSON.stringify(
+  //         {
+  //           order: providers.map((provider) => provider.id),
+  //           models: {
+  //             gemini: config.gemini.model,
+  //             groq: config.groq.model,
+  //             openrouter: config.openrouter.model
+  //           }
+  //         },
+  //         null,
+  //         2
+  //       )
+  //     );
+  //   }
+  // }
+
+  return providers;
 }

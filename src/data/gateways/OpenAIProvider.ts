@@ -7,7 +7,11 @@ import {
   type PromptPair
 } from "@/features/ai/prompts";
 import type { AIProvider, ReflectionInput } from "@/features/ai/AIProvider";
-import { fetchWithTimeout, normaliseReply } from "./aiHttp";
+import {
+  AIProviderHttpError,
+  fetchWithTimeout,
+  normaliseReply
+} from "./aiHttp";
 
 const ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const FALLBACK_MODEL = "gemini-flash-latest";
@@ -87,8 +91,11 @@ export class GeminiProvider implements AIProvider {
 
     if (!res.ok) {
       const details = await readErrorDetail(res);
-      throw new Error(
-        `Gemini request failed: ${res.status}${details ? ` (${details})` : ""}`
+      throw new AIProviderHttpError(
+        `Gemini request failed: ${res.status}${details ? ` (${details})` : ""}`,
+        this.id,
+        res.status,
+        details
       );
     }
     const data = (await res.json()) as GeminiResponse;

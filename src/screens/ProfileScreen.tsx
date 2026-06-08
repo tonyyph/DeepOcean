@@ -85,6 +85,8 @@ export default function ProfileScreen() {
   const settings = useSettings();
   const themeId = useThemeStore((s) => s.themeId);
   const isPremium = usePremium((s) => s.isPremium);
+  const debugPremiumEnabled = usePremium((s) => s.debugPremiumEnabled);
+  const setDebugPremiumEnabled = usePremium((s) => s.setDebugPremiumEnabled);
   const alreadyUnlocked = useAchievements((s) => s.unlockedTitleAchievements);
   const persistTitleAchievements = useAchievements(
     (s) => s.persistTitleAchievements
@@ -439,6 +441,15 @@ export default function ProfileScreen() {
           {/* Account / Onboarding */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.account}</SectionLabel>
+            {__DEV__ ? (
+              <SettingRow
+                type="switch"
+                title={tr.profile.devEnablePremium}
+                subtitle={tr.profile.devEnablePremiumDesc}
+                value={debugPremiumEnabled}
+                onChange={setDebugPremiumEnabled}
+              />
+            ) : null}
             <SettingRow
               type="nav"
               title={tr.profile.replayOnboarding}

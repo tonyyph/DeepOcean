@@ -27,9 +27,13 @@ function narrowThemes(ids: readonly string[]): ThemeId[] {
 type PurchaseStatus = "idle" | "loading" | "error";
 
 type PremiumState = {
+  /** Raw entitlement state resolved from billing provider. */
+  entitlementPremium: boolean;
   isPremium: boolean;
   unlockedThemes: ThemeId[];
   activePlan: PlanId | null;
+  /** Dev-only local override for fast premium UI testing. */
+  debugPremiumEnabled: boolean;
   /** True when a real billing provider is configured. */
   isConfigured: boolean;
   /** Tracks in-flight purchase/restore calls for the paywall UI. */
@@ -52,27 +56,37 @@ type PremiumState = {
   startTrial: (planId: "annual" | "monthly") => Promise<TrialState | null>;
   /** Validate and activate a promo/experience code. */
   applyPromoCode: (code: string) => Promise<PromoCodeResult>;
+  /** Dev-only premium toggle for local testing. */
+  setDebugPremiumEnabled: (enabled: boolean) => void;
 };
 
 function applySnapshot(
-  snapshot: EntitlementSnapshot
-): Pick<PremiumState, "isPremium" | "unlockedThemes" | "activePlan"> {
+  snapshot: EntitlementSnapshot,
+  debugPremiumEnabled: boolean
+): Pick<
+  PremiumState,
+  "entitlementPremium" | "isPremium" | "unlockedThemes" | "activePlan"
+> {
   return {
-    isPremium: snapshot.isPremium,
+    entitlementPremium: snapshot.isPremium,
+    isPremium: snapshot.isPremium || debugPremiumEnabled,
     unlockedThemes: narrowThemes(snapshot.unlockedThemes),
     activePlan: snapshot.activePlan ?? null
   };
 }
 
 export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
-  create<PremiumState>((set) => {
+  create<PremiumState>((set, get) => {
     async function runPurchase(
       op: () => Promise<EntitlementSnapshot>
     ): Promise<boolean> {
       set({ status: "loading" });
       try {
         const snapshot = await op();
-        set({ ...applySnapshot(snapshot), status: "idle" });
+        set({
+          ...applySnapshot(snapshot, get().debugPremiumEnabled),
+          status: "idle"
+        });
         return true;
       } catch (error) {
         if (error instanceof PurchaseCancelledError) {
@@ -85,7 +99,8 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
     }
 
     return {
-      ...applySnapshot(container.premium.cached()),
+      ...applySnapshot(container.premium.cached(), false),
+      debugPremiumEnabled: false,
       isConfigured: container.premium.isConfigured,
       status: "idle",
       trialState: container.premium.activeTrial(),
@@ -93,14 +108,17 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
       hydrate: async () => {
         // Reflect the offline cache immediately, then reconcile with the store.
         set({
-          ...applySnapshot(container.premium.cached()),
+          ...applySnapshot(
+            container.premium.cached(),
+            get().debugPremiumEnabled
+          ),
           trialState: container.premium.activeTrial()
         });
         try {
           await container.premium.configure();
           const fresh = await container.premium.refresh();
           set({
-            ...applySnapshot(fresh),
+            ...applySnapshot(fresh, get().debugPremiumEnabled),
             trialState: container.premium.activeTrial()
           });
         } catch {
@@ -151,6 +169,14 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
           set({ status: "idle" });
           return { valid: false, reason: "not_found" } as PromoCodeResult;
         }
+      },
+
+      setDebugPremiumEnabled: (enabled) => {
+        if (!__DEV__) return;
+        set((state) => ({
+          debugPremiumEnabled: enabled,
+          isPremium: state.entitlementPremium || enabled
+        }));
       }
     };
   });

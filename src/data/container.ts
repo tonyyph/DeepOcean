@@ -8,7 +8,7 @@ import { DiverRepository } from "./repositories/DiverRepository";
 import { NotificationRepository } from "./repositories/NotificationRepository";
 import { MoodRepository } from "./repositories/MoodRepository";
 import { AICompanionRepository } from "./repositories/AICompanionRepository";
-import { createAIProvider } from "./gateways/aiProviderFactory";
+import { createAIProviders } from "./gateways/aiProviderFactory";
 import { PremiumRepository } from "./repositories/PremiumRepository";
 
 export const container = {
@@ -17,7 +17,7 @@ export const container = {
   diver: new DiverRepository(),
   notifications: new NotificationRepository(),
   mood: new MoodRepository(),
-  ai: new AICompanionRepository(createAIProvider()),
+  ai: new AICompanionRepository(createAIProviders()),
   premium: new PremiumRepository()
 } as const;
 

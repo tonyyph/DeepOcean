@@ -4,9 +4,17 @@ import type { Rarity } from "@/features/ocean/bestiary";
 import type { AIProvider, ReflectionInput } from "@/features/ai/AIProvider";
 import type { AIContext, DiveSession, Language } from "@/domain/entities";
 import type { IAICompanionGateway } from "@/domain/repositories";
+import { shouldFallbackToNextProvider } from "../gateways/aiHttp";
 import { composeOfflineCompanion } from "./offlineCompanion";
 
 type CacheEntry = { text: string; at: number };
+type AIRequestKind = "recommendation" | "motivation" | "reflection";
+type AIResponseSource =
+  | "provider:gemini"
+  | "provider:groq"
+  | "provider:openrouter"
+  | "cache"
+  | "offline";
 
 type AICachePayload = {
   recommendation: Partial<Record<Language, CacheEntry>>;
@@ -29,6 +37,14 @@ const RARITY_RANK: Record<Rarity, number> = {
   common: 4
 };
 
+const TELEMETRY_COUNTS: Record<AIResponseSource, number> = {
+  "provider:gemini": 0,
+  "provider:groq": 0,
+  "provider:openrouter": 0,
+  cache: 0,
+  offline: 0
+};
+
 /**
  * AICompanionRepository — orchestrates a real {@link AIProvider} with a durable
  * MMKV cache. Strategy:
@@ -44,11 +60,12 @@ const RARITY_RANK: Record<Rarity, number> = {
 export class AICompanionRepository implements IAICompanionGateway {
   private readonly store = new TypedStore<AICachePayload>(StorageKeys.aiCache);
 
-  constructor(private readonly provider: AIProvider | null) {}
+  constructor(private readonly providers: readonly AIProvider[]) {}
 
   async dailyRecommendation(context: AIContext): Promise<string> {
     const text = await this.run(
-      () => this.provider?.generateRecommendation(context),
+      "recommendation",
+      (provider) => provider.generateRecommendation(context),
       () => this.readCache().recommendation[context.language],
       (entry) => this.writeRecommendation(context.language, entry),
       () => composeOfflineCompanion("recommendation", context)
@@ -61,7 +78,8 @@ export class AICompanionRepository implements IAICompanionGateway {
 
   async motivation(context: AIContext): Promise<string> {
     const text = await this.run(
-      () => this.provider?.generateMotivation(context),
+      "motivation",
+      (provider) => provider.generateMotivation(context),
       () => this.readCache().motivation[context.language],
       (entry) => this.writeMotivation(context.language, entry),
       () => composeOfflineCompanion("motivation", context)
@@ -79,7 +97,8 @@ export class AICompanionRepository implements IAICompanionGateway {
     const input = toReflectionInput(session);
     const key = `${session.id}:${language}`;
     const text = await this.run(
-      () => this.provider?.generateReflection(input, language),
+      "reflection",
+      (provider) => provider.generateReflection(input, language),
       () => this.readCache().reflections[key],
       (entry) => this.writeReflection(key, entry),
       () => composeOfflineReflection(input, language)
@@ -89,34 +108,102 @@ export class AICompanionRepository implements IAICompanionGateway {
 
   /** Shared orchestration: provider → cache write, else stale cache, else offline. */
   private async run(
-    call: () => Promise<string> | undefined,
+    kind: AIRequestKind,
+    call: (provider: AIProvider) => Promise<string>,
     readCached: () => CacheEntry | undefined,
     writeCached: (entry: CacheEntry) => void,
     offline: () => string
   ): Promise<string> {
-    const pending = call();
-    if (pending) {
+    const startedAt = Date.now();
+    const attemptedProviders: string[] = [];
+
+    if (this.providers.length > 0) {
       try {
-        const text = await pending;
-        writeCached({ text, at: Date.now() });
-        return text;
+        for (const [i, provider] of this.providers.entries()) {
+          attemptedProviders.push(provider.id);
+          try {
+            const text = await call(provider);
+            writeCached({ text, at: Date.now() });
+            this.logTelemetry(kind, {
+              source: `provider:${provider.id}`,
+              attemptedProviders,
+              durationMs: Date.now() - startedAt
+            });
+            return text;
+          } catch (error) {
+            const canFallback =
+              i < this.providers.length - 1 &&
+              shouldFallbackToNextProvider(error);
+
+            // if (__DEV__) {
+            //   console.warn(
+            //     canFallback
+            //       ? `[AICompanion] ${provider.id} failed; trying next provider`
+            //       : `[AICompanion] ${provider.id} failed; using cache/offline`,
+            //     error
+            //   );
+            // }
+
+            if (!canFallback) break;
+          }
+        }
       } catch (error) {
         if (__DEV__) {
-          // Surface provider failures during development instead of silently hiding them.
-          console.warn(
-            "[AICompanion] Provider call failed, using cache/offline",
-            error
-          );
+          console.log("[AICompanion] Provider loop crashed", error);
         }
       }
     }
 
-    if (__DEV__ && !pending) {
-      console.warn(
+    if (__DEV__ && this.providers.length === 0) {
+      console.log(
         "[AICompanion] No AI provider configured; using cache/offline only"
       );
     }
-    return readCached()?.text ?? offline();
+
+    const cached = readCached();
+    if (cached?.text) {
+      this.logTelemetry(kind, {
+        source: "cache",
+        attemptedProviders,
+        durationMs: Date.now() - startedAt
+      });
+      return cached.text;
+    }
+
+    const offlineText = offline();
+    this.logTelemetry(kind, {
+      source: "offline",
+      attemptedProviders,
+      durationMs: Date.now() - startedAt
+    });
+    return offlineText;
+  }
+
+  private logTelemetry(
+    kind: AIRequestKind,
+    event: {
+      source: AIResponseSource;
+      attemptedProviders: string[];
+      durationMs: number;
+    }
+  ): void {
+    if (!isTelemetryEnabled()) return;
+
+    TELEMETRY_COUNTS[event.source] += 1;
+    console.info(
+      "[AICompanion][telemetry]",
+      JSON.stringify(
+        {
+          kind,
+          source: event.source,
+          attemptedProviders: event.attemptedProviders,
+          durationMs: event.durationMs,
+          totals: TELEMETRY_COUNTS
+        },
+        null,
+        2
+      )
+    );
   }
 
   private readCache(): AICachePayload {
@@ -368,4 +455,10 @@ function ensureEndingPunctuation(text: string): string {
 function capitalizeFirst(text: string): string {
   if (!text) return text;
   return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function isTelemetryEnabled(): boolean {
+  const raw = process.env.EXPO_PUBLIC_AI_TELEMETRY;
+  if (!raw || raw.trim().length === 0) return __DEV__;
+  return /^(1|true|yes|on)$/i.test(raw.trim());
 }

@@ -116,6 +116,34 @@ To keep the scaffold focused and runnable:
 
 ---
 
+## AI free-tier fallback chain
+
+The companion can automatically fail over when a provider hits quota/rate limits.
+
+Default order:
+- Gemini Flash
+- Groq (Llama/Qwen)
+- OpenRouter free model
+
+Set any of these env vars (or `expo.extra.ai` keys) to enable each provider:
+
+```bash
+EXPO_PUBLIC_GEMINI_API_KEY=...
+EXPO_PUBLIC_GEMINI_MODEL=gemini-flash-latest
+
+EXPO_PUBLIC_GROQ_API_KEY=...
+EXPO_PUBLIC_GROQ_MODEL=llama-3.1-8b-instant
+
+EXPO_PUBLIC_OPENROUTER_API_KEY=...
+EXPO_PUBLIC_OPENROUTER_MODEL=qwen/qwen3-8b:free
+EXPO_PUBLIC_OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+```
+
+Optional:
+- `EXPO_PUBLIC_AI_PROVIDER=gemini|groq|openrouter` to force the first provider in the chain.
+
+---
+
 ## Conventions
 
 - TypeScript strict + `noUncheckedIndexedAccess`.
