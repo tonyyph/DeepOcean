@@ -13,15 +13,18 @@ import { ZONE_TABLE, type OceanZone } from "@/features/ocean/zones";
 type Props = {
   depthMeters: number;
   zone: OceanZone;
+  progress?: number;
 };
 
 export const DepthIndicator = React.memo(function DepthIndicator({
   depthMeters,
-  zone
+  zone,
+  progress = 0
 }: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const scale = useSharedValue(0.92);
+  const clampedProgress = Math.max(0, Math.min(1, progress));
 
   useEffect(() => {
     scale.value = 0.92;
@@ -34,6 +37,17 @@ export const DepthIndicator = React.memo(function DepthIndicator({
 
   return (
     <Animated.View style={[styles.capsule, animatedStyle]}>
+      <View style={styles.progressTrack}>
+        <View
+          style={[
+            styles.progressFill,
+            {
+              width: `${clampedProgress * 100}%`,
+              backgroundColor: t.colors.accent + "1F"
+            }
+          ]}
+        />
+      </View>
       <View style={styles.row}>
         <View style={[styles.dot, { backgroundColor: t.colors.accent }]} />
         <Text style={styles.label}>{ZONE_TABLE[zone].label.toUpperCase()}</Text>
@@ -55,7 +69,14 @@ const makeStyles = (t: AppTheme) =>
       backgroundColor: "rgba(2,8,28,0.55)",
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.glassEdge,
-      alignItems: "center"
+      alignItems: "center",
+      overflow: "hidden"
+    },
+    progressTrack: {
+      ...StyleSheet.absoluteFillObject
+    },
+    progressFill: {
+      height: "100%"
     },
     row: {
       flexDirection: "row",

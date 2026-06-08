@@ -78,7 +78,16 @@ export const MOODS: readonly Mood[] = [
   "tired",
   "burned_out",
   "motivated",
-  "curious"
+  "curious",
+  "happy",
+  "calm",
+  "excited",
+  "anxious",
+  "stressed",
+  "distracted",
+  "sluggish",
+  "bored",
+  "overwhelmed"
 ] as const;
 
 /** Persisted mood selection. `null` mood = user has never chosen one. */

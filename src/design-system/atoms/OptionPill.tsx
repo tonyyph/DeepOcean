@@ -17,11 +17,13 @@ import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { useSettings } from "@/stores";
 import type { AppTheme } from "../themes";
+import { Ionicons } from "@expo/vector-icons";
 
 type Props = Omit<PressableProps, "children"> & {
-  label: string;
+  label?: string;
   active?: boolean;
   containerStyle?: ViewStyle;
+  icon?: keyof typeof Ionicons.glyphMap;
 };
 
 /**
@@ -33,6 +35,7 @@ type Props = Omit<PressableProps, "children"> & {
 export const OptionPill = React.memo(function OptionPill({
   label,
   active = false,
+  icon,
   containerStyle,
   onPressIn,
   ...rest
@@ -71,18 +74,15 @@ export const OptionPill = React.memo(function OptionPill({
         onPressOut={handlePressOut}
         {...rest}
       >
-        <View
-          style={[
-            styles.pill,
-            active && {
-              backgroundColor: hexWithAlpha(t.colors.accent, 0.14),
-              borderColor: t.colors.accent
-            }
-          ]}
-        >
-          <Text style={[styles.label, active && { color: t.colors.accent }]}>
-            {label}
-          </Text>
+        <View style={styles.pill}>
+          {icon && (
+            <Ionicons name={icon} size={20} color={t.colors.accentSoft} />
+          )}
+          {label && (
+            <Text style={[styles.label, active && { color: t.colors.accent }]}>
+              {label}
+            </Text>
+          )}
         </View>
       </Pressable>
     </Animated.View>
@@ -109,12 +109,11 @@ function hexWithAlpha(color: string, alpha: number): string {
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     pill: {
-      paddingVertical: t.spacing[3],
-      paddingHorizontal: t.spacing[4],
+      height: 40,
       borderRadius: t.radii.sm,
       backgroundColor: t.colors.glass,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
+      borderColor: t.colors.glassEdge,
       alignItems: "center",
       justifyContent: "center"
     },

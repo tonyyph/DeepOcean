@@ -3,14 +3,17 @@ import { View, Text, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useAnimatedProps,
   withTiming,
-  interpolate,
   interpolateColor,
   Easing
 } from "react-native-reanimated";
+import Svg, { Circle, G } from "react-native-svg";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 type Props = {
   /** 0..1 progress (elapsed / target). For open-ended dives, use elapsed/sessionEstimate. */
@@ -27,6 +30,10 @@ export const DiveProgressRing = React.memo(function DiveProgressRing({
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const p = useSharedValue(0);
+  const strokeWidth = 3;
+  const trackWidth = 2;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
 
   useEffect(() => {
     p.value = withTiming(Math.max(0, Math.min(1, progress)), {
@@ -36,31 +43,49 @@ export const DiveProgressRing = React.memo(function DiveProgressRing({
   }, [progress, p, t.motion]);
 
   const ringStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${interpolate(p.value, [0, 1], [-90, 270])}deg` }],
-    borderColor: interpolateColor(
+    shadowOpacity: 0.45 + 0.5 * p.value
+  }));
+
+  const ringAnimatedProps = useAnimatedProps(() => ({
+    stroke: interpolateColor(
       p.value,
       [0, 0.5, 1],
       [t.colors.accent, t.colors.accentSoft, t.colors.success]
     ),
-    shadowOpacity: 0.45 + 0.5 * p.value
+    strokeDashoffset: circumference * (1 - p.value)
   }));
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>
-      <View
-        style={[
-          styles.trackRing,
-          { width: size, height: size, borderRadius: size / 2 }
-        ]}
-      />
+      <Svg width={size} height={size} style={StyleSheet.absoluteFillObject}>
+        <G rotation={-90} originX={size / 2} originY={size / 2}>
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={"rgba(255,255,255,0.08)"}
+            strokeWidth={trackWidth}
+            fill="none"
+          />
+          <AnimatedCircle
+            animatedProps={ringAnimatedProps}
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={`${circumference} ${circumference}`}
+            fill="none"
+          />
+        </G>
+      </Svg>
       <Animated.View
         style={[
           styles.activeRing,
           {
             width: size,
             height: size,
-            borderRadius: size / 2,
-            shadowColor: t.colors.accent
+            borderRadius: size / 2
           },
           ringStyle
         ]}
@@ -86,17 +111,13 @@ const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     wrap: { alignItems: "center", justifyContent: "center" },
     trackRing: {
-      position: "absolute",
-      borderWidth: 2,
-      borderColor: "rgba(255,255,255,0.08)"
+      position: "absolute"
     },
     activeRing: {
       position: "absolute",
-      borderWidth: 3,
-      borderRightColor: "transparent",
-      borderBottomColor: "transparent",
       shadowRadius: 20,
-      shadowOffset: { width: 0, height: 0 }
+      shadowOffset: { width: 0, height: 0 },
+      pointerEvents: "none"
     },
     center: { alignItems: "center" },
     time: {

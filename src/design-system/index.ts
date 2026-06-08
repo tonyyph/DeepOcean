@@ -17,6 +17,7 @@ export { PremiumBadge } from "./atoms/PremiumBadge";
 export { PremiumGuard } from "./atoms/PremiumGuard";
 export { ThemeSwatch } from "./atoms/ThemeSwatch";
 export { ConfirmModal } from "./atoms/ConfirmModal";
+export { FreeDiveModal } from "./atoms/FreeDiveModal";
 export { AchievementModal } from "./atoms/AchievementModal";
 export { LevelUpModal } from "./atoms/LevelUpModal";
 export { TitleAchievementModal } from "./atoms/TitleAchievementModal";

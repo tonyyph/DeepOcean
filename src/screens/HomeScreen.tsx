@@ -1,5 +1,6 @@
 import { useTranslations } from "@/core/i18n";
 import {
+  FreeDiveModal,
   GlassCard,
   GlowText,
   OptionPill,
@@ -29,7 +30,6 @@ import {
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
-import Slider from "@react-native-community/slider";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
@@ -62,6 +62,7 @@ export default function HomeScreen() {
   const unlockedZones = useAchievements((s) => s.unlockedZones);
   const tr = useTranslations();
   const [customMinutes, setCustomMinutes] = useState(preferredMinutes);
+  const [isFreeDiveModalVisible, setIsFreeDiveModalVisible] = useState(false);
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
@@ -149,67 +150,15 @@ export default function HomeScreen() {
                   containerStyle={styles.quickItem}
                 />
               ))}
+              <OptionPill
+                key={"custom"}
+                icon="infinite"
+                onLongPress={() => setIsFreeDiveModalVisible(true)}
+                onPress={() => startDive(null)}
+                containerStyle={styles.quickItem}
+              />
             </View>
           </PressableCard>
-
-          {/* ── Free/custom dive ── */}
-          <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
-            <View style={styles.row}>
-              <View style={styles.flex}>
-                <Text style={styles.cardTitle}>{tr.home.freeDive}</Text>
-                <Text style={styles.cardBody}>{tr.home.freeDiveDesc}</Text>
-              </View>
-              <Ionicons name="infinite" size={24} color={t.colors.accentSoft} />
-            </View>
-
-            <View style={styles.customDiveBlock}>
-              <View style={styles.customDiveHeader}>
-                <Text style={styles.customDiveLabel}>
-                  {tr.home.customDuration}
-                </Text>
-                <Text style={styles.customDiveValue}>
-                  {customMinutes}
-                  {tr.home.minShort}
-                </Text>
-              </View>
-              <Slider
-                value={customMinutes}
-                onValueChange={setCustomMinutes}
-                minimumValue={5}
-                maximumValue={120}
-                step={5}
-                minimumTrackTintColor={t.colors.accent}
-                maximumTrackTintColor={t.colors.glassEdge}
-                thumbTintColor={t.colors.accentSoft}
-              />
-
-              <View style={styles.customDiveActions}>
-                <PressableCard
-                  haptic="light"
-                  onPress={() => startDive(customMinutes)}
-                  containerStyle={styles.customDiveAction}
-                  radius={t.radii.sm}
-                  padding={t.spacing[3]}
-                >
-                  <Text style={styles.customDiveActionText}>
-                    {tr.home.startCustomDive}
-                  </Text>
-                </PressableCard>
-
-                <PressableCard
-                  haptic="light"
-                  onPress={() => startDive(null)}
-                  containerStyle={styles.customDiveAction}
-                  radius={t.radii.sm}
-                  padding={t.spacing[3]}
-                >
-                  <Text style={styles.customDiveActionText}>
-                    {tr.home.startFreeDive}
-                  </Text>
-                </PressableCard>
-              </View>
-            </View>
-          </GlassCard>
 
           {/* ── Zone Progress ── */}
           <GlassCard radius={t.radii.md}>
@@ -247,6 +196,23 @@ export default function HomeScreen() {
             />
           </View>
         </ScrollView>
+
+        <FreeDiveModal
+          visible={isFreeDiveModalVisible}
+          minutes={customMinutes}
+          zoneLabel={ZONE_TABLE[zoneForMinutes(customMinutes)].label}
+          title={tr.home.freeDive}
+          description={tr.home.freeDiveDesc}
+          minutesLabel={tr.home.min}
+          estimatedReachLabel={tr.home.estimatedReach}
+          startLabel={tr.home.startFreeDive}
+          onDismiss={() => setIsFreeDiveModalVisible(false)}
+          onMinutesChange={setCustomMinutes}
+          onStart={() => {
+            setIsFreeDiveModalVisible(false);
+            startDive(customMinutes);
+          }}
+        />
       </SafeAreaView>
     </ZoneBackground>
   );
@@ -533,52 +499,6 @@ const makeStyles = (t: AppTheme) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between"
-    },
-    cardTitle: {
-      color: t.colors.text,
-      fontSize: 17,
-      fontFamily: t.fonts.body
-    },
-    cardBody: {
-      color: t.colors.textMuted,
-      fontSize: 13,
-      marginTop: t.spacing[1],
-      fontFamily: t.fonts.body
-    },
-    customDiveBlock: {
-      marginTop: t.spacing[3],
-      gap: t.spacing[2]
-    },
-    customDiveHeader: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between"
-    },
-    customDiveLabel: {
-      color: t.colors.textSecondary,
-      fontSize: 12,
-      letterSpacing: 0.5,
-      fontFamily: t.fonts.label
-    },
-    customDiveValue: {
-      color: t.colors.accent,
-      fontSize: 14,
-      fontFamily: t.fonts.mono
-    },
-    customDiveActions: {
-      flexDirection: "row",
-      gap: t.spacing[2],
-      marginTop: t.spacing[1]
-    },
-    customDiveAction: {
-      flex: 1
-    },
-    customDiveActionText: {
-      color: t.colors.text,
-      textAlign: "center",
-      letterSpacing: 0.8,
-      fontSize: 11,
-      fontFamily: t.fonts.label
     },
     companionBody: {
       color: t.colors.text,

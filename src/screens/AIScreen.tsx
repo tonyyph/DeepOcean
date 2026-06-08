@@ -94,6 +94,10 @@ export default function AIScreen() {
     })();
   }, [canAskAgain, language, queryClient]);
 
+  const randomMoods = React.useMemo(() => {
+    return [...MOODS].sort(() => 0.5 - Math.random()).slice(0, 6);
+  }, []);
+
   return (
     <ZoneBackground zone="twilight">
       <SafeAreaView style={styles.flex}>
@@ -161,7 +165,7 @@ export default function AIScreen() {
             <SectionLabel>{tr.ai.mood}</SectionLabel>
             <Text style={styles.bodyMuted}>{tr.ai.moodPrompt}</Text>
             <View style={styles.moodGrid}>
-              {MOODS.map((m) => (
+              {randomMoods.map((m) => (
                 <OptionPill
                   key={m}
                   label={tr.ai.moodLabels[m]}

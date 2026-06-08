@@ -167,7 +167,7 @@ export default function DiveScreen() {
     if (!session) return 0;
     if (!session.targetSeconds)
       return Math.min(1, session.elapsedSeconds / (60 * 60));
-    return session.elapsedSeconds / session.targetSeconds;
+    return Math.min(1, session.elapsedSeconds / session.targetSeconds);
   }, [session]);
 
   const handleCancel = () => {
@@ -182,12 +182,13 @@ export default function DiveScreen() {
 
   return (
     <ZoneBackground zone={session.zone}>
-      <UnderwaterCanvas zone={session.zone} particleCount={32} />
+      <UnderwaterCanvas zone={session.zone} particleCount={40} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.topBlock}>
           <DepthIndicator
             depthMeters={session.depthMeters}
             zone={session.zone}
+            progress={progress}
           />
           {session.discoveries.length > 0 ? (
             <Animated.View entering={FadeIn} exiting={FadeOut}>
@@ -321,9 +322,9 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "space-between",
       padding: t.spacing[6]
     },
-    topBlock: { alignItems: "center", gap: t.spacing[4.5] },
+    topBlock: { alignItems: "center", gap: t.spacing[4] + 2 },
     ringWrap: { alignItems: "center" },
-    actions: { gap: t.spacing[3.5] },
+    actions: { gap: t.spacing[3] + 2 },
     row: { flexDirection: "row", gap: t.spacing[3] },
     primaryBtn: { width: "100%" },
     primaryText: {
