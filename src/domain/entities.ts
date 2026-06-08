@@ -55,7 +55,22 @@ export type CollectionEntry = {
 };
 
 /** Intent the diver wants to cultivate during/after a dive. */
-export type Mood = "focused" | "tired" | "burned_out" | "motivated" | "curious";
+export type Mood =
+  | "focused"
+  | "tired"
+  | "burned_out"
+  | "motivated"
+  | "curious"
+  // Các cảm xúc bổ sung:
+  | "happy"
+  | "calm"
+  | "excited"
+  | "anxious"
+  | "stressed"
+  | "distracted"
+  | "sluggish"
+  | "bored"
+  | "overwhelmed";
 
 /** Canonical, ordered list of supported moods (stable keys, not labels). */
 export const MOODS: readonly Mood[] = [

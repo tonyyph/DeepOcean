@@ -11,6 +11,7 @@ import {
   CreatureStorySheet,
   PaywallSheet,
   PremiumBadge,
+  Skeleton,
   type StoryRow,
   useTheme,
   useThemedStyles,
@@ -39,7 +40,7 @@ function rarityColor(rarity: Rarity, t: AppTheme): string {
 }
 
 export default function CollectionScreen() {
-  const { data: entries = [] } = useCollection();
+  const { data: entries = [], isLoading } = useCollection();
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
   const isPremium = usePremium((s) => s.isPremium);
@@ -86,6 +87,10 @@ export default function CollectionScreen() {
   }, [entries]);
 
   const discoveredCount = rows.filter((r) => r.seen).length;
+  const skeletonRows = useMemo(
+    () => Array.from({ length: 8 }, (_, i) => i),
+    []
+  );
 
   const handleRowPress = useCallback((row: StoryRow) => {
     setActiveRow(row);
@@ -123,19 +128,25 @@ export default function CollectionScreen() {
             </Pressable>
           ) : null}
         </View>
-        <FlashList
-          data={rows}
-          keyExtractor={(r) => r.id}
+        <FlashList<StoryRow | number>
+          data={isLoading ? skeletonRows : rows}
+          keyExtractor={(item) =>
+            typeof item === "number" ? `skeleton-${item}` : item.id
+          }
           estimatedItemSize={120}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => (
-            <CollectionRow
-              row={item}
-              index={index}
-              isPremium={isPremium}
-              onPress={handleRowPress}
-            />
-          )}
+          renderItem={({ item, index }) =>
+            typeof item === "number" ? (
+              <CollectionRowSkeleton />
+            ) : (
+              <CollectionRow
+                row={item}
+                index={index}
+                isPremium={isPremium}
+                onPress={handleRowPress}
+              />
+            )
+          }
           ItemSeparatorComponent={Separator}
           contentContainerStyle={styles.listContent}
         />
@@ -264,6 +275,39 @@ const CollectionRow = React.memo(function CollectionRow({
   );
 });
 
+function CollectionRowSkeleton() {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
+  return (
+    <GlassCard radius={t.radii.lg}>
+      <View style={styles.itemRow}>
+        <Skeleton
+          style={styles.iconBubble}
+          width={44}
+          height={44}
+          radius={22}
+        />
+        <View style={styles.flex}>
+          <View style={styles.nameRow}>
+            <Skeleton style={styles.nameSkeleton} />
+            <Skeleton
+              style={styles.lockSkeleton}
+              width={18}
+              height={18}
+              radius={9}
+            />
+          </View>
+          <Skeleton style={styles.metaSkeleton} />
+          <Skeleton style={styles.descSkeleton} />
+          <Skeleton style={styles.descSkeletonShort} />
+        </View>
+        <Skeleton style={styles.chevronSkeleton} width={12} height={12} />
+      </View>
+    </GlassCard>
+  );
+}
+
 const separatorStyles = StyleSheet.create({
   sep: { height: 10 }
 });
@@ -358,5 +402,34 @@ const makeStyles = (t: AppTheme) =>
       lineHeight: 17,
       fontFamily: t.fonts.body,
       fontStyle: "italic"
+    },
+    nameSkeleton: {
+      height: 16,
+      width: "58%",
+      borderRadius: t.radii.xs
+    },
+    lockSkeleton: {
+      marginLeft: t.spacing[1.5]
+    },
+    metaSkeleton: {
+      height: 11,
+      width: "40%",
+      borderRadius: t.radii.xs,
+      marginTop: t.spacing[1.5]
+    },
+    descSkeleton: {
+      height: 12,
+      width: "86%",
+      borderRadius: t.radii.xs,
+      marginTop: t.spacing[2]
+    },
+    descSkeletonShort: {
+      height: 12,
+      width: "62%",
+      borderRadius: t.radii.xs,
+      marginTop: t.spacing[1]
+    },
+    chevronSkeleton: {
+      opacity: 0.65
     }
   });

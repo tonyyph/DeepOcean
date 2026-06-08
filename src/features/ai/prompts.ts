@@ -37,12 +37,14 @@ Avoid:
 - clichés
 - exaggerated praise
 
-Always write EXACTLY 2 sentences.
+Strict constraint: Write EXACTLY 2 sentences. 
+Each sentence MUST be on a new line.
+Each sentence MUST contain only 15 to 20 words.
 
-Sentence 1:
+Sentence 1 (Line 1):
 Reflect the user's emotional state or recent progress.
 
-Sentence 2:
+Sentence 2 (Line 2):
 Offer one meaningful and practical next step based on actual data.
 `,
 
@@ -75,12 +77,14 @@ Tránh:
 - khen ngợi quá mức
 - câu chữ chung chung
 
-Luôn viết ĐÚNG 2 câu.
+Ràng buộc nghiêm ngặt: Luôn viết ĐÚNG 2 câu.
+Mỗi câu PHẢI xuống dòng riêng biệt.
+Mỗi câu CHỈ ĐƯỢC phép dài từ 15 đến 20 từ.
 
-Câu 1:
+Câu 1 (Dòng 1):
 Phản ánh cảm xúc hoặc tiến trình hiện tại.
 
-Câu 2:
+Câu 2 (Dòng 2):
 Đưa ra một bước tiếp theo có ý nghĩa và khả thi dựa trên dữ liệu thật.
 `
 };
@@ -150,38 +154,22 @@ export function buildRecommendationPrompt(ctx: AIContext): PromptPair {
   const instruction =
     ctx.language === "vi"
       ? `
-Viết đúng 2 câu.
+Yêu cầu định dạng: Viết đúng 2 câu, mỗi câu nằm trên một dòng riêng biệt. Mỗi câu chỉ từ 15-20 từ.
 
-Câu 1:
-- Thể hiện sự thấu cảm.
-- Nhắc đến mood hoặc tiến trình gần đây.
-- Có cảm xúc tự nhiên.
+Câu 1 (Dòng 1):
+- Thể hiện sự thấu cảm dựa trên mood hoặc tiến trình gần đây với cảm xúc tự nhiên.
 
-Câu 2:
-Đề xuất kế hoạch hôm nay gồm:
-- thời lượng cụ thể
-- vùng lặn phù hợp
-- mục tiêu tập trung rõ ràng
-- một hành động có thể bắt đầu trong 30 giây
-
-Ngôn ngữ ngắn gọn nhưng giàu hình ảnh.
+Câu 2 (Dòng 2):
+Đề xuất kế hoạch hôm nay gồm: thời lượng, vùng lặn, mục tiêu tập trung và hành động bắt đầu trong 30 giây.
 `
       : `
-Write exactly 2 sentences.
+Formatting rule: Write exactly 2 sentences, each on a new line. Each sentence must be 15-20 words long.
 
-Sentence 1:
-- Show emotional understanding.
-- Mention mood or recent progress.
-- Feel human and personal.
+Sentence 1 (Line 1):
+- Show emotional understanding of mood or recent progress with a personal feel.
 
-Sentence 2:
-Provide:
-- specific duration
-- suitable dive zone
-- clear focus intention
-- one action that can be started within 30 seconds
-
-Keep it concise but vivid.
+Sentence 2 (Line 2):
+Provide today's plan including: specific duration, suitable zone, focus intention, and a 30-second starting action.
 `;
 
   return {
@@ -196,38 +184,22 @@ export function buildMotivationPrompt(ctx: AIContext): PromptPair {
   const instruction =
     ctx.language === "vi"
       ? `
-Viết đúng 2 câu.
+Yêu cầu định dạng: Viết đúng 2 câu, mỗi câu nằm trên một dòng riêng biệt. Mỗi câu chỉ từ 15-20 từ.
 
-Câu 1:
-Công nhận cảm xúc hoặc nỗ lực hiện tại.
+Câu 1 (Dòng 1):
+Công nhận cảm xúc hoặc nỗ lực hiện tại của người dùng một cách tự nhiên.
 
-Câu 2:
-Sử dụng ít nhất một dữ kiện thực tế từ context:
-- streak
-- tổng số chuyến lặn
-- phiên gần nhất
-- mood
-
-Sau đó gợi ý một bước nhỏ tiếp theo.
-
-Giọng văn tự nhiên như người đồng hành.
+Câu 2 (Dòng 2):
+Sử dụng một dữ kiện thực tế từ context (streak/dives/mood) để gợi ý một hành động nhỏ tiếp theo.
 `
       : `
-Write exactly 2 sentences.
+Formatting rule: Write exactly 2 sentences, each on a new line. Each sentence must be 15-20 words long.
 
-Sentence 1:
-Acknowledge current emotion or effort.
+Sentence 1 (Line 1):
+Acknowledge current emotion or effort as a thoughtful companion.
 
-Sentence 2:
-Use at least one real fact from:
-- streak
-- total dives
-- last dive
-- mood
-
-Then suggest one small next action.
-
-Sound like a thoughtful companion.
+Sentence 2 (Line 2):
+Use one real fact from context (streak, total dives, or mood) to suggest a small next action.
 `;
 
   return {
@@ -250,23 +222,13 @@ export function buildReflectionPrompt(
     user:
       language === "vi"
         ? `
-Viết đúng 2 câu.
+Yêu cầu định dạng: Viết đúng 2 câu, mỗi câu nằm trên một dòng riêng biệt. Mỗi câu chỉ từ 15-20 từ. Không dùng emoji.
 
-Câu 1:
-Ghi nhận nỗ lực của người dùng.
-Bắt buộc nhắc đến:
-- thời lượng
-- vùng sâu nhất
+Câu 1 (Dòng 1):
+Ghi nhận nỗ lực cá nhân, bắt buộc nhắc đến thời lượng và vùng sâu nhất của phiên lặn này.
 
-Câu 2:
-Liên hệ kết quả phiên lặn với sự tiến bộ cá nhân.
-Đưa ra một ý nghĩa thực tế ngắn gọn, dễ nhớ.
-
-Nếu có khám phá đặc biệt,
-hãy lồng ghép chúng tự nhiên.
-
-Không sáo rỗng.
-Không dùng emoji.
+Câu 2 (Dòng 2):
+Liên hệ kết quả hoặc khám phá nổi bật với tiến độ cá nhân thành một ý nghĩa ngắn gọn dễ nhớ.
 
 THÔNG TIN PHIÊN:
 
@@ -276,22 +238,13 @@ Số khám phá: ${input.discoveries}
 Khám phá nổi bật: ${notable}
 `
         : `
-Write exactly 2 sentences.
+Formatting rule: Write exactly 2 sentences, each on a new line. Each sentence must be 15-20 words long. No emojis.
 
-Sentence 1:
-Acknowledge effort and explicitly mention:
-- duration
-- deepest zone
+Sentence 1 (Line 1):
+Acknowledge effort and explicitly mention the duration and the deepest zone reached during this focus session.
 
-Sentence 2:
-Connect the dive result to personal progress.
-Give one short memorable takeaway.
-
-If there are notable discoveries,
-blend them naturally.
-
-No clichés.
-No emojis.
+Sentence 2 (Line 2):
+Connect the dive result or notable discoveries to personal progress as one short, memorable takeaway.
 
 SESSION DATA:
 
@@ -305,20 +258,37 @@ Notable Discoveries: ${notable}
 
 function moodLabelVi(mood: AIContext["mood"]): string {
   switch (mood) {
+    // Nhóm cảm xúc tích cực / năng lượng cao
     case "focused":
       return "tập trung";
-
-    case "tired":
-      return "mệt mỏi";
-
-    case "burned_out":
-      return "kiệt sức";
-
     case "motivated":
       return "đầy động lực";
-
     case "curious":
       return "tò mò";
+    case "happy":
+      return "hạnh phúc";
+    case "calm":
+      return "bình yên";
+    case "excited":
+      return "hào hứng";
+
+    // Nhóm tiêu cực / áp lực / năng lượng thấp
+    case "tired":
+      return "mệt mỏi";
+    case "burned_out":
+      return "kiệt sức";
+    case "anxious":
+      return "lo lắng";
+    case "stressed":
+      return "căng thẳng";
+    case "distracted":
+      return "mất tập trung";
+    case "sluggish":
+      return "uể oải";
+    case "bored":
+      return "chán nản";
+    case "overwhelmed":
+      return "quá tải";
 
     default:
       return "chưa rõ";

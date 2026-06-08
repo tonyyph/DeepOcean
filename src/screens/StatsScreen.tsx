@@ -8,6 +8,7 @@ import {
   GlassCard,
   AppHeader,
   SectionLabel,
+  Skeleton,
   useTheme,
   useThemedStyles,
   type AppTheme
@@ -17,8 +18,8 @@ import type { DiveSession } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
 
 export default function StatsScreen() {
-  const { data: sessions = [] } = useSessions();
-  const { data: profile } = useDiverProfile();
+  const { data: sessions = [], isLoading: sessionsLoading } = useSessions();
+  const { data: profile, isLoading: profileLoading } = useDiverProfile();
   const tr = useTranslations();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
@@ -41,6 +42,7 @@ export default function StatsScreen() {
       ),
     [sessions]
   );
+  const isLoading = sessionsLoading || profileLoading;
 
   return (
     <ZoneBackground zone="abyss">
@@ -59,23 +61,30 @@ export default function StatsScreen() {
             <Kpi
               label={tr.stats.maxDepth}
               value={`${Math.round(maxDepth).toLocaleString()} m`}
+              loading={isLoading}
             />
             <Kpi
               label={tr.stats.totalFocus}
               value={`${Math.round(totalMinutes)} min`}
+              loading={isLoading}
             />
           </View>
           <View style={styles.kpiRow}>
             <Kpi
               label={tr.stats.dives}
               value={String(profile?.totalDives ?? 0)}
+              loading={isLoading}
             />
-            <Kpi label={tr.stats.level} value={String(profile?.level ?? 1)} />
+            <Kpi
+              label={tr.stats.level}
+              value={String(profile?.level ?? 1)}
+              loading={isLoading}
+            />
           </View>
 
           <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.stats.weeklyHeatmap}</SectionLabel>
-            <Heatmap data={last7Days} />
+            {isLoading ? <HeatmapSkeleton /> : <Heatmap data={last7Days} />}
             <View style={styles.heatLegend}>
               <Text style={styles.legendText}>{tr.stats.less}</Text>
               <View style={styles.legendCells}>
@@ -89,7 +98,9 @@ export default function StatsScreen() {
 
           <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.stats.recentExpeditions}</SectionLabel>
-            {sessions.length === 0 ? (
+            {isLoading ? (
+              <RecentSessionsSkeleton />
+            ) : sessions.length === 0 ? (
               <Text style={styles.empty}>{tr.stats.noDives}</Text>
             ) : (
               sessions.slice(0, 6).map((s: DiveSession) => (
@@ -126,13 +137,58 @@ export default function StatsScreen() {
   );
 }
 
-function Kpi({ label, value }: { label: string; value: string }) {
+function HeatmapSkeleton() {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  return (
+    <View style={styles.heatRow}>
+      {Array.from({ length: 7 }, (_, i) => (
+        <View key={i} style={styles.heatCol}>
+          <Skeleton style={styles.heatBar} radius={t.radii.s} />
+          <Skeleton style={styles.daySkeleton} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function RecentSessionsSkeleton() {
+  const styles = useThemedStyles(makeStyles);
+  return (
+    <View>
+      {Array.from({ length: 4 }, (_, i) => (
+        <View key={i} style={styles.sessionRow}>
+          <Skeleton style={styles.sessionDateSkeleton} />
+          <Skeleton style={styles.sessionMetaSkeleton} />
+          <Skeleton style={styles.sessionMetaSkeletonShort} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function Kpi({
+  label,
+  value,
+  loading
+}: {
+  label: string;
+  value: string;
+  loading?: boolean;
+}) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   return (
     <GlassCard style={styles.flex} radius={t.radii.md}>
       <Text style={styles.kpiLabel}>{label}</Text>
-      <Text style={styles.kpiValue}>{value}</Text>
+      {loading ? (
+        <View style={styles.kpiValueSkeletonRow}>
+          <Skeleton style={styles.kpiValueSkeletonMain} />
+          <Skeleton style={styles.kpiValueSkeletonUnit} />
+        </View>
+      ) : (
+        <Text style={styles.kpiValue}>{value}</Text>
+      )}
     </GlassCard>
   );
 }
@@ -219,11 +275,32 @@ const makeStyles = (t: AppTheme) =>
       marginTop: t.spacing[1.5],
       fontFamily: t.fonts.mono
     },
+    kpiValueSkeletonRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[1],
+      marginTop: t.spacing[2]
+    },
+    kpiValueSkeletonMain: {
+      width: 56,
+      height: 24,
+      borderRadius: t.radii.xs
+    },
+    kpiValueSkeletonUnit: {
+      width: 24,
+      height: 12,
+      borderRadius: t.radii.xs
+    },
     dayLabel: {
       color: t.colors.textMuted,
       fontSize: 11,
       letterSpacing: 1,
       fontFamily: t.fonts.label
+    },
+    daySkeleton: {
+      width: 12,
+      height: 9,
+      borderRadius: t.radii.xs
     },
     heatLegend: {
       flexDirection: "row",
@@ -276,5 +353,20 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.textSecondary,
       fontSize: 13,
       fontFamily: t.fonts.body
+    },
+    sessionDateSkeleton: {
+      width: 84,
+      height: 12,
+      borderRadius: t.radii.xs
+    },
+    sessionMetaSkeleton: {
+      width: 54,
+      height: 12,
+      borderRadius: t.radii.xs
+    },
+    sessionMetaSkeletonShort: {
+      width: 36,
+      height: 12,
+      borderRadius: t.radii.xs
     }
   });

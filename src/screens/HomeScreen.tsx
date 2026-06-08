@@ -5,6 +5,7 @@ import {
   OptionPill,
   PressableCard,
   SectionLabel,
+  Skeleton,
   UnderwaterCanvas,
   useTheme,
   useThemedStyles,
@@ -28,10 +29,11 @@ import {
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
+import Slider from "@react-native-community/slider";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -43,9 +45,10 @@ export default function HomeScreen() {
   const router = useRouter();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
-  const { data: profile } = useDiverProfile();
-  const { data: dailyRec } = useDailyRecommendation();
-  const { data: sessions = [] } = useSessions();
+  const { data: profile, isLoading: profileLoading } = useDiverProfile();
+  const { data: dailyRec, isLoading: dailyRecLoading } =
+    useDailyRecommendation();
+  const { data: sessions = [], isLoading: sessionsLoading } = useSessions();
   const settings = useSettings();
 
   const preferredMinutes = useSettings(
@@ -58,6 +61,7 @@ export default function HomeScreen() {
   );
   const unlockedZones = useAchievements((s) => s.unlockedZones);
   const tr = useTranslations();
+  const [customMinutes, setCustomMinutes] = useState(preferredMinutes);
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
@@ -71,6 +75,7 @@ export default function HomeScreen() {
     ? getLevelTitle(profile.level, settings.language === "en")
     : null;
   const lastSession = sessions[0] ?? null;
+  const showHeaderSkeleton = profileLoading;
 
   const startDive = (minutes: number | null) => {
     router.push({
@@ -91,21 +96,32 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <Text style={styles.greeting}>{greeting}</Text>
             <View style={styles.row}>
-              <GlowText size={36} pulse>
-                {profile?.name ?? tr.home.diver}
-              </GlowText>
-              {levelTitle && (
+              {showHeaderSkeleton ? (
+                <Skeleton style={styles.nameSkeleton} radius={t.radii.s} />
+              ) : (
+                <GlowText size={36} pulse>
+                  {profile?.name ?? tr.home.diver}
+                </GlowText>
+              )}
+              {!showHeaderSkeleton && levelTitle && (
                 <View style={styles.rankRow}>
                   <Ionicons name="star" size={11} color={t.colors.accent} />
                   <Text style={styles.rankLabel}>{levelTitle}</Text>
                 </View>
               )}
             </View>
-            <Text style={styles.sub}>{tr.home.ready}</Text>
+            {showHeaderSkeleton ? (
+              <Skeleton style={styles.subSkeleton} />
+            ) : (
+              <Text style={styles.sub}>{tr.home.ready}</Text>
+            )}
           </View>
 
           {/* ── Last Dive Recap ── */}
-          {lastSession ? <LastDiveCard session={lastSession} tr={tr} /> : null}
+          {sessionsLoading ? <LastDiveSkeleton /> : null}
+          {!sessionsLoading && lastSession ? (
+            <LastDiveCard session={lastSession} tr={tr} />
+          ) : null}
 
           {/* ── Hero dive CTA ── */}
           <PressableCard
@@ -136,12 +152,8 @@ export default function HomeScreen() {
             </View>
           </PressableCard>
 
-          {/* ── Free dive ── */}
-          <PressableCard
-            haptic="light"
-            onPress={() => startDive(null)}
-            radius={t.radii.md}
-          >
+          {/* ── Free/custom dive ── */}
+          <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
             <View style={styles.row}>
               <View style={styles.flex}>
                 <Text style={styles.cardTitle}>{tr.home.freeDive}</Text>
@@ -149,7 +161,55 @@ export default function HomeScreen() {
               </View>
               <Ionicons name="infinite" size={24} color={t.colors.accentSoft} />
             </View>
-          </PressableCard>
+
+            <View style={styles.customDiveBlock}>
+              <View style={styles.customDiveHeader}>
+                <Text style={styles.customDiveLabel}>
+                  {tr.home.customDuration}
+                </Text>
+                <Text style={styles.customDiveValue}>
+                  {customMinutes}
+                  {tr.home.minShort}
+                </Text>
+              </View>
+              <Slider
+                value={customMinutes}
+                onValueChange={setCustomMinutes}
+                minimumValue={5}
+                maximumValue={120}
+                step={5}
+                minimumTrackTintColor={t.colors.accent}
+                maximumTrackTintColor={t.colors.glassEdge}
+                thumbTintColor={t.colors.accentSoft}
+              />
+
+              <View style={styles.customDiveActions}>
+                <PressableCard
+                  haptic="light"
+                  onPress={() => startDive(customMinutes)}
+                  containerStyle={styles.customDiveAction}
+                  radius={t.radii.sm}
+                  padding={t.spacing[3]}
+                >
+                  <Text style={styles.customDiveActionText}>
+                    {tr.home.startCustomDive}
+                  </Text>
+                </PressableCard>
+
+                <PressableCard
+                  haptic="light"
+                  onPress={() => startDive(null)}
+                  containerStyle={styles.customDiveAction}
+                  radius={t.radii.sm}
+                  padding={t.spacing[3]}
+                >
+                  <Text style={styles.customDiveActionText}>
+                    {tr.home.startFreeDive}
+                  </Text>
+                </PressableCard>
+              </View>
+            </View>
+          </GlassCard>
 
           {/* ── Zone Progress ── */}
           <GlassCard radius={t.radii.md}>
@@ -158,7 +218,9 @@ export default function HomeScreen() {
           </GlassCard>
 
           {/* ── Daily companion ── */}
-          {dailyRec ? (
+          {dailyRecLoading ? (
+            <DailyCompanionSkeleton />
+          ) : dailyRec ? (
             <GlassCard radius={t.radii.md}>
               <SectionLabel>{tr.home.guideTitle}</SectionLabel>
               <Text style={styles.companionBody}>{dailyRec}</Text>
@@ -187,6 +249,38 @@ export default function HomeScreen() {
         </ScrollView>
       </SafeAreaView>
     </ZoneBackground>
+  );
+}
+
+function LastDiveSkeleton() {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
+  return (
+    <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+      <Skeleton style={styles.skeletonLabel} />
+      <View style={styles.lastDiveRow}>
+        <Skeleton style={styles.lastDiveIconSkeleton} radius={t.radii.sm} />
+        <View style={styles.flex}>
+          <Skeleton style={styles.lastDiveMetaSkeleton} />
+          <Skeleton style={styles.lastDiveMetaSkeletonShort} />
+        </View>
+        <Skeleton style={styles.lastDiveXpSkeleton} radius={t.radii.pill} />
+      </View>
+    </GlassCard>
+  );
+}
+
+function DailyCompanionSkeleton() {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
+  return (
+    <GlassCard radius={t.radii.md}>
+      <Skeleton style={styles.skeletonLabel} />
+      <Skeleton style={styles.companionSkeletonLine} />
+      <Skeleton style={styles.companionSkeletonLineShort} />
+    </GlassCard>
   );
 }
 
@@ -395,6 +489,17 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 14,
       fontFamily: t.fonts.body
     },
+    nameSkeleton: {
+      width: 190,
+      height: 42,
+      borderRadius: t.radii.s
+    },
+    subSkeleton: {
+      width: 150,
+      height: 14,
+      marginTop: t.spacing[1],
+      borderRadius: t.radii.xs
+    },
     heroCard: { marginTop: t.spacing[0] },
     heroContent: { alignItems: "center", paddingVertical: t.spacing[5] },
     heroLabel: {
@@ -440,11 +545,57 @@ const makeStyles = (t: AppTheme) =>
       marginTop: t.spacing[1],
       fontFamily: t.fonts.body
     },
+    customDiveBlock: {
+      marginTop: t.spacing[3],
+      gap: t.spacing[2]
+    },
+    customDiveHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between"
+    },
+    customDiveLabel: {
+      color: t.colors.textSecondary,
+      fontSize: 12,
+      letterSpacing: 0.5,
+      fontFamily: t.fonts.label
+    },
+    customDiveValue: {
+      color: t.colors.accent,
+      fontSize: 14,
+      fontFamily: t.fonts.mono
+    },
+    customDiveActions: {
+      flexDirection: "row",
+      gap: t.spacing[2],
+      marginTop: t.spacing[1]
+    },
+    customDiveAction: {
+      flex: 1
+    },
+    customDiveActionText: {
+      color: t.colors.text,
+      textAlign: "center",
+      letterSpacing: 0.8,
+      fontSize: 11,
+      fontFamily: t.fonts.label
+    },
     companionBody: {
       color: t.colors.text,
       fontSize: 15,
       lineHeight: 22,
       fontFamily: t.fonts.body
+    },
+    companionSkeletonLine: {
+      height: 14,
+      marginTop: t.spacing[2],
+      borderRadius: t.radii.xs
+    },
+    companionSkeletonLineShort: {
+      width: "72%",
+      height: 14,
+      marginTop: t.spacing[1.5],
+      borderRadius: t.radii.xs
     },
     // Last dive card
     lastDiveRow: {
@@ -461,6 +612,27 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "center",
       overflow: "hidden",
       backgroundColor: "rgba(255,255,255,0.05)"
+    },
+    lastDiveIconSkeleton: {
+      width: 44,
+      height: 44,
+      borderRadius: t.radii.sm
+    },
+    lastDiveMetaSkeleton: {
+      width: 120,
+      height: 12,
+      borderRadius: t.radii.xs
+    },
+    lastDiveMetaSkeletonShort: {
+      width: 86,
+      height: 14,
+      borderRadius: t.radii.xs,
+      marginTop: t.spacing[1.5]
+    },
+    lastDiveXpSkeleton: {
+      width: 58,
+      height: 24,
+      borderRadius: t.radii.pill
     },
     lastDiveZoneLabel: {
       fontSize: 11,
@@ -538,5 +710,10 @@ const makeStyles = (t: AppTheme) =>
       letterSpacing: 0.8,
       fontFamily: t.fonts.label,
       marginTop: t.spacing[1]
+    },
+    skeletonLabel: {
+      width: 110,
+      height: 11,
+      borderRadius: t.radii.xs
     }
   });

@@ -24,6 +24,8 @@ export default function TabsLayout() {
   const screenOptions = useMemo(
     () => ({
       headerShown: false,
+      lazy: true,
+      freezeOnBlur: true,
       tabBarShowLabel: false,
       tabBarActiveTintColor: t.colors.accent,
       tabBarInactiveTintColor: t.colors.textMuted,
@@ -74,6 +76,7 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      detachInactiveScreens
       screenOptions={screenOptions}
       tabBar={isPremium ? renderProTabBar : undefined}
     >

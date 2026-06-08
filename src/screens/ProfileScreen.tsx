@@ -441,7 +441,7 @@ export default function ProfileScreen() {
           {/* Account / Onboarding */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.account}</SectionLabel>
-            {__DEV__ ? (
+            {process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" ? (
               <SettingRow
                 type="switch"
                 title={tr.profile.devEnablePremium}

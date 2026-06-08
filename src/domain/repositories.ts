@@ -34,9 +34,17 @@ export interface IDiverRepository {
   update(patch: Partial<DiverProfile>): Promise<DiverProfile>;
 }
 
+export type AIRequestOptions = {
+  /** Bypass auto-cache cooldown and force a provider attempt. */
+  forceRefresh?: boolean;
+};
+
 export interface IAICompanionGateway {
-  dailyRecommendation(context: AIContext): Promise<string>;
-  motivation(context: AIContext): Promise<string>;
+  dailyRecommendation(
+    context: AIContext,
+    options?: AIRequestOptions
+  ): Promise<string>;
+  motivation(context: AIContext, options?: AIRequestOptions): Promise<string>;
   sessionSummary(session: DiveSession, language?: Language): Promise<string>;
 }
 

@@ -141,6 +141,16 @@ EXPO_PUBLIC_OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 Optional:
 - `EXPO_PUBLIC_AI_PROVIDER=gemini|groq|openrouter` to force the first provider in the chain.
+- `EXPO_PUBLIC_AI_AUTO_COOLDOWN_HOURS=24` to control persistent auto-call cooldown (survives app restart).
+- Per-kind overrides (optional):
+  - `EXPO_PUBLIC_AI_RECOMMENDATION_COOLDOWN_HOURS=24`
+  - `EXPO_PUBLIC_AI_MOTIVATION_COOLDOWN_HOURS=24`
+  - `EXPO_PUBLIC_AI_REFLECTION_COOLDOWN_HOURS=24`
+
+Examples:
+- `EXPO_PUBLIC_AI_AUTO_COOLDOWN_HOURS=1`
+- `EXPO_PUBLIC_AI_AUTO_COOLDOWN_HOURS=6`
+- `EXPO_PUBLIC_AI_AUTO_COOLDOWN_HOURS=24`
 
 ---
 

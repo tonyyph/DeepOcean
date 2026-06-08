@@ -4,6 +4,8 @@ import { useSettings } from "@/stores";
 import { buildAIContext } from "@/features/ai";
 import type { Language } from "@/domain/entities";
 
+const AI_CACHE_MS = 1000 * 60 * 60 * 24; // 24h
+
 export const diverKeys = {
   profile: ["diver", "profile"] as const,
   dailyRec: ["diver", "dailyRec"] as const,
@@ -50,7 +52,11 @@ export function useDailyRecommendation() {
       const context = await buildAIContext(lang);
       return container.ai.dailyRecommendation(context);
     },
-    staleTime: 1000 * 60 * 60 * 24 // once per day
+    staleTime: AI_CACHE_MS,
+    gcTime: AI_CACHE_MS,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false
   });
 }
 
@@ -62,7 +68,11 @@ export function useDailyMotivation() {
       const context = await buildAIContext(lang);
       return container.ai.motivation(context);
     },
-    staleTime: 1000 * 60 * 60 * 24 // once per day
+    staleTime: AI_CACHE_MS,
+    gcTime: AI_CACHE_MS,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false
   });
 }
 

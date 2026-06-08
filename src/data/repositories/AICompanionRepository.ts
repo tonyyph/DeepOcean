@@ -3,7 +3,10 @@ import { OCEAN_ZONES, ZONE_TABLE } from "@/features/ocean/zones";
 import type { Rarity } from "@/features/ocean/bestiary";
 import type { AIProvider, ReflectionInput } from "@/features/ai/AIProvider";
 import type { AIContext, DiveSession, Language } from "@/domain/entities";
-import type { IAICompanionGateway } from "@/domain/repositories";
+import type {
+  AIRequestOptions,
+  IAICompanionGateway
+} from "@/domain/repositories";
 import { shouldFallbackToNextProvider } from "../gateways/aiHttp";
 import { composeOfflineCompanion } from "./offlineCompanion";
 
@@ -45,6 +48,16 @@ const TELEMETRY_COUNTS: Record<AIResponseSource, number> = {
   offline: 0
 };
 
+const DEFAULT_AUTO_COOLDOWN_HOURS = 24;
+const MIN_AUTO_COOLDOWN_HOURS = 1 / 60; // 1 minute
+const MAX_AUTO_COOLDOWN_HOURS = 24 * 7; // 7 days
+
+const AUTO_COOLDOWN_ENV_BY_KIND: Record<AIRequestKind, string> = {
+  recommendation: "EXPO_PUBLIC_AI_RECOMMENDATION_COOLDOWN_HOURS",
+  motivation: "EXPO_PUBLIC_AI_MOTIVATION_COOLDOWN_HOURS",
+  reflection: "EXPO_PUBLIC_AI_REFLECTION_COOLDOWN_HOURS"
+};
+
 /**
  * AICompanionRepository — orchestrates a real {@link AIProvider} with a durable
  * MMKV cache. Strategy:
@@ -62,13 +75,17 @@ export class AICompanionRepository implements IAICompanionGateway {
 
   constructor(private readonly providers: readonly AIProvider[]) {}
 
-  async dailyRecommendation(context: AIContext): Promise<string> {
+  async dailyRecommendation(
+    context: AIContext,
+    options?: AIRequestOptions
+  ): Promise<string> {
     const text = await this.run(
       "recommendation",
       (provider) => provider.generateRecommendation(context),
       () => this.readCache().recommendation[context.language],
       (entry) => this.writeRecommendation(context.language, entry),
-      () => composeOfflineCompanion("recommendation", context)
+      () => composeOfflineCompanion("recommendation", context),
+      options
     );
     return polishEmotionalReply(
       ensureRecommendationQuality(text, context),
@@ -76,13 +93,17 @@ export class AICompanionRepository implements IAICompanionGateway {
     );
   }
 
-  async motivation(context: AIContext): Promise<string> {
+  async motivation(
+    context: AIContext,
+    options?: AIRequestOptions
+  ): Promise<string> {
     const text = await this.run(
       "motivation",
       (provider) => provider.generateMotivation(context),
       () => this.readCache().motivation[context.language],
       (entry) => this.writeMotivation(context.language, entry),
-      () => composeOfflineCompanion("motivation", context)
+      () => composeOfflineCompanion("motivation", context),
+      options
     );
     return polishEmotionalReply(
       ensureMotivationQuality(text, context),
@@ -101,7 +122,8 @@ export class AICompanionRepository implements IAICompanionGateway {
       (provider) => provider.generateReflection(input, language),
       () => this.readCache().reflections[key],
       (entry) => this.writeReflection(key, entry),
-      () => composeOfflineReflection(input, language)
+      () => composeOfflineReflection(input, language),
+      undefined
     );
     return polishEmotionalReply(text, language);
   }
@@ -112,10 +134,21 @@ export class AICompanionRepository implements IAICompanionGateway {
     call: (provider: AIProvider) => Promise<string>,
     readCached: () => CacheEntry | undefined,
     writeCached: (entry: CacheEntry) => void,
-    offline: () => string
+    offline: () => string,
+    options?: AIRequestOptions
   ): Promise<string> {
     const startedAt = Date.now();
     const attemptedProviders: string[] = [];
+    const cached = readCached();
+
+    if (cached?.text && shouldServeCachedFirst(kind, cached, options)) {
+      this.logTelemetry(kind, {
+        source: "cache",
+        attemptedProviders,
+        durationMs: Date.now() - startedAt
+      });
+      return cached.text;
+    }
 
     if (this.providers.length > 0) {
       try {
@@ -160,7 +193,6 @@ export class AICompanionRepository implements IAICompanionGateway {
       );
     }
 
-    const cached = readCached();
     if (cached?.text) {
       this.logTelemetry(kind, {
         source: "cache",
@@ -455,6 +487,40 @@ function ensureEndingPunctuation(text: string): string {
 function capitalizeFirst(text: string): string {
   if (!text) return text;
   return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function shouldServeCachedFirst(
+  kind: AIRequestKind,
+  cached: CacheEntry | undefined,
+  options?: AIRequestOptions
+): boolean {
+  if (!cached?.text) return false;
+  if (options?.forceRefresh) return false;
+
+  const maxAgeMs = getAutoCooldownMs(kind);
+  return Date.now() - cached.at <= maxAgeMs;
+}
+
+function getAutoCooldownMs(kind: AIRequestKind): number {
+  const kindHours = parseCooldownHours(
+    process.env[AUTO_COOLDOWN_ENV_BY_KIND[kind]]
+  );
+  const globalHours = parseCooldownHours(
+    process.env.EXPO_PUBLIC_AI_AUTO_COOLDOWN_HOURS
+  );
+  const hours = kindHours ?? globalHours ?? DEFAULT_AUTO_COOLDOWN_HOURS;
+  return Math.round(hours * 60 * 60 * 1000);
+}
+
+function parseCooldownHours(raw: string | undefined): number | null {
+  if (!raw || raw.trim().length === 0) return null;
+  const parsed = Number(raw.trim());
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return clamp(parsed, MIN_AUTO_COOLDOWN_HOURS, MAX_AUTO_COOLDOWN_HOURS);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }
 
 function isTelemetryEnabled(): boolean {

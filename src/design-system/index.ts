@@ -22,6 +22,7 @@ export { LevelUpModal } from "./atoms/LevelUpModal";
 export { TitleAchievementModal } from "./atoms/TitleAchievementModal";
 export { MoodMapChart } from "./atoms/MoodMapChart";
 export type { MoodMapEntry } from "./atoms/MoodMapChart";
+export { Skeleton } from "./atoms/Skeleton";
 
 // Scene-level reusable composites
 export { ThemePickerSheet } from "./scenes/ThemePickerSheet";

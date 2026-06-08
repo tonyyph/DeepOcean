@@ -1,9 +1,6 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import React, { useCallback, useState } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { MotiView } from "moti";
 import {
   ZoneBackground,
   GlassCard,
@@ -12,12 +9,10 @@ import {
   PressableCard,
   OptionPill,
   PaywallSheet,
-  PremiumBadge,
-  MoodMapChart,
+  Skeleton,
   useTheme,
   useThemedStyles,
-  type AppTheme,
-  type MoodMapEntry
+  type AppTheme
 } from "@/design-system";
 import {
   useDailyRecommendation,
@@ -25,34 +20,45 @@ import {
   useSessions
 } from "@/features/diver";
 import { useMoodRecord, useSetMood, selectCurrentMood } from "@/features/mood";
-import { MOODS, type Mood } from "@/domain/entities";
-import { useQuery } from "@tanstack/react-query";
+import { MOODS, type Language, type Mood } from "@/domain/entities";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { container } from "@/data/container";
 import { useTranslations } from "@/core/i18n";
 import { usePremium, useSettings } from "@/stores";
+import { ProInsights } from "./ai/ProInsights";
+import { buildAIContext } from "@/features/ai";
+import { diverKeys } from "@/features/diver/hooks";
+
+const ASK_AGAIN_COOLDOWN_MS = 20_000;
 
 export default function AIScreen() {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const {
     data: recommendation,
-    refetch: refetchRec,
-    isFetching
+    isFetching,
+    isLoading: recommendationLoading
   } = useDailyRecommendation();
 
   const { data: sessions = [] } = useSessions();
   const { data: moodRecord } = useMoodRecord();
-  const { data: motivation, refetch: refetchMotivation } = useDailyMotivation();
+  const {
+    data: motivation,
+    isFetching: motivationFetching,
+    isLoading: motivationLoading
+  } = useDailyMotivation();
 
   const { mutate: setMood } = useSetMood();
   const selectedMood = selectCurrentMood(moodRecord);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [lastManualRefreshAt, setLastManualRefreshAt] = useState(0);
   const tr = useTranslations();
   const isPremium = usePremium((s) => s.isPremium);
   const language = useSettings((s) => s.language);
+  const queryClient = useQueryClient();
 
   const lastSession = sessions[0];
-  const { data: lastSummary } = useQuery({
+  const { data: lastSummary, isLoading: summaryLoading } = useQuery({
     queryKey: ["ai", "summary", lastSession?.id, language],
     queryFn: () =>
       lastSession
@@ -61,11 +67,32 @@ export default function AIScreen() {
     enabled: Boolean(lastSession)
   });
 
+  const now = Date.now();
+  const canAskAgain =
+    !isFetching &&
+    !motivationFetching &&
+    now - lastManualRefreshAt >= ASK_AGAIN_COOLDOWN_MS;
+
   const handleOpenPaywall = useCallback(() => setPaywallOpen(true), []);
   const handleRefreshAI = useCallback(() => {
-    void refetchRec();
-    void refetchMotivation();
-  }, [refetchMotivation, refetchRec]);
+    if (!canAskAgain) return;
+    setLastManualRefreshAt(Date.now());
+
+    void (async () => {
+      const lang = (language ?? "en") as Language;
+      const context = await buildAIContext(lang);
+      const [nextRecommendation, nextMotivation] = await Promise.all([
+        container.ai.dailyRecommendation(context, { forceRefresh: true }),
+        container.ai.motivation(context, { forceRefresh: true })
+      ]);
+
+      queryClient.setQueryData(
+        [...diverKeys.dailyRec, lang],
+        nextRecommendation
+      );
+      queryClient.setQueryData(["diver", "motivation", lang], nextMotivation);
+    })();
+  }, [canAskAgain, language, queryClient]);
 
   return (
     <ZoneBackground zone="twilight">
@@ -83,29 +110,43 @@ export default function AIScreen() {
 
           <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.ai.today}</SectionLabel>
-            <Text style={styles.body}>
-              {isFetching ? tr.ai.listening : (recommendation ?? "—")}
-            </Text>
+            {recommendationLoading ? (
+              <AiTextSkeleton />
+            ) : (
+              <Text style={styles.body}>
+                {isFetching ? tr.ai.listening : (recommendation ?? "—")}
+              </Text>
+            )}
             <View style={styles.askWrap}>
-              <PressableCard haptic="light" onPress={handleRefreshAI}>
-                <Text style={styles.cta}>{tr.ai.askAgain}</Text>
+              <PressableCard
+                haptic="light"
+                onPress={handleRefreshAI}
+                disabled={!canAskAgain}
+              >
+                <Text style={[styles.cta, !canAskAgain && styles.ctaDisabled]}>
+                  {tr.ai.askAgain}
+                </Text>
               </PressableCard>
             </View>
           </GlassCard>
 
-          {motivation && (
+          {motivationLoading ? (
+            <AiCardSkeleton />
+          ) : motivation ? (
             <GlassCard radius={t.radii.md}>
               <SectionLabel>{tr.ai.nudge}</SectionLabel>
               <Text style={styles.nudge}>{motivation}</Text>
             </GlassCard>
-          )}
+          ) : null}
 
-          {lastSummary && (
+          {summaryLoading ? (
+            <AiCardSkeleton />
+          ) : lastSummary ? (
             <GlassCard radius={t.radii.md}>
               <SectionLabel>{tr.ai.lastExpedition}</SectionLabel>
               <Text style={styles.body}>{lastSummary}</Text>
             </GlassCard>
-          )}
+          ) : null}
 
           {/* PRO INSIGHTS BLOCK */}
           <ProInsights
@@ -127,7 +168,7 @@ export default function AIScreen() {
                   active={selectedMood === m}
                   onPress={() => {
                     setMood(m);
-                    handleRefreshAI();
+                    if (canAskAgain) handleRefreshAI();
                   }}
                   containerStyle={styles.moodItem}
                 />
@@ -145,157 +186,33 @@ export default function AIScreen() {
   );
 }
 
-type ProProps = {
-  isPremium: boolean;
-  onUnlock: () => void;
-  theme: AppTheme;
-  tr: ReturnType<typeof useTranslations>;
-  selectedMood: Mood | null;
-};
-
-/** Deterministic mood scores — shifts when user selects a mood. */
-function buildMoodData(
-  tr: ReturnType<typeof useTranslations>,
-  selected: Mood | null
-): MoodMapEntry[] {
-  const BASE = [0.72, 0.55, 0.68, 0.41, 0.6];
-  const BOOST = 0.22;
-  return MOODS.map((mood, i) => ({
-    label: tr.ai.moodLabels[mood],
-    value: Math.min(
-      1,
-      (BASE[i % BASE.length] ?? 0.5) + (mood === selected ? BOOST : 0)
-    )
-  }));
-}
-
-const ProInsights = React.memo(function ProInsights({
-  isPremium,
-  onUnlock,
-  theme: t,
-  tr,
-  selectedMood
-}: ProProps) {
-  const styles = useThemedStyles(makeStyles);
-  const moodData = useMemo(
-    () => buildMoodData(tr, selectedMood),
-    [tr, selectedMood]
-  );
-
-  if (!isPremium) {
-    return (
-      <Pressable onPress={onUnlock} accessibilityRole="button">
-        <View style={styles.proLockedCard}>
-          <LinearGradient
-            colors={[
-              t.gradients.bioGlow[0] + "33",
-              t.gradients.bioGlow[1] + "11"
-            ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={styles.proHeaderRow}>
-            <View style={styles.proHeaderTitleWrap}>
-              <Ionicons name="sparkles" size={18} color={t.colors.premium} />
-              <Text style={styles.proHeader}>{tr.ai.proHeader}</Text>
-            </View>
-            <PremiumBadge variant="lock" />
-          </View>
-          <Text style={styles.proLockedBody}>{tr.ai.proLocked}</Text>
-          <View style={styles.proPreviewBlur}>
-            <Text style={styles.proPreviewText} numberOfLines={2}>
-              {tr.ai.proPatternBody}
-            </Text>
-            <Text style={styles.proPreviewText} numberOfLines={2}>
-              {tr.ai.proMoodBody}
-            </Text>
-          </View>
-          <View style={styles.proCtaRow}>
-            <Text style={styles.proCtaText}>{tr.ai.proUnlockCta}</Text>
-            <Ionicons name="arrow-forward" size={14} color={t.colors.premium} />
-          </View>
-        </View>
-      </Pressable>
-    );
-  }
-
-  return (
-    <GlassCard glow radius={t.radii.lg} style={styles.proUnlockedWrap}>
-      <MotiView
-        from={{ opacity: 0, translateY: 6 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: "timing", duration: 320 }}
-        style={{ gap: t.spacing[3] }}
-      >
-        <View style={styles.proHeaderRow}>
-          <View style={styles.proHeaderTitleWrap}>
-            <Ionicons name="sparkles" size={18} color={t.colors.premium} />
-            <Text style={styles.proHeader}>{tr.ai.proHeader}</Text>
-          </View>
-        </View>
-        <ProInsightTile
-          title={tr.ai.proPatternTitle}
-          body={tr.ai.proPatternBody}
-          icon="trending-up"
-          t={t}
-        />
-
-        {/* Mood Map — real chart replaces static text */}
-        <View style={styles.proTile}>
-          <View
-            style={[
-              styles.proTileIcon,
-              { borderColor: t.colors.premium + "66" }
-            ]}
-          >
-            <Ionicons name="compass" size={14} color={t.colors.premium} />
-          </View>
-          <View style={styles.flex}>
-            <Text style={styles.proTileTitle}>{tr.ai.proMoodTitle}</Text>
-            <View style={styles.moodChartWrap}>
-              <MoodMapChart data={moodData} />
-            </View>
-          </View>
-        </View>
-
-        <ProInsightTile
-          title={tr.ai.proRitualTitle}
-          body={tr.ai.proRitualBody}
-          icon="leaf"
-          t={t}
-        />
-      </MotiView>
-    </GlassCard>
-  );
-});
-
-const ProInsightTile = React.memo(function ProInsightTile({
-  title,
-  body,
-  icon,
-  t
-}: {
-  title: string;
-  body: string;
-  icon: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap;
-  t: AppTheme;
-}) {
+function AiTextSkeleton() {
+  const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   return (
-    <View style={styles.proTile}>
-      <View
-        style={[styles.proTileIcon, { borderColor: t.colors.premium + "66" }]}
-      >
-        <Ionicons name={icon} size={14} color={t.colors.premium} />
-      </View>
-      <View style={styles.flex}>
-        <Text style={styles.proTileTitle}>{title}</Text>
-        <Text style={styles.proTileBody}>{body}</Text>
+    <View style={styles.skeletonGroup}>
+      <Skeleton style={styles.skeletonLine} />
+      <Skeleton style={styles.skeletonLineMid} />
+      <Skeleton style={styles.skeletonLineShort} />
+      <View style={styles.askWrap}>
+        <Skeleton
+          style={styles.askButtonSkeleton}
+          height={30}
+          radius={t.radii.pill}
+        />
       </View>
     </View>
   );
-});
+}
+
+function AiCardSkeleton() {
+  const t = useTheme();
+  return (
+    <GlassCard radius={t.radii.md}>
+      <AiTextSkeleton />
+    </GlassCard>
+  );
+}
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
@@ -334,6 +251,9 @@ const makeStyles = (t: AppTheme) =>
       paddingVertical: 2,
       fontFamily: t.fonts.label
     },
+    ctaDisabled: {
+      opacity: 0.55
+    },
     moodGrid: {
       flexDirection: "row",
       flexWrap: "wrap",
@@ -342,100 +262,26 @@ const makeStyles = (t: AppTheme) =>
     },
     moodItem: { flexBasis: "47%", flexGrow: 1 },
 
-    // PRO BLOCK
-    proLockedCard: {
-      borderRadius: t.radii.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(255,210,122,0.32)",
-      padding: t.spacing[4],
-      overflow: "hidden",
-      gap: t.spacing[3]
+    skeletonGroup: {
+      marginTop: t.spacing[1.5],
+      paddingBottom: t.spacing[1]
     },
-    proUnlockedWrap: {
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(255,210,122,0.30)",
-      backgroundColor: "rgba(255,210,122,0.05)",
-      padding: t.spacing[2],
-      gap: t.spacing[6]
+    skeletonLine: {
+      height: 14
     },
-    proHeaderRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between"
+    skeletonLineMid: {
+      width: "88%",
+      height: 14,
+      marginTop: t.spacing[1.5]
     },
-    proHeaderTitleWrap: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[2]
+    skeletonLineShort: {
+      width: "58%",
+      height: 14,
+      marginTop: t.spacing[1.5]
     },
-    proHeader: {
-      color: t.colors.premium,
-      fontFamily: t.fonts.label,
-      fontSize: 13,
-      letterSpacing: 1.5,
-      fontWeight: "700"
-    },
-    proLockedBody: {
-      color: t.colors.text,
-      fontSize: 13,
-      lineHeight: 19,
-      fontFamily: t.fonts.body
-    },
-    proPreviewBlur: {
-      gap: t.spacing[1.5],
-      paddingVertical: t.spacing[2],
-      opacity: 0.45
-    },
-    proPreviewText: {
-      color: t.colors.textSecondary,
-      fontSize: 12,
-      lineHeight: 17,
-      fontFamily: t.fonts.body,
-      fontStyle: "italic"
-    },
-    proCtaRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingTop: t.spacing[1]
-    },
-    proCtaText: {
-      color: t.colors.premium,
-      fontFamily: t.fonts.label,
-      fontSize: 12,
-      letterSpacing: 1.5,
-      fontWeight: "700"
-    },
-    proTile: {
-      flexDirection: "row",
-      alignItems: "flex-start",
-      gap: t.spacing[3],
-      paddingVertical: t.spacing[2]
-    },
-    proTileIcon: {
-      width: 28,
-      height: 28,
-      borderRadius: 14,
-      borderWidth: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: "rgba(255,210,122,0.08)",
-      marginTop: 2
-    },
-    proTileTitle: {
-      color: t.colors.premium,
-      fontFamily: t.fonts.label,
-      fontSize: 10,
-      letterSpacing: 1.5
-    },
-    proTileBody: {
-      color: t.colors.text,
-      fontFamily: t.fonts.body,
-      fontSize: 13,
-      lineHeight: 19,
-      marginTop: 2
-    },
-    moodChartWrap: {
-      marginTop: t.spacing[2.5]
+    askButtonSkeleton: {
+      width: "42%",
+      minWidth: 116,
+      alignSelf: "center"
     }
   });
