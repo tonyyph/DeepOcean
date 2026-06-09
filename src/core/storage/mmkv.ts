@@ -43,5 +43,6 @@ export const StorageKeys = {
   aiCache: "app.ai.cache",
   premiumSnapshot: "app.premium.snapshot",
   trialState: "app.premium.trial",
-  usedPromoCodes: "app.premium.promo_codes"
+  usedPromoCodes: "app.premium.promo_codes",
+  widgetSnapshot: "app.widget.snapshot"
 } as const;

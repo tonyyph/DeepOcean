@@ -1,6 +1,7 @@
 import "../global.css";
 import React, { useCallback, useEffect, useState } from "react";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
+import { Linking } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -36,6 +37,13 @@ import { palette } from "@/design-system";
 import { AmbientAudio } from "@/core/audio/AmbientAudioManager";
 import { NotificationService } from "@/core/notifications/NotificationService";
 import { reconcileDiveReminder } from "@/features/notifications";
+import {
+  dispatchWidgetCommand,
+  installWidgetSnapshotSync,
+  parseWidgetActionUrl,
+  writeWidgetSnapshot,
+  type WidgetNavigateTarget
+} from "@/features/widget";
 import { useSettings, usePremium } from "@/stores";
 import { translations, type Language } from "@/core/i18n/translations";
 import * as Updates from "expo-updates";
@@ -65,6 +73,7 @@ async function syncDiveReminders(): Promise<void> {
 }
 
 export default function RootLayout() {
+  const router = useRouter();
   const [fontsLoaded] = useFonts({
     Sora_400Regular,
     Sora_600SemiBold,
@@ -82,6 +91,34 @@ export default function RootLayout() {
   });
 
   const [, setUpdating] = useState<boolean>(false);
+
+  const navigateFromWidget = useCallback(
+    (target: WidgetNavigateTarget) => {
+      if (target === "ai") {
+        router.replace("/(tabs)/ai");
+        return;
+      }
+      router.replace("/(tabs)/stats");
+    },
+    [router]
+  );
+
+  const handleWidgetUrl = useCallback(
+    (url: string) => {
+      const command = parseWidgetActionUrl(url);
+      if (!command) return;
+      const result = dispatchWidgetCommand(command, {
+        navigate: navigateFromWidget
+      });
+      writeWidgetSnapshot();
+      console.log("[WidgetCommand]", {
+        action: command.action,
+        status: result.status,
+        reason: result.reason
+      });
+    },
+    [navigateFromWidget]
+  );
 
   const checkAndForceUpdates = useCallback(async () => {
     if (__DEV__) {
@@ -109,7 +146,36 @@ export default function RootLayout() {
       // Resolve premium entitlements from the store (offline-safe; no-op when
       // RevenueCat is not configured).
       await usePremium.getState().hydrate();
+      writeWidgetSnapshot();
     })();
+  }, [fontsLoaded]);
+
+  useEffect(() => {
+    if (!fontsLoaded) return;
+
+    let isMounted = true;
+    Linking.getInitialURL()
+      .then((url) => {
+        if (!isMounted || !url) return;
+        handleWidgetUrl(url);
+      })
+      .catch(() => {
+        // Ignore malformed startup URL and continue app boot.
+      });
+
+    const sub = Linking.addEventListener("url", ({ url }) => {
+      handleWidgetUrl(url);
+    });
+
+    return () => {
+      isMounted = false;
+      sub.remove();
+    };
+  }, [fontsLoaded, handleWidgetUrl]);
+
+  useEffect(() => {
+    if (!fontsLoaded) return;
+    return installWidgetSnapshotSync();
   }, [fontsLoaded]);
 
   if (!fontsLoaded) return null;
