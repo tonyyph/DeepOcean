@@ -10,6 +10,7 @@ import {
   SectionLabel,
   SessionTimeline,
   DiscoveryTimeline,
+  KpiCard,
   useTheme,
   useThemedStyles,
   type AppTheme
@@ -101,18 +102,18 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
       <Text style={styles.date}>{dateLabel}</Text>
 
       <View style={styles.kpiRow}>
-        <Kpi
+        <KpiCard
           label={tr.sessionDetail.duration}
           value={formatDuration(session.elapsedSeconds)}
         />
-        <Kpi
+        <KpiCard
           label={tr.sessionDetail.focusMinutes}
           value={`${Math.round(session.elapsedSeconds / 60)}m`}
         />
       </View>
       <View style={styles.kpiRow}>
-        <Kpi label={tr.sessionDetail.xpEarned} value={`+${xpEarned}`} />
-        <Kpi
+        <KpiCard label={tr.sessionDetail.xpEarned} value={`+${xpEarned}`} />
+        <KpiCard
           label={tr.sessionDetail.maxDepth}
           value={`${Math.round(session.depthMeters).toLocaleString()} m`}
         />
@@ -153,17 +154,6 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
   );
 }
 
-function Kpi({ label, value }: { label: string; value: string }) {
-  const t = useTheme();
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <GlassCard style={styles.flex} radius={t.radii.md}>
-      <Text style={styles.kpiLabel}>{label}</Text>
-      <Text style={styles.kpiValue}>{value}</Text>
-    </GlassCard>
-  );
-}
-
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
@@ -193,18 +183,6 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.textSecondary
     },
     kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
-    kpiLabel: {
-      color: t.colors.textMuted,
-      fontSize: 10,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label
-    },
-    kpiValue: {
-      color: t.colors.text,
-      fontSize: 24,
-      marginTop: t.spacing[1.5],
-      fontFamily: t.fonts.mono
-    },
     levelRow: { flexDirection: "row", alignItems: "center", gap: t.spacing[2] },
     levelText: {
       fontFamily: t.fonts.body,

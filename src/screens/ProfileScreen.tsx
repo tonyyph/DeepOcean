@@ -59,6 +59,7 @@ import Animated, {
   withTiming
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors, Gradients } from "@/theme";
 
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
 const SOUND_LEVELS = [
@@ -466,19 +467,6 @@ export default function ProfileScreen() {
               }}
               divider={false}
             />
-            {/* <SettingRow
-              type="nav"
-              title={tr.profile.restorePurchases}
-              icon={
-                <Ionicons
-                  name="receipt-outline"
-                  size={22}
-                  color={t.colors.textSecondary}
-                />
-              }
-              onPress={() => {}}
-              divider={false}
-            /> */}
           </GlassCard>
 
           {/* About */}
@@ -571,7 +559,7 @@ function PremiumSection({
             <View
               style={[
                 styles.premiumCrest,
-                { backgroundColor: "rgba(255,210,122,0.15)" }
+                { backgroundColor: `${Colors.premium.gold}26` }
               ]}
             >
               <Ionicons name="diamond" size={20} color={t.colors.premium} />
@@ -596,10 +584,10 @@ function PremiumSection({
     >
       <View style={styles.premiumActiveRow}>
         <LinearGradient
-          colors={["#FFD27A", "#FF9F43"]}
+          colors={Gradients.premium.crest}
           style={styles.premiumCrest}
         >
-          <Ionicons name="diamond" size={20} color="#1A0F00" />
+          <Ionicons name="diamond" size={20} color={Colors.premium.deepInk} />
         </LinearGradient>
         <View style={styles.premiumText}>
           <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
@@ -646,7 +634,7 @@ const makeStyles = (t: AppTheme) =>
     xpTrack: {
       height: 10,
       borderRadius: t.radii.pill,
-      backgroundColor: "rgba(255,255,255,0.08)",
+      backgroundColor: `${Colors.base.white}14`,
       overflow: "hidden"
     },
     xpFill: {

@@ -107,7 +107,7 @@ const makeStyles = (t: AppTheme) =>
       borderColor: t.colors.border
     },
     rowActive: {
-      backgroundColor: "rgba(34,228,255,0.07)",
+      backgroundColor: `${t.colors.accent}12`,
       borderColor: t.colors.accent
     },
     radio: {

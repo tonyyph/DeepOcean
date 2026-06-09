@@ -179,7 +179,7 @@ const makeStyles = (t: AppTheme) =>
       marginBottom: t.spacing[1] + 1
     },
     cellActive: {
-      backgroundColor: "rgba(34,228,255,0.08)",
+      backgroundColor: `${t.colors.accent}14`,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.accent
     },

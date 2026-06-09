@@ -7,6 +7,7 @@ import {
   PaywallSheet,
   PressableCard,
   SectionLabel,
+  SectionSkeleton,
   Skeleton,
   UnderwaterCanvas,
   useTheme,
@@ -204,9 +205,7 @@ function AiTextSkeleton() {
   const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.skeletonGroup}>
-      <Skeleton style={styles.skeletonLine} />
-      <Skeleton style={styles.skeletonLineMid} />
-      <Skeleton style={styles.skeletonLineShort} />
+      <SectionSkeleton widths={["100%", "88%", "58%"]} lineHeight={14} />
       <View style={styles.askWrap}>
         <Skeleton
           style={styles.askButtonSkeleton}
@@ -278,19 +277,6 @@ const makeStyles = (t: AppTheme) =>
     skeletonGroup: {
       marginTop: t.spacing[1.5],
       paddingBottom: t.spacing[1]
-    },
-    skeletonLine: {
-      height: 14
-    },
-    skeletonLineMid: {
-      width: "88%",
-      height: 14,
-      marginTop: t.spacing[1.5]
-    },
-    skeletonLineShort: {
-      width: "58%",
-      height: 14,
-      marginTop: t.spacing[1.5]
     },
     askButtonSkeleton: {
       width: "42%",

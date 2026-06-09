@@ -1,4 +1,5 @@
 import { useTranslations } from "@/core/i18n";
+import { container } from "@/data/container";
 import {
   FreeDiveModal,
   GlassCard,
@@ -6,6 +7,7 @@ import {
   OptionPill,
   PressableCard,
   SectionLabel,
+  SectionSkeleton,
   Skeleton,
   UnderwaterCanvas,
   useTheme,
@@ -33,13 +35,30 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
-import React, { useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors } from "@/theme";
+import {
+  resolveLastDiveSession,
+  shouldShowLastDiveSkeleton
+} from "./homeLastDiveResolver";
+
+type HomeSession = {
+  zone: OceanZone;
+  elapsedSeconds: number;
+  discoveries: unknown[];
+};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -75,15 +94,92 @@ export default function HomeScreen() {
   const levelTitle = profile
     ? getLevelTitle(profile.level, settings.language === "en")
     : null;
-  const lastSession = sessions[0] ?? null;
+  const liveLastSession = (sessions[0] as HomeSession | undefined) ?? null;
+  const [fallbackLastSession, setFallbackLastSession] =
+    useState<HomeSession | null>(null);
+  const lastSessionRef = useRef<HomeSession | null>(null);
+
+  useEffect(() => {
+    if (liveLastSession != null) {
+      lastSessionRef.current = liveLastSession;
+      setFallbackLastSession(liveLastSession);
+    }
+  }, [liveLastSession]);
+
+  useEffect(() => {
+    if (sessionsLoading || liveLastSession != null) return;
+    let active = true;
+
+    // Fallback read protects Home from transient empty-query states.
+    void container.sessions
+      .list()
+      .then((items) => {
+        if (!active) return;
+        const item = (items[0] as HomeSession | undefined) ?? null;
+        if (item != null) {
+          setFallbackLastSession(item);
+          lastSessionRef.current = item;
+        }
+      })
+      .catch(() => {
+        // Ignore: keep existing cached fallback/ref value if any.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [sessionsLoading, liveLastSession]);
+
+  const lastSession = resolveLastDiveSession(
+    liveLastSession,
+    fallbackLastSession,
+    lastSessionRef.current
+  );
+  const showLastDiveSkeleton = shouldShowLastDiveSkeleton(
+    sessionsLoading,
+    lastSession
+  );
   const showHeaderSkeleton = profileLoading;
 
-  const startDive = (minutes: number | null) => {
-    router.push({
-      pathname: "/dive",
-      params: minutes ? { minutes: String(minutes) } : {}
-    });
-  };
+  const startDive = useCallback(
+    (minutes: number | null) => {
+      router.push({
+        pathname: "/dive",
+        params: minutes ? { minutes: String(minutes) } : {}
+      });
+    },
+    [router]
+  );
+
+  const preferredZoneLabel = useMemo(
+    () => ZONE_TABLE[zoneForMinutes(preferredMinutes)].label,
+    [preferredMinutes]
+  );
+
+  const openFreeDiveModal = useCallback(
+    () => setIsFreeDiveModalVisible(true),
+    []
+  );
+
+  const closeFreeDiveModal = useCallback(
+    () => setIsFreeDiveModalVisible(false),
+    []
+  );
+
+  const handleStartPreferredDive = useCallback(
+    () => startDive(preferredMinutes),
+    [startDive, preferredMinutes]
+  );
+
+  const handleStartUnlimitedDive = useCallback(
+    () => startDive(null),
+    [startDive]
+  );
+
+  const handleStartCustomDive = useCallback(() => {
+    setIsFreeDiveModalVisible(false);
+    startDive(customMinutes);
+  }, [startDive, customMinutes]);
 
   return (
     <ZoneBackground zone="midnight">
@@ -119,8 +215,8 @@ export default function HomeScreen() {
           </View>
 
           {/* ── Last Dive Recap ── */}
-          {sessionsLoading && <LastDiveSkeleton />}
-          {!sessionsLoading && lastSession && (
+          {showLastDiveSkeleton && <LastDiveSkeleton />}
+          {!showLastDiveSkeleton && lastSession && (
             <LastDiveCard session={lastSession} tr={tr} />
           )}
 
@@ -128,7 +224,7 @@ export default function HomeScreen() {
           <PressableCard
             glow
             haptic="light"
-            onPress={() => startDive(preferredMinutes)}
+            onPress={handleStartPreferredDive}
             containerStyle={styles.heroCard}
             radius={t.radii.md}
           >
@@ -137,8 +233,7 @@ export default function HomeScreen() {
               <Text style={styles.heroDuration}>{preferredMinutes}</Text>
               <Text style={styles.heroDurationSub}>{tr.home.min}</Text>
               <Text style={styles.heroHint}>
-                {tr.home.estimatedReach} ·{" "}
-                {ZONE_TABLE[zoneForMinutes(preferredMinutes)].label}
+                {tr.home.estimatedReach} · {preferredZoneLabel}
               </Text>
             </View>
             <View style={styles.quickRow}>
@@ -153,8 +248,8 @@ export default function HomeScreen() {
               <OptionPill
                 key={"custom"}
                 icon="infinite"
-                onLongPress={() => setIsFreeDiveModalVisible(true)}
-                onPress={() => startDive(null)}
+                onLongPress={openFreeDiveModal}
+                onPress={handleStartUnlimitedDive}
                 containerStyle={styles.quickItem}
               />
             </View>
@@ -208,12 +303,9 @@ export default function HomeScreen() {
           minutesLabel={tr.home.min}
           estimatedReachLabel={tr.home.estimatedReach}
           startLabel={tr.home.startFreeDive}
-          onDismiss={() => setIsFreeDiveModalVisible(false)}
+          onDismiss={closeFreeDiveModal}
           onMinutesChange={setCustomMinutes}
-          onStart={() => {
-            setIsFreeDiveModalVisible(false);
-            startDive(customMinutes);
-          }}
+          onStart={handleStartCustomDive}
         />
       </SafeAreaView>
     </ZoneBackground>
@@ -246,8 +338,11 @@ function DailyCompanionSkeleton() {
   return (
     <GlassCard radius={t.radii.md}>
       <Skeleton style={styles.skeletonLabel} />
-      <Skeleton style={styles.companionSkeletonLine} />
-      <Skeleton style={styles.companionSkeletonLineShort} />
+      <SectionSkeleton
+        style={styles.companionSectionSkeleton}
+        widths={["100%", "72%"]}
+        lineHeight={14}
+      />
     </GlassCard>
   );
 }
@@ -508,16 +603,8 @@ const makeStyles = (t: AppTheme) =>
       lineHeight: 22,
       fontFamily: t.fonts.body
     },
-    companionSkeletonLine: {
-      height: 14,
-      marginTop: t.spacing[2],
-      borderRadius: t.radii.xs
-    },
-    companionSkeletonLineShort: {
-      width: "72%",
-      height: 14,
-      marginTop: t.spacing[1.5],
-      borderRadius: t.radii.xs
+    companionSectionSkeleton: {
+      marginTop: t.spacing[2]
     },
     // Last dive card
     lastDiveRow: {
@@ -533,7 +620,7 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
-      backgroundColor: "rgba(255,255,255,0.05)"
+      backgroundColor: `${Colors.base.white}0D`
     },
     lastDiveIconSkeleton: {
       width: 44,

@@ -13,6 +13,7 @@ import { useTranslations } from "@/core/i18n";
 import { usePremium } from "@/stores";
 import { getLore } from "@/features/ocean";
 import type { Rarity } from "@/features/ocean";
+import { Colors } from "@/theme";
 
 export type StoryRow = {
   id: string;
@@ -124,7 +125,7 @@ export function CreatureStorySheet({
           <Text
             style={[
               styles.sigil,
-              { color: row.seen ? "#fff" : t.colors.textFaint }
+              { color: row.seen ? Colors.base.white : t.colors.textFaint }
             ]}
           >
             {row.seen ? sigil : "?"}
@@ -228,7 +229,7 @@ export function CreatureStorySheet({
           haptic="light"
           onPress={onDismiss}
           radius={t.radii.md}
-          style={{ marginTop: t.spacing[5] }}
+          style={styles.closeButton}
         >
           <Text style={styles.closeText}>{tr.collection.story.close}</Text>
         </PressableCard>
@@ -305,8 +306,8 @@ const makeStyles = (t: AppTheme) =>
       padding: t.spacing[4],
       borderRadius: t.radii.lg,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(255,210,122,0.28)",
-      backgroundColor: "rgba(255,210,122,0.06)"
+      borderColor: `${Colors.premium.gold}47`,
+      backgroundColor: `${Colors.premium.gold}0F`
     },
     proHeader: {
       flexDirection: "row",
@@ -361,5 +362,8 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.label,
       fontSize: 11,
       textAlign: "center"
+    },
+    closeButton: {
+      marginTop: t.spacing[5]
     }
   });

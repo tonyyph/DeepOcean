@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet, type ViewStyle, type StyleProp } from "react-native";
 import { useTheme } from "../useTheme";
+import { Colors } from "@/theme";
 
 type Props = {
   width?: number | `${number}%`;
@@ -27,7 +28,7 @@ export const Skeleton = React.memo(function Skeleton({
           width,
           height,
           borderRadius: radius ?? t.radii.xs,
-          borderColor: "rgba(255,255,255,0.12)"
+          borderColor: `${Colors.base.white}1F`
         },
         style
       ]}
@@ -37,7 +38,7 @@ export const Skeleton = React.memo(function Skeleton({
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: "rgba(255,255,255,0.10)",
+    backgroundColor: `${Colors.base.white}1A`,
     borderWidth: StyleSheet.hairlineWidth
   }
 });

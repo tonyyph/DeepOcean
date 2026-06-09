@@ -1,5 +1,6 @@
 import type { AppTheme } from "./types";
 import { radii, spacing, motion } from "../tokens";
+import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
 // Coral Garden — premium. Soft pastel reef, swaying petals.
 export const coralGardenTheme: AppTheme = {
@@ -11,8 +12,8 @@ export const coralGardenTheme: AppTheme = {
     background: "#1B1023",
     surface: "#241431",
     surfaceElevated: "#321A43",
-    border: "rgba(255,200,220,0.10)",
-    borderStrong: "rgba(255,200,220,0.28)",
+    border: alpha("#FFC8DC", 0.1),
+    borderStrong: alpha("#FFC8DC", 0.28),
     text: "#FFF0F6",
     textSecondary: "rgba(255,240,246,0.76)",
     textMuted: "rgba(255,240,246,0.48)",
@@ -22,9 +23,9 @@ export const coralGardenTheme: AppTheme = {
     danger: "#FF6E8A",
     success: "#9DE9D0",
     warning: "#FFD27A",
-    glass: "rgba(255,200,220,0.06)",
-    glassEdge: "rgba(255,200,220,0.20)",
-    premium: "#FFD27A"
+    glass: alpha("#FFC8DC", 0.06),
+    glassEdge: alpha("#FFC8DC", 0.2),
+    premium: THEME_HEX.premium
   },
   gradients: {
     surface: ["#9C5A9E", "#FF8DBF", "#9C5A9E"],
@@ -34,13 +35,7 @@ export const coralGardenTheme: AppTheme = {
     trench: ["#321A43", "#1B1023", "#0A0410"],
     bioGlow: ["#FF8DBF", "#9DE9D0"]
   },
-  fonts: {
-    display: "SpaceGrotesk_700Bold",
-    body: "SpaceGrotesk_400Regular",
-    label: "SpaceGrotesk_500Medium",
-    mono: "JetBrainsMono_400Regular",
-    displayLetterSpacing: -0.8
-  },
+  fonts: THEME_FONTS,
   particles: {
     style: "petals",
     count: 22,
@@ -50,9 +45,9 @@ export const coralGardenTheme: AppTheme = {
     blur: 1.4,
     hues: ["#FF8DBF", "#FFC8DD", "#9DE9D0"],
     vignette: [
-      "rgba(255,141,191,0.18)",
-      "rgba(36,20,49,0.82)",
-      "rgba(10,4,16,0.98)"
+      alpha("#FF8DBF", 0.18),
+      alpha("#241431", 0.82),
+      alpha("#0A0410", 0.98)
     ],
     loopMs: 20000,
     opacity: 0.7

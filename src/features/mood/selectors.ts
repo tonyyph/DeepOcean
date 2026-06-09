@@ -6,9 +6,3 @@ import type { Mood, MoodRecord } from "@/domain/entities";
  */
 export const selectCurrentMood = (r: MoodRecord | undefined): Mood | null =>
   r?.currentMood ?? null;
-
-export const selectMoodUpdatedAt = (r: MoodRecord | undefined): number | null =>
-  r?.lastMoodUpdatedAt ?? null;
-
-export const selectHasMood = (r: MoodRecord | undefined): boolean =>
-  Boolean(r?.currentMood);

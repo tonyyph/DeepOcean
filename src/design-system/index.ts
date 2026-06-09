@@ -11,10 +11,8 @@ export { Sheet } from "./atoms/Sheet";
 export { SectionLabel } from "./atoms/SectionLabel";
 export { SettingRow } from "./atoms/SettingRow";
 export { OptionPill } from "./atoms/OptionPill";
-export { Divider } from "./atoms/Divider";
 export { AppHeader } from "./atoms/AppHeader";
 export { PremiumBadge } from "./atoms/PremiumBadge";
-export { PremiumGuard } from "./atoms/PremiumGuard";
 export { ThemeSwatch } from "./atoms/ThemeSwatch";
 export { ConfirmModal } from "./atoms/ConfirmModal";
 export { FreeDiveModal } from "./atoms/FreeDiveModal";
@@ -24,6 +22,8 @@ export { TitleAchievementModal } from "./atoms/TitleAchievementModal";
 export { MoodMapChart } from "./atoms/MoodMapChart";
 export type { MoodMapEntry } from "./atoms/MoodMapChart";
 export { Skeleton } from "./atoms/Skeleton";
+export { SectionSkeleton } from "./atoms/SectionSkeleton";
+export { KpiCard } from "./atoms/KpiCard";
 
 // Scene-level reusable composites
 export { ThemePickerSheet } from "./scenes/ThemePickerSheet";

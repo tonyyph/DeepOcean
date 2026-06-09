@@ -9,6 +9,7 @@ import {
   AppHeader,
   SectionLabel,
   Skeleton,
+  KpiCard,
   useTheme,
   useThemedStyles,
   type AppTheme
@@ -58,24 +59,24 @@ export default function StatsScreen() {
           />
 
           <View style={styles.kpiRow}>
-            <Kpi
+            <KpiCard
               label={tr.stats.maxDepth}
               value={`${Math.round(maxDepth).toLocaleString()} m`}
               loading={isLoading}
             />
-            <Kpi
+            <KpiCard
               label={tr.stats.totalFocus}
               value={`${Math.round(totalMinutes)} min`}
               loading={isLoading}
             />
           </View>
           <View style={styles.kpiRow}>
-            <Kpi
+            <KpiCard
               label={tr.stats.dives}
               value={String(profile?.totalDives ?? 0)}
               loading={isLoading}
             />
-            <Kpi
+            <KpiCard
               label={tr.stats.level}
               value={String(profile?.level ?? 1)}
               loading={isLoading}
@@ -167,32 +168,6 @@ function RecentSessionsSkeleton() {
   );
 }
 
-function Kpi({
-  label,
-  value,
-  loading
-}: {
-  label: string;
-  value: string;
-  loading?: boolean;
-}) {
-  const t = useTheme();
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <GlassCard style={styles.flex} radius={t.radii.md}>
-      <Text style={styles.kpiLabel}>{label}</Text>
-      {loading ? (
-        <View style={styles.kpiValueSkeletonRow}>
-          <Skeleton style={styles.kpiValueSkeletonMain} />
-          <Skeleton style={styles.kpiValueSkeletonUnit} />
-        </View>
-      ) : (
-        <Text style={styles.kpiValue}>{value}</Text>
-      )}
-    </GlassCard>
-  );
-}
-
 function Heatmap({
   data
 }: {
@@ -227,28 +202,40 @@ function Heatmap({
 function buildLast7Days(
   sessions: { startedAt: number; elapsedSeconds: number }[]
 ) {
-  const buckets = new Map<string, number>();
-  const days: string[] = [];
+  const buckets = new Map<number, number>();
+  const days: number[] = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const toLocalDayKey = (d: Date) => {
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    return y * 10_000 + m * 100 + day;
+  };
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
+    const key = toLocalDayKey(d);
     days.push(key);
     buckets.set(key, 0);
   }
   for (const s of sessions) {
-    const key = new Date(s.startedAt).toISOString().slice(0, 10);
+    const key = toLocalDayKey(new Date(s.startedAt));
     if (buckets.has(key))
       buckets.set(key, (buckets.get(key) ?? 0) + s.elapsedSeconds / 60);
   }
-  const dayShort = (iso: string) =>
-    new Date(iso)
+  const keyToDate = (key: number) => {
+    const y = Math.floor(key / 10_000);
+    const m = Math.floor((key % 10_000) / 100) - 1;
+    const day = key % 100;
+    return new Date(y, m, day);
+  };
+  const dayShort = (key: number) =>
+    keyToDate(key)
       .toLocaleDateString(undefined, { weekday: "short" })
       .slice(0, 1);
   return days.map((day) => ({
-    day,
+    day: String(day),
     label: dayShort(day),
     minutes: buckets.get(day) ?? 0
   }));
@@ -263,34 +250,6 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[4]
     },
     kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
-    kpiLabel: {
-      color: t.colors.textMuted,
-      fontSize: 10,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label
-    },
-    kpiValue: {
-      color: t.colors.text,
-      fontSize: 26,
-      marginTop: t.spacing[1.5],
-      fontFamily: t.fonts.mono
-    },
-    kpiValueSkeletonRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[1],
-      marginTop: t.spacing[2]
-    },
-    kpiValueSkeletonMain: {
-      width: 56,
-      height: 24,
-      borderRadius: t.radii.xs
-    },
-    kpiValueSkeletonUnit: {
-      width: 24,
-      height: 12,
-      borderRadius: t.radii.xs
-    },
     dayLabel: {
       color: t.colors.textMuted,
       fontSize: 11,

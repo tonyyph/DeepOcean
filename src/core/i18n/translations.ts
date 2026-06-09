@@ -53,7 +53,6 @@ export const translations = {
       premium: "DeepOcean Pro",
       premiumDesc: "Unlock every theme + future premium features",
       premiumActive: "All premium content unlocked. Thank you — dive on.",
-      restorePurchases: "Restore purchases",
       replayOnboarding: "Replay onboarding",
       confirm: "Confirm",
       cancel: "Cancel",
@@ -279,7 +278,6 @@ export const translations = {
       promoExpired: "Code has expired",
       promoSuccess: (days: number) =>
         `Active · ${days} day${days === 1 ? "" : "s"} left`,
-      maybeLater: "MAYBE LATER",
       restore: "RESTORE PURCHASES",
       unavailable: "Purchases are unavailable on this build.",
       errorTitle: "Purchase failed",
@@ -350,7 +348,6 @@ export const translations = {
       premium: "DeepOcean Pro",
       premiumDesc: "Mở khoá tất cả theme + tính năng cao cấp sắp ra mắt",
       premiumActive: "Đã mở khoá toàn bộ. Cảm ơn bạn — lặn vui nha!",
-      restorePurchases: "Khôi phục thanh toán",
       replayOnboarding: "Xem lại phần giới thiệu",
       confirm: "Xác nhận",
       cancel: "Huỷ",
@@ -558,7 +555,7 @@ export const translations = {
       planMonthly: "THÁNG",
       planLifetimeSub: "một lần",
       planMonthlySub: "/ tháng",
-      lifetimeCta: "LIFETIME — MỞR TẤT CẢ",
+      lifetimeCta: "LIFETIME — MỞ TẤT CẢ",
       lifetimePrice: "999.000đ",
       annualCta: "1 NĂM — TỐT NHẤT",
       annualPrice: "599.000đ / năm",
@@ -575,7 +572,6 @@ export const translations = {
       promoInvalid: "Mã không hợp lệ",
       promoExpired: "Mã đã hết hạn",
       promoSuccess: (days: number) => `Hoạt động · còn ${days} ngày`,
-      maybeLater: "ĐỂ SAU",
       restore: "KHÔI PHỤC GIAO DỊCH",
       unavailable: "Bản dựng này chưa hỗ trợ mua hàng.",
       errorTitle: "Mua hàng thất bại",
@@ -588,8 +584,8 @@ export const translations = {
       tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
     },
     levelUp: {
-      badge: "LÊN CẦP",
-      multiLevel: (n: number) => `LÊN CẦP ×${n}`,
+      badge: "LÊN CẤP",
+      multiLevel: (n: number) => `LÊN CẤP ×${n}`,
       from: (prev: number, next: number) => `Cấp ${prev} → Cấp ${next}`,
       tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
     },

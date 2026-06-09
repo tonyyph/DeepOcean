@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FlashList } from "@shopify/flash-list";
+import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
 import { MotiView } from "moti";
 import {
@@ -11,6 +11,7 @@ import {
   CreatureStorySheet,
   PaywallSheet,
   PremiumBadge,
+  SectionSkeleton,
   Skeleton,
   type StoryRow,
   useTheme,
@@ -24,6 +25,7 @@ import type { Rarity } from "@/features/ocean";
 import type { CollectionEntry } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
 import { usePremium } from "@/stores";
+import { Colors } from "@/theme";
 
 function rarityColor(rarity: Rarity, t: AppTheme): string {
   switch (rarity) {
@@ -87,7 +89,10 @@ export default function CollectionScreen() {
     );
   }, [entries]);
 
-  const discoveredCount = rows.filter((r) => r.seen).length;
+  const discoveredCount = useMemo(
+    () => rows.filter((r) => r.seen).length,
+    [rows]
+  );
   const skeletonRows = useMemo(
     () => Array.from({ length: 8 }, (_, i) => i),
     []
@@ -101,6 +106,33 @@ export default function CollectionScreen() {
   const handlePaywall = useCallback(() => {
     setPaywallOpen(true);
   }, []);
+
+  const keyExtractor = useCallback(
+    (item: StoryRow | number) =>
+      typeof item === "number" ? `skeleton-${item}` : item.id,
+    []
+  );
+
+  const renderItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<StoryRow | number>) =>
+      typeof item === "number" ? (
+        <CollectionRowSkeleton />
+      ) : (
+        <CollectionRow
+          row={item}
+          index={index}
+          isPremium={isPremium}
+          onPress={handleRowPress}
+        />
+      ),
+    [isPremium, handleRowPress]
+  );
+
+  const getItemType = useCallback(
+    (item: StoryRow | number) =>
+      typeof item === "number" ? "skeleton" : "row",
+    []
+  );
 
   return (
     <ZoneBackground zone="abyss">
@@ -125,30 +157,18 @@ export default function CollectionScreen() {
               <Ionicons
                 name="chevron-forward"
                 size={14}
-                color="rgba(255,210,122,0.85)"
+                color={`${Colors.premium.gold}D9`}
               />
             </Pressable>
           )}
         </View>
         <FlashList<StoryRow | number>
           data={isLoading ? skeletonRows : rows}
-          keyExtractor={(item) =>
-            typeof item === "number" ? `skeleton-${item}` : item.id
-          }
+          keyExtractor={keyExtractor}
           estimatedItemSize={120}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) =>
-            typeof item === "number" ? (
-              <CollectionRowSkeleton />
-            ) : (
-              <CollectionRow
-                row={item}
-                index={index}
-                isPremium={isPremium}
-                onPress={handleRowPress}
-              />
-            )
-          }
+          renderItem={renderItem}
+          getItemType={getItemType}
           ItemSeparatorComponent={Separator}
           contentContainerStyle={styles.listContent}
         />
@@ -301,8 +321,12 @@ function CollectionRowSkeleton() {
             />
           </View>
           <Skeleton style={styles.metaSkeleton} />
-          <Skeleton style={styles.descSkeleton} />
-          <Skeleton style={styles.descSkeletonShort} />
+          <SectionSkeleton
+            style={styles.descSectionSkeleton}
+            lines={2}
+            widths={["100%", "68%"]}
+            lineHeight={12}
+          />
         </View>
         <Skeleton style={styles.chevronSkeleton} width={12} height={12} />
       </View>
@@ -329,8 +353,8 @@ const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[4],
       borderRadius: t.radii.lg,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(255,210,122,0.28)",
-      backgroundColor: "rgba(255,210,122,0.06)",
+      borderColor: `${Colors.premium.gold}47`,
+      backgroundColor: `${Colors.premium.gold}0F`,
       marginBottom: t.spacing[2]
     },
     proCalloutText: {
@@ -356,7 +380,7 @@ const makeStyles = (t: AppTheme) =>
       borderWidth: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "rgba(255,255,255,0.04)",
+      backgroundColor: `${Colors.base.white}0A`,
       shadowOpacity: 0.55,
       shadowRadius: 10,
       shadowOffset: { width: 0, height: 0 }
@@ -381,7 +405,7 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "center",
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.premium,
-      backgroundColor: "rgba(255,210,122,0.10)"
+      backgroundColor: `${Colors.premium.gold}1A`
     },
     zoneLabel: {
       color: t.colors.textMuted,
@@ -414,22 +438,13 @@ const makeStyles = (t: AppTheme) =>
       marginLeft: t.spacing[1.5]
     },
     metaSkeleton: {
+      width: "44%",
       height: 11,
-      width: "40%",
-      borderRadius: t.radii.xs,
-      marginTop: t.spacing[1.5]
-    },
-    descSkeleton: {
-      height: 12,
-      width: "86%",
-      borderRadius: t.radii.xs,
-      marginTop: t.spacing[2]
-    },
-    descSkeletonShort: {
-      height: 12,
-      width: "62%",
       borderRadius: t.radii.xs,
       marginTop: t.spacing[1]
+    },
+    descSectionSkeleton: {
+      marginTop: t.spacing[1.5]
     },
     chevronSkeleton: {
       opacity: 0.65

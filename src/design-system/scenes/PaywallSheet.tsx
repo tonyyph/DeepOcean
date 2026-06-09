@@ -31,6 +31,7 @@ import { usePremium } from "@/stores";
 import { container } from "@/data/container";
 import type { PromoCodeResult, PurchaseOffering } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
+import { Colors } from "@/theme";
 
 type PlanId = "lifetime" | "annual" | "monthly";
 
@@ -428,13 +429,13 @@ export function PaywallSheet({
             disabled={busy}
           >
             <LinearGradient
-              colors={[t.colors.accent, t.colors.accent + "AA"]}
+              colors={[t.colors.accent, `${t.colors.accent}AA`]}
               style={styles.trialGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
               {busy ? (
-                <ActivityIndicator color="#fff" size="small" />
+                <ActivityIndicator color={Colors.base.white} size="small" />
               ) : (
                 <>
                   <View style={styles.trialPill}>
@@ -463,7 +464,7 @@ export function PaywallSheet({
             ]}
           >
             {busy ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color={Colors.base.white} size="small" />
             ) : (
               <Text style={styles.purchaseLabel}>
                 {selectedPlan === "lifetime"
@@ -590,7 +591,7 @@ function makeStyles(t: AppTheme) {
       alignSelf: "center",
       gap: 6,
       backgroundColor: t.colors.accent + "22",
-      borderRadius: 999,
+      borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[1],
       marginBottom: t.spacing[3]
@@ -675,7 +676,7 @@ function makeStyles(t: AppTheme) {
     },
     savingBadge: {
       backgroundColor: t.colors.accent,
-      borderRadius: 999,
+      borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[2],
       paddingVertical: 3,
       alignSelf: "center",
@@ -684,7 +685,7 @@ function makeStyles(t: AppTheme) {
     savingBadgeText: {
       fontFamily: t.fonts.label,
       fontSize: 10,
-      color: "#fff"
+      color: Colors.base.white
     },
     planInner: {
       paddingVertical: t.spacing[3],
@@ -728,8 +729,8 @@ function makeStyles(t: AppTheme) {
       borderRadius: 14
     },
     trialPill: {
-      backgroundColor: "rgba(255,255,255,0.22)",
-      borderRadius: 999,
+      backgroundColor: `${Colors.base.white}38`,
+      borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[3],
       paddingVertical: 3,
       marginBottom: t.spacing[2]
@@ -737,20 +738,20 @@ function makeStyles(t: AppTheme) {
     trialPillText: {
       fontFamily: t.fonts.label,
       fontSize: 10,
-      color: "#fff",
+      color: Colors.base.white,
       letterSpacing: 1
     },
     trialCtaLabel: {
       fontFamily: t.fonts.display,
       fontSize: 18,
-      color: "#fff",
+      color: Colors.base.white,
       letterSpacing: t.fonts.displayLetterSpacing,
       marginBottom: 4
     },
     trialCtaSub: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: "rgba(255,255,255,0.72)",
+      color: `${Colors.base.white}B8`,
       textAlign: "center"
     },
     // ── Purchase CTA ─────────────────────────────────────────────────────
@@ -770,7 +771,7 @@ function makeStyles(t: AppTheme) {
     purchaseLabel: {
       fontFamily: t.fonts.label,
       fontSize: 13,
-      color: "#fff",
+      color: Colors.base.white,
       letterSpacing: 1
     },
     unavailableNote: {
@@ -799,7 +800,7 @@ function makeStyles(t: AppTheme) {
       borderColor: t.colors.glassEdge
     },
     promoInputSuccess: {
-      borderColor: "#22E4FF"
+      borderColor: Colors.bio.cyan
     },
     promoApplyBtn: {
       height: 44,
@@ -823,14 +824,14 @@ function makeStyles(t: AppTheme) {
     promoFeedbackError: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: "#FF7E9D",
+      color: Colors.bio.coral,
       textAlign: "center",
       marginBottom: t.spacing[2]
     },
     promoFeedbackSuccess: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: "#22E4FF",
+      color: Colors.bio.cyan,
       textAlign: "center",
       marginBottom: t.spacing[2]
     },

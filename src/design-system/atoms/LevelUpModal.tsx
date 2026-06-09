@@ -24,6 +24,7 @@ import type { AppTheme } from "../themes";
 import { getLevelTitle } from "@/features/diver/levelSystem";
 import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
+import { Colors, Gradients, Shadows } from "@/theme";
 
 const AUTO_DISMISS_MS = 6000;
 
@@ -133,7 +134,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
           <Pressable
             style={[
               StyleSheet.absoluteFill,
-              { backgroundColor: "rgba(0,0,0,0.6)" }
+              { backgroundColor: Colors.overlay.scrim60 }
             ]}
             onPress={handleDismiss}
           />
@@ -143,7 +144,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
           <Animated.View style={[styles.card, cardStyle]}>
             {/* Gold gradient wash */}
             <LinearGradient
-              colors={["#FFD27A1A", "#FF9F4308"]}
+              colors={Gradients.premium.levelUpGlow}
               start={{ x: 0.5, y: 0 }}
               end={{ x: 0.5, y: 1 }}
               style={styles.cardGlow}
@@ -151,7 +152,11 @@ export const LevelUpModal = React.memo(function LevelUpModal({
 
             {/* Label badge */}
             <View style={styles.badge}>
-              <Ionicons name="arrow-up-circle" size={12} color="#FFD27A" />
+              <Ionicons
+                name="arrow-up-circle"
+                size={12}
+                color={Colors.premium.gold}
+              />
               <Text style={styles.badgeText}>
                 {levelsGained > 1
                   ? tr.levelUp.multiLevel(levelsGained)
@@ -162,7 +167,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
             {/* Level number — spring-scaled for drama */}
             <Animated.View style={[styles.levelWrap, levelStyle]}>
               <LinearGradient
-                colors={["#FFD27A", "#FF9F43"]}
+                colors={Gradients.premium.crest}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.levelCircle}
@@ -216,16 +221,13 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.xl,
       backgroundColor: t.colors.surfaceElevated,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "#FFD27A33",
+      borderColor: `${Colors.premium.gold}33`,
       paddingVertical: t.spacing[6],
       paddingHorizontal: t.spacing[6],
       alignItems: "center",
       gap: t.spacing[3],
       overflow: "hidden",
-      shadowColor: "#FFD27A",
-      shadowOpacity: 0.25,
-      shadowRadius: 32,
-      shadowOffset: { width: 0, height: 0 }
+      ...Shadows.premium.card
     },
     cardGlow: {
       ...StyleSheet.absoluteFillObject,
@@ -239,14 +241,14 @@ const makeStyles = (t: AppTheme) =>
       paddingVertical: t.spacing[1],
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "#FFD27A44",
+      borderColor: `${Colors.premium.gold}44`,
       backgroundColor: "rgba(255,210,122,0.06)"
     },
     badgeText: {
       fontSize: 10,
       fontFamily: t.fonts.label,
       letterSpacing: 1.5,
-      color: "#FFD27A"
+      color: Colors.premium.gold
     },
     levelWrap: {
       marginVertical: t.spacing[2]
@@ -257,15 +259,12 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: 42,
       alignItems: "center",
       justifyContent: "center",
-      shadowColor: "#FFD27A",
-      shadowOpacity: 0.7,
-      shadowRadius: 24,
-      shadowOffset: { width: 0, height: 0 }
+      ...Shadows.premium.glow
     },
     levelNumber: {
       fontSize: 38,
       fontFamily: t.fonts.display,
-      color: "#1A0F00",
+      color: Colors.premium.deepInk,
       letterSpacing: -1
     },
     title: {
@@ -292,7 +291,7 @@ const makeStyles = (t: AppTheme) =>
     countdownBar: {
       height: "100%",
       borderRadius: 1,
-      backgroundColor: "#FFD27A"
+      backgroundColor: Colors.premium.gold
     },
     hint: {
       color: t.colors.textFaint,
