@@ -1,8 +1,7 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useTheme } from "../useTheme";
-import { useThemedStyles } from "../useThemedStyles";
+import { StyleSheet, Text, View } from "react-native";
 import type { AppTheme } from "../themes";
+import { useThemedStyles } from "../useThemedStyles";
 import { GlowText } from "./GlowText";
 
 type Props = {
@@ -32,11 +31,11 @@ export const AppHeader = React.memo(function AppHeader({
 
   return (
     <View style={[styles.wrap, alignStyle]}>
-      {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
+      {eyebrow && <Text style={styles.eyebrow}>{eyebrow}</Text>}
       <GlowText size={size} pulse={pulse}>
         {title}
       </GlowText>
-      {subtitle ? <Text style={styles.sub}>{subtitle}</Text> : null}
+      {subtitle && <Text style={styles.sub}>{subtitle}</Text>}
     </View>
   );
 });

@@ -148,14 +148,14 @@ export function CreatureStorySheet({
               {row.rarity.toUpperCase()}
             </Text>
           </View>
-          {row.seen && row.count > 0 ? (
+          {row.seen && row.count > 0 && (
             <View style={styles.metaChip}>
               <Ionicons name="eye" size={11} color={t.colors.textMuted} />
               <Text style={styles.metaText}>
                 {tr.collection.story.sightings(row.count)}
               </Text>
             </View>
-          ) : null}
+          )}
         </View>
 
         {row.seen ? (
@@ -166,12 +166,12 @@ export function CreatureStorySheet({
                 {tr.collection.story.storyTitle}
               </Text>
               <Text style={styles.body}>{lore.story}</Text>
-              {row.firstSeenAt ? (
+              {row.firstSeenAt && (
                 <Text style={styles.metaFoot}>
                   {tr.collection.story.firstSeen} ·{" "}
                   {formatDate(row.firstSeenAt, "en-US")}
                 </Text>
-              ) : null}
+              )}
             </View>
 
             {/* Pro section */}
@@ -182,7 +182,7 @@ export function CreatureStorySheet({
                 >
                   {tr.collection.story.proTitle}
                 </Text>
-                {!isPremium ? <PremiumBadge variant="lock" /> : null}
+                {!isPremium && <PremiumBadge variant="lock" />}
               </View>
               {isPremium ? (
                 <Text style={styles.body}>{lore.proStory}</Text>

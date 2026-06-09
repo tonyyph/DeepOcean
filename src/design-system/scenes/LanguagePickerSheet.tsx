@@ -51,7 +51,7 @@ export function LanguagePickerSheet({
               style={[styles.row, active && styles.rowActive]}
             >
               <View style={[styles.radio, active && styles.radioActive]}>
-                {active ? <View style={styles.radioDot} /> : null}
+                {active && <View style={styles.radioDot} />}
               </View>
               <Text
                 style={[styles.label, active && { color: t.colors.accent }]}

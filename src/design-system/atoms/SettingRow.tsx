@@ -43,15 +43,13 @@ export const SettingRow = React.memo(function SettingRow(props: Props) {
 
   const body = (
     <View style={[styles.row, props.divider !== false && styles.rowDivider]}>
-      {props.icon ? <View style={styles.iconSlot}>{props.icon}</View> : null}
+      {props.icon && <View style={styles.iconSlot}>{props.icon}</View>}
       <View style={styles.text}>
         <View style={styles.titleRow}>
           <Text style={styles.title}>{props.title}</Text>
           {props.badge}
         </View>
-        {props.subtitle ? (
-          <Text style={styles.sub}>{props.subtitle}</Text>
-        ) : null}
+        {props.subtitle && <Text style={styles.sub}>{props.subtitle}</Text>}
       </View>
       {renderTrailing(props, t, styles)}
     </View>
@@ -94,9 +92,7 @@ function renderTrailing(
   if (props.type === "nav") {
     return (
       <View style={styles.navTrailing}>
-        {props.value ? (
-          <Text style={styles.trailingValue}>{props.value}</Text>
-        ) : null}
+        {props.value && <Text style={styles.trailingValue}>{props.value}</Text>}
         <Text style={styles.chevron}>{"\u203A"}</Text>
       </View>
     );

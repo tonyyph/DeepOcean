@@ -1,3 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
+import Slider from "@react-native-community/slider";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
@@ -6,14 +10,10 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import Slider from "@react-native-community/slider";
-import { PressableCard } from "./PressableCard";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
+import { PressableCard } from "./PressableCard";
 
 type Props = {
   visible: boolean;

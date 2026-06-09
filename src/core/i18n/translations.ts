@@ -437,6 +437,7 @@ export const translations = {
         stressed: "Căng thẳng",
         distracted: "Dễ xao nhãng",
         sleepy: "Buồn ngủ",
+        bored: "Chán nản",
         sluggish: "Uể oải",
         overwhelmed: "Quá tải"
       },

@@ -190,13 +190,13 @@ export default function DiveScreen() {
             zone={session.zone}
             progress={progress}
           />
-          {session.discoveries.length > 0 ? (
+          {session.discoveries.length > 0 && (
             <Animated.View entering={FadeIn} exiting={FadeOut}>
               <GlowText size={13} color={t.colors.accentSoft}>
                 {tr.dive.discoveries(session.discoveries.length)}
               </GlowText>
             </Animated.View>
-          ) : null}
+          )}
           <DiscoveryOverlay
             discovery={liveDiscovery.current}
             pending={liveDiscovery.pending}

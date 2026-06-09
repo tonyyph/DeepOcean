@@ -331,7 +331,7 @@ export default function ProfileScreen() {
               subtitle={tr.profile.themeDesc}
               value={activeTheme.name}
               onPress={() => setThemeOpen(true)}
-              badge={activeTheme.premium ? <PremiumBadge /> : null}
+              badge={activeTheme.premium && <PremiumBadge />}
             />
             <SettingRow
               type="nav"
@@ -426,7 +426,7 @@ export default function ProfileScreen() {
               }}
               divider={reminders.enabled}
             />
-            {reminders.enabled ? (
+            {reminders.enabled && (
               <SettingRow
                 type="nav"
                 title={tr.profile.reminderTime}
@@ -435,13 +435,13 @@ export default function ProfileScreen() {
                 onPress={() => setReminderTimeOpen(true)}
                 divider={false}
               />
-            ) : null}
+            )}
           </GlassCard>
 
           {/* Account / Onboarding */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.account}</SectionLabel>
-            {process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" ? (
+            {process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
               <SettingRow
                 type="switch"
                 title={tr.profile.devEnablePremium}
@@ -449,7 +449,7 @@ export default function ProfileScreen() {
                 value={debugPremiumEnabled}
                 onChange={setDebugPremiumEnabled}
               />
-            ) : null}
+            )}
             <SettingRow
               type="nav"
               title={tr.profile.replayOnboarding}

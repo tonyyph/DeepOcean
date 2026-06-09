@@ -1,3 +1,6 @@
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import * as Haptics from "expo-haptics";
 import React, { useEffect } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
@@ -6,12 +9,9 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
 
 const tap = (style: Haptics.ImpactFeedbackStyle): void => {
   void Haptics.impactAsync(style).catch(() => {});
@@ -102,7 +102,7 @@ export const ConfirmModal = React.memo(function ConfirmModal({
 
         <View style={styles.center} pointerEvents="box-none">
           <Animated.View style={[styles.card, cardStyle]}>
-            {icon ? (
+            {icon && (
               <View
                 style={[
                   styles.iconWrap,
@@ -111,7 +111,7 @@ export const ConfirmModal = React.memo(function ConfirmModal({
               >
                 <Ionicons name={icon} size={32} color={accent} />
               </View>
-            ) : null}
+            )}
 
             <Text style={styles.title}>{title}</Text>
             <Text style={styles.message}>{message}</Text>

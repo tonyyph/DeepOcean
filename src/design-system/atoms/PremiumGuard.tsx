@@ -69,7 +69,7 @@ function LockedCard({
         <View style={styles.iconWrap}>
           <Ionicons name="lock-closed" size={16} color={t.colors.premium} />
         </View>
-        {label ? <Text style={styles.label}>{label}</Text> : null}
+        {label && <Text style={styles.label}>{label}</Text>}
       </View>
     </PressableCard>
   );

@@ -97,11 +97,11 @@ export function ThemePickerSheet({
               >
                 {th.name}
               </Text>
-              {locked ? (
+              {locked && (
                 <View style={styles.lockBadge}>
                   <PremiumBadge variant="lock" label="PRO" />
                 </View>
-              ) : null}
+              )}
             </Pressable>
           );
         })}

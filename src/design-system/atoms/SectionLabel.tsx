@@ -35,10 +35,10 @@ export const SectionLabel = React.memo(function SectionLabel({
 
   return (
     <View style={[styles.row, wrapperStyle]}>
-      <Text style={[styles.label, , style]} {...rest}>
+      <Text style={[styles.label, style]} {...rest}>
         {typeof children === "string" ? children.toUpperCase() : children}
       </Text>
-      {hint ? <Text style={styles.hint}>{hint}</Text> : null}
+      {hint && <Text style={styles.hint}>{hint}</Text>}
     </View>
   );
 });

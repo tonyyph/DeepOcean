@@ -1,3 +1,6 @@
+import { useSettings } from "@/stores";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import React, { useCallback } from "react";
 import {
   Pressable,
@@ -12,12 +15,9 @@ import Animated, {
   useSharedValue,
   withSpring
 } from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import { useSettings } from "@/stores";
-import type { AppTheme } from "../themes";
-import { Ionicons } from "@expo/vector-icons";
 
 type Props = Omit<PressableProps, "children"> & {
   label?: string;

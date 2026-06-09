@@ -1,11 +1,17 @@
+import { useTranslations } from "@/core/i18n";
+import { ZONE_TABLE, type OceanZone } from "@/features/ocean/zones";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import {
   Modal,
   Pressable,
+  Animated as RNAnimated,
   StyleSheet,
   Text,
-  View,
-  Animated as RNAnimated
+  View
 } from "react-native";
 import Animated, {
   Easing,
@@ -13,15 +19,9 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
-import { ZONE_TABLE, type OceanZone } from "@/features/ocean/zones";
-import { useTranslations } from "@/core/i18n";
 
 const ZONE_COLORS: Record<OceanZone, string> = {
   surface: "#4FC3F7",

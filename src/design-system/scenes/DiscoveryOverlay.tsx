@@ -82,11 +82,11 @@ export const DiscoveryOverlay = React.memo(function DiscoveryOverlay({
                 {discovery.entry.name}
               </GlowText>
             </View>
-            {pending > 0 ? (
+            {pending > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>+{pending}</Text>
               </View>
-            ) : null}
+            )}
           </View>
         </GlassCard>
       </Pressable>

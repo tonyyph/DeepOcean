@@ -1,7 +1,7 @@
-import React from "react";
-import { View, ViewProps, StyleSheet, Platform } from "react-native";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import { Platform, StyleSheet, View, ViewProps } from "react-native";
 import { useTheme } from "../useTheme";
 
 export type GlassCardProps = ViewProps & {

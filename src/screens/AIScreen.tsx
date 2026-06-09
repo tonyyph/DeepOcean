@@ -1,33 +1,33 @@
-import React, { useCallback, useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslations } from "@/core/i18n";
+import { container } from "@/data/container";
 import {
-  ZoneBackground,
-  GlassCard,
   AppHeader,
-  SectionLabel,
-  PressableCard,
+  GlassCard,
   OptionPill,
   PaywallSheet,
+  PressableCard,
+  SectionLabel,
   Skeleton,
   useTheme,
   useThemedStyles,
+  ZoneBackground,
   type AppTheme
 } from "@/design-system";
+import { MOODS, type Language } from "@/domain/entities";
+import { buildAIContext } from "@/features/ai";
 import {
-  useDailyRecommendation,
   useDailyMotivation,
+  useDailyRecommendation,
   useSessions
 } from "@/features/diver";
-import { useMoodRecord, useSetMood, selectCurrentMood } from "@/features/mood";
-import { MOODS, type Language, type Mood } from "@/domain/entities";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { container } from "@/data/container";
-import { useTranslations } from "@/core/i18n";
-import { usePremium, useSettings } from "@/stores";
-import { ProInsights } from "./ai/ProInsights";
-import { buildAIContext } from "@/features/ai";
 import { diverKeys } from "@/features/diver/hooks";
+import { selectCurrentMood, useMoodRecord, useSetMood } from "@/features/mood";
+import { usePremium, useSettings } from "@/stores";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useCallback, useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ProInsights } from "./ai/ProInsights";
 
 const ASK_AGAIN_COOLDOWN_MS = 20_000;
 
@@ -136,21 +136,25 @@ export default function AIScreen() {
 
           {motivationLoading ? (
             <AiCardSkeleton />
-          ) : motivation ? (
-            <GlassCard radius={t.radii.md}>
-              <SectionLabel>{tr.ai.nudge}</SectionLabel>
-              <Text style={styles.nudge}>{motivation}</Text>
-            </GlassCard>
-          ) : null}
+          ) : (
+            motivation && (
+              <GlassCard radius={t.radii.md}>
+                <SectionLabel>{tr.ai.nudge}</SectionLabel>
+                <Text style={styles.nudge}>{motivation}</Text>
+              </GlassCard>
+            )
+          )}
 
           {summaryLoading ? (
             <AiCardSkeleton />
-          ) : lastSummary ? (
-            <GlassCard radius={t.radii.md}>
-              <SectionLabel>{tr.ai.lastExpedition}</SectionLabel>
-              <Text style={styles.body}>{lastSummary}</Text>
-            </GlassCard>
-          ) : null}
+          ) : (
+            lastSummary && (
+              <GlassCard radius={t.radii.md}>
+                <SectionLabel>{tr.ai.lastExpedition}</SectionLabel>
+                <Text style={styles.body}>{lastSummary}</Text>
+              </GlassCard>
+            )
+          )}
 
           {/* PRO INSIGHTS BLOCK */}
           <ProInsights

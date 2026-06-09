@@ -119,10 +119,10 @@ export default function HomeScreen() {
           </View>
 
           {/* ── Last Dive Recap ── */}
-          {sessionsLoading ? <LastDiveSkeleton /> : null}
-          {!sessionsLoading && lastSession ? (
+          {sessionsLoading && <LastDiveSkeleton />}
+          {!sessionsLoading && lastSession && (
             <LastDiveCard session={lastSession} tr={tr} />
-          ) : null}
+          )}
 
           {/* ── Hero dive CTA ── */}
           <PressableCard
@@ -169,12 +169,14 @@ export default function HomeScreen() {
           {/* ── Daily companion ── */}
           {dailyRecLoading ? (
             <DailyCompanionSkeleton />
-          ) : dailyRec ? (
-            <GlassCard radius={t.radii.md}>
-              <SectionLabel>{tr.home.guideTitle}</SectionLabel>
-              <Text style={styles.companionBody}>{dailyRec}</Text>
-            </GlassCard>
-          ) : null}
+          ) : (
+            dailyRec && (
+              <GlassCard radius={t.radii.md}>
+                <SectionLabel>{tr.home.guideTitle}</SectionLabel>
+                <Text style={styles.companionBody}>{dailyRec}</Text>
+              </GlassCard>
+            )
+          )}
 
           {/* ── Stats ── */}
           <View style={styles.statsRow}>
@@ -378,9 +380,9 @@ function ZoneChip({
       >
         {ZONE_TABLE[zone].label.split(" ")[0]}
       </Text>
-      {isDeepest ? (
+      {isDeepest && (
         <View style={[styles.zoneDeepestDot, { backgroundColor: colors[0] }]} />
-      ) : null}
+      )}
     </Animated.View>
   );
 }
@@ -405,7 +407,7 @@ function StatCard({
       <Ionicons name={icon} size={14} color={t.colors.accentSoft} />
       <View style={styles.statValueRow}>
         <Text style={styles.statValue}>{value}</Text>
-        {unit ? <Text style={styles.statUnit}>{unit}</Text> : null}
+        {unit && <Text style={styles.statUnit}>{unit}</Text>}
       </View>
       <Text style={styles.statLabel}>{label.toUpperCase()}</Text>
     </GlassCard>

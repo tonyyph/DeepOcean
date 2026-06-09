@@ -110,7 +110,7 @@ export default function CollectionScreen() {
             subtitle={tr.collection.catalogued(discoveredCount, rows.length)}
             size={28}
           />
-          {!isPremium ? (
+          {!isPremium && (
             <Pressable
               onPress={handlePaywall}
               style={styles.proCallout}
@@ -126,7 +126,7 @@ export default function CollectionScreen() {
                 color="rgba(255,210,122,0.85)"
               />
             </Pressable>
-          ) : null}
+          )}
         </View>
         <FlashList<StoryRow | number>
           data={isLoading ? skeletonRows : rows}
@@ -240,7 +240,7 @@ const CollectionRow = React.memo(function CollectionRow({
               >
                 {row.seen ? row.name : tr.collection.undiscovered}
               </Text>
-              {row.seen && !isPremium ? (
+              {row.seen && !isPremium && (
                 <View style={styles.proHint}>
                   <Ionicons
                     name="lock-closed"
@@ -248,7 +248,7 @@ const CollectionRow = React.memo(function CollectionRow({
                     color={t.colors.premium}
                   />
                 </View>
-              ) : null}
+              )}
             </View>
             <Text style={styles.zoneLabel}>
               {row.seen ? row.zone : "???"} · {row.rarity.toUpperCase()}

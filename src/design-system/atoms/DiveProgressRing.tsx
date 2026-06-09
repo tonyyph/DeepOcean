@@ -1,17 +1,17 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  useAnimatedProps,
-  withTiming,
+  Easing,
   interpolateColor,
-  Easing
+  useAnimatedProps,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming
 } from "react-native-reanimated";
 import Svg, { Circle, G } from "react-native-svg";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 

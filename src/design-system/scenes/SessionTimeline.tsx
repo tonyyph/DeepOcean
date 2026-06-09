@@ -75,7 +75,7 @@ export const SessionTimeline = React.memo(function SessionTimeline({
                   color={isFinal ? t.colors.background : color}
                 />
               </View>
-              {i < steps.length - 1 ? (
+              {i < steps.length - 1 && (
                 <View
                   style={[
                     styles.rail,
@@ -86,7 +86,7 @@ export const SessionTimeline = React.memo(function SessionTimeline({
                     }
                   ]}
                 />
-              ) : null}
+              )}
             </View>
             <View style={styles.body}>
               <Text
@@ -97,13 +97,13 @@ export const SessionTimeline = React.memo(function SessionTimeline({
               >
                 {step.label}
               </Text>
-              {step.reached ? (
+              {step.reached && (
                 <Text style={styles.meta}>
                   {step.unlockMinutes === 0
                     ? tr.sessionDetail.reachedAt(0)
                     : tr.sessionDetail.reachedAt(step.unlockMinutes)}
                 </Text>
-              ) : null}
+              )}
             </View>
           </View>
         );

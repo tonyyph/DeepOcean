@@ -1,14 +1,14 @@
+import { ZONE_TABLE, type OceanZone } from "@/features/ocean/zones";
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withSpring
 } from "react-native-reanimated";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
-import { ZONE_TABLE, type OceanZone } from "@/features/ocean/zones";
 
 type Props = {
   depthMeters: number;
