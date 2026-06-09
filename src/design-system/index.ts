@@ -41,8 +41,6 @@ export type { DiscoveryTimelineProps } from "./scenes/DiscoveryTimeline";
 export { ProTabBar } from "./scenes/ProTabBar";
 
 // Theme engine
-export { theme } from "./theme";
-export type { Theme } from "./theme";
 export { useTheme, getCurrentTheme } from "./useTheme";
 export { useThemedStyles } from "./useThemedStyles";
 export {

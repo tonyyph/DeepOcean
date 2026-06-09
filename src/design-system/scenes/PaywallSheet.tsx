@@ -24,7 +24,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme, ThemeId } from "../themes";
+import { THEME_LIST, type AppTheme, type ThemeId } from "../themes";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { usePremium } from "@/stores";
@@ -67,11 +67,7 @@ const ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
  * Prices come from the live RC offering when configured; VND fallbacks are
  * rendered from translations when billing is unconfigured — never fake unlock.
  */
-export function PaywallSheet({
-  visible,
-  onDismiss,
-  intentTheme: _intentTheme
-}: Props) {
+export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
@@ -245,6 +241,10 @@ export function PaywallSheet({
   const lifetimePrice = offering?.lifetime?.priceString ?? pw.lifetimePrice;
   const annualPrice = offering?.annual?.priceString ?? pw.annualPrice;
   const monthlyPrice = offering?.monthly?.priceString ?? pw.monthlyPrice;
+  const intentThemeName = useMemo(() => {
+    if (!intentTheme) return null;
+    return THEME_LIST.find((theme) => theme.id === intentTheme)?.name ?? null;
+  }, [intentTheme]);
 
   const renderSlide = useCallback(
     ({ item }: ListRenderItemInfo<BenefitSlide>) => {
@@ -301,6 +301,15 @@ export function PaywallSheet({
 
         <Text style={styles.heading}>{pw.title}</Text>
         <Text style={styles.headingSub}>{pw.subtitle}</Text>
+
+        {intentThemeName != null && (
+          <View style={styles.intentBanner}>
+            <Text style={styles.intentBannerTitle}>
+              {pw.unlockingTheme(intentThemeName)}
+            </Text>
+            <Text style={styles.intentBannerBody}>{pw.unlockingThemeHint}</Text>
+          </View>
+        )}
 
         {(trialActive || promoActive) && trialState != null && (
           <View style={styles.activeBanner}>
@@ -584,6 +593,28 @@ function makeStyles(t: AppTheme) {
       textAlign: "center",
       lineHeight: 18,
       marginBottom: t.spacing[3]
+    },
+    intentBanner: {
+      borderRadius: t.radii.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: `${Colors.premium.gold}5A`,
+      backgroundColor: `${Colors.premium.gold}14`,
+      paddingHorizontal: t.spacing[4],
+      paddingVertical: t.spacing[3],
+      marginBottom: t.spacing[3]
+    },
+    intentBannerTitle: {
+      fontFamily: t.fonts.label,
+      fontSize: 11,
+      letterSpacing: 0.8,
+      color: Colors.premium.gold,
+      textTransform: "uppercase"
+    },
+    intentBannerBody: {
+      fontFamily: t.fonts.body,
+      fontSize: 12,
+      color: t.colors.textSecondary,
+      marginTop: t.spacing[1]
     },
     activeBanner: {
       flexDirection: "row",

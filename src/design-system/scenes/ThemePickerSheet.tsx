@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { MotiView } from "moti";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
@@ -28,6 +29,7 @@ export function ThemePickerSheet({
   onDismiss,
   onRequestPaywall
 }: Props) {
+  const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
   const activeId = useThemeStore((s) => s.themeId);
@@ -42,11 +44,10 @@ export function ThemePickerSheet({
 
   const handlePick = useCallback(
     (id: ThemeId, premium: boolean) => {
-      // TODO: remove this ones
-      // if (!canUseTheme(id, premium, isPremium, unlocked)) {
-      //   onRequestPaywall(id);
-      //   return;
-      // }
+      if (!canUseTheme(id, premium, isPremium, unlocked)) {
+        onRequestPaywall(id);
+        return;
+      }
       setSelected(id);
     },
     [isPremium, unlocked, onRequestPaywall]
@@ -59,9 +60,28 @@ export function ThemePickerSheet({
 
   const previewTheme =
     THEME_LIST.find((th) => th.id === selected) ?? THEME_LIST[0]!;
+  const lockedThemesCount = THEME_LIST.filter(
+    (theme) =>
+      theme.premium && !canUseTheme(theme.id, true, isPremium, unlocked)
+  ).length;
 
   return (
     <Sheet visible={visible} onDismiss={onDismiss}>
+      <View
+        style={[
+          styles.membershipBanner,
+          isPremium
+            ? styles.membershipBannerPremium
+            : styles.membershipBannerFree
+        ]}
+      >
+        <Text style={styles.membershipBannerTitle}>
+          {isPremium
+            ? tr.profile.premiumActive
+            : tr.profile.themeLockedCount(lockedThemesCount)}
+        </Text>
+      </View>
+
       <View style={styles.header}>
         <Text style={styles.title}>{tr.profile.themePickerTitle}</Text>
         <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
@@ -80,14 +100,28 @@ export function ThemePickerSheet({
             <Pressable
               key={th.id}
               onPress={() => handlePick(th.id, th.premium)}
-              style={styles.swatchItem}
+              style={[styles.swatchItem, locked && styles.swatchItemLocked]}
             >
               <MotiView
                 from={{ scale: 0.94 }}
                 animate={{ scale: isSelected ? 1.06 : 1 }}
                 transition={{ type: "spring", damping: 14, stiffness: 220 }}
               >
-                <ThemeSwatch theme={th} size={64} active={isSelected} />
+                <View style={styles.swatchVisualWrap}>
+                  <ThemeSwatch theme={th} size={64} active={isSelected} />
+                  {locked && (
+                    <View style={styles.swatchLockVeil}>
+                      <Ionicons
+                        name="lock-closed"
+                        size={12}
+                        color={t.colors.text}
+                      />
+                      <Text style={styles.swatchLockText}>
+                        {tr.profile.proOnly}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </MotiView>
               <Text
                 style={[
@@ -147,6 +181,29 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[1],
       marginBottom: t.spacing[4]
     },
+    membershipBanner: {
+      borderRadius: t.radii.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      paddingHorizontal: t.spacing[4],
+      paddingVertical: t.spacing[3],
+      marginBottom: t.spacing[3]
+    },
+    membershipBannerPremium: {
+      borderColor: `${t.colors.accent}66`,
+      backgroundColor: `${t.colors.accent}1F`
+    },
+    membershipBannerFree: {
+      borderColor: `${t.colors.premium}66`,
+      backgroundColor: `${t.colors.premium}14`
+    },
+    membershipBannerTitle: {
+      color: t.colors.text,
+      fontSize: 12,
+      lineHeight: 17,
+      letterSpacing: 0.6,
+      fontFamily: t.fonts.label,
+      textAlign: "center"
+    },
     title: {
       color: t.colors.text,
       fontSize: 20,
@@ -170,6 +227,34 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       gap: t.spacing[2],
       position: "relative"
+    },
+    swatchVisualWrap: {
+      position: "relative"
+    },
+    swatchItemLocked: {
+      opacity: 0.72
+    },
+    swatchLockVeil: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderBottomLeftRadius: t.radii.sm,
+      borderBottomRightRadius: t.radii.sm,
+      backgroundColor: `${t.colors.surface}CC`,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: `${t.colors.premium}88`,
+      paddingVertical: 2,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 4
+    },
+    swatchLockText: {
+      color: t.colors.text,
+      fontSize: 9,
+      letterSpacing: 0.6,
+      fontFamily: t.fonts.label
     },
     swatchLabel: {
       color: t.colors.textSecondary,

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,30 +20,20 @@ import {
   UnderwaterCanvas
 } from "@/design-system";
 import { useCollection } from "@/features/diver";
-import { CREATURES, ARTIFACTS, ZONE_TABLE } from "@/features/ocean";
-import type { Rarity } from "@/features/ocean";
+import {
+  CREATURES,
+  ARTIFACTS,
+  ZONE_TABLE,
+  rarityColor
+} from "@/features/ocean";
 import type { CollectionEntry } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
 import { usePremium } from "@/stores";
 import { Colors } from "@/theme";
 
-function rarityColor(rarity: Rarity, t: AppTheme): string {
-  switch (rarity) {
-    case "uncommon":
-      return t.colors.success;
-    case "rare":
-      return t.colors.accent;
-    case "legendary":
-      return t.colors.warning;
-    case "mythic":
-      return t.colors.danger;
-    default:
-      return t.colors.textMuted;
-  }
-}
-
 export default function CollectionScreen() {
   const { data: entries = [], isLoading } = useCollection();
+  const t = useTheme();
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
   const isPremium = usePremium((s) => s.isPremium);
@@ -51,6 +41,9 @@ export default function CollectionScreen() {
   const [activeRow, setActiveRow] = useState<StoryRow | null>(null);
   const [storyOpen, setStoryOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [rarityFilter, setRarityFilter] = useState<
+    "all" | "common" | "uncommon" | "rare" | "legendary" | "mythic"
+  >("all");
 
   const rows = useMemo<StoryRow[]>(() => {
     const seenMap = new Map<string, CollectionEntry>(
@@ -93,6 +86,14 @@ export default function CollectionScreen() {
     () => rows.filter((r) => r.seen).length,
     [rows]
   );
+
+  const filteredRows = useMemo(() => {
+    return rows.filter((r) => {
+      const passRarity = rarityFilter === "all" || r.rarity === rarityFilter;
+      return passRarity;
+    });
+  }, [rows, rarityFilter]);
+
   const skeletonRows = useMemo(
     () => Array.from({ length: 8 }, (_, i) => i),
     []
@@ -106,6 +107,76 @@ export default function CollectionScreen() {
   const handlePaywall = useCallback(() => {
     setPaywallOpen(true);
   }, []);
+
+  const renderListHeader = useCallback(
+    () => (
+      <View style={styles.stickyFilterWrap}>
+        <View style={styles.compactFilterBlock}>
+          <Text style={styles.filterTitle}>{tr.collection.filters.rarity}</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.compactRow}
+          >
+            {[
+              ["all", tr.collection.filters.all],
+              ["common", tr.collection.filters.common],
+              ["uncommon", tr.collection.filters.uncommon],
+              ["rare", tr.collection.filters.rare],
+              ["legendary", tr.collection.filters.legendary],
+              ["mythic", tr.collection.filters.mythic]
+            ].map(([value, label]) => {
+              const typedValue = value as
+                | "all"
+                | "common"
+                | "uncommon"
+                | "rare"
+                | "legendary"
+                | "mythic";
+              const active = rarityFilter === typedValue;
+              return (
+                <Pressable
+                  key={value}
+                  onPress={() => setRarityFilter(typedValue)}
+                  style={[
+                    styles.compactChip,
+                    active && styles.compactChipActive
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.compactChipText,
+                      active && styles.compactChipTextActive
+                    ]}
+                  >
+                    {label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+        {!isPremium && (
+          <Pressable
+            onPress={handlePaywall}
+            style={styles.proCallout}
+            accessibilityRole="button"
+          >
+            <PremiumBadge variant="lock" />
+            <Text style={styles.proCalloutText} numberOfLines={2}>
+              {tr.collection.story.proLocked}
+            </Text>
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={t.colors.textMuted}
+            />
+          </Pressable>
+        )}
+      </View>
+    ),
+    [styles, tr.collection.filters, rarityFilter, setRarityFilter]
+  );
 
   const keyExtractor = useCallback(
     (item: StoryRow | number) =>
@@ -144,34 +215,27 @@ export default function CollectionScreen() {
             subtitle={tr.collection.catalogued(discoveredCount, rows.length)}
             size={28}
           />
-          {!isPremium && (
-            <Pressable
-              onPress={handlePaywall}
-              style={styles.proCallout}
-              accessibilityRole="button"
-            >
-              <PremiumBadge variant="lock" />
-              <Text style={styles.proCalloutText} numberOfLines={2}>
-                {tr.collection.story.proLocked}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={14}
-                color={`${Colors.premium.gold}D9`}
-              />
-            </Pressable>
-          )}
         </View>
         <FlashList<StoryRow | number>
-          data={isLoading ? skeletonRows : rows}
+          data={isLoading ? skeletonRows : filteredRows}
           keyExtractor={keyExtractor}
           estimatedItemSize={120}
           showsVerticalScrollIndicator={false}
           renderItem={renderItem}
+          ListHeaderComponent={renderListHeader}
           getItemType={getItemType}
           ItemSeparatorComponent={Separator}
           contentContainerStyle={styles.listContent}
         />
+        {!isLoading && filteredRows.length === 0 && (
+          <View style={styles.emptyFilterWrap}>
+            <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+              <Text style={styles.emptyFilterText}>
+                {tr.collection.filters.noResults}
+              </Text>
+            </GlassCard>
+          </View>
+        )}
       </SafeAreaView>
 
       <CreatureStorySheet
@@ -276,10 +340,19 @@ const CollectionRow = React.memo(function CollectionRow({
               {row.seen ? row.zone : "???"} · {row.rarity.toUpperCase()}
               {row.count > 1 ? `  ×${row.count}` : ""}
             </Text>
-            {row.seen ? (
+            {row.seen && isPremium ? (
               <Text style={styles.desc} numberOfLines={2}>
                 {row.description}
               </Text>
+            ) : row.seen ? (
+              <View style={styles.premiumTeaserWrap}>
+                <Text style={styles.premiumRibbonText}>
+                  {tr.collection.filters.proDetailsLabel}
+                </Text>
+                <Text style={styles.premiumTeaser} numberOfLines={2}>
+                  {tr.collection.story.proLocked}
+                </Text>
+              </View>
             ) : (
               <Text style={styles.whisper} numberOfLines={2}>
                 {tr.collection.story.lockedBody}
@@ -295,7 +368,20 @@ const CollectionRow = React.memo(function CollectionRow({
       </GlassCard>
     </Pressable>
   );
-});
+}, areCollectionRowsEqual);
+
+function areCollectionRowsEqual(prev: RowProps, next: RowProps): boolean {
+  return (
+    prev.index === next.index &&
+    prev.isPremium === next.isPremium &&
+    prev.onPress === next.onPress &&
+    prev.row.id === next.row.id &&
+    prev.row.seen === next.row.seen &&
+    prev.row.count === next.row.count &&
+    prev.row.rarity === next.row.rarity &&
+    prev.row.description === next.row.description
+  );
+}
 
 function CollectionRowSkeleton() {
   const t = useTheme();
@@ -351,7 +437,7 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[3],
       paddingVertical: t.spacing[3],
       paddingHorizontal: t.spacing[4],
-      borderRadius: t.radii.lg,
+      borderRadius: t.radii.sm,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: `${Colors.premium.gold}47`,
       backgroundColor: `${Colors.premium.gold}0F`,
@@ -364,9 +450,60 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 12,
       lineHeight: 17
     },
+    filterTitle: {
+      color: t.colors.textMuted,
+      fontSize: 11,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label,
+      marginTop: t.spacing[1]
+    },
+    stickyFilterWrap: {
+      marginBottom: t.spacing[2],
+      gap: t.spacing[4]
+    },
+    compactFilterBlock: {
+      gap: t.spacing[1],
+      paddingHorizontal: t.spacing[2]
+    },
+    compactRow: {
+      gap: t.spacing[1.5],
+      paddingRight: t.spacing[2]
+    },
+    compactChip: {
+      borderRadius: t.radii.pill,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.border,
+      paddingHorizontal: t.spacing[2.5],
+      paddingVertical: t.spacing[1],
+      backgroundColor: t.colors.glass
+    },
+    compactChipActive: {
+      borderColor: t.colors.accent,
+      backgroundColor: `${t.colors.accent}20`
+    },
+    compactChipText: {
+      color: t.colors.textMuted,
+      fontSize: 11,
+      fontFamily: t.fonts.label,
+      letterSpacing: 0.4
+    },
+    compactChipTextActive: {
+      color: t.colors.accent
+    },
     listContent: {
       paddingHorizontal: t.spacing[4],
       paddingBottom: t.spacing[24]
+    },
+    emptyFilterWrap: {
+      paddingHorizontal: t.spacing[4],
+      marginTop: t.spacing[2]
+    },
+    emptyFilterText: {
+      color: t.colors.textSecondary,
+      fontFamily: t.fonts.body,
+      fontSize: 13,
+      lineHeight: 19,
+      textAlign: "center"
     },
     itemRow: {
       flexDirection: "row",
@@ -420,6 +557,30 @@ const makeStyles = (t: AppTheme) =>
       marginTop: t.spacing[1.5],
       lineHeight: 19,
       fontFamily: t.fonts.body
+    },
+    premiumTeaser: {
+      color: t.colors.premium,
+      fontSize: 12,
+      marginTop: t.spacing[1.5],
+      lineHeight: 17,
+      fontFamily: t.fonts.body
+    },
+    premiumTeaserWrap: {
+      marginTop: t.spacing[1.5],
+      gap: t.spacing[1]
+    },
+    premiumRibbonText: {
+      alignSelf: "flex-start",
+      borderRadius: t.radii.pill,
+      overflow: "hidden",
+      color: t.colors.surface,
+      backgroundColor: t.colors.premium,
+      fontSize: 9,
+      letterSpacing: 0.7,
+      fontFamily: t.fonts.label,
+      paddingHorizontal: t.spacing[2],
+      paddingVertical: 2,
+      textTransform: "uppercase"
     },
     whisper: {
       color: t.colors.textFaint,

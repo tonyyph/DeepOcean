@@ -22,39 +22,5 @@ export function createAIProviders(
     if (candidate) providers.push(candidate);
   }
 
-  // if (__DEV__) {
-  //   if (providers.length === 0) {
-  //     console.log(
-  //       "[AICompanion] Providers disabled",
-  //       JSON.stringify(
-  //         {
-  //           fallbackOrder: config.fallbackOrder,
-  //           hasGeminiKey: Boolean(config.gemini.apiKey),
-  //           hasGroqKey: Boolean(config.groq.apiKey),
-  //           hasOpenRouterKey: Boolean(config.openrouter.apiKey)
-  //         },
-  //         null,
-  //         2
-  //       )
-  //     );
-  //   } else {
-  //     console.log(
-  //       "[AICompanion] Provider chain enabled",
-  //       JSON.stringify(
-  //         {
-  //           order: providers.map((provider) => provider.id),
-  //           models: {
-  //             gemini: config.gemini.model,
-  //             groq: config.groq.model,
-  //             openrouter: config.openrouter.model
-  //           }
-  //         },
-  //         null,
-  //         2
-  //       )
-  //     );
-  //   }
-  // }
-
   return providers;
 }

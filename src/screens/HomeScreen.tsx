@@ -68,7 +68,7 @@ export default function HomeScreen() {
   const { data: dailyRec, isLoading: dailyRecLoading } =
     useDailyRecommendation();
   const { data: sessions = [], isLoading: sessionsLoading } = useSessions();
-  const settings = useSettings();
+  const language = useSettings((s) => s.language);
 
   const preferredMinutes = useSettings(
     (
@@ -92,7 +92,7 @@ export default function HomeScreen() {
   }, [tr]);
 
   const levelTitle = profile
-    ? getLevelTitle(profile.level, settings.language === "en")
+    ? getLevelTitle(profile.level, language === "en")
     : null;
   const liveLastSession = (sessions[0] as HomeSession | undefined) ?? null;
   const [fallbackLastSession, setFallbackLastSession] =
@@ -181,6 +181,12 @@ export default function HomeScreen() {
     startDive(customMinutes);
   }, [startDive, customMinutes]);
 
+  const streakDays = profile?.currentStreakDays ?? 0;
+  const nextStreakTarget = useMemo(
+    () => getNextStreakMilestone(streakDays),
+    [streakDays]
+  );
+
   return (
     <ZoneBackground zone="midnight">
       <UnderwaterCanvas zone="midnight" />
@@ -215,10 +221,13 @@ export default function HomeScreen() {
           </View>
 
           {/* ── Last Dive Recap ── */}
-          {showLastDiveSkeleton && <LastDiveSkeleton />}
-          {!showLastDiveSkeleton && lastSession && (
+          {showLastDiveSkeleton ? <LastDiveSkeleton /> : null}
+          {!showLastDiveSkeleton && lastSession ? (
             <LastDiveCard session={lastSession} tr={tr} />
-          )}
+          ) : null}
+          {!showLastDiveSkeleton && !lastSession ? (
+            <NoLastDiveCard onStart={handleStartPreferredDive} tr={tr} />
+          ) : null}
 
           {/* ── Hero dive CTA ── */}
           <PressableCard
@@ -292,6 +301,15 @@ export default function HomeScreen() {
               value={`${profile?.level ?? 1}`}
             />
           </View>
+
+          {streakDays > 0 && (
+            <StreakMilestoneCard
+              days={streakDays}
+              nextTarget={nextStreakTarget}
+              onPress={handleStartPreferredDive}
+              tr={tr}
+            />
+          )}
         </ScrollView>
 
         <FreeDiveModal
@@ -309,6 +327,43 @@ export default function HomeScreen() {
         />
       </SafeAreaView>
     </ZoneBackground>
+  );
+}
+
+function StreakMilestoneCard({
+  days,
+  nextTarget,
+  onPress,
+  tr
+}: {
+  days: number;
+  nextTarget: number | null;
+  onPress: () => void;
+  tr: ReturnType<typeof useTranslations>;
+}) {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
+  const milestoneBody =
+    nextTarget == null
+      ? tr.home.streakMilestoneReached(days)
+      : tr.home.streakMilestoneBody(days, nextTarget);
+
+  return (
+    <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+      <View style={styles.streakMilestoneHeader}>
+        <Ionicons name="flame" size={14} color={t.colors.warning} />
+        <SectionLabel>{tr.home.streakMilestoneTitle}</SectionLabel>
+      </View>
+      <Text style={styles.streakMilestoneBody}>{milestoneBody}</Text>
+      <View style={styles.streakMilestoneCtaWrap}>
+        <PressableCard haptic="light" onPress={onPress}>
+          <Text style={styles.streakMilestoneCtaText}>
+            {tr.home.streakMilestoneCta}
+          </Text>
+        </PressableCard>
+      </View>
+    </GlassCard>
   );
 }
 
@@ -367,7 +422,7 @@ function LastDiveCard({
     <MotiView
       from={{ opacity: 0, translateY: 8 }}
       animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: "timing", duration: 340 }}
+      transition={{ type: "timing", duration: t.motion.durations.base }}
     >
       <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
         <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
@@ -398,6 +453,29 @@ function LastDiveCard({
         </View>
       </GlassCard>
     </MotiView>
+  );
+}
+
+function NoLastDiveCard({
+  onStart,
+  tr
+}: {
+  onStart: () => void;
+  tr: ReturnType<typeof useTranslations>;
+}) {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
+  return (
+    <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+      <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
+      <Text style={styles.emptyLastDiveText}>{tr.home.noSessions}</Text>
+      <View style={styles.emptyLastDiveCtaWrap}>
+        <PressableCard haptic="light" onPress={onStart}>
+          <Text style={styles.emptyLastDiveCta}>{tr.home.beginDive}</Text>
+        </PressableCard>
+      </View>
+    </GlassCard>
   );
 }
 
@@ -517,6 +595,11 @@ function zoneForMinutes(m: number): OceanZone {
   if (m < 50) return "midnight";
   if (m < 75) return "abyss";
   return "trench";
+}
+
+function getNextStreakMilestone(days: number): number | null {
+  const milestones = [3, 7, 14, 21, 30, 45, 60, 90];
+  return milestones.find((m) => m > days) ?? null;
 }
 
 const makeStyles = (t: AppTheme) =>
@@ -667,6 +750,23 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 13,
       fontFamily: t.fonts.mono
     },
+    emptyLastDiveText: {
+      color: t.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 20,
+      fontFamily: t.fonts.body,
+      marginTop: t.spacing[2]
+    },
+    emptyLastDiveCtaWrap: {
+      marginTop: t.spacing[3]
+    },
+    emptyLastDiveCta: {
+      color: t.colors.text,
+      fontSize: 12,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label,
+      textAlign: "center"
+    },
     // Zone progress
     zoneStrip: {
       flexDirection: "row",
@@ -724,5 +824,27 @@ const makeStyles = (t: AppTheme) =>
       width: 110,
       height: 11,
       borderRadius: t.radii.xs
+    },
+    streakMilestoneHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[2]
+    },
+    streakMilestoneBody: {
+      color: t.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 20,
+      fontFamily: t.fonts.body,
+      marginTop: t.spacing[2]
+    },
+    streakMilestoneCtaWrap: {
+      marginTop: t.spacing[3]
+    },
+    streakMilestoneCtaText: {
+      color: t.colors.text,
+      fontSize: 12,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label,
+      textAlign: "center"
     }
   });

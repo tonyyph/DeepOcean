@@ -22,14 +22,7 @@ import Animated, {
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-
-const ZONE_COLORS: Record<OceanZone, string> = {
-  surface: "#4FC3F7",
-  twilight: "#818CF8",
-  midnight: "#3B82F6",
-  abyss: "#2DD4BF",
-  trench: "#F472B6"
-};
+import { Colors } from "@/theme";
 
 const ZONE_ICONS: Record<OceanZone, keyof typeof Ionicons.glyphMap> = {
   surface: "sunny-outline",
@@ -111,14 +104,20 @@ export const AchievementModal = React.memo(function AchievementModal({
   }));
 
   const handleDismiss = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      (error: unknown) => {
+        if (__DEV__) {
+          console.warn("[Haptics] Achievement dismiss failed", error);
+        }
+      }
+    );
     onDismiss();
   };
 
   if (!zone) return null;
 
   const zoneInfo = ZONE_TABLE[zone];
-  const accent = ZONE_COLORS[zone];
+  const accent = Colors.zoneAccent[zone];
   const icon = ZONE_ICONS[zone];
   const depthMin = zoneInfo.depth[0];
   const depthMax = zoneInfo.depth[1];
@@ -145,7 +144,7 @@ export const AchievementModal = React.memo(function AchievementModal({
           <Pressable
             style={[
               StyleSheet.absoluteFill,
-              { backgroundColor: "rgba(0,0,0,0.5)" }
+              { backgroundColor: Colors.overlay.scrim50 }
             ]}
             onPress={handleDismiss}
           />

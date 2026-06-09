@@ -22,6 +22,7 @@ import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { useTranslations } from "@/core/i18n";
+import { Colors } from "@/theme";
 
 const AUTO_DISMISS_MS = 5500;
 
@@ -51,7 +52,11 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
   useEffect(() => {
     if (visible) {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
-        () => {}
+        (error: unknown) => {
+          if (__DEV__) {
+            console.warn("[Haptics] Title achievement open failed", error);
+          }
+        }
       );
       progress.value = withTiming(1, {
         duration: 280,
@@ -94,7 +99,13 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
   }));
 
   const handleDismiss = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      (error: unknown) => {
+        if (__DEV__) {
+          console.warn("[Haptics] Title achievement dismiss failed", error);
+        }
+      }
+    );
     onDismiss();
   };
 
@@ -118,7 +129,7 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
           <Pressable
             style={[
               StyleSheet.absoluteFill,
-              { backgroundColor: "rgba(0,0,0,0.52)" }
+              { backgroundColor: Colors.overlay.scrim55 }
             ]}
             onPress={handleDismiss}
           />

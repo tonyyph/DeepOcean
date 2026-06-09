@@ -442,15 +442,6 @@ export default function ProfileScreen() {
           {/* Account / Onboarding */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.account}</SectionLabel>
-            {process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
-              <SettingRow
-                type="switch"
-                title={tr.profile.devEnablePremium}
-                subtitle={tr.profile.devEnablePremiumDesc}
-                value={debugPremiumEnabled}
-                onChange={setDebugPremiumEnabled}
-              />
-            )}
             <SettingRow
               type="nav"
               title={tr.profile.replayOnboarding}
@@ -468,6 +459,20 @@ export default function ProfileScreen() {
               divider={false}
             />
           </GlassCard>
+
+          {__DEV__ && process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
+            <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
+              <SectionLabel>{tr.profile.developer}</SectionLabel>
+              <SettingRow
+                type="switch"
+                title={tr.profile.devEnablePremium}
+                subtitle={tr.profile.devEnablePremiumDesc}
+                value={debugPremiumEnabled}
+                onChange={setDebugPremiumEnabled}
+                divider={false}
+              />
+            </GlassCard>
+          )}
 
           {/* About */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
