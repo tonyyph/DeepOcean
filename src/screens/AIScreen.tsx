@@ -8,6 +8,7 @@ import {
   PressableCard,
   SectionLabel,
   Skeleton,
+  UnderwaterCanvas,
   useTheme,
   useThemedStyles,
   ZoneBackground,
@@ -99,7 +100,11 @@ export default function AIScreen() {
   }, []);
 
   return (
-    <ZoneBackground zone="twilight">
+    <ZoneBackground zone="midnight">
+      <UnderwaterCanvas
+        zone={lastSession?.zone ?? "midnight"}
+        particleCount={32}
+      />
       <SafeAreaView style={styles.flex}>
         <ScrollView
           contentContainerStyle={styles.scroll}

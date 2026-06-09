@@ -15,7 +15,8 @@ import {
   type StoryRow,
   useTheme,
   useThemedStyles,
-  type AppTheme
+  type AppTheme,
+  UnderwaterCanvas
 } from "@/design-system";
 import { useCollection } from "@/features/diver";
 import { CREATURES, ARTIFACTS, ZONE_TABLE } from "@/features/ocean";
@@ -102,7 +103,8 @@ export default function CollectionScreen() {
   }, []);
 
   return (
-    <ZoneBackground zone="midnight">
+    <ZoneBackground zone="abyss">
+      <UnderwaterCanvas zone="abyss" particleCount={20} />
       <SafeAreaView style={styles.flex}>
         <View style={styles.headerWrap}>
           <AppHeader

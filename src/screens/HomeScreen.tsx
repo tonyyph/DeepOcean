@@ -86,8 +86,8 @@ export default function HomeScreen() {
   };
 
   return (
-    <ZoneBackground zone="surface">
-      <UnderwaterCanvas zone="surface" />
+    <ZoneBackground zone="midnight">
+      <UnderwaterCanvas zone="midnight" />
       <SafeAreaView style={styles.flex}>
         <ScrollView
           contentContainerStyle={styles.scroll}
