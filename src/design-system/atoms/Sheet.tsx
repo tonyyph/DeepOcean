@@ -18,6 +18,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
+import { Colors } from "@/theme";
+
+const SHEET_BLUR_INTENSITY = 70;
+const SHEET_MAX_HEIGHT_RATIO = 0.92;
+const HANDLE_WIDTH = 42;
+const HANDLE_HEIGHT = 4;
 
 export type SheetHandle = {
   present: () => void;
@@ -123,7 +129,7 @@ export const Sheet = forwardRef<SheetHandle, Props>(function Sheet(
       ref={modalRef}
       snapPoints={points}
       enableDynamicSizing={!points}
-      maxDynamicContentSize={screenHeight * 0.92}
+      maxDynamicContentSize={screenHeight * SHEET_MAX_HEIGHT_RATIO}
       enablePanDownToClose
       onDismiss={handleDismiss}
       backdropComponent={renderBackdrop}
@@ -139,7 +145,7 @@ export const Sheet = forwardRef<SheetHandle, Props>(function Sheet(
       backgroundComponent={({ style }) => (
         <View style={[style, styles.bg]}>
           <BlurView
-            intensity={70}
+            intensity={SHEET_BLUR_INTENSITY}
             tint="dark"
             style={StyleSheet.absoluteFill}
           />
@@ -178,10 +184,10 @@ const makeStyles = (t: AppTheme) =>
       paddingTop: t.spacing[3]
     },
     handle: {
-      width: 42,
-      height: 4,
+      width: HANDLE_WIDTH,
+      height: HANDLE_HEIGHT,
       borderRadius: 2,
-      backgroundColor: "rgba(255, 255, 255, 0.139)"
+      backgroundColor: `${Colors.base.white}24`
     },
     content: {
       paddingHorizontal: t.spacing[6],

@@ -168,15 +168,6 @@ export class AICompanionRepository implements IAICompanionGateway {
               i < this.providers.length - 1 &&
               shouldFallbackToNextProvider(error);
 
-            // if (__DEV__) {
-            //   console.warn(
-            //     canFallback
-            //       ? `[AICompanion] ${provider.id} failed; trying next provider`
-            //       : `[AICompanion] ${provider.id} failed; using cache/offline`,
-            //     error
-            //   );
-            // }
-
             if (!canFallback) break;
           }
         }

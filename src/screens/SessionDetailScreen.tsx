@@ -1,5 +1,12 @@
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Share
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -10,6 +17,7 @@ import {
   SectionLabel,
   SessionTimeline,
   DiscoveryTimeline,
+  KpiCard,
   useTheme,
   useThemedStyles,
   type AppTheme
@@ -93,6 +101,19 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
     [session.startedAt, locale]
   );
 
+  const handleShare = React.useCallback(() => {
+    const message = tr.sessionDetail.shareText(
+      Math.round(session.elapsedSeconds / 60),
+      Math.round(session.depthMeters).toLocaleString(),
+      xpEarned,
+      session.discoveries.length
+    );
+    void Share.share({
+      title: tr.sessionDetail.shareTitle,
+      message
+    });
+  }, [session, tr, xpEarned]);
+
   return (
     <ScrollView
       contentContainerStyle={styles.scroll}
@@ -101,18 +122,18 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
       <Text style={styles.date}>{dateLabel}</Text>
 
       <View style={styles.kpiRow}>
-        <Kpi
+        <KpiCard
           label={tr.sessionDetail.duration}
           value={formatDuration(session.elapsedSeconds)}
         />
-        <Kpi
+        <KpiCard
           label={tr.sessionDetail.focusMinutes}
           value={`${Math.round(session.elapsedSeconds / 60)}m`}
         />
       </View>
       <View style={styles.kpiRow}>
-        <Kpi label={tr.sessionDetail.xpEarned} value={`+${xpEarned}`} />
-        <Kpi
+        <KpiCard label={tr.sessionDetail.xpEarned} value={`+${xpEarned}`} />
+        <KpiCard
           label={tr.sessionDetail.maxDepth}
           value={`${Math.round(session.depthMeters).toLocaleString()} m`}
         />
@@ -149,18 +170,25 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
         <SectionLabel>{tr.sessionDetail.discoveryLog}</SectionLabel>
         <DiscoveryTimeline discoveries={session.discoveries} />
       </GlassCard>
-    </ScrollView>
-  );
-}
 
-function Kpi({ label, value }: { label: string; value: string }) {
-  const t = useTheme();
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <GlassCard style={styles.flex} radius={t.radii.md}>
-      <Text style={styles.kpiLabel}>{label}</Text>
-      <Text style={styles.kpiValue}>{value}</Text>
-    </GlassCard>
+      <GlassCard radius={t.radii.md}>
+        <SectionLabel>{tr.sessionDetail.shareTitle}</SectionLabel>
+        <Pressable
+          accessibilityRole="button"
+          onPress={handleShare}
+          style={styles.shareButton}
+        >
+          <Ionicons
+            name="share-social-outline"
+            size={16}
+            color={t.colors.text}
+          />
+          <Text style={styles.shareButtonText}>
+            {tr.sessionDetail.shareCta}
+          </Text>
+        </Pressable>
+      </GlassCard>
+    </ScrollView>
   );
 }
 
@@ -193,18 +221,6 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.textSecondary
     },
     kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
-    kpiLabel: {
-      color: t.colors.textMuted,
-      fontSize: 10,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label
-    },
-    kpiValue: {
-      color: t.colors.text,
-      fontSize: 24,
-      marginTop: t.spacing[1.5],
-      fontFamily: t.fonts.mono
-    },
     levelRow: { flexDirection: "row", alignItems: "center", gap: t.spacing[2] },
     levelText: {
       fontFamily: t.fonts.body,
@@ -217,5 +233,24 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 11,
       letterSpacing: 0.5,
       color: t.colors.accentSoft
+    },
+    shareButton: {
+      marginTop: t.spacing[2],
+      borderRadius: t.radii.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.border,
+      backgroundColor: t.colors.glass,
+      paddingHorizontal: t.spacing[4],
+      paddingVertical: t.spacing[3],
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: t.spacing[2]
+    },
+    shareButtonText: {
+      color: t.colors.text,
+      fontFamily: t.fonts.label,
+      fontSize: 12,
+      letterSpacing: 1
     }
   });

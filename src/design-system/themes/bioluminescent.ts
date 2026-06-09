@@ -1,5 +1,6 @@
 import type { AppTheme } from "./types";
 import { radii, spacing, motion } from "../tokens";
+import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
 // Bioluminescent — premium. True-black canvas with neon cyan/violet glow.
 export const bioluminescentTheme: AppTheme = {
@@ -11,8 +12,8 @@ export const bioluminescentTheme: AppTheme = {
     background: "#02030A",
     surface: "#070A18",
     surfaceElevated: "#0D1228",
-    border: "rgba(167,139,250,0.12)",
-    borderStrong: "rgba(167,139,250,0.32)",
+    border: alpha("#A78BFA", 0.12),
+    borderStrong: alpha("#A78BFA", 0.32),
     text: "#EDEAFF",
     textSecondary: "rgba(237,234,255,0.74)",
     textMuted: "rgba(237,234,255,0.46)",
@@ -22,25 +23,19 @@ export const bioluminescentTheme: AppTheme = {
     danger: "#FF5C9B",
     success: "#5FF7E0",
     warning: "#FFD86B",
-    glass: "rgba(167,139,250,0.06)",
-    glassEdge: "rgba(167,139,250,0.22)",
-    premium: "#FFD27A"
+    glass: alpha("#A78BFA", 0.06),
+    glassEdge: alpha("#A78BFA", 0.22),
+    premium: THEME_HEX.premium
   },
   gradients: {
     surface: ["#0D1228", "#070A18", "#02030A"],
     twilight: ["#1A0F3A", "#0D1228", "#02030A"],
     midnight: ["#0F0A2A", "#070A18", "#02030A"],
-    abyss: ["#070A18", "#02030A", "#000000"],
-    trench: ["#02030A", "#000000", "#000000"],
+    abyss: ["#070A18", "#02030A", THEME_HEX.black],
+    trench: ["#02030A", THEME_HEX.black, THEME_HEX.black],
     bioGlow: ["#A78BFA", "#22E4FF"]
   },
-  fonts: {
-    display: "SpaceGrotesk_700Bold",
-    body: "SpaceGrotesk_400Regular",
-    label: "SpaceGrotesk_500Medium",
-    mono: "JetBrainsMono_400Regular",
-    displayLetterSpacing: -0.8
-  },
+  fonts: THEME_FONTS,
   particles: {
     style: "dust",
     count: 36,
@@ -49,7 +44,11 @@ export const bioluminescentTheme: AppTheme = {
     drift: 28,
     blur: 1.8,
     hues: ["#A78BFA", "#22E4FF", "#FF5C9B"],
-    vignette: ["rgba(167,139,250,0.18)", "rgba(7,10,24,0.92)", "rgba(0,0,0,1)"],
+    vignette: [
+      alpha("#A78BFA", 0.18),
+      alpha("#070A18", 0.92),
+      alpha(THEME_HEX.black, 1)
+    ],
     loopMs: 16000,
     opacity: 0.9
   },

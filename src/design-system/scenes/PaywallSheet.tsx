@@ -24,13 +24,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme, ThemeId } from "../themes";
+import { THEME_LIST, type AppTheme, type ThemeId } from "../themes";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { usePremium } from "@/stores";
 import { container } from "@/data/container";
 import type { PromoCodeResult, PurchaseOffering } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
+import { Colors } from "@/theme";
 
 type PlanId = "lifetime" | "annual" | "monthly";
 
@@ -66,11 +67,7 @@ const ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
  * Prices come from the live RC offering when configured; VND fallbacks are
  * rendered from translations when billing is unconfigured — never fake unlock.
  */
-export function PaywallSheet({
-  visible,
-  onDismiss,
-  intentTheme: _intentTheme
-}: Props) {
+export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
@@ -244,6 +241,10 @@ export function PaywallSheet({
   const lifetimePrice = offering?.lifetime?.priceString ?? pw.lifetimePrice;
   const annualPrice = offering?.annual?.priceString ?? pw.annualPrice;
   const monthlyPrice = offering?.monthly?.priceString ?? pw.monthlyPrice;
+  const intentThemeName = useMemo(() => {
+    if (!intentTheme) return null;
+    return THEME_LIST.find((theme) => theme.id === intentTheme)?.name ?? null;
+  }, [intentTheme]);
 
   const renderSlide = useCallback(
     ({ item }: ListRenderItemInfo<BenefitSlide>) => {
@@ -300,6 +301,15 @@ export function PaywallSheet({
 
         <Text style={styles.heading}>{pw.title}</Text>
         <Text style={styles.headingSub}>{pw.subtitle}</Text>
+
+        {intentThemeName != null && (
+          <View style={styles.intentBanner}>
+            <Text style={styles.intentBannerTitle}>
+              {pw.unlockingTheme(intentThemeName)}
+            </Text>
+            <Text style={styles.intentBannerBody}>{pw.unlockingThemeHint}</Text>
+          </View>
+        )}
 
         {(trialActive || promoActive) && trialState != null && (
           <View style={styles.activeBanner}>
@@ -428,13 +438,13 @@ export function PaywallSheet({
             disabled={busy}
           >
             <LinearGradient
-              colors={[t.colors.accent, t.colors.accent + "AA"]}
+              colors={[t.colors.accent, `${t.colors.accent}AA`]}
               style={styles.trialGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
               {busy ? (
-                <ActivityIndicator color="#fff" size="small" />
+                <ActivityIndicator color={Colors.base.white} size="small" />
               ) : (
                 <>
                   <View style={styles.trialPill}>
@@ -463,7 +473,7 @@ export function PaywallSheet({
             ]}
           >
             {busy ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color={Colors.base.white} size="small" />
             ) : (
               <Text style={styles.purchaseLabel}>
                 {selectedPlan === "lifetime"
@@ -584,13 +594,35 @@ function makeStyles(t: AppTheme) {
       lineHeight: 18,
       marginBottom: t.spacing[3]
     },
+    intentBanner: {
+      borderRadius: t.radii.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: `${Colors.premium.gold}5A`,
+      backgroundColor: `${Colors.premium.gold}14`,
+      paddingHorizontal: t.spacing[4],
+      paddingVertical: t.spacing[3],
+      marginBottom: t.spacing[3]
+    },
+    intentBannerTitle: {
+      fontFamily: t.fonts.label,
+      fontSize: 11,
+      letterSpacing: 0.8,
+      color: Colors.premium.gold,
+      textTransform: "uppercase"
+    },
+    intentBannerBody: {
+      fontFamily: t.fonts.body,
+      fontSize: 12,
+      color: t.colors.textSecondary,
+      marginTop: t.spacing[1]
+    },
     activeBanner: {
       flexDirection: "row",
       alignItems: "center",
       alignSelf: "center",
       gap: 6,
       backgroundColor: t.colors.accent + "22",
-      borderRadius: 999,
+      borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[1],
       marginBottom: t.spacing[3]
@@ -675,7 +707,7 @@ function makeStyles(t: AppTheme) {
     },
     savingBadge: {
       backgroundColor: t.colors.accent,
-      borderRadius: 999,
+      borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[2],
       paddingVertical: 3,
       alignSelf: "center",
@@ -684,7 +716,7 @@ function makeStyles(t: AppTheme) {
     savingBadgeText: {
       fontFamily: t.fonts.label,
       fontSize: 10,
-      color: "#fff"
+      color: Colors.base.white
     },
     planInner: {
       paddingVertical: t.spacing[3],
@@ -728,8 +760,8 @@ function makeStyles(t: AppTheme) {
       borderRadius: 14
     },
     trialPill: {
-      backgroundColor: "rgba(255,255,255,0.22)",
-      borderRadius: 999,
+      backgroundColor: `${Colors.base.white}38`,
+      borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[3],
       paddingVertical: 3,
       marginBottom: t.spacing[2]
@@ -737,20 +769,20 @@ function makeStyles(t: AppTheme) {
     trialPillText: {
       fontFamily: t.fonts.label,
       fontSize: 10,
-      color: "#fff",
+      color: Colors.base.white,
       letterSpacing: 1
     },
     trialCtaLabel: {
       fontFamily: t.fonts.display,
       fontSize: 18,
-      color: "#fff",
+      color: Colors.base.white,
       letterSpacing: t.fonts.displayLetterSpacing,
       marginBottom: 4
     },
     trialCtaSub: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: "rgba(255,255,255,0.72)",
+      color: `${Colors.base.white}B8`,
       textAlign: "center"
     },
     // ── Purchase CTA ─────────────────────────────────────────────────────
@@ -770,7 +802,7 @@ function makeStyles(t: AppTheme) {
     purchaseLabel: {
       fontFamily: t.fonts.label,
       fontSize: 13,
-      color: "#fff",
+      color: Colors.base.white,
       letterSpacing: 1
     },
     unavailableNote: {
@@ -799,7 +831,7 @@ function makeStyles(t: AppTheme) {
       borderColor: t.colors.glassEdge
     },
     promoInputSuccess: {
-      borderColor: "#22E4FF"
+      borderColor: Colors.bio.cyan
     },
     promoApplyBtn: {
       height: 44,
@@ -823,14 +855,14 @@ function makeStyles(t: AppTheme) {
     promoFeedbackError: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: "#FF7E9D",
+      color: Colors.bio.coral,
       textAlign: "center",
       marginBottom: t.spacing[2]
     },
     promoFeedbackSuccess: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: "#22E4FF",
+      color: Colors.bio.cyan,
       textAlign: "center",
       marginBottom: t.spacing[2]
     },

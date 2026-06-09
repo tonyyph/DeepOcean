@@ -13,7 +13,6 @@
       "bundleIdentifier": "com.cuongphan2.OtherSide",
       "infoPlist": {
         "UIBackgroundModes": [
-          "audio",
           "audio"
         ],
         "ITSAppUsesNonExemptEncryption": false

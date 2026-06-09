@@ -47,13 +47,15 @@ export const translations = {
       themePickerTitle: "Choose a theme",
       themePickerSub:
         "Each theme reshapes the entire app — palette, typography, ambient field.",
+      themeLockedCount: (count: number) =>
+        `${count} premium theme${count === 1 ? "" : "s"} locked · upgrade to Pro`,
+      proOnly: "PRO",
       themeFont: "Font",
       themeParticles: "Particles",
       applyTheme: "Apply theme",
       premium: "DeepOcean Pro",
       premiumDesc: "Unlock every theme + future premium features",
       premiumActive: "All premium content unlocked. Thank you — dive on.",
-      restorePurchases: "Restore purchases",
       replayOnboarding: "Replay onboarding",
       confirm: "Confirm",
       cancel: "Cancel",
@@ -74,6 +76,7 @@ export const translations = {
       devEnablePremium: "Enable premium",
       devEnablePremiumDesc:
         "Local test toggle for premium UI and feature gates",
+      developer: "DEVELOPER",
       about: "ABOUT",
       appVersion: "Version",
       appVersionValue: "#Ynot",
@@ -115,7 +118,13 @@ export const translations = {
       lastDiveXp: (n: number) => `+${n} XP`,
       zoneProgressTitle: "DEPTH PROGRESS",
       zoneLocked: "Locked",
-      noSessions: "No dives yet"
+      noSessions: "No dives yet",
+      streakMilestoneTitle: "STREAK MILESTONE",
+      streakMilestoneBody: (days: number, target: number) =>
+        `You're on a ${days}-day streak. Reach ${target} days for your next milestone.`,
+      streakMilestoneReached: (days: number) =>
+        `Incredible run. You reached a ${days}-day streak.`,
+      streakMilestoneCta: "KEEP THE STREAK"
     },
     ai: {
       title: "Marine Guide",
@@ -123,6 +132,7 @@ export const translations = {
       today: "TODAY",
       listening: "Listening to the currents\u2026",
       askAgain: "ASK AGAIN",
+      refreshError: "Unable to refresh now. Please try again.",
       nudge: "A NUDGE FOR YOU",
       lastExpedition: "LAST EXPEDITION",
       mood: "MOOD",
@@ -185,13 +195,34 @@ export const translations = {
       noDiscoveries: "No creatures or artifacts surfaced this dive.",
       reachedAt: (m: number) => `at ${m} min`,
       minuteMark: (m: number) => `${m}m`,
-      notFound: "This expedition could not be found."
+      notFound: "This expedition could not be found.",
+      shareTitle: "SHARE THIS DIVE",
+      shareCta: "SHARE EXPEDITION",
+      shareText: (
+        minutes: number,
+        depth: string,
+        xp: number,
+        discoveries: number
+      ) =>
+        `My DeepOcean dive: ${minutes} min focused, ${depth} m depth, +${xp} XP, ${discoveries} discoveries.`
     },
     collection: {
       title: "Expedition Log",
       catalogued: (found: number, total: number) =>
         `${found} / ${total} catalogued`,
       undiscovered: "Undiscovered",
+      filters: {
+        all: "All",
+        zone: "Zone",
+        rarity: "Rarity",
+        common: "Common",
+        uncommon: "Uncommon",
+        rare: "Rare",
+        legendary: "Legendary",
+        mythic: "Mythic",
+        proDetailsLabel: "Pro details",
+        noResults: "No entries match this filter yet."
+      },
       story: {
         whisperLabel: "WHISPER FROM THE DEEP",
         firstSeen: "First sighted",
@@ -233,7 +264,21 @@ export const translations = {
       title: "Dive Deeper with Pro",
       subtitle:
         "Unlock every zone, theme, and AI companion. Support a small studio building calmly.",
+      compareTitle: "Standard vs Pro",
+      compareFree: "Standard",
+      comparePro: "Pro",
+      compareThemesLabel: "Theme access",
+      compareThemesFree: "1 theme",
+      compareThemesPro: "All themes",
+      compareJournalLabel: "Expedition journal",
+      compareJournalFree: "Teaser only",
+      compareJournalPro: "Full entries",
+      compareAiLabel: "AI guidance",
+      compareAiFree: "Basic",
+      compareAiPro: "Deep insights",
       unlockingTheme: (name: string) => `Unlocking "${name}"`,
+      unlockingThemeHint:
+        "This theme is locked. Upgrade to Pro to apply it immediately.",
       benefits: [
         {
           icon: "water",
@@ -279,7 +324,6 @@ export const translations = {
       promoExpired: "Code has expired",
       promoSuccess: (days: number) =>
         `Active · ${days} day${days === 1 ? "" : "s"} left`,
-      maybeLater: "MAYBE LATER",
       restore: "RESTORE PURCHASES",
       unavailable: "Purchases are unavailable on this build.",
       errorTitle: "Purchase failed",
@@ -344,13 +388,15 @@ export const translations = {
       themePickerTitle: "Chọn chủ đề cho app",
       themePickerSub:
         "Mỗi theme thay đổi toàn bộ màu, chữ, hạt lơ lửng — cả cảm giác lặn cũng khác.",
+      themeLockedCount: (count: number) =>
+        `Đang khóa ${count} theme premium · nâng cấp Pro để mở`,
+      proOnly: "PRO",
       themeFont: "Font",
       themeParticles: "Hạt",
       applyTheme: "Áp dụng chủ đề",
       premium: "DeepOcean Pro",
       premiumDesc: "Mở khoá tất cả theme + tính năng cao cấp sắp ra mắt",
       premiumActive: "Đã mở khoá toàn bộ. Cảm ơn bạn — lặn vui nha!",
-      restorePurchases: "Khôi phục thanh toán",
       replayOnboarding: "Xem lại phần giới thiệu",
       confirm: "Xác nhận",
       cancel: "Huỷ",
@@ -371,6 +417,7 @@ export const translations = {
       devEnablePremium: "Bật premium",
       devEnablePremiumDesc:
         "Bật nhanh premium cục bộ để test UI và các tính năng bị khóa",
+      developer: "NHÀ PHÁT TRIỂN",
       about: "VỀ ỨNG DỤNG",
       appVersion: "Phiên bản",
       appVersionValue: "#Ynot",
@@ -412,7 +459,13 @@ export const translations = {
       lastDiveXp: (n: number) => `+${n} XP`,
       zoneProgressTitle: "TIẾN ĐỘ ĐỘ SÂU",
       zoneLocked: "Chưa mở",
-      noSessions: "Chưa lặn lần nào"
+      noSessions: "Chưa lặn lần nào",
+      streakMilestoneTitle: "MỐC STREAK",
+      streakMilestoneBody: (days: number, target: number) =>
+        `Bạn đang giữ streak ${days} ngày. Chạm mốc ${target} ngày để mở milestone tiếp theo.`,
+      streakMilestoneReached: (days: number) =>
+        `Quá đỉnh. Bạn đã chạm streak ${days} ngày liên tiếp.`,
+      streakMilestoneCta: "GIỮ STREAK"
     },
     ai: {
       title: "La Bàn Biển Cả",
@@ -420,6 +473,7 @@ export const translations = {
       today: "HÔM NAY",
       listening: "Đang hỏi cá biển xem thế nào\u2026",
       askAgain: "HỎI LẠI",
+      refreshError: "Làm mới chưa thành công. Thử lại giúp mình nhé.",
       nudge: "LỜI ĐỘNG VIÊN CHO BẠN",
       lastExpedition: "CHUYẾN LẶN GẦN NHẤT",
       mood: "TÂM TRẠNG",
@@ -482,13 +536,34 @@ export const translations = {
       noDiscoveries: "Chuyến này chưa gặp sinh vật hay cổ vật nào.",
       reachedAt: (m: number) => `phút ${m}`,
       minuteMark: (m: number) => `phút ${m}`,
-      notFound: "Không tìm thấy chuyến lặn này."
+      notFound: "Không tìm thấy chuyến lặn này.",
+      shareTitle: "CHIA SẺ CHUYẾN LẶN",
+      shareCta: "CHIA SẺ BÁO CÁO",
+      shareText: (
+        minutes: number,
+        depth: string,
+        xp: number,
+        discoveries: number
+      ) =>
+        `Mình vừa lặn với DeepOcean: tập trung ${minutes} phút, xuống ${depth} m, +${xp} XP, khám phá ${discoveries} mục.`
     },
     collection: {
       title: "Nhật ký thám hiểm",
       catalogued: (found: number, total: number) =>
         `Tìm được ${found} / ${total} loài`,
       undiscovered: "Còn ẩn trong bóng tối",
+      filters: {
+        all: "Tất cả",
+        zone: "Vùng",
+        rarity: "Độ hiếm",
+        common: "Thường",
+        uncommon: "Hiếm vừa",
+        rare: "Hiếm",
+        legendary: "Huyền thoại",
+        mythic: "Thần thoại",
+        proDetailsLabel: "Chi tiết Pro",
+        noResults: "Bộ lọc này chưa có mục nào."
+      },
       story: {
         whisperLabel: "TIẾNG THÌ THẦM TỪ ĐÁY BIỂN",
         firstSeen: "Lần đầu gặp",
@@ -530,7 +605,21 @@ export const translations = {
       title: "Lặn sâu hơn với Pro",
       subtitle:
         "Mở khoá mọi vùng biển, theme và AI Companion. Ủng hộ đội ngũ nhỏ đang làm app.",
+      compareTitle: "Bản thường vs Pro",
+      compareFree: "Bản thường",
+      comparePro: "Pro",
+      compareThemesLabel: "Theme có thể dùng",
+      compareThemesFree: "1 theme",
+      compareThemesPro: "Toàn bộ",
+      compareJournalLabel: "Nhật ký thám hiểm",
+      compareJournalFree: "Chỉ xem nhá hàng",
+      compareJournalPro: "Xem đầy đủ",
+      compareAiLabel: "Hướng dẫn AI",
+      compareAiFree: "Cơ bản",
+      compareAiPro: "Phân tích sâu",
       unlockingTheme: (name: string) => `Mở khoá "${name}"`,
+      unlockingThemeHint:
+        "Theme này đang bị khóa. Nâng cấp Pro để áp dụng ngay.",
       benefits: [
         {
           icon: "water",
@@ -558,7 +647,7 @@ export const translations = {
       planMonthly: "THÁNG",
       planLifetimeSub: "một lần",
       planMonthlySub: "/ tháng",
-      lifetimeCta: "LIFETIME — MỞR TẤT CẢ",
+      lifetimeCta: "LIFETIME — MỞ TẤT CẢ",
       lifetimePrice: "999.000đ",
       annualCta: "1 NĂM — TỐT NHẤT",
       annualPrice: "599.000đ / năm",
@@ -575,7 +664,6 @@ export const translations = {
       promoInvalid: "Mã không hợp lệ",
       promoExpired: "Mã đã hết hạn",
       promoSuccess: (days: number) => `Hoạt động · còn ${days} ngày`,
-      maybeLater: "ĐỂ SAU",
       restore: "KHÔI PHỤC GIAO DỊCH",
       unavailable: "Bản dựng này chưa hỗ trợ mua hàng.",
       errorTitle: "Mua hàng thất bại",
@@ -588,8 +676,8 @@ export const translations = {
       tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
     },
     levelUp: {
-      badge: "LÊN CẦP",
-      multiLevel: (n: number) => `LÊN CẦP ×${n}`,
+      badge: "LÊN CẤP",
+      multiLevel: (n: number) => `LÊN CẤP ×${n}`,
       from: (prev: number, next: number) => `Cấp ${prev} → Cấp ${next}`,
       tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
     },

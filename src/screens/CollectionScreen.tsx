@@ -1,47 +1,38 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { FlashList } from "@shopify/flash-list";
-import { Ionicons } from "@expo/vector-icons";
-import { MotiView } from "moti";
+import { useTranslations } from "@/core/i18n";
 import {
-  ZoneBackground,
-  GlassCard,
   AppHeader,
+  type AppTheme,
   CreatureStorySheet,
+  GlassCard,
   PaywallSheet,
   PremiumBadge,
+  SectionSkeleton,
   Skeleton,
   type StoryRow,
+  UnderwaterCanvas,
+  ZoneBackground,
   useTheme,
-  useThemedStyles,
-  type AppTheme,
-  UnderwaterCanvas
+  useThemedStyles
 } from "@/design-system";
-import { useCollection } from "@/features/diver";
-import { CREATURES, ARTIFACTS, ZONE_TABLE } from "@/features/ocean";
-import type { Rarity } from "@/features/ocean";
 import type { CollectionEntry } from "@/domain/entities";
-import { useTranslations } from "@/core/i18n";
+import { useCollection } from "@/features/diver";
+import {
+  ARTIFACTS,
+  CREATURES,
+  ZONE_TABLE,
+  rarityColor
+} from "@/features/ocean";
 import { usePremium } from "@/stores";
-
-function rarityColor(rarity: Rarity, t: AppTheme): string {
-  switch (rarity) {
-    case "uncommon":
-      return t.colors.success;
-    case "rare":
-      return t.colors.accent;
-    case "legendary":
-      return t.colors.warning;
-    case "mythic":
-      return t.colors.danger;
-    default:
-      return t.colors.textMuted;
-  }
-}
+import { Colors } from "@/theme";
+import { Ionicons } from "@expo/vector-icons";
+import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
+import React, { useCallback, useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CollectionScreen() {
   const { data: entries = [], isLoading } = useCollection();
+  const t = useTheme();
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
   const isPremium = usePremium((s) => s.isPremium);
@@ -49,6 +40,9 @@ export default function CollectionScreen() {
   const [activeRow, setActiveRow] = useState<StoryRow | null>(null);
   const [storyOpen, setStoryOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [rarityFilter, setRarityFilter] = useState<
+    "all" | "common" | "uncommon" | "rare" | "legendary" | "mythic"
+  >("all");
 
   const rows = useMemo<StoryRow[]>(() => {
     const seenMap = new Map<string, CollectionEntry>(
@@ -87,7 +81,18 @@ export default function CollectionScreen() {
     );
   }, [entries]);
 
-  const discoveredCount = rows.filter((r) => r.seen).length;
+  const discoveredCount = useMemo(
+    () => rows.filter((r) => r.seen).length,
+    [rows]
+  );
+
+  const filteredRows = useMemo(() => {
+    return rows.filter((r) => {
+      const passRarity = rarityFilter === "all" || r.rarity === rarityFilter;
+      return passRarity;
+    });
+  }, [rows, rarityFilter]);
+
   const skeletonRows = useMemo(
     () => Array.from({ length: 8 }, (_, i) => i),
     []
@@ -102,6 +107,103 @@ export default function CollectionScreen() {
     setPaywallOpen(true);
   }, []);
 
+  const renderListHeader = useCallback(
+    () => (
+      <View style={styles.stickyFilterWrap}>
+        <View style={styles.compactFilterBlock}>
+          <Text style={styles.filterTitle}>{tr.collection.filters.rarity}</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.compactRow}
+          >
+            {[
+              ["all", tr.collection.filters.all],
+              ["common", tr.collection.filters.common],
+              ["uncommon", tr.collection.filters.uncommon],
+              ["rare", tr.collection.filters.rare],
+              ["legendary", tr.collection.filters.legendary],
+              ["mythic", tr.collection.filters.mythic]
+            ].map(([value, label]) => {
+              const typedValue = value as
+                | "all"
+                | "common"
+                | "uncommon"
+                | "rare"
+                | "legendary"
+                | "mythic";
+              const active = rarityFilter === typedValue;
+              return (
+                <Pressable
+                  key={value}
+                  onPress={() => setRarityFilter(typedValue)}
+                  style={[
+                    styles.compactChip,
+                    active && styles.compactChipActive
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.compactChipText,
+                      active && styles.compactChipTextActive
+                    ]}
+                  >
+                    {label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+        {!isPremium && (
+          <Pressable
+            onPress={handlePaywall}
+            style={styles.proCallout}
+            accessibilityRole="button"
+          >
+            <PremiumBadge variant="lock" />
+            <Text style={styles.proCalloutText} numberOfLines={2}>
+              {tr.collection.story.proLocked}
+            </Text>
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={t.colors.textMuted}
+            />
+          </Pressable>
+        )}
+      </View>
+    ),
+    [styles, tr.collection.filters, rarityFilter, setRarityFilter]
+  );
+
+  const keyExtractor = useCallback(
+    (item: StoryRow | number) =>
+      typeof item === "number" ? `skeleton-${item}` : item.id,
+    []
+  );
+
+  const renderItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<StoryRow | number>) =>
+      typeof item === "number" ? (
+        <CollectionRowSkeleton />
+      ) : (
+        <CollectionRow
+          row={item}
+          index={index}
+          isPremium={isPremium}
+          onPress={handleRowPress}
+        />
+      ),
+    [isPremium, handleRowPress]
+  );
+
+  const getItemType = useCallback(
+    (item: StoryRow | number) =>
+      typeof item === "number" ? "skeleton" : "row",
+    []
+  );
+
   return (
     <ZoneBackground zone="abyss">
       <UnderwaterCanvas zone="abyss" particleCount={20} />
@@ -112,46 +214,27 @@ export default function CollectionScreen() {
             subtitle={tr.collection.catalogued(discoveredCount, rows.length)}
             size={28}
           />
-          {!isPremium && (
-            <Pressable
-              onPress={handlePaywall}
-              style={styles.proCallout}
-              accessibilityRole="button"
-            >
-              <PremiumBadge variant="lock" />
-              <Text style={styles.proCalloutText} numberOfLines={2}>
-                {tr.collection.story.proLocked}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={14}
-                color="rgba(255,210,122,0.85)"
-              />
-            </Pressable>
-          )}
         </View>
         <FlashList<StoryRow | number>
-          data={isLoading ? skeletonRows : rows}
-          keyExtractor={(item) =>
-            typeof item === "number" ? `skeleton-${item}` : item.id
-          }
+          data={isLoading ? skeletonRows : filteredRows}
+          keyExtractor={keyExtractor}
           estimatedItemSize={120}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) =>
-            typeof item === "number" ? (
-              <CollectionRowSkeleton />
-            ) : (
-              <CollectionRow
-                row={item}
-                index={index}
-                isPremium={isPremium}
-                onPress={handleRowPress}
-              />
-            )
-          }
+          renderItem={renderItem}
+          ListHeaderComponent={renderListHeader}
+          getItemType={getItemType}
           ItemSeparatorComponent={Separator}
           contentContainerStyle={styles.listContent}
         />
+        {!isLoading && filteredRows.length === 0 && (
+          <View style={styles.emptyFilterWrap}>
+            <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+              <Text style={styles.emptyFilterText}>
+                {tr.collection.filters.noResults}
+              </Text>
+            </GlassCard>
+          </View>
+        )}
       </SafeAreaView>
 
       <CreatureStorySheet
@@ -191,9 +274,6 @@ const CollectionRow = React.memo(function CollectionRow({
 
   const handlePress = useCallback(() => onPress(row), [onPress, row]);
 
-  const isMystery = !row.seen;
-  const pulseDelay = (index % 6) * 240;
-
   return (
     <Pressable
       onPress={handlePress}
@@ -202,19 +282,8 @@ const CollectionRow = React.memo(function CollectionRow({
     >
       <GlassCard radius={t.radii.lg}>
         <View style={styles.itemRow}>
-          <MotiView
-            from={{ opacity: isMystery ? 0.35 : 1, scale: 1 }}
-            animate={{
-              opacity: isMystery ? 0.55 : 1,
-              scale: isMystery ? 1.05 : 1
-            }}
-            transition={{
-              type: "timing",
-              duration: 2600,
-              loop: isMystery,
-              repeatReverse: true,
-              delay: pulseDelay
-            }}
+          <View
+            key={index}
             style={[
               styles.iconBubble,
               {
@@ -231,7 +300,7 @@ const CollectionRow = React.memo(function CollectionRow({
             >
               {row.seen ? (row.kind === "creature" ? "✦" : "◆") : "?"}
             </Text>
-          </MotiView>
+          </View>
           <View style={styles.flex}>
             <View style={styles.nameRow}>
               <Text
@@ -256,10 +325,19 @@ const CollectionRow = React.memo(function CollectionRow({
               {row.seen ? row.zone : "???"} · {row.rarity.toUpperCase()}
               {row.count > 1 ? `  ×${row.count}` : ""}
             </Text>
-            {row.seen ? (
+            {row.seen && isPremium ? (
               <Text style={styles.desc} numberOfLines={2}>
                 {row.description}
               </Text>
+            ) : row.seen ? (
+              <View style={styles.premiumTeaserWrap}>
+                <Text style={styles.premiumRibbonText}>
+                  {tr.collection.filters.proDetailsLabel}
+                </Text>
+                <Text style={styles.premiumTeaser} numberOfLines={2}>
+                  {tr.collection.story.proLocked}
+                </Text>
+              </View>
             ) : (
               <Text style={styles.whisper} numberOfLines={2}>
                 {tr.collection.story.lockedBody}
@@ -275,7 +353,20 @@ const CollectionRow = React.memo(function CollectionRow({
       </GlassCard>
     </Pressable>
   );
-});
+}, areCollectionRowsEqual);
+
+function areCollectionRowsEqual(prev: RowProps, next: RowProps): boolean {
+  return (
+    prev.index === next.index &&
+    prev.isPremium === next.isPremium &&
+    prev.onPress === next.onPress &&
+    prev.row.id === next.row.id &&
+    prev.row.seen === next.row.seen &&
+    prev.row.count === next.row.count &&
+    prev.row.rarity === next.row.rarity &&
+    prev.row.description === next.row.description
+  );
+}
 
 function CollectionRowSkeleton() {
   const t = useTheme();
@@ -301,8 +392,12 @@ function CollectionRowSkeleton() {
             />
           </View>
           <Skeleton style={styles.metaSkeleton} />
-          <Skeleton style={styles.descSkeleton} />
-          <Skeleton style={styles.descSkeletonShort} />
+          <SectionSkeleton
+            style={styles.descSectionSkeleton}
+            lines={2}
+            widths={["100%", "68%"]}
+            lineHeight={12}
+          />
         </View>
         <Skeleton style={styles.chevronSkeleton} width={12} height={12} />
       </View>
@@ -327,10 +422,10 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[3],
       paddingVertical: t.spacing[3],
       paddingHorizontal: t.spacing[4],
-      borderRadius: t.radii.lg,
+      borderRadius: t.radii.sm,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(255,210,122,0.28)",
-      backgroundColor: "rgba(255,210,122,0.06)",
+      borderColor: `${Colors.premium.gold}47`,
+      backgroundColor: `${Colors.premium.gold}0F`,
       marginBottom: t.spacing[2]
     },
     proCalloutText: {
@@ -340,9 +435,60 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 12,
       lineHeight: 17
     },
+    filterTitle: {
+      color: t.colors.textMuted,
+      fontSize: 11,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label,
+      marginTop: t.spacing[1]
+    },
+    stickyFilterWrap: {
+      marginBottom: t.spacing[2],
+      gap: t.spacing[4]
+    },
+    compactFilterBlock: {
+      gap: t.spacing[1],
+      paddingHorizontal: t.spacing[2]
+    },
+    compactRow: {
+      gap: t.spacing[1.5],
+      paddingRight: t.spacing[2]
+    },
+    compactChip: {
+      borderRadius: t.radii.pill,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.border,
+      paddingHorizontal: t.spacing[2.5],
+      paddingVertical: t.spacing[1],
+      backgroundColor: t.colors.glass
+    },
+    compactChipActive: {
+      borderColor: t.colors.accent,
+      backgroundColor: `${t.colors.accent}20`
+    },
+    compactChipText: {
+      color: t.colors.textMuted,
+      fontSize: 11,
+      fontFamily: t.fonts.label,
+      letterSpacing: 0.4
+    },
+    compactChipTextActive: {
+      color: t.colors.accent
+    },
     listContent: {
       paddingHorizontal: t.spacing[4],
       paddingBottom: t.spacing[24]
+    },
+    emptyFilterWrap: {
+      paddingHorizontal: t.spacing[4],
+      marginTop: t.spacing[2]
+    },
+    emptyFilterText: {
+      color: t.colors.textSecondary,
+      fontFamily: t.fonts.body,
+      fontSize: 13,
+      lineHeight: 19,
+      textAlign: "center"
     },
     itemRow: {
       flexDirection: "row",
@@ -356,7 +502,7 @@ const makeStyles = (t: AppTheme) =>
       borderWidth: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "rgba(255,255,255,0.04)",
+      backgroundColor: `${Colors.base.white}0A`,
       shadowOpacity: 0.55,
       shadowRadius: 10,
       shadowOffset: { width: 0, height: 0 }
@@ -381,7 +527,7 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "center",
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.premium,
-      backgroundColor: "rgba(255,210,122,0.10)"
+      backgroundColor: `${Colors.premium.gold}1A`
     },
     zoneLabel: {
       color: t.colors.textMuted,
@@ -396,6 +542,30 @@ const makeStyles = (t: AppTheme) =>
       marginTop: t.spacing[1.5],
       lineHeight: 19,
       fontFamily: t.fonts.body
+    },
+    premiumTeaser: {
+      color: t.colors.premium,
+      fontSize: 12,
+      marginTop: t.spacing[1.5],
+      lineHeight: 17,
+      fontFamily: t.fonts.body
+    },
+    premiumTeaserWrap: {
+      marginTop: t.spacing[1.5],
+      gap: t.spacing[1]
+    },
+    premiumRibbonText: {
+      alignSelf: "flex-start",
+      borderRadius: t.radii.pill,
+      overflow: "hidden",
+      color: t.colors.surface,
+      backgroundColor: t.colors.premium,
+      fontSize: 9,
+      letterSpacing: 0.7,
+      fontFamily: t.fonts.label,
+      paddingHorizontal: t.spacing[2],
+      paddingVertical: 2,
+      textTransform: "uppercase"
     },
     whisper: {
       color: t.colors.textFaint,
@@ -414,22 +584,13 @@ const makeStyles = (t: AppTheme) =>
       marginLeft: t.spacing[1.5]
     },
     metaSkeleton: {
+      width: "44%",
       height: 11,
-      width: "40%",
-      borderRadius: t.radii.xs,
-      marginTop: t.spacing[1.5]
-    },
-    descSkeleton: {
-      height: 12,
-      width: "86%",
-      borderRadius: t.radii.xs,
-      marginTop: t.spacing[2]
-    },
-    descSkeletonShort: {
-      height: 12,
-      width: "62%",
       borderRadius: t.radii.xs,
       marginTop: t.spacing[1]
+    },
+    descSectionSkeleton: {
+      marginTop: t.spacing[1.5]
     },
     chevronSkeleton: {
       opacity: 0.65

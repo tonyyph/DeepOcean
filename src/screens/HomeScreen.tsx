@@ -1,4 +1,5 @@
 import { useTranslations } from "@/core/i18n";
+import { container } from "@/data/container";
 import {
   FreeDiveModal,
   GlassCard,
@@ -6,6 +7,7 @@ import {
   OptionPill,
   PressableCard,
   SectionLabel,
+  SectionSkeleton,
   Skeleton,
   UnderwaterCanvas,
   useTheme,
@@ -29,17 +31,33 @@ import {
 } from "@/features/ocean";
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useSettings } from "@/stores";
+import { Colors } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MotiView } from "moti";
-import React, { useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  resolveLastDiveSession,
+  shouldShowLastDiveSkeleton
+} from "./homeLastDiveResolver";
+
+type HomeSession = {
+  zone: OceanZone;
+  elapsedSeconds: number;
+  discoveries: unknown[];
+};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -49,7 +67,7 @@ export default function HomeScreen() {
   const { data: dailyRec, isLoading: dailyRecLoading } =
     useDailyRecommendation();
   const { data: sessions = [], isLoading: sessionsLoading } = useSessions();
-  const settings = useSettings();
+  const language = useSettings((s) => s.language);
 
   const preferredMinutes = useSettings(
     (
@@ -73,17 +91,100 @@ export default function HomeScreen() {
   }, [tr]);
 
   const levelTitle = profile
-    ? getLevelTitle(profile.level, settings.language === "en")
+    ? getLevelTitle(profile.level, language === "en")
     : null;
-  const lastSession = sessions[0] ?? null;
+  const liveLastSession = (sessions[0] as HomeSession | undefined) ?? null;
+  const [fallbackLastSession, setFallbackLastSession] =
+    useState<HomeSession | null>(null);
+  const lastSessionRef = useRef<HomeSession | null>(null);
+
+  useEffect(() => {
+    if (liveLastSession != null) {
+      lastSessionRef.current = liveLastSession;
+      setFallbackLastSession(liveLastSession);
+    }
+  }, [liveLastSession]);
+
+  useEffect(() => {
+    if (sessionsLoading || liveLastSession != null) return;
+    let active = true;
+
+    // Fallback read protects Home from transient empty-query states.
+    void container.sessions
+      .list()
+      .then((items) => {
+        if (!active) return;
+        const item = (items[0] as HomeSession | undefined) ?? null;
+        if (item != null) {
+          setFallbackLastSession(item);
+          lastSessionRef.current = item;
+        }
+      })
+      .catch(() => {
+        // Ignore: keep existing cached fallback/ref value if any.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [sessionsLoading, liveLastSession]);
+
+  const lastSession = resolveLastDiveSession(
+    liveLastSession,
+    fallbackLastSession,
+    lastSessionRef.current
+  );
+  const showLastDiveSkeleton = shouldShowLastDiveSkeleton(
+    sessionsLoading,
+    lastSession
+  );
   const showHeaderSkeleton = profileLoading;
 
-  const startDive = (minutes: number | null) => {
-    router.push({
-      pathname: "/dive",
-      params: minutes ? { minutes: String(minutes) } : {}
-    });
-  };
+  const startDive = useCallback(
+    (minutes: number | null) => {
+      router.push({
+        pathname: "/dive",
+        params: minutes ? { minutes: String(minutes) } : {}
+      });
+    },
+    [router]
+  );
+
+  const preferredZoneLabel = useMemo(
+    () => ZONE_TABLE[zoneForMinutes(preferredMinutes)].label,
+    [preferredMinutes]
+  );
+
+  const openFreeDiveModal = useCallback(
+    () => setIsFreeDiveModalVisible(true),
+    []
+  );
+
+  const closeFreeDiveModal = useCallback(
+    () => setIsFreeDiveModalVisible(false),
+    []
+  );
+
+  const handleStartPreferredDive = useCallback(
+    () => startDive(preferredMinutes),
+    [startDive, preferredMinutes]
+  );
+
+  const handleStartUnlimitedDive = useCallback(
+    () => startDive(null),
+    [startDive]
+  );
+
+  const handleStartCustomDive = useCallback(() => {
+    setIsFreeDiveModalVisible(false);
+    startDive(customMinutes);
+  }, [startDive, customMinutes]);
+
+  const streakDays = profile?.currentStreakDays ?? 0;
+  const nextStreakTarget = useMemo(
+    () => getNextStreakMilestone(streakDays),
+    [streakDays]
+  );
 
   return (
     <ZoneBackground zone="midnight">
@@ -119,16 +220,19 @@ export default function HomeScreen() {
           </View>
 
           {/* ── Last Dive Recap ── */}
-          {sessionsLoading && <LastDiveSkeleton />}
-          {!sessionsLoading && lastSession && (
+          {showLastDiveSkeleton ? <LastDiveSkeleton /> : null}
+          {!showLastDiveSkeleton && lastSession ? (
             <LastDiveCard session={lastSession} tr={tr} />
-          )}
+          ) : null}
+          {!showLastDiveSkeleton && !lastSession ? (
+            <NoLastDiveCard onStart={handleStartPreferredDive} tr={tr} />
+          ) : null}
 
           {/* ── Hero dive CTA ── */}
           <PressableCard
             glow
             haptic="light"
-            onPress={() => startDive(preferredMinutes)}
+            onPress={handleStartPreferredDive}
             containerStyle={styles.heroCard}
             radius={t.radii.md}
           >
@@ -137,8 +241,7 @@ export default function HomeScreen() {
               <Text style={styles.heroDuration}>{preferredMinutes}</Text>
               <Text style={styles.heroDurationSub}>{tr.home.min}</Text>
               <Text style={styles.heroHint}>
-                {tr.home.estimatedReach} ·{" "}
-                {ZONE_TABLE[zoneForMinutes(preferredMinutes)].label}
+                {tr.home.estimatedReach} · {preferredZoneLabel}
               </Text>
             </View>
             <View style={styles.quickRow}>
@@ -153,8 +256,8 @@ export default function HomeScreen() {
               <OptionPill
                 key={"custom"}
                 icon="infinite"
-                onLongPress={() => setIsFreeDiveModalVisible(true)}
-                onPress={() => startDive(null)}
+                onLongPress={openFreeDiveModal}
+                onPress={handleStartUnlimitedDive}
                 containerStyle={styles.quickItem}
               />
             </View>
@@ -197,6 +300,15 @@ export default function HomeScreen() {
               value={`${profile?.level ?? 1}`}
             />
           </View>
+
+          {streakDays > 0 && (
+            <StreakMilestoneCard
+              days={streakDays}
+              nextTarget={nextStreakTarget}
+              onPress={handleStartPreferredDive}
+              tr={tr}
+            />
+          )}
         </ScrollView>
 
         <FreeDiveModal
@@ -208,15 +320,49 @@ export default function HomeScreen() {
           minutesLabel={tr.home.min}
           estimatedReachLabel={tr.home.estimatedReach}
           startLabel={tr.home.startFreeDive}
-          onDismiss={() => setIsFreeDiveModalVisible(false)}
+          onDismiss={closeFreeDiveModal}
           onMinutesChange={setCustomMinutes}
-          onStart={() => {
-            setIsFreeDiveModalVisible(false);
-            startDive(customMinutes);
-          }}
+          onStart={handleStartCustomDive}
         />
       </SafeAreaView>
     </ZoneBackground>
+  );
+}
+
+function StreakMilestoneCard({
+  days,
+  nextTarget,
+  onPress,
+  tr
+}: {
+  days: number;
+  nextTarget: number | null;
+  onPress: () => void;
+  tr: ReturnType<typeof useTranslations>;
+}) {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
+  const milestoneBody =
+    nextTarget == null
+      ? tr.home.streakMilestoneReached(days)
+      : tr.home.streakMilestoneBody(days, nextTarget);
+
+  return (
+    <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+      <View style={styles.streakMilestoneHeader}>
+        <Ionicons name="flame" size={14} color={t.colors.warning} />
+        <SectionLabel>{tr.home.streakMilestoneTitle}</SectionLabel>
+      </View>
+      <Text style={styles.streakMilestoneBody}>{milestoneBody}</Text>
+      <View style={styles.streakMilestoneCtaWrap}>
+        <PressableCard haptic="light" onPress={onPress}>
+          <Text style={styles.streakMilestoneCtaText}>
+            {tr.home.streakMilestoneCta}
+          </Text>
+        </PressableCard>
+      </View>
+    </GlassCard>
   );
 }
 
@@ -246,8 +392,11 @@ function DailyCompanionSkeleton() {
   return (
     <GlassCard radius={t.radii.md}>
       <Skeleton style={styles.skeletonLabel} />
-      <Skeleton style={styles.companionSkeletonLine} />
-      <Skeleton style={styles.companionSkeletonLineShort} />
+      <SectionSkeleton
+        style={styles.companionSectionSkeleton}
+        widths={["100%", "72%"]}
+        lineHeight={14}
+      />
     </GlassCard>
   );
 }
@@ -269,40 +418,51 @@ function LastDiveCard({
   const xp = Math.max(10, minutes * 10);
 
   return (
-    <MotiView
-      from={{ opacity: 0, translateY: 8 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: "timing", duration: 340 }}
-    >
-      <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
-        <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
-        <View style={styles.lastDiveRow}>
-          {/* Zone badge */}
-          <View style={[styles.lastDiveZoneBadge]}>
-            <Ionicons
-              name={ZONE_ICONS[zone]}
-              size={20}
-              color={t.colors.accent}
-            />
-          </View>
-
-          <View style={styles.flex}>
-            <Text
-              style={[styles.lastDiveZoneLabel, { color: t.colors.accent }]}
-            >
-              {ZONE_TABLE[zone].label.toUpperCase()}
-            </Text>
-            <Text style={styles.lastDiveDuration}>
-              {tr.home.lastDiveMinutes(minutes)}
-            </Text>
-          </View>
-
-          <View style={styles.lastDiveXpBadge}>
-            <Text style={styles.lastDiveXpText}>{tr.home.lastDiveXp(xp)}</Text>
-          </View>
+    <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+      <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
+      <View style={styles.lastDiveRow}>
+        {/* Zone badge */}
+        <View style={[styles.lastDiveZoneBadge]}>
+          <Ionicons name={ZONE_ICONS[zone]} size={20} color={t.colors.accent} />
         </View>
-      </GlassCard>
-    </MotiView>
+
+        <View style={styles.flex}>
+          <Text style={[styles.lastDiveZoneLabel, { color: t.colors.accent }]}>
+            {ZONE_TABLE[zone].label.toUpperCase()}
+          </Text>
+          <Text style={styles.lastDiveDuration}>
+            {tr.home.lastDiveMinutes(minutes)}
+          </Text>
+        </View>
+
+        <View style={styles.lastDiveXpBadge}>
+          <Text style={styles.lastDiveXpText}>{tr.home.lastDiveXp(xp)}</Text>
+        </View>
+      </View>
+    </GlassCard>
+  );
+}
+
+function NoLastDiveCard({
+  onStart,
+  tr
+}: {
+  onStart: () => void;
+  tr: ReturnType<typeof useTranslations>;
+}) {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
+  return (
+    <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+      <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
+      <Text style={styles.emptyLastDiveText}>{tr.home.noSessions}</Text>
+      <View style={styles.emptyLastDiveCtaWrap}>
+        <PressableCard haptic="light" onPress={onStart}>
+          <Text style={styles.emptyLastDiveCta}>{tr.home.beginDive}</Text>
+        </PressableCard>
+      </View>
+    </GlassCard>
   );
 }
 
@@ -424,6 +584,11 @@ function zoneForMinutes(m: number): OceanZone {
   return "trench";
 }
 
+function getNextStreakMilestone(days: number): number | null {
+  const milestones = [3, 7, 14, 21, 30, 45, 60, 90];
+  return milestones.find((m) => m > days) ?? null;
+}
+
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
@@ -508,16 +673,8 @@ const makeStyles = (t: AppTheme) =>
       lineHeight: 22,
       fontFamily: t.fonts.body
     },
-    companionSkeletonLine: {
-      height: 14,
-      marginTop: t.spacing[2],
-      borderRadius: t.radii.xs
-    },
-    companionSkeletonLineShort: {
-      width: "72%",
-      height: 14,
-      marginTop: t.spacing[1.5],
-      borderRadius: t.radii.xs
+    companionSectionSkeleton: {
+      marginTop: t.spacing[2]
     },
     // Last dive card
     lastDiveRow: {
@@ -533,7 +690,7 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
-      backgroundColor: "rgba(255,255,255,0.05)"
+      backgroundColor: `${Colors.base.white}0D`
     },
     lastDiveIconSkeleton: {
       width: 44,
@@ -579,6 +736,23 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.accent,
       fontSize: 13,
       fontFamily: t.fonts.mono
+    },
+    emptyLastDiveText: {
+      color: t.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 20,
+      fontFamily: t.fonts.body,
+      marginTop: t.spacing[2]
+    },
+    emptyLastDiveCtaWrap: {
+      marginTop: t.spacing[3]
+    },
+    emptyLastDiveCta: {
+      color: t.colors.text,
+      fontSize: 12,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label,
+      textAlign: "center"
     },
     // Zone progress
     zoneStrip: {
@@ -637,5 +811,27 @@ const makeStyles = (t: AppTheme) =>
       width: 110,
       height: 11,
       borderRadius: t.radii.xs
+    },
+    streakMilestoneHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[2]
+    },
+    streakMilestoneBody: {
+      color: t.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 20,
+      fontFamily: t.fonts.body,
+      marginTop: t.spacing[2]
+    },
+    streakMilestoneCtaWrap: {
+      marginTop: t.spacing[3]
+    },
+    streakMilestoneCtaText: {
+      color: t.colors.text,
+      fontSize: 12,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label,
+      textAlign: "center"
     }
   });

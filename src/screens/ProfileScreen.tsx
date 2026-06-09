@@ -1,4 +1,3 @@
-import * as Application from "expo-application";
 import { useTranslations, type Language } from "@/core/i18n";
 import { storage, StorageKeys } from "@/core/storage/mmkv";
 import { container } from "@/data/container";
@@ -39,10 +38,11 @@ import {
   useSettings,
   useThemeStore
 } from "@/stores";
+import { Colors, Gradients } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
+import * as Application from "expo-application";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MotiView } from "moti";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Keyboard,
@@ -441,15 +441,6 @@ export default function ProfileScreen() {
           {/* Account / Onboarding */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.account}</SectionLabel>
-            {process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
-              <SettingRow
-                type="switch"
-                title={tr.profile.devEnablePremium}
-                subtitle={tr.profile.devEnablePremiumDesc}
-                value={debugPremiumEnabled}
-                onChange={setDebugPremiumEnabled}
-              />
-            )}
             <SettingRow
               type="nav"
               title={tr.profile.replayOnboarding}
@@ -466,20 +457,21 @@ export default function ProfileScreen() {
               }}
               divider={false}
             />
-            {/* <SettingRow
-              type="nav"
-              title={tr.profile.restorePurchases}
-              icon={
-                <Ionicons
-                  name="receipt-outline"
-                  size={22}
-                  color={t.colors.textSecondary}
-                />
-              }
-              onPress={() => {}}
-              divider={false}
-            /> */}
           </GlassCard>
+
+          {__DEV__ && process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
+            <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
+              <SectionLabel>{tr.profile.developer}</SectionLabel>
+              <SettingRow
+                type="switch"
+                title={tr.profile.devEnablePremium}
+                subtitle={tr.profile.devEnablePremiumDesc}
+                value={debugPremiumEnabled}
+                onChange={setDebugPremiumEnabled}
+                divider={false}
+              />
+            </GlassCard>
+          )}
 
           {/* About */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
@@ -561,29 +553,23 @@ function PremiumSection({
 
   if (isPremium) {
     return (
-      <MotiView
-        from={{ opacity: 0, translateY: 6 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: "timing", duration: 420 }}
-      >
-        <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
-          <View style={styles.premiumActiveRow}>
-            <View
-              style={[
-                styles.premiumCrest,
-                { backgroundColor: "rgba(255,210,122,0.15)" }
-              ]}
-            >
-              <Ionicons name="diamond" size={20} color={t.colors.premium} />
-            </View>
-            <View style={styles.premiumText}>
-              <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
-              <Text style={styles.premiumSub}>{tr.profile.premiumActive}</Text>
-            </View>
-            <PremiumBadge label="ACTIVE" size="md" />
+      <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
+        <View style={styles.premiumActiveRow}>
+          <View
+            style={[
+              styles.premiumCrest,
+              { backgroundColor: `${Colors.premium.gold}26` }
+            ]}
+          >
+            <Ionicons name="diamond" size={20} color={t.colors.premium} />
           </View>
-        </GlassCard>
-      </MotiView>
+          <View style={styles.premiumText}>
+            <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
+            <Text style={styles.premiumSub}>{tr.profile.premiumActive}</Text>
+          </View>
+          <PremiumBadge label="ACTIVE" size="md" />
+        </View>
+      </GlassCard>
     );
   }
 
@@ -596,10 +582,10 @@ function PremiumSection({
     >
       <View style={styles.premiumActiveRow}>
         <LinearGradient
-          colors={["#FFD27A", "#FF9F43"]}
+          colors={Gradients.premium.crest}
           style={styles.premiumCrest}
         >
-          <Ionicons name="diamond" size={20} color="#1A0F00" />
+          <Ionicons name="diamond" size={20} color={Colors.premium.deepInk} />
         </LinearGradient>
         <View style={styles.premiumText}>
           <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
@@ -646,7 +632,7 @@ const makeStyles = (t: AppTheme) =>
     xpTrack: {
       height: 10,
       borderRadius: t.radii.pill,
-      backgroundColor: "rgba(255,255,255,0.08)",
+      backgroundColor: `${Colors.base.white}14`,
       overflow: "hidden"
     },
     xpFill: {

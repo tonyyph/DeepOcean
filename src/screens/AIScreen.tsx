@@ -7,6 +7,7 @@ import {
   PaywallSheet,
   PressableCard,
   SectionLabel,
+  SectionSkeleton,
   Skeleton,
   UnderwaterCanvas,
   useTheme,
@@ -31,6 +32,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ProInsights } from "./ai/ProInsights";
 
 const ASK_AGAIN_COOLDOWN_MS = 20_000;
+const REFRESH_ERROR_RETRY_MS = 3_000;
 
 export default function AIScreen() {
   const t = useTheme();
@@ -53,6 +55,7 @@ export default function AIScreen() {
   const selectedMood = selectCurrentMood(moodRecord);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [lastManualRefreshAt, setLastManualRefreshAt] = useState(0);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
   const tr = useTranslations();
   const isPremium = usePremium((s) => s.isPremium);
   const language = useSettings((s) => s.language);
@@ -77,23 +80,33 @@ export default function AIScreen() {
   const handleOpenPaywall = useCallback(() => setPaywallOpen(true), []);
   const handleRefreshAI = useCallback(() => {
     if (!canAskAgain) return;
-    setLastManualRefreshAt(Date.now());
+    const refreshStartedAt = Date.now();
+    setLastManualRefreshAt(refreshStartedAt);
+    setRefreshError(null);
 
     void (async () => {
-      const lang = (language ?? "en") as Language;
-      const context = await buildAIContext(lang);
-      const [nextRecommendation, nextMotivation] = await Promise.all([
-        container.ai.dailyRecommendation(context, { forceRefresh: true }),
-        container.ai.motivation(context, { forceRefresh: true })
-      ]);
+      try {
+        const lang = (language ?? "en") as Language;
+        const context = await buildAIContext(lang);
+        const [nextRecommendation, nextMotivation] = await Promise.all([
+          container.ai.dailyRecommendation(context, { forceRefresh: true }),
+          container.ai.motivation(context, { forceRefresh: true })
+        ]);
 
-      queryClient.setQueryData(
-        [...diverKeys.dailyRec, lang],
-        nextRecommendation
-      );
-      queryClient.setQueryData(["diver", "motivation", lang], nextMotivation);
+        queryClient.setQueryData(
+          [...diverKeys.dailyRec, lang],
+          nextRecommendation
+        );
+        queryClient.setQueryData(["diver", "motivation", lang], nextMotivation);
+      } catch {
+        // Keep UI resilient while throttling repeated error retries.
+        setLastManualRefreshAt(
+          Date.now() - ASK_AGAIN_COOLDOWN_MS + REFRESH_ERROR_RETRY_MS
+        );
+        setRefreshError(tr.ai.refreshError);
+      }
     })();
-  }, [canAskAgain, language, queryClient]);
+  }, [canAskAgain, language, queryClient, tr.ai.refreshError]);
 
   const randomMoods = React.useMemo(() => {
     return [...MOODS].sort(() => 0.5 - Math.random()).slice(0, 6);
@@ -136,6 +149,9 @@ export default function AIScreen() {
                   {tr.ai.askAgain}
                 </Text>
               </PressableCard>
+              {refreshError != null && (
+                <Text style={styles.refreshErrorText}>{refreshError}</Text>
+              )}
             </View>
           </GlassCard>
 
@@ -204,9 +220,7 @@ function AiTextSkeleton() {
   const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.skeletonGroup}>
-      <Skeleton style={styles.skeletonLine} />
-      <Skeleton style={styles.skeletonLineMid} />
-      <Skeleton style={styles.skeletonLineShort} />
+      <SectionSkeleton widths={["100%", "88%", "58%"]} lineHeight={14} />
       <View style={styles.askWrap}>
         <Skeleton
           style={styles.askButtonSkeleton}
@@ -267,6 +281,14 @@ const makeStyles = (t: AppTheme) =>
     ctaDisabled: {
       opacity: 0.55
     },
+    refreshErrorText: {
+      color: t.colors.danger,
+      fontSize: 12,
+      lineHeight: 18,
+      textAlign: "center",
+      marginTop: t.spacing[2],
+      fontFamily: t.fonts.body
+    },
     moodGrid: {
       flexDirection: "row",
       flexWrap: "wrap",
@@ -278,19 +300,6 @@ const makeStyles = (t: AppTheme) =>
     skeletonGroup: {
       marginTop: t.spacing[1.5],
       paddingBottom: t.spacing[1]
-    },
-    skeletonLine: {
-      height: 14
-    },
-    skeletonLineMid: {
-      width: "88%",
-      height: 14,
-      marginTop: t.spacing[1.5]
-    },
-    skeletonLineShort: {
-      width: "58%",
-      height: 14,
-      marginTop: t.spacing[1.5]
     },
     askButtonSkeleton: {
       width: "42%",

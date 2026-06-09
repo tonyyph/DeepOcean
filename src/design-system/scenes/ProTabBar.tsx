@@ -16,6 +16,7 @@ import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../useTheme";
 import type { AppTheme } from "../themes";
 import { useSettings } from "@/stores";
+import { Colors } from "@/theme";
 
 // ── Icon map ──────────────────────────────────────────────────────────
 type IconPair = {
@@ -46,6 +47,22 @@ const NOTCH_DEPTH_OUTER = 0; // items 1 & 5 (edge tabs)
 const BAR_CORNER = 24;
 const DURATION = 320;
 const EASE = Easing.bezier(0.34, 1.56, 0.64, 1); // spring-like overshoot
+const TAB_HIT_SLOP = 8;
+const WRAPPER_BOTTOM_OFFSET = 24;
+const BUBBLE_TOP_OFFSET = 12;
+const BAR_SHADOW = {
+  color: Colors.base.black,
+  opacity: 0.22,
+  radius: 18,
+  offsetY: 6,
+  elevation: 14
+} as const;
+const BUBBLE_SHADOW = {
+  opacity: 0.45,
+  radius: 14,
+  offsetY: 4,
+  elevation: 8
+} as const;
 
 const AnimatedSvgPath = Animated.createAnimatedComponent(Path);
 
@@ -91,13 +108,13 @@ function buildNotchPath(cx: number, W: number, nd: number): string {
 function contrastOn(t: AppTheme): string {
   const [g0] = t.gradients.bioGlow;
   const m = /^#?([0-9a-f]{6})$/i.exec(g0);
-  if (!m || !m[1]) return "#FFFFFF";
+  if (!m || !m[1]) return Colors.base.white;
   const n = parseInt(m[1], 16);
   const r = (n >> 16) & 255;
   const g = (n >> 8) & 255;
   const b = n & 255;
   const luma = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luma > 0.65 ? "#0A0A12" : "#FFFFFF";
+  return luma > 0.65 ? "#0A0A12" : Colors.base.white;
 }
 
 // ── ProTabBar ─────────────────────────────────────────────────────────
@@ -191,11 +208,11 @@ export function ProTabBar(props: BottomTabBarProps) {
             width: dockW,
             height: BUBBLE_R + BAR_H,
             // Bar shadow — approximated by container bounds
-            shadowColor: "#000",
-            shadowOpacity: 0.22,
-            shadowRadius: 18,
-            shadowOffset: { width: 0, height: 6 },
-            elevation: 14
+            shadowColor: BAR_SHADOW.color,
+            shadowOpacity: BAR_SHADOW.opacity,
+            shadowRadius: BAR_SHADOW.radius,
+            shadowOffset: { width: 0, height: BAR_SHADOW.offsetY },
+            elevation: BAR_SHADOW.elevation
           }
         ]}
       >
@@ -224,7 +241,7 @@ export function ProTabBar(props: BottomTabBarProps) {
                 }
                 onPress={() => press(route, focused)}
                 style={styles.slot}
-                hitSlop={8}
+                hitSlop={TAB_HIT_SLOP}
               >
                 {/* Active icon rendered inside bubble below; hide it here */}
                 {!focused && (
@@ -246,9 +263,10 @@ export function ProTabBar(props: BottomTabBarProps) {
             bubbleStyle,
             {
               shadowColor: t.colors.accent,
-              shadowOpacity: 0.45,
-              shadowRadius: 14,
-              shadowOffset: { width: 0, height: 4 }
+              shadowOpacity: BUBBLE_SHADOW.opacity,
+              shadowRadius: BUBBLE_SHADOW.radius,
+              shadowOffset: { width: 0, height: BUBBLE_SHADOW.offsetY },
+              elevation: BUBBLE_SHADOW.elevation
             }
           ]}
         >
@@ -284,7 +302,7 @@ export function ProTabBar(props: BottomTabBarProps) {
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
-    bottom: 24,
+    bottom: WRAPPER_BOTTOM_OFFSET,
     left: 0,
     right: 0,
     alignItems: "center",
@@ -311,13 +329,13 @@ const styles = StyleSheet.create({
   },
   bubble: {
     position: "absolute",
-    top: 12,
+    top: BUBBLE_TOP_OFFSET,
     left: 0,
     width: BUBBLE_DIAM,
     height: BUBBLE_DIAM,
     borderRadius: BUBBLE_R,
     // No overflow:hidden here — shadow needs to bleed. Gradient handles its own clip.
-    elevation: 8
+    elevation: BUBBLE_SHADOW.elevation
   },
   bubbleGrad: {
     flex: 1,

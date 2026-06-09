@@ -1,5 +1,6 @@
 import type { AppTheme } from "./types";
 import { radii, spacing, motion, palette } from "../tokens";
+import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
 export const abyssTheme: AppTheme = {
   id: "abyss",
@@ -10,8 +11,8 @@ export const abyssTheme: AppTheme = {
     background: palette.abyss[600],
     surface: palette.abyss[400],
     surfaceElevated: palette.abyss[300],
-    border: "rgba(255,255,255,0.08)",
-    borderStrong: "rgba(255,255,255,0.18)",
+    border: alpha(THEME_HEX.white, 0.08),
+    borderStrong: alpha(THEME_HEX.white, 0.18),
     text: palette.text.primary,
     textSecondary: palette.text.secondary,
     textMuted: palette.text.muted,
@@ -21,25 +22,19 @@ export const abyssTheme: AppTheme = {
     danger: palette.bio.coral,
     success: palette.bio.jade,
     warning: palette.bio.amber,
-    glass: "rgba(255,255,255,0.05)",
-    glassEdge: "rgba(255,255,255,0.12)",
-    premium: "#FFD27A"
+    glass: alpha(THEME_HEX.white, 0.05),
+    glassEdge: alpha(THEME_HEX.white, 0.12),
+    premium: THEME_HEX.premium
   },
   gradients: {
     surface: [palette.surface[300], palette.surface[500], palette.abyss[300]],
     twilight: [palette.surface[500], palette.abyss[100], palette.abyss[400]],
     midnight: [palette.abyss[100], palette.abyss[400], palette.abyss[600]],
     abyss: [palette.abyss[400], palette.abyss[600], palette.abyss[700]],
-    trench: [palette.abyss[600], palette.abyss[700], "#000"],
+    trench: [palette.abyss[600], palette.abyss[700], THEME_HEX.black],
     bioGlow: [palette.bio.cyan, palette.bio.violet]
   },
-  fonts: {
-    display: "SpaceGrotesk_700Bold",
-    body: "SpaceGrotesk_400Regular",
-    label: "SpaceGrotesk_500Medium",
-    mono: "JetBrainsMono_400Regular",
-    displayLetterSpacing: -0.8
-  },
+  fonts: THEME_FONTS,
   particles: {
     style: "dust",
     count: 28,
@@ -49,9 +44,9 @@ export const abyssTheme: AppTheme = {
     blur: 1.4,
     hues: [palette.bio.cyan, palette.bio.aqua, palette.bio.jade],
     vignette: [
-      "rgba(34,228,255,0.12)",
-      "rgba(2,8,28,0.85)",
-      "rgba(0,0,0,0.96)"
+      alpha(palette.bio.cyan, 0.12),
+      alpha(palette.abyss[500], 0.85),
+      alpha(THEME_HEX.black, 0.96)
     ],
     loopMs: 14000,
     opacity: 0.8
