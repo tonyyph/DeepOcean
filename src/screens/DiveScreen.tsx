@@ -82,7 +82,6 @@ export default function DiveScreen() {
       const target = minutes ? parseInt(minutes, 10) : null;
       start(Number.isFinite(target) ? (target as number) : null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const confirmSurface = useCallback(() => {

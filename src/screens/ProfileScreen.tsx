@@ -1,4 +1,3 @@
-import * as Application from "expo-application";
 import { useTranslations, type Language } from "@/core/i18n";
 import { storage, StorageKeys } from "@/core/storage/mmkv";
 import { container } from "@/data/container";
@@ -39,10 +38,11 @@ import {
   useSettings,
   useThemeStore
 } from "@/stores";
+import { Colors, Gradients } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
+import * as Application from "expo-application";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MotiView } from "moti";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Keyboard,
@@ -59,7 +59,6 @@ import Animated, {
   withTiming
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors, Gradients } from "@/theme";
 
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
 const SOUND_LEVELS = [
@@ -554,29 +553,23 @@ function PremiumSection({
 
   if (isPremium) {
     return (
-      <MotiView
-        from={{ opacity: 0, translateY: 6 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: "timing", duration: 420 }}
-      >
-        <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
-          <View style={styles.premiumActiveRow}>
-            <View
-              style={[
-                styles.premiumCrest,
-                { backgroundColor: `${Colors.premium.gold}26` }
-              ]}
-            >
-              <Ionicons name="diamond" size={20} color={t.colors.premium} />
-            </View>
-            <View style={styles.premiumText}>
-              <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
-              <Text style={styles.premiumSub}>{tr.profile.premiumActive}</Text>
-            </View>
-            <PremiumBadge label="ACTIVE" size="md" />
+      <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
+        <View style={styles.premiumActiveRow}>
+          <View
+            style={[
+              styles.premiumCrest,
+              { backgroundColor: `${Colors.premium.gold}26` }
+            ]}
+          >
+            <Ionicons name="diamond" size={20} color={t.colors.premium} />
           </View>
-        </GlassCard>
-      </MotiView>
+          <View style={styles.premiumText}>
+            <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
+            <Text style={styles.premiumSub}>{tr.profile.premiumActive}</Text>
+          </View>
+          <PremiumBadge label="ACTIVE" size="md" />
+        </View>
+      </GlassCard>
     );
   }
 

@@ -31,10 +31,10 @@ import {
 } from "@/features/ocean";
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useSettings } from "@/stores";
+import { Colors } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MotiView } from "moti";
 import React, {
   useCallback,
   useEffect,
@@ -48,7 +48,6 @@ import Animated, {
   useSharedValue
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "@/theme";
 import {
   resolveLastDiveSession,
   shouldShowLastDiveSkeleton
@@ -419,40 +418,28 @@ function LastDiveCard({
   const xp = Math.max(10, minutes * 10);
 
   return (
-    <MotiView
-      from={{ opacity: 0, translateY: 8 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: "timing", duration: t.motion.durations.base }}
-    >
-      <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
-        <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
-        <View style={styles.lastDiveRow}>
-          {/* Zone badge */}
-          <View style={[styles.lastDiveZoneBadge]}>
-            <Ionicons
-              name={ZONE_ICONS[zone]}
-              size={20}
-              color={t.colors.accent}
-            />
-          </View>
-
-          <View style={styles.flex}>
-            <Text
-              style={[styles.lastDiveZoneLabel, { color: t.colors.accent }]}
-            >
-              {ZONE_TABLE[zone].label.toUpperCase()}
-            </Text>
-            <Text style={styles.lastDiveDuration}>
-              {tr.home.lastDiveMinutes(minutes)}
-            </Text>
-          </View>
-
-          <View style={styles.lastDiveXpBadge}>
-            <Text style={styles.lastDiveXpText}>{tr.home.lastDiveXp(xp)}</Text>
-          </View>
+    <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+      <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
+      <View style={styles.lastDiveRow}>
+        {/* Zone badge */}
+        <View style={[styles.lastDiveZoneBadge]}>
+          <Ionicons name={ZONE_ICONS[zone]} size={20} color={t.colors.accent} />
         </View>
-      </GlassCard>
-    </MotiView>
+
+        <View style={styles.flex}>
+          <Text style={[styles.lastDiveZoneLabel, { color: t.colors.accent }]}>
+            {ZONE_TABLE[zone].label.toUpperCase()}
+          </Text>
+          <Text style={styles.lastDiveDuration}>
+            {tr.home.lastDiveMinutes(minutes)}
+          </Text>
+        </View>
+
+        <View style={styles.lastDiveXpBadge}>
+          <Text style={styles.lastDiveXpText}>{tr.home.lastDiveXp(xp)}</Text>
+        </View>
+      </View>
+    </GlassCard>
   );
 }
 

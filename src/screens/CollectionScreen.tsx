@@ -1,35 +1,34 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
-import { Ionicons } from "@expo/vector-icons";
-import { MotiView } from "moti";
+import { useTranslations } from "@/core/i18n";
 import {
-  ZoneBackground,
-  GlassCard,
   AppHeader,
+  type AppTheme,
   CreatureStorySheet,
+  GlassCard,
   PaywallSheet,
   PremiumBadge,
   SectionSkeleton,
   Skeleton,
   type StoryRow,
+  UnderwaterCanvas,
+  ZoneBackground,
   useTheme,
-  useThemedStyles,
-  type AppTheme,
-  UnderwaterCanvas
+  useThemedStyles
 } from "@/design-system";
+import type { CollectionEntry } from "@/domain/entities";
 import { useCollection } from "@/features/diver";
 import {
-  CREATURES,
   ARTIFACTS,
+  CREATURES,
   ZONE_TABLE,
   rarityColor
 } from "@/features/ocean";
-import type { CollectionEntry } from "@/domain/entities";
-import { useTranslations } from "@/core/i18n";
 import { usePremium } from "@/stores";
 import { Colors } from "@/theme";
+import { Ionicons } from "@expo/vector-icons";
+import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
+import React, { useCallback, useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CollectionScreen() {
   const { data: entries = [], isLoading } = useCollection();
@@ -275,9 +274,6 @@ const CollectionRow = React.memo(function CollectionRow({
 
   const handlePress = useCallback(() => onPress(row), [onPress, row]);
 
-  const isMystery = !row.seen;
-  const pulseDelay = (index % 6) * 240;
-
   return (
     <Pressable
       onPress={handlePress}
@@ -286,19 +282,8 @@ const CollectionRow = React.memo(function CollectionRow({
     >
       <GlassCard radius={t.radii.lg}>
         <View style={styles.itemRow}>
-          <MotiView
-            from={{ opacity: isMystery ? 0.35 : 1, scale: 1 }}
-            animate={{
-              opacity: isMystery ? 0.55 : 1,
-              scale: isMystery ? 1.05 : 1
-            }}
-            transition={{
-              type: "timing",
-              duration: 2600,
-              loop: isMystery,
-              repeatReverse: true,
-              delay: pulseDelay
-            }}
+          <View
+            key={index}
             style={[
               styles.iconBubble,
               {
@@ -315,7 +300,7 @@ const CollectionRow = React.memo(function CollectionRow({
             >
               {row.seen ? (row.kind === "creature" ? "✦" : "◆") : "?"}
             </Text>
-          </MotiView>
+          </View>
           <View style={styles.flex}>
             <View style={styles.nameRow}>
               <Text

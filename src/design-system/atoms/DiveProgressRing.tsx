@@ -30,8 +30,8 @@ export const DiveProgressRing = React.memo(function DiveProgressRing({
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const p = useSharedValue(0);
-  const strokeWidth = 3;
-  const trackWidth = 2;
+  const strokeWidth = 6;
+  const trackWidth = 5;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
 
