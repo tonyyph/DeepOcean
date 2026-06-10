@@ -128,7 +128,7 @@ if widget_target.nil?
     :app_extension,
     WIDGET_TARGET_NAME,
     :ios,
-    app_target.deployment_target || "15.1"
+    "17.0"
   )
   puts "[widget-patch] Created target '#{WIDGET_TARGET_NAME}'."
 else
@@ -142,7 +142,7 @@ widget_target.build_configurations.each do |cfg|
   cfg.build_settings["INFOPLIST_FILE"] = "Widgets/Info.plist"
   cfg.build_settings["CODE_SIGN_ENTITLEMENTS"] = "Widgets/DeepOceanWidgets.entitlements"
   cfg.build_settings["SWIFT_VERSION"] = "5.0"
-  cfg.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = app_target.deployment_target || "15.1"
+  cfg.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = "17.0"
   cfg.build_settings["APPLICATION_EXTENSION_API_ONLY"] = "YES"
   cfg.build_settings["LD_RUNPATH_SEARCH_PATHS"] = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
 end
