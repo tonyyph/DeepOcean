@@ -78,6 +78,10 @@ export const en = {
     notifications: {
       reminderTitle: "The deep is calling",
       reminderBody: "Take a breath and dive. Your streak is waiting.",
+      activeDiveTitle: "Dive in progress",
+      activeDiveBody: "Deep Ocean is still counting your focus time.",
+      diveCompleteTitle: "Dive complete",
+      diveCompleteBody: "Surface when you're ready. Your focus session is done.",
       pickerTitle: "Reminder time",
       pickerSubtitle: "Pick when your daily nudge arrives",
       hours: "Hours",

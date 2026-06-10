@@ -78,6 +78,11 @@ export const vi = {
     notifications: {
       reminderTitle: "Biển sâu đang gọi",
       reminderBody: "Hít một hơi và lặn xuống. Streak của bạn đang đợi.",
+      activeDiveTitle: "Đang lặn",
+      activeDiveBody: "Deep Ocean vẫn đang tính thời gian tập trung của bạn.",
+      diveCompleteTitle: "Chuyến lặn đã hoàn thành",
+      diveCompleteBody:
+        "Bạn có thể nổi lên khi sẵn sàng. Phiên tập trung đã xong.",
       pickerTitle: "Giờ nhắc nhở",
       pickerSubtitle: "Chọn thời điểm lời nhắc mỗi ngày",
       hours: "Giờ",

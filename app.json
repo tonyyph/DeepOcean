@@ -62,7 +62,10 @@
       [
         "expo-notifications",
         {
-          "color": "#22E4FF"
+          "color": "#22E4FF",
+          "sounds": [
+            "./assets/audio/luffy.wav"
+          ]
         }
       ],
       [
@@ -88,6 +91,9 @@
         "premiumEntitlement": "premium",
         "themeEntitlementPrefix": "theme_",
         "lifetimePackageId": "lifetime"
+      },
+      "diveNotifications": {
+        "completionSound": "luffy.wav"
       }
     },
     "runtimeVersion": {
