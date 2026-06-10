@@ -47,7 +47,7 @@ export const en = {
       themeParticles: "Particles",
       applyTheme: "Apply theme",
       premium: "DeepOcean Pro",
-      premiumDesc: "Unlock every theme + future premium features",
+      premiumDesc: "Unlock themes, deep insights, and full field journals",
       premiumActive: "All premium content unlocked. Thank you — dive on.",
       replayOnboarding: "Replay onboarding",
       confirm: "Confirm",
@@ -256,7 +256,7 @@ export const en = {
     paywall: {
       title: "Dive Deeper with Pro",
       subtitle:
-        "Unlock every zone, theme, and AI companion. Support a small studio building calmly.",
+        "Unlock premium themes, deeper AI insights, and full expedition journals. Support a small studio building calmly.",
       compareTitle: "Standard vs Pro",
       compareFree: "Standard",
       comparePro: "Pro",
@@ -275,23 +275,23 @@ export const en = {
       benefits: [
         {
           icon: "water",
-          title: "Explore Every Depth",
-          body: "Unlock all 5 ocean zones — from the Sunlit Zone to the Hadal Trench."
+          title: "Keep the Core Dive Free",
+          body: "The timer, XP, streaks, and basic expedition history stay open while Pro adds more depth."
         },
         {
           icon: "diamond",
-          title: "6 Premium Themes",
-          body: "Unique visual identity for each zone: ambient particles, depth fog, custom typography."
+          title: "8 Premium Themes",
+          body: "Unique app-wide visual identities with custom palettes, typography, particles, and depth fog."
         },
         {
           icon: "sparkles",
-          title: "AI Dive Companion",
-          body: "Personalized coaching that adapts to your diving patterns and focus rhythms."
+          title: "AI Deep Insights",
+          body: "Mood-aware patterns, focus plans, and breathing rituals that adapt to your dive rhythm."
         },
         {
           icon: "telescope",
-          title: "Exclusive Discoveries",
-          body: "Rare & mythic creatures only accessible to Pro divers. Over 160 entries in your bestiary."
+          title: "Full Field Journal",
+          body: "Read the folklore, theories, and sealed notes behind every creature and artifact you discover."
         }
       ] as const,
       planLifetime: "LIFETIME",
@@ -300,13 +300,13 @@ export const en = {
       planLifetimeSub: "one-time",
       planMonthlySub: "/ month",
       lifetimeCta: "LIFETIME — UNLOCK EVERYTHING",
-      lifetimePrice: "37.89$",
+      lifetimePrice: "$44.99",
       annualCta: "1 YEAR — BEST VALUE",
-      annualPrice: "22.72$ / year",
-      annualPricePerMonth: "1.89$ / month",
+      annualPrice: "$23.99 / year",
+      annualPricePerMonth: "$1.99 / month",
       annualSaving: "Save 50%",
       monthlyCta: "MONTHLY",
-      monthlyPrice: "3.75$ / month",
+      monthlyPrice: "$3.99 / month",
       trialBadge: "7-DAY FREE TRIAL",
       trialDescription:
         "Try everything free for 7 days. Cancel anytime before renewal.",

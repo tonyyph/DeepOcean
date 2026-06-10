@@ -45,9 +45,10 @@
         }
       ],
       [
-        "expo-av",
+        "expo-audio",
         {
-          "microphonePermission": false
+          "enableBackgroundPlayback": true,
+          "enableBackgroundRecording": false
         }
       ],
       [
