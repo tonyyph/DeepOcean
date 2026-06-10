@@ -20,7 +20,6 @@ import {
   useTheme,
   useThemedStyles,
   ZoneBackground,
-  type AppTheme,
   type ThemeId
 } from "@/design-system";
 import {
@@ -38,7 +37,6 @@ import {
   useSettings,
   useThemeStore
 } from "@/stores";
-import { Colors, Gradients } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
 import * as Application from "expo-application";
 import { LinearGradient } from "expo-linear-gradient";
@@ -52,6 +50,8 @@ import {
   TextInput,
   View
 } from "react-native";
+import { makeStyles } from "./ProfileScreen.styles";
+import { PremiumSection } from "./ProfileScreen.components";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -59,7 +59,6 @@ import Animated, {
   withTiming
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
 const SOUND_LEVELS = [
   { key: "off", value: 0 },
@@ -67,19 +66,16 @@ const SOUND_LEVELS = [
   { key: "full", value: 0.65 }
 ] as const;
 type SoundLevelKey = (typeof SOUND_LEVELS)[number]["key"];
-
 function volumeToKey(v: number): SoundLevelKey {
   if (v <= 0) return "off";
   if (v < 0.5) return "low";
   return "full";
 }
-
 export default function ProfileScreen() {
   const router = useRouter();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
-
   const { data: profile } = useDiverProfile();
   const { mutate: updateDiver } = useUpdateDiver();
   const settings = useSettings();
@@ -91,9 +87,7 @@ export default function ProfileScreen() {
   const persistTitleAchievements = useAchievements(
     (s) => s.persistTitleAchievements
   );
-
   const reminders = useDiveReminders();
-
   const [langOpen, setLangOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
@@ -101,18 +95,14 @@ export default function ProfileScreen() {
   const [intentTheme, setIntentTheme] = useState<ThemeId | undefined>(
     undefined
   );
-
-  // ─── Name editing ─────────────────────────────────────────────────────────
   const [isEditingName, setIsEditingName] = useState(false);
   const [draftName, setDraftName] = useState("");
   const nameInputRef = useRef<TextInput>(null);
-
   const startEditName = useCallback(() => {
     setDraftName(profile?.name ?? "");
     setIsEditingName(true);
     setTimeout(() => nameInputRef.current?.focus(), 80);
   }, [profile?.name]);
-
   const confirmEditName = useCallback(() => {
     const trimmed = draftName.trim();
     if (trimmed && trimmed !== profile?.name) {
@@ -121,38 +111,26 @@ export default function ProfileScreen() {
     setIsEditingName(false);
     Keyboard.dismiss();
   }, [draftName, profile?.name, updateDiver]);
-
   const cancelEditName = useCallback(() => {
     setIsEditingName(false);
     Keyboard.dismiss();
   }, []);
-
-  // ─── Level-up reward queue ────────────────────────────────────────────────
   type RewardItem =
     | { type: "levelUp"; from: number; to: number }
     | { type: "achievement"; achievement: TitleAchievement };
-
   const [rewardQueue, setRewardQueue] = useState<RewardItem[]>([]);
   const overflowChecked = useRef(false);
-
-  // Detect XP overflow on profile load and auto-correct + show modal
   useEffect(() => {
     if (!profile || overflowChecked.current) return;
     overflowChecked.current = true;
-
     const threshold = xpForNextLevel(profile.level);
     if (profile.xp < threshold) return; // nothing to do
-
     const {
       level: newLevel,
       xp: newXp,
       levelsGained
     } = computeLevelUp(profile.level, profile.xp, 0);
-
-    // Persist corrected level immediately
     updateDiver({ level: newLevel, xp: newXp });
-
-    // Also check if any achievements were just unlocked by the new level
     const updatedProfile = { ...profile, level: newLevel, xp: newXp };
     const collectionItems = container.collection
       ? (() => {
@@ -163,7 +141,6 @@ export default function ProfileScreen() {
           }
         })()
       : [];
-
     const newAchievements = checkNewAchievements(
       updatedProfile,
       { collectionCount: collectionItems.length },
@@ -172,8 +149,6 @@ export default function ProfileScreen() {
     if (newAchievements.length > 0) {
       persistTitleAchievements(newAchievements);
     }
-
-    // Build reward queue
     const queue: RewardItem[] = [];
     if (levelsGained > 0) {
       queue.push({ type: "levelUp", from: profile.level, to: newLevel });
@@ -183,26 +158,19 @@ export default function ProfileScreen() {
     );
     if (queue.length > 0) setRewardQueue(queue);
   }, [profile, alreadyUnlocked, persistTitleAchievements, updateDiver]);
-
   const dismissReward = useCallback(() => {
     setRewardQueue((q) => q.slice(1));
   }, []);
-
-  // ─────────────────────────────────────────────────────────────────────────
-
   const nextLevelXp = xpForNextLevel(profile?.level ?? 1);
   const progress = profile ? Math.min(1, profile.xp / nextLevelXp) : 0;
-
   const currentLangLabel =
     settings.language === "vi" ? "Tiếng Việt" : "English";
   const activeTheme = THEMES[themeId];
-
   const openPaywall = useCallback((target?: ThemeId) => {
     setIntentTheme(target);
     setThemeOpen(false);
     setTimeout(() => setPaywallOpen(true), 250); // let sheet finish dismissing
   }, []);
-
   const xpWidth = useSharedValue(0);
   useEffect(() => {
     xpWidth.value = withTiming(progress, {
@@ -213,7 +181,6 @@ export default function ProfileScreen() {
   const xpStyle = useAnimatedStyle(() => ({
     width: `${xpWidth.value * 100}%`
   }));
-
   return (
     <ZoneBackground zone="trench">
       <UnderwaterCanvas zone="trench" />
@@ -222,13 +189,11 @@ export default function ProfileScreen() {
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
-          {/* ── Profile header with inline name-edit button ── */}
           <View style={styles.profileHeader}>
             {!isEditingName && (
               <Text style={styles.headerEyebrow}>{tr.profile.title}</Text>
             )}
             <View style={styles.headerNameRow}>
-              {/* Name edit card — slides in below header when editing */}
               {isEditingName ? (
                 <GlassCard
                   style={styles.nameEditCard}
@@ -280,7 +245,6 @@ export default function ProfileScreen() {
               ) : (
                 <GlowText size={34}>{profile?.name ?? tr.home.diver}</GlowText>
               )}
-
               <PressableCard
                 haptic="light"
                 onPress={startEditName}
@@ -298,8 +262,6 @@ export default function ProfileScreen() {
               {tr.profile.level(profile?.level ?? 1)}
             </Text>
           </View>
-
-          {/* XP Card */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel hint={`${profile?.xp ?? 0} / ${nextLevelXp}`}>
               {tr.profile.xp}
@@ -315,14 +277,10 @@ export default function ProfileScreen() {
               </Animated.View>
             </View>
           </GlassCard>
-
-          {/* Premium */}
           <PremiumSection
             isPremium={isPremium}
             onOpenPaywall={() => openPaywall(undefined)}
           />
-
-          {/* Appearance */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.appearance}</SectionLabel>
             <SettingRow
@@ -349,8 +307,6 @@ export default function ProfileScreen() {
               divider={false}
             />
           </GlassCard>
-
-          {/* Dive */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.settings}</SectionLabel>
             <SettingRow
@@ -360,7 +316,6 @@ export default function ProfileScreen() {
               value={settings.hapticsEnabled}
               onChange={(v) => settings.update({ hapticsEnabled: v })}
             />
-            {/* Ambient sound */}
             <View style={styles.preferredBlock}>
               <Text style={styles.preferredTitle}>
                 {tr.profile.soundVolume}
@@ -412,8 +367,6 @@ export default function ProfileScreen() {
               </View>
             </View>
           </GlassCard>
-
-          {/* Notifications */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>NOTIFICATIONS</SectionLabel>
             <SettingRow
@@ -437,8 +390,6 @@ export default function ProfileScreen() {
               />
             )}
           </GlassCard>
-
-          {/* Account / Onboarding */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.account}</SectionLabel>
             <SettingRow
@@ -458,7 +409,6 @@ export default function ProfileScreen() {
               divider={false}
             />
           </GlassCard>
-
           {__DEV__ && process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
             <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
               <SectionLabel>{tr.profile.developer}</SectionLabel>
@@ -472,8 +422,6 @@ export default function ProfileScreen() {
               />
             </GlassCard>
           )}
-
-          {/* About */}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.about}</SectionLabel>
             <View style={styles.aboutRow}>
@@ -489,7 +437,6 @@ export default function ProfileScreen() {
           </GlassCard>
         </ScrollView>
       </SafeAreaView>
-
       <ThemePickerSheet
         visible={themeOpen}
         onDismiss={() => setThemeOpen(false)}
@@ -519,8 +466,6 @@ export default function ProfileScreen() {
         onDismiss={() => setPaywallOpen(false)}
         intentTheme={intentTheme}
       />
-
-      {/* Level-up reward queue */}
       <LevelUpModal
         visible={rewardQueue[0]?.type === "levelUp"}
         prevLevel={rewardQueue[0]?.type === "levelUp" ? rewardQueue[0].from : 1}
@@ -539,203 +484,3 @@ export default function ProfileScreen() {
     </ZoneBackground>
   );
 }
-
-function PremiumSection({
-  isPremium,
-  onOpenPaywall
-}: {
-  isPremium: boolean;
-  onOpenPaywall: () => void;
-}) {
-  const t = useTheme();
-  const styles = useThemedStyles(makeStyles);
-  const tr = useTranslations();
-
-  if (isPremium) {
-    return (
-      <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
-        <View style={styles.premiumActiveRow}>
-          <View
-            style={[
-              styles.premiumCrest,
-              { backgroundColor: `${Colors.premium.gold}26` }
-            ]}
-          >
-            <Ionicons name="diamond" size={20} color={t.colors.premium} />
-          </View>
-          <View style={styles.premiumText}>
-            <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
-            <Text style={styles.premiumSub}>{tr.profile.premiumActive}</Text>
-          </View>
-          <PremiumBadge label="ACTIVE" size="md" />
-        </View>
-      </GlassCard>
-    );
-  }
-
-  return (
-    <PressableCard
-      haptic="medium"
-      onPress={onOpenPaywall}
-      radius={t.radii.md}
-      padding={t.spacing[5]}
-    >
-      <View style={styles.premiumActiveRow}>
-        <LinearGradient
-          colors={Gradients.premium.crest}
-          style={styles.premiumCrest}
-        >
-          <Ionicons name="diamond" size={20} color={Colors.premium.deepInk} />
-        </LinearGradient>
-        <View style={styles.premiumText}>
-          <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
-          <Text style={styles.premiumSub}>{tr.profile.premiumDesc}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={18} color={t.colors.premium} />
-      </View>
-    </PressableCard>
-  );
-}
-
-const makeStyles = (t: AppTheme) =>
-  StyleSheet.create({
-    flex: { flex: 1 },
-    scroll: {
-      padding: t.spacing[5],
-      paddingBottom: t.spacing[24],
-      gap: t.spacing[4]
-    },
-    // Custom profile header
-    profileHeader: {
-      paddingVertical: t.spacing[4],
-      gap: t.spacing[1]
-    },
-    headerEyebrow: {
-      color: t.colors.textMuted,
-      fontSize: 11,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label
-    },
-    headerNameRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      gap: t.spacing[5]
-    },
-    headerSub: {
-      color: t.colors.textSecondary,
-      marginTop: t.spacing[1.5],
-      fontSize: 14,
-      lineHeight: 20,
-      fontFamily: t.fonts.mono
-    },
-    xpTrack: {
-      height: 10,
-      borderRadius: t.radii.pill,
-      backgroundColor: `${Colors.base.white}14`,
-      overflow: "hidden"
-    },
-    xpFill: {
-      height: "100%",
-      borderRadius: t.radii.pill,
-      overflow: "hidden",
-      shadowColor: t.colors.accent,
-      shadowOpacity: 0.8,
-      shadowRadius: 8
-    },
-    preferredBlock: {
-      paddingTop: t.spacing[4],
-      gap: t.spacing[3]
-    },
-    preferredTitle: {
-      color: t.colors.text,
-      fontSize: 15,
-      fontFamily: t.fonts.body
-    },
-    pillRow: {
-      flexDirection: "row",
-      gap: t.spacing[2]
-    },
-    pillItem: { flex: 1 },
-    preferredSub: {
-      color: t.colors.textMuted,
-      fontSize: 12,
-      fontFamily: t.fonts.body,
-      marginTop: 2
-    },
-    // Name editing
-    nameEditRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[2],
-      marginTop: t.spacing[2]
-    },
-    nameInput: {
-      flex: 1,
-      color: t.colors.text,
-      fontSize: 18,
-      fontFamily: t.fonts.body,
-      paddingVertical: t.spacing[2],
-      paddingHorizontal: t.spacing[3],
-      borderRadius: t.radii.sm,
-      backgroundColor: t.colors.glass,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.borderStrong
-    },
-    nameEditActions: {
-      flexDirection: "row",
-      gap: t.spacing[1]
-    },
-    // About
-    aboutRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginTop: t.spacing[3]
-    },
-    aboutLabel: {
-      color: t.colors.textSecondary,
-      fontSize: 14,
-      fontFamily: t.fonts.body
-    },
-    aboutValue: {
-      color: t.colors.text,
-      fontSize: 14,
-      fontFamily: t.fonts.mono
-    },
-    aboutTagline: {
-      color: t.colors.textMuted,
-      fontSize: 12,
-      fontFamily: t.fonts.body,
-      fontStyle: "italic"
-    },
-    premiumActiveRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[3.5]
-    },
-    premiumCrest: {
-      width: 44,
-      height: 44,
-      borderRadius: t.radii.md,
-      alignItems: "center",
-      justifyContent: "center"
-    },
-    premiumText: { flex: 1 },
-    premiumTitle: {
-      color: t.colors.text,
-      fontSize: 16,
-      fontFamily: t.fonts.display,
-      letterSpacing: t.fonts.displayLetterSpacing
-    },
-    premiumSub: {
-      color: t.colors.textMuted,
-      fontSize: 12,
-      marginTop: 2,
-      fontFamily: t.fonts.body
-    },
-    nameEditCard: {
-      flex: 1,
-      marginTop: t.spacing[2]
-    }
-  });

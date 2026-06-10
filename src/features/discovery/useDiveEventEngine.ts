@@ -7,6 +7,7 @@ import { DiscoveryQueueManager } from "./DiscoveryQueueManager";
 /** How long each discovery card stays on screen before auto-advancing. */
 const SHOW_MS_DEFAULT = 3400;
 const SHOW_MS_REDUCED = 1800;
+const EMPTY_DISCOVERIES: readonly Discovery[] = [];
 
 export type DiveEventEngine = {
   /** The discovery currently being presented, or null when idle. */
@@ -26,7 +27,11 @@ export type DiveEventEngine = {
  * no discovery from a previous dive can leak into the next.
  */
 export function useDiveEventEngine(): DiveEventEngine {
-  const session = useDiveSession((s) => s.session);
+  const sessionId = useDiveSession((s) => s.session?.id ?? null);
+  const sessionStatus = useDiveSession((s) => s.session?.status ?? "idle");
+  const discoveries = useDiveSession(
+    (s) => s.session?.discoveries ?? EMPTY_DISCOVERIES
+  );
   const showAlerts = useSettings((s) => s.showDiscoveryAlerts);
   const reducedMotion = useSettings((s) => s.reducedMotion);
 
@@ -53,25 +58,24 @@ export function useDiveEventEngine(): DiveEventEngine {
 
   // Reset the engine whenever a new dive begins (or the session is cleared).
   useEffect(() => {
-    const id = session?.id ?? null;
-    if (id !== sessionIdRef.current) {
-      sessionIdRef.current = id;
+    if (sessionId !== sessionIdRef.current) {
+      sessionIdRef.current = sessionId;
       managerRef.current.reset();
       setCurrentSynced(null);
       setPending(0);
     }
-  }, [session?.id, setCurrentSynced]);
+  }, [sessionId, setCurrentSynced]);
 
   // Ingest new discoveries while actively diving. Once surfaced we stop so the
   // post-dive reward queue owns the screen.
   useEffect(() => {
-    if (!session || !showAlerts) return;
-    const live = session.status === "diving" || session.status === "paused";
+    if (!sessionId || !showAlerts) return;
+    const live = sessionStatus === "diving" || sessionStatus === "paused";
     if (!live) return;
-    managerRef.current.ingest(session.discoveries);
+    managerRef.current.ingest(discoveries);
     setPending(managerRef.current.size);
     if (currentRef.current === null) advance();
-  }, [session, session?.discoveries, showAlerts, advance]);
+  }, [sessionId, sessionStatus, discoveries, showAlerts, advance]);
 
   // Auto-advance timer for the currently shown card.
   useEffect(() => {

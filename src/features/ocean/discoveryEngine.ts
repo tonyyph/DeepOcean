@@ -5,7 +5,7 @@ import {
   type Artifact,
   type Rarity
 } from "./bestiary";
-import type { OceanZone } from "./zones";
+import { OCEAN_ZONES, type OceanZone } from "./zones";
 
 /**
  * Discovery engine — deterministic given (seed, zone, minute).
@@ -27,6 +27,45 @@ const RARITY_PROB: Record<Rarity, number> = {
   mythic: 0.005
 };
 
+type WeightedEntry<T> = {
+  entry: T;
+  cumulativeWeight: number;
+};
+
+type WeightedZonePool<T> = {
+  entries: readonly WeightedEntry<T>[];
+  totalWeight: number;
+};
+
+function buildWeightedZonePools<
+  T extends { rarity: Rarity; encounterWeight?: number; zone: OceanZone }
+>(pool: readonly T[]): Record<OceanZone, WeightedZonePool<T>> {
+  const grouped = {} as Record<
+    OceanZone,
+    { entries: WeightedEntry<T>[]; totalWeight: number }
+  >;
+
+  for (const zone of OCEAN_ZONES) {
+    grouped[zone] = { entries: [], totalWeight: 0 };
+  }
+
+  for (const entry of pool) {
+    const zonePool = grouped[entry.zone];
+    const weight = RARITY_PROB[entry.rarity] * (entry.encounterWeight ?? 1);
+    if (weight <= 0) continue;
+    zonePool.totalWeight += weight;
+    zonePool.entries.push({
+      entry,
+      cumulativeWeight: zonePool.totalWeight
+    });
+  }
+
+  return grouped;
+}
+
+const CREATURE_POOLS_BY_ZONE = buildWeightedZonePools(CREATURES);
+const ARTIFACT_POOLS_BY_ZONE = buildWeightedZonePools(ARTIFACTS);
+
 function lcg(seed: number): () => number {
   let s = seed >>> 0 || 1;
   return () => {
@@ -36,22 +75,16 @@ function lcg(seed: number): () => number {
   };
 }
 
-function rollFromPool<
-  T extends { rarity: Rarity; encounterWeight?: number; zone: OceanZone }
->(pool: readonly T[], zone: OceanZone, rng: () => number): T | null {
-  const candidates = pool.filter((p) => p.zone === zone);
-  if (candidates.length === 0) return null;
-  const weights = candidates.map(
-    (c) => RARITY_PROB[c.rarity] * (c.encounterWeight ?? 1)
-  );
-  const total = weights.reduce((a, b) => a + b, 0);
-  if (total <= 0) return null;
-  let r = rng() * total;
-  for (let i = 0; i < candidates.length; i++) {
-    r -= weights[i]!;
-    if (r <= 0) return candidates[i]!;
+function rollFromPool<T>(
+  pool: WeightedZonePool<T>,
+  rng: () => number
+): T | null {
+  if (pool.totalWeight <= 0 || pool.entries.length === 0) return null;
+  const target = rng() * pool.totalWeight;
+  for (const item of pool.entries) {
+    if (target <= item.cumulativeWeight) return item.entry;
   }
-  return candidates[candidates.length - 1]!;
+  return pool.entries[pool.entries.length - 1]?.entry ?? null;
 }
 
 /**
@@ -80,12 +113,12 @@ export function rollDiscoveries(
   const out: Discovery[] = [];
   for (let i = 0; i < creatureAttempts; i++) {
     if (rng() < 0.35) {
-      const c = rollFromPool(CREATURES, zone, rng);
+      const c = rollFromPool(CREATURE_POOLS_BY_ZONE[zone], rng);
       if (c) out.push({ kind: "creature", entry: c, atMinute: toMinute });
     }
   }
   if (rng() < artifactChance) {
-    const a = rollFromPool(ARTIFACTS, zone, rng);
+    const a = rollFromPool(ARTIFACT_POOLS_BY_ZONE[zone], rng);
     if (a) out.push({ kind: "artifact", entry: a, atMinute: toMinute });
   }
   return out;

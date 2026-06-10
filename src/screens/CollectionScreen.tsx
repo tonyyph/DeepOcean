@@ -1,7 +1,6 @@
 import { useTranslations } from "@/core/i18n";
 import {
   AppHeader,
-  type AppTheme,
   CreatureStorySheet,
   GlassCard,
   PaywallSheet,
@@ -23,15 +22,31 @@ import {
   rarityColor
 } from "@/features/ocean";
 import { usePremium } from "@/stores";
-import { Colors } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
 import React, { useCallback, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View
+} from "react-native";
+import { makeStyles } from "./CollectionScreen.styles";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+type RarityFilter =
+  | "all"
+  | "common"
+  | "uncommon"
+  | "rare"
+  | "legendary"
+  | "mythic";
 
 export default function CollectionScreen() {
   const { data: entries = [], isLoading } = useCollection();
+  const { height, width } = useWindowDimensions();
   const t = useTheme();
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
@@ -40,9 +55,7 @@ export default function CollectionScreen() {
   const [activeRow, setActiveRow] = useState<StoryRow | null>(null);
   const [storyOpen, setStoryOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const [rarityFilter, setRarityFilter] = useState<
-    "all" | "common" | "uncommon" | "rare" | "legendary" | "mythic"
-  >("all");
+  const [rarityFilter, setRarityFilter] = useState<RarityFilter>("all");
 
   const rows = useMemo<StoryRow[]>(() => {
     const seenMap = new Map<string, CollectionEntry>(
@@ -98,6 +111,23 @@ export default function CollectionScreen() {
     []
   );
 
+  const rarityOptions = useMemo<readonly [RarityFilter, string][]>(
+    () => [
+      ["all", tr.collection.filters.all],
+      ["common", tr.collection.filters.common],
+      ["uncommon", tr.collection.filters.uncommon],
+      ["rare", tr.collection.filters.rare],
+      ["legendary", tr.collection.filters.legendary],
+      ["mythic", tr.collection.filters.mythic]
+    ],
+    [tr.collection.filters]
+  );
+
+  const estimatedListSize = useMemo(
+    () => ({ height, width }),
+    [height, width]
+  );
+
   const handleRowPress = useCallback((row: StoryRow) => {
     setActiveRow(row);
     setStoryOpen(true);
@@ -117,26 +147,12 @@ export default function CollectionScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.compactRow}
           >
-            {[
-              ["all", tr.collection.filters.all],
-              ["common", tr.collection.filters.common],
-              ["uncommon", tr.collection.filters.uncommon],
-              ["rare", tr.collection.filters.rare],
-              ["legendary", tr.collection.filters.legendary],
-              ["mythic", tr.collection.filters.mythic]
-            ].map(([value, label]) => {
-              const typedValue = value as
-                | "all"
-                | "common"
-                | "uncommon"
-                | "rare"
-                | "legendary"
-                | "mythic";
-              const active = rarityFilter === typedValue;
+            {rarityOptions.map(([value, label]) => {
+              const active = rarityFilter === value;
               return (
                 <Pressable
                   key={value}
-                  onPress={() => setRarityFilter(typedValue)}
+                  onPress={() => setRarityFilter(value)}
                   style={[
                     styles.compactChip,
                     active && styles.compactChipActive
@@ -174,7 +190,16 @@ export default function CollectionScreen() {
         )}
       </View>
     ),
-    [styles, tr.collection.filters, rarityFilter, setRarityFilter]
+    [
+      handlePaywall,
+      isPremium,
+      rarityFilter,
+      rarityOptions,
+      styles,
+      t.colors.textMuted,
+      tr.collection.filters.rarity,
+      tr.collection.story.proLocked
+    ]
   );
 
   const keyExtractor = useCallback(
@@ -184,13 +209,12 @@ export default function CollectionScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<StoryRow | number>) =>
+    ({ item }: ListRenderItemInfo<StoryRow | number>) =>
       typeof item === "number" ? (
         <CollectionRowSkeleton />
       ) : (
         <CollectionRow
           row={item}
-          index={index}
           isPremium={isPremium}
           onPress={handleRowPress}
         />
@@ -219,6 +243,9 @@ export default function CollectionScreen() {
           data={isLoading ? skeletonRows : filteredRows}
           keyExtractor={keyExtractor}
           estimatedItemSize={120}
+          estimatedListSize={estimatedListSize}
+          drawDistance={height * 1.5}
+          extraData={isPremium}
           showsVerticalScrollIndicator={false}
           renderItem={renderItem}
           ListHeaderComponent={renderListHeader}
@@ -256,14 +283,12 @@ const Separator = () => <View style={separatorStyles.sep} />;
 
 type RowProps = {
   row: StoryRow;
-  index: number;
   isPremium: boolean;
   onPress: (row: StoryRow) => void;
 };
 
 const CollectionRow = React.memo(function CollectionRow({
   row,
-  index,
   isPremium,
   onPress
 }: RowProps) {
@@ -283,7 +308,6 @@ const CollectionRow = React.memo(function CollectionRow({
       <GlassCard radius={t.radii.lg}>
         <View style={styles.itemRow}>
           <View
-            key={index}
             style={[
               styles.iconBubble,
               {
@@ -357,7 +381,6 @@ const CollectionRow = React.memo(function CollectionRow({
 
 function areCollectionRowsEqual(prev: RowProps, next: RowProps): boolean {
   return (
-    prev.index === next.index &&
     prev.isPremium === next.isPremium &&
     prev.onPress === next.onPress &&
     prev.row.id === next.row.id &&
@@ -408,191 +431,3 @@ function CollectionRowSkeleton() {
 const separatorStyles = StyleSheet.create({
   sep: { height: 10 }
 });
-
-const makeStyles = (t: AppTheme) =>
-  StyleSheet.create({
-    flex: { flex: 1 },
-    headerWrap: {
-      paddingHorizontal: t.spacing[5],
-      gap: t.spacing[3]
-    },
-    proCallout: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[3],
-      paddingVertical: t.spacing[3],
-      paddingHorizontal: t.spacing[4],
-      borderRadius: t.radii.sm,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${Colors.premium.gold}47`,
-      backgroundColor: `${Colors.premium.gold}0F`,
-      marginBottom: t.spacing[2]
-    },
-    proCalloutText: {
-      flex: 1,
-      color: t.colors.text,
-      fontFamily: t.fonts.body,
-      fontSize: 12,
-      lineHeight: 17
-    },
-    filterTitle: {
-      color: t.colors.textMuted,
-      fontSize: 11,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label,
-      marginTop: t.spacing[1]
-    },
-    stickyFilterWrap: {
-      marginBottom: t.spacing[2],
-      gap: t.spacing[4]
-    },
-    compactFilterBlock: {
-      gap: t.spacing[1],
-      paddingHorizontal: t.spacing[2]
-    },
-    compactRow: {
-      gap: t.spacing[1.5],
-      paddingRight: t.spacing[2]
-    },
-    compactChip: {
-      borderRadius: t.radii.pill,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
-      paddingHorizontal: t.spacing[2.5],
-      paddingVertical: t.spacing[1],
-      backgroundColor: t.colors.glass
-    },
-    compactChipActive: {
-      borderColor: t.colors.accent,
-      backgroundColor: `${t.colors.accent}20`
-    },
-    compactChipText: {
-      color: t.colors.textMuted,
-      fontSize: 11,
-      fontFamily: t.fonts.label,
-      letterSpacing: 0.4
-    },
-    compactChipTextActive: {
-      color: t.colors.accent
-    },
-    listContent: {
-      paddingHorizontal: t.spacing[4],
-      paddingBottom: t.spacing[24]
-    },
-    emptyFilterWrap: {
-      paddingHorizontal: t.spacing[4],
-      marginTop: t.spacing[2]
-    },
-    emptyFilterText: {
-      color: t.colors.textSecondary,
-      fontFamily: t.fonts.body,
-      fontSize: 13,
-      lineHeight: 19,
-      textAlign: "center"
-    },
-    itemRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[3.5]
-    },
-    iconBubble: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      borderWidth: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: `${Colors.base.white}0A`,
-      shadowOpacity: 0.55,
-      shadowRadius: 10,
-      shadowOffset: { width: 0, height: 0 }
-    },
-    iconText: { fontSize: 18, fontFamily: t.fonts.display },
-    nameRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[2]
-    },
-    name: {
-      color: t.colors.text,
-      fontSize: 16,
-      fontFamily: t.fonts.body,
-      flexShrink: 1
-    },
-    proHint: {
-      width: 18,
-      height: 18,
-      borderRadius: 9,
-      alignItems: "center",
-      justifyContent: "center",
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.premium,
-      backgroundColor: `${Colors.premium.gold}1A`
-    },
-    zoneLabel: {
-      color: t.colors.textMuted,
-      fontSize: 11,
-      letterSpacing: 1,
-      marginTop: 3,
-      fontFamily: t.fonts.label
-    },
-    desc: {
-      color: t.colors.textSecondary,
-      fontSize: 13,
-      marginTop: t.spacing[1.5],
-      lineHeight: 19,
-      fontFamily: t.fonts.body
-    },
-    premiumTeaser: {
-      color: t.colors.premium,
-      fontSize: 12,
-      marginTop: t.spacing[1.5],
-      lineHeight: 17,
-      fontFamily: t.fonts.body
-    },
-    premiumTeaserWrap: {
-      marginTop: t.spacing[1.5],
-      gap: t.spacing[1]
-    },
-    premiumRibbonText: {
-      alignSelf: "flex-start",
-      borderRadius: t.radii.pill,
-      overflow: "hidden",
-      color: t.colors.surface,
-      backgroundColor: t.colors.premium,
-      fontSize: 9,
-      letterSpacing: 0.7,
-      fontFamily: t.fonts.label,
-      paddingHorizontal: t.spacing[2],
-      paddingVertical: 2,
-      textTransform: "uppercase"
-    },
-    whisper: {
-      color: t.colors.textFaint,
-      fontSize: 12,
-      marginTop: t.spacing[1.5],
-      lineHeight: 17,
-      fontFamily: t.fonts.body,
-      fontStyle: "italic"
-    },
-    nameSkeleton: {
-      height: 16,
-      width: "58%",
-      borderRadius: t.radii.xs
-    },
-    lockSkeleton: {
-      marginLeft: t.spacing[1.5]
-    },
-    metaSkeleton: {
-      width: "44%",
-      height: 11,
-      borderRadius: t.radii.xs,
-      marginTop: t.spacing[1]
-    },
-    descSectionSkeleton: {
-      marginTop: t.spacing[1.5]
-    },
-    chevronSkeleton: {
-      opacity: 0.65
-    }
-  });

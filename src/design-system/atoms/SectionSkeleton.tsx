@@ -5,7 +5,7 @@ import { useTheme } from "../useTheme";
 
 type Props = {
   lines?: number;
-  widths?: Array<number | `${number}%`>;
+  widths?: (number | `${number}%`)[];
   lineHeight?: number;
   gap?: number;
   style?: StyleProp<ViewStyle>;
