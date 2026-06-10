@@ -1,4 +1,9 @@
-import { Audio, AVPlaybackSource } from "expo-av";
+import {
+  createAudioPlayer,
+  setAudioModeAsync,
+  type AudioPlayer,
+  type AudioSource
+} from "expo-audio";
 import type { OceanZone } from "@/features/ocean/zones";
 
 /**
@@ -9,7 +14,7 @@ import type { OceanZone } from "@/features/ocean/zones";
  *    outside React lifecycle to survive screen unmounts.
  *  - Each zone has a base ambient track + optional creature/sonar overlays.
  *  - Crossfades use linear ramps over 1.6s — feels "liquid" without lag spikes.
- *  - Sources are intentionally typed as `AVPlaybackSource | null`: a bare
+ *  - Sources are intentionally typed as `AudioSource | null`: a bare
  *    scaffold ships with `null` so we can demo without binary assets. Drop
  *    real `require('@assets/audio/*.mp3')` files in to enable playback.
  */
@@ -17,14 +22,14 @@ import type { OceanZone } from "@/features/ocean/zones";
 export type AmbientLayer = "base" | "creature" | "sonar" | "pressure";
 
 type LayerSlot = {
-  sound: Audio.Sound | null;
-  source: AVPlaybackSource | null;
+  player: AudioPlayer | null;
+  source: AudioSource | null;
   volume: number;
 };
 
 const CROSSFADE_MS = 1600;
 
-const ZONE_SOURCES: Record<OceanZone, AVPlaybackSource | null> = {
+const ZONE_SOURCES: Record<OceanZone, AudioSource | null> = {
   // Replace nulls with require('@assets/audio/surface.mp3') etc. when assets exist.
   surface: null,
   twilight: null,
@@ -35,10 +40,10 @@ const ZONE_SOURCES: Record<OceanZone, AVPlaybackSource | null> = {
 
 class AmbientAudioManagerImpl {
   private layers: Record<AmbientLayer, LayerSlot> = {
-    base: { sound: null, source: null, volume: 0 },
-    creature: { sound: null, source: null, volume: 0 },
-    sonar: { sound: null, source: null, volume: 0 },
-    pressure: { sound: null, source: null, volume: 0 }
+    base: { player: null, source: null, volume: 0 },
+    creature: { player: null, source: null, volume: 0 },
+    sonar: { player: null, source: null, volume: 0 },
+    pressure: { player: null, source: null, volume: 0 }
   };
 
   private currentZone: OceanZone | null = null;
@@ -46,11 +51,12 @@ class AmbientAudioManagerImpl {
 
   async init(): Promise<void> {
     if (this.initialized) return;
-    await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: true,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: false
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      shouldPlayInBackground: true,
+      interruptionMode: "duckOthers",
+      interruptionModeAndroid: "duckOthers",
+      shouldRouteThroughEarpiece: false
     });
     this.initialized = true;
   }
@@ -66,21 +72,21 @@ class AmbientAudioManagerImpl {
   async setVolume(layer: AmbientLayer, volume: number): Promise<void> {
     const slot = this.layers[layer];
     slot.volume = clamp01(volume);
-    if (slot.sound) await slot.sound.setVolumeAsync(slot.volume);
+    if (slot.player) slot.player.volume = slot.volume;
   }
 
   async stopAll(): Promise<void> {
     await Promise.all(
       (Object.keys(this.layers) as AmbientLayer[]).map(async (k) => {
         const slot = this.layers[k];
-        if (slot.sound) {
+        if (slot.player) {
           try {
-            await slot.sound.stopAsync();
-            await slot.sound.unloadAsync();
+            slot.player.pause();
+            slot.player.remove();
           } catch {
-            // swallow — sound may already be unloaded
+            // swallow: player may already be released
           }
-          slot.sound = null;
+          slot.player = null;
           slot.source = null;
           slot.volume = 0;
         }
@@ -90,31 +96,33 @@ class AmbientAudioManagerImpl {
 
   private async swapLayer(
     layer: AmbientLayer,
-    source: AVPlaybackSource | null,
+    source: AudioSource | null,
     targetVolume: number
   ): Promise<void> {
     const slot = this.layers[layer];
-    const previous = slot.sound;
+    const previous = slot.player;
 
     if (!source) {
       // Demo mode — no asset bundled. Just fade out previous.
       if (previous) {
         await fadeVolume(previous, slot.volume, 0, CROSSFADE_MS);
-        await previous.unloadAsync().catch(() => {});
+        releasePlayer(previous);
       }
-      slot.sound = null;
+      slot.player = null;
       slot.source = null;
       slot.volume = 0;
       return;
     }
 
-    const next = new Audio.Sound();
+    const next = createAudioPlayer(source);
     try {
-      await next.loadAsync(source, { isLooping: true, volume: 0 });
-      await next.playAsync();
+      next.loop = true;
+      next.volume = 0;
+      next.play();
     } catch (err) {
       // If loading fails, do nothing destructive — keep previous track playing.
       console.warn("[AmbientAudioManager] load failed", err);
+      releasePlayer(next);
       return;
     }
 
@@ -125,8 +133,8 @@ class AmbientAudioManagerImpl {
     const fadeIn = fadeVolume(next, 0, targetVolume, CROSSFADE_MS);
     await Promise.all([fadeOut, fadeIn]);
 
-    if (previous) await previous.unloadAsync().catch(() => {});
-    slot.sound = next;
+    if (previous) releasePlayer(previous);
+    slot.player = next;
     slot.source = source;
     slot.volume = targetVolume;
   }
@@ -137,7 +145,7 @@ function clamp01(n: number): number {
 }
 
 async function fadeVolume(
-  sound: Audio.Sound,
+  player: AudioPlayer,
   from: number,
   to: number,
   durationMs: number
@@ -146,8 +154,21 @@ async function fadeVolume(
   const stepMs = durationMs / steps;
   for (let i = 1; i <= steps; i++) {
     const v = from + (to - from) * (i / steps);
-    await sound.setVolumeAsync(clamp01(v)).catch(() => {});
+    try {
+      player.volume = clamp01(v);
+    } catch {
+      return;
+    }
     await wait(stepMs);
+  }
+}
+
+function releasePlayer(player: AudioPlayer): void {
+  try {
+    player.pause();
+    player.remove();
+  } catch {
+    // ignore release races
   }
 }
 

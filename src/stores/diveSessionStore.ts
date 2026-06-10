@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import { Platform } from "react-native";
 import type { DiveSession, DiveSessionStatus } from "@/domain/entities";
 import type { Discovery } from "@/features/ocean/discoveryEngine";
 import { rollDiscoveries } from "@/features/ocean/discoveryEngine";
@@ -23,6 +24,11 @@ import {
   type TitleAchievement
 } from "@/features/diver/titleAchievements";
 import { useAchievements } from "./achievementStore";
+import { useSettings } from "./settingsStore";
+import { NotificationService } from "@/core/notifications/NotificationService";
+import { getDiveNotificationConfig } from "@/core/config/diveNotificationConfig";
+import { translations, type Language } from "@/core/i18n/translations";
+import { DeepOceanLiveActivity } from "@/core/live-activity/DeepOceanLiveActivity";
 
 /**
  * Dive session store — single source of truth for the active dive.
@@ -37,6 +43,10 @@ type State = {
   // engine internals
   _intervalHandle: ReturnType<typeof setInterval> | null;
   _lastRollMinute: number;
+  _pausedStartedAt: number | null;
+  _pausedAccumulatedMs: number;
+  _completionNotificationId: string | null;
+  _activeNotificationId: string | null;
   /** Set after end() — level up info to show to the player (null = no level up). */
   pendingLevelUp: { from: number; to: number } | null;
   /** Ordered list of title achievements unlocked this dive. */
@@ -47,7 +57,7 @@ type Actions = {
   start: (targetMinutes: number | null) => void;
   pause: () => void;
   resume: () => void;
-  end: () => Promise<void>;
+  end: (options?: { notifyCompletion?: boolean }) => Promise<void>;
   cancel: () => void;
   /** Clear pending rewards after the UI has consumed them. */
   clearPendingRewards: () => void;
@@ -57,11 +67,160 @@ type Actions = {
 
 const TICK_MS = 1000;
 
+type AdvancedSession = {
+  session: DiveSession;
+  lastRollMinute: number;
+};
+
+function elapsedFromClock(
+  session: DiveSession,
+  pausedAccumulatedMs: number,
+  pausedStartedAt: number | null,
+  now: number
+): number {
+  const clockNow =
+    session.status === "paused" && pausedStartedAt ? pausedStartedAt : now;
+  return Math.max(
+    0,
+    Math.floor((clockNow - session.startedAt - pausedAccumulatedMs) / 1000)
+  );
+}
+
+function advanceSession(
+  session: DiveSession,
+  lastRollMinute: number,
+  pausedAccumulatedMs: number,
+  pausedStartedAt: number | null,
+  now: number,
+  runEffects: boolean
+): AdvancedSession {
+  if (session.status !== "diving") {
+    return { session, lastRollMinute };
+  }
+
+  const nextElapsed = elapsedFromClock(
+    session,
+    pausedAccumulatedMs,
+    pausedStartedAt,
+    now
+  );
+  if (nextElapsed <= session.elapsedSeconds) {
+    return { session, lastRollMinute };
+  }
+
+  const minutes = nextElapsed / 60;
+  const depth = minutesToDepth(minutes);
+  const zone: OceanZone = depthToZone(depth);
+
+  if (runEffects && zone !== session.zone) {
+    hapticZoneChange(zone);
+    AmbientAudio.setZone(zone);
+  }
+
+  let nextRollMinute = lastRollMinute;
+  let discoveries = session.discoveries;
+  const floorMinute = Math.floor(minutes);
+  if (floorMinute > lastRollMinute) {
+    const fresh = rollDiscoveries(
+      session.seed,
+      zone,
+      lastRollMinute,
+      floorMinute
+    );
+    if (fresh.length > 0) {
+      if (runEffects) fresh.forEach(() => hapticDiscovery());
+      discoveries = [...discoveries, ...fresh];
+    }
+    nextRollMinute = floorMinute;
+  }
+
+  return {
+    session: {
+      ...session,
+      elapsedSeconds: nextElapsed,
+      depthMeters: depth,
+      zone,
+      discoveries
+    },
+    lastRollMinute: nextRollMinute
+  };
+}
+
+function diveCompletionAt(
+  session: DiveSession,
+  pausedAccumulatedMs: number
+): number | null {
+  if (session.targetSeconds === null) return null;
+  return session.startedAt + session.targetSeconds * 1000 + pausedAccumulatedMs;
+}
+
+async function armDiveNotifications(
+  session: DiveSession,
+  pausedAccumulatedMs: number
+): Promise<{ completionId: string | null; activeId: string | null }> {
+  const completionAt = diveCompletionAt(session, pausedAccumulatedMs);
+  if (!completionAt && Platform.OS !== "android") {
+    return { completionId: null, activeId: null };
+  }
+  const granted = await NotificationService.requestPermission();
+  if (!granted) return { completionId: null, activeId: null };
+
+  const language = (useSettings.getState().language ?? "en") as Language;
+  const copy = translations[language].notifications;
+  const config = getDiveNotificationConfig();
+
+  const [completionId, activeId] = await Promise.all([
+    completionAt && completionAt > Date.now()
+      ? NotificationService.scheduleDiveCompletion({
+          fireAt: completionAt,
+          title: copy.diveCompleteTitle,
+          body: copy.diveCompleteBody,
+          sound: config.completionSound
+        })
+      : Promise.resolve(null),
+    NotificationService.showActiveDive({
+      title: copy.activeDiveTitle,
+      body: copy.activeDiveBody
+    })
+  ]);
+
+  return { completionId, activeId };
+}
+
+async function clearDiveNotifications(
+  completionId: string | null,
+  activeId: string | null
+): Promise<void> {
+  await Promise.all([
+    NotificationService.cancelScheduled(completionId),
+    NotificationService.dismissPresented(completionId),
+    NotificationService.cancelScheduled(activeId),
+    NotificationService.dismissPresented(activeId)
+  ]);
+}
+
+async function notifyDiveCompletionNow(): Promise<void> {
+  const granted = await NotificationService.requestPermission();
+  if (!granted) return;
+  const language = (useSettings.getState().language ?? "en") as Language;
+  const copy = translations[language].notifications;
+  const config = getDiveNotificationConfig();
+  await NotificationService.notifyDiveCompletionNow({
+    title: copy.diveCompleteTitle,
+    body: copy.diveCompleteBody,
+    sound: config.completionSound
+  });
+}
+
 export const useDiveSession = create<State & Actions>()(
   subscribeWithSelector((set, get) => ({
     session: null,
     _intervalHandle: null,
     _lastRollMinute: 0,
+    _pausedStartedAt: null,
+    _pausedAccumulatedMs: 0,
+    _completionNotificationId: null,
+    _activeNotificationId: null,
     pendingLevelUp: null,
     pendingAchievements: [],
 
@@ -85,50 +244,151 @@ export const useDiveSession = create<State & Actions>()(
       hapticDiveStart();
       AmbientAudio.init().then(() => AmbientAudio.setZone("surface"));
       const handle = setInterval(() => get().tick(), TICK_MS);
-      set({ session, _intervalHandle: handle, _lastRollMinute: 0 });
+      set({
+        session,
+        _intervalHandle: handle,
+        _lastRollMinute: 0,
+        _pausedStartedAt: null,
+        _pausedAccumulatedMs: 0,
+        _completionNotificationId: null,
+        _activeNotificationId: null
+      });
+      void DeepOceanLiveActivity.start(session);
+      void armDiveNotifications(session, 0).then(
+        ({ completionId, activeId }) => {
+          const current = get().session;
+          if (current?.id !== session.id || current.status !== "diving") {
+            void clearDiveNotifications(completionId, activeId);
+            return;
+          }
+          set({
+            _completionNotificationId: completionId,
+            _activeNotificationId: activeId
+          });
+        }
+      );
     },
 
     pause: () => {
-      const { session, _intervalHandle } = get();
+      const {
+        session,
+        _intervalHandle,
+        _lastRollMinute,
+        _pausedAccumulatedMs,
+        _completionNotificationId,
+        _activeNotificationId
+      } = get();
       if (!session || session.status !== "diving") return;
+      const advanced = advanceSession(
+        session,
+        _lastRollMinute,
+        _pausedAccumulatedMs,
+        null,
+        Date.now(),
+        true
+      );
       if (_intervalHandle) clearInterval(_intervalHandle);
+      void clearDiveNotifications(_completionNotificationId, _activeNotificationId);
+      void DeepOceanLiveActivity.update({
+        ...advanced.session,
+        status: "paused"
+      });
       set({
         _intervalHandle: null,
-        session: { ...session, status: "paused" }
+        _lastRollMinute: advanced.lastRollMinute,
+        _pausedStartedAt: Date.now(),
+        _completionNotificationId: null,
+        _activeNotificationId: null,
+        session: { ...advanced.session, status: "paused" }
       });
     },
 
     resume: () => {
-      const { session } = get();
+      const { session, _pausedStartedAt, _pausedAccumulatedMs } = get();
       if (!session || session.status !== "paused") return;
+      const now = Date.now();
+      const pausedDelta = _pausedStartedAt ? now - _pausedStartedAt : 0;
+      const nextPausedAccumulatedMs = _pausedAccumulatedMs + pausedDelta;
       const handle = setInterval(() => get().tick(), TICK_MS);
+      const resumed = { ...session, status: "diving" as const };
       set({
         _intervalHandle: handle,
-        session: { ...session, status: "diving" }
+        _pausedStartedAt: null,
+        _pausedAccumulatedMs: nextPausedAccumulatedMs,
+        _completionNotificationId: null,
+        _activeNotificationId: null,
+        session: resumed
       });
+      void DeepOceanLiveActivity.update(resumed);
+      void armDiveNotifications(resumed, nextPausedAccumulatedMs).then(
+        ({ completionId, activeId }) => {
+          const current = get().session;
+          if (current?.id !== resumed.id || current.status !== "diving") {
+            void clearDiveNotifications(completionId, activeId);
+            return;
+          }
+          set({
+            _completionNotificationId: completionId,
+            _activeNotificationId: activeId
+          });
+        }
+      );
     },
 
     cancel: () => {
-      const { _intervalHandle } = get();
+      const { _intervalHandle, _completionNotificationId, _activeNotificationId } =
+        get();
       if (_intervalHandle) clearInterval(_intervalHandle);
-      set({ session: null, _intervalHandle: null, _lastRollMinute: 0 });
+      void clearDiveNotifications(_completionNotificationId, _activeNotificationId);
+      void DeepOceanLiveActivity.end(get().session?.id);
+      set({
+        session: null,
+        _intervalHandle: null,
+        _lastRollMinute: 0,
+        _pausedStartedAt: null,
+        _pausedAccumulatedMs: 0,
+        _completionNotificationId: null,
+        _activeNotificationId: null
+      });
     },
 
     clearPendingRewards: () => {
       set({ pendingLevelUp: null, pendingAchievements: [] });
     },
 
-    end: async () => {
-      const { session, _intervalHandle } = get();
+    end: async (options) => {
+      const {
+        session,
+        _intervalHandle,
+        _lastRollMinute,
+        _pausedAccumulatedMs,
+        _pausedStartedAt,
+        _completionNotificationId,
+        _activeNotificationId
+      } = get();
       if (!session) return;
       if (_intervalHandle) clearInterval(_intervalHandle);
+      const advanced = advanceSession(
+        session,
+        _lastRollMinute,
+        _pausedAccumulatedMs,
+        _pausedStartedAt,
+        Date.now(),
+        false
+      );
+      const finalSession = advanced.session;
+      await clearDiveNotifications(_completionNotificationId, _activeNotificationId);
+      void DeepOceanLiveActivity.end(finalSession.id);
+      if (options?.notifyCompletion) {
+        void notifyDiveCompletionNow();
+      }
       hapticDiveSurface();
       await AmbientAudio.stopAll();
 
       const profile = await container.diver.get();
       const earnedXp = xpForSession(
-        session.elapsedSeconds,
-        session.discoveries.length
+        finalSession.elapsedSeconds,
+        finalSession.discoveries.length
       );
       const {
         level: newLevel,
@@ -137,7 +397,7 @@ export const useDiveSession = create<State & Actions>()(
       } = computeLevelUp(profile.level, profile.xp, earnedXp);
 
       const ended: DiveSession = {
-        ...session,
+        ...finalSession,
         status: "surfaced",
         endedAt: Date.now(),
         summary: {
@@ -191,6 +451,11 @@ export const useDiveSession = create<State & Actions>()(
       set({
         session: ended,
         _intervalHandle: null,
+        _lastRollMinute: advanced.lastRollMinute,
+        _pausedStartedAt: null,
+        _pausedAccumulatedMs: 0,
+        _completionNotificationId: null,
+        _activeNotificationId: null,
         pendingLevelUp:
           levelsGained > 0 ? { from: profile.level, to: newLevel } : null,
         pendingAchievements: newAchievements
@@ -202,51 +467,35 @@ export const useDiveSession = create<State & Actions>()(
       const s = state.session;
       if (!s || s.status !== "diving") return;
 
-      const nextElapsed = s.elapsedSeconds + 1;
-      const minutes = nextElapsed / 60;
-      const depth = minutesToDepth(minutes);
-      const zone: OceanZone = depthToZone(depth);
+      const advanced = advanceSession(
+        s,
+        state._lastRollMinute,
+        state._pausedAccumulatedMs,
+        state._pausedStartedAt,
+        Date.now(),
+        true
+      );
+      const updated = advanced.session;
 
       // Auto-surface if user reached target
       const reachedTarget =
-        s.targetSeconds !== null && nextElapsed >= s.targetSeconds;
-
-      // Zone change side effects (audio + haptics)
-      if (zone !== s.zone) {
-        hapticZoneChange(zone);
-        AmbientAudio.setZone(zone);
-      }
-
-      // Roll discoveries each minute boundary
-      let discoveries = s.discoveries;
-      if (Math.floor(minutes) > state._lastRollMinute) {
-        const fresh = rollDiscoveries(
-          s.seed,
-          zone,
-          state._lastRollMinute,
-          Math.floor(minutes)
-        );
-        if (fresh.length > 0) {
-          fresh.forEach(() => hapticDiscovery());
-          discoveries = [...discoveries, ...fresh];
-        }
-        set({ _lastRollMinute: Math.floor(minutes) });
-      }
-
-      const updated: DiveSession = {
-        ...s,
-        elapsedSeconds: nextElapsed,
-        depthMeters: depth,
-        zone,
-        discoveries
-      };
+        updated.targetSeconds !== null &&
+        updated.elapsedSeconds >= updated.targetSeconds;
 
       if (reachedTarget) {
-        set({ session: updated });
-        get().end();
+        set({ session: updated, _lastRollMinute: advanced.lastRollMinute });
+        void DeepOceanLiveActivity.update(updated);
+        const completionAt = diveCompletionAt(
+          updated,
+          state._pausedAccumulatedMs
+        );
+        const shouldNotifyNow =
+          completionAt === null || Date.now() - completionAt < 2000;
+        get().end({ notifyCompletion: shouldNotifyNow });
         return;
       }
-      set({ session: updated });
+      set({ session: updated, _lastRollMinute: advanced.lastRollMinute });
+      void DeepOceanLiveActivity.update(updated);
     }
   }))
 );

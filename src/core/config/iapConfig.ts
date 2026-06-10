@@ -11,10 +11,10 @@ import Constants from "expo-constants";
  * surfaces an "unavailable" state rather than a fake unlock).
  *
  * Dashboard contract (configure these identifiers in RevenueCat):
- *  - Entitlement `premium`          → lifetime all-access pass.
+ *  - Entitlement `premium`          → all-access Pro via lifetime, annual, or monthly.
  *  - Entitlement `theme_<themeId>`  → a single unlocked premium theme.
- *  - Offering packages: a `lifetime` package for the pass, and one package per
- *    theme whose store product id is `theme_<themeId>`.
+ *  - Offering packages: `lifetime`, `annual`, `monthly`, and optionally one
+ *    package per theme whose store product id is `theme_<themeId>`.
  */
 export type IapConfig = {
   /** Resolved public SDK key for the current platform, or null. */

@@ -47,7 +47,7 @@ export const vi = {
       themeParticles: "Hạt",
       applyTheme: "Áp dụng chủ đề",
       premium: "DeepOcean Pro",
-      premiumDesc: "Mở khoá tất cả theme + tính năng cao cấp sắp ra mắt",
+      premiumDesc: "Mở theme, phân tích sâu và nhật ký thám hiểm đầy đủ",
       premiumActive: "Đã mở khoá toàn bộ. Cảm ơn bạn — lặn vui nha!",
       replayOnboarding: "Xem lại phần giới thiệu",
       confirm: "Xác nhận",
@@ -78,6 +78,11 @@ export const vi = {
     notifications: {
       reminderTitle: "Biển sâu đang gọi",
       reminderBody: "Hít một hơi và lặn xuống. Streak của bạn đang đợi.",
+      activeDiveTitle: "Đang lặn",
+      activeDiveBody: "Deep Ocean vẫn đang tính thời gian tập trung của bạn.",
+      diveCompleteTitle: "Chuyến lặn đã hoàn thành",
+      diveCompleteBody:
+        "Bạn có thể nổi lên khi sẵn sàng. Phiên tập trung đã xong.",
       pickerTitle: "Giờ nhắc nhở",
       pickerSubtitle: "Chọn thời điểm lời nhắc mỗi ngày",
       hours: "Giờ",
@@ -256,7 +261,7 @@ export const vi = {
     paywall: {
       title: "Lặn sâu hơn với Pro",
       subtitle:
-        "Mở khoá mọi vùng biển, theme và AI Companion. Ủng hộ đội ngũ nhỏ đang làm app.",
+        "Mở theme premium, phân tích AI sâu hơn và nhật ký thám hiểm đầy đủ. Ủng hộ đội ngũ nhỏ đang làm app.",
       compareTitle: "Bản thường vs Pro",
       compareFree: "Bản thường",
       comparePro: "Pro",
@@ -275,23 +280,23 @@ export const vi = {
       benefits: [
         {
           icon: "water",
-          title: "Khám phá mọi độ sâu",
-          body: "Mở khoá cả 5 vùng biển — từ Vùng Mặt trời đến Rãnh Hadal."
+          title: "Giữ trải nghiệm lặn miễn phí",
+          body: "Timer, XP, streak và lịch sử cơ bản vẫn mở; Pro thêm chiều sâu cho người dùng gắn bó."
         },
         {
           icon: "diamond",
-          title: "6 Theme Premium",
-          body: "Giao diện riêng cho từng vùng: ambient particle, sương sâu, font chữ độc quyền."
+          title: "8 Theme Premium",
+          body: "Giao diện riêng cho toàn app: bảng màu, font chữ, hạt lơ lửng và sương sâu."
         },
         {
           icon: "sparkles",
-          title: "AI Dive Companion",
-          body: "Hướng dẫn cá nhân hoá theo nhịp lặn và mức tập trung của bạn."
+          title: "Phân tích AI sâu",
+          body: "Nhịp tập trung, kế hoạch theo tâm trạng và bài thở cá nhân hoá theo thói quen lặn."
         },
         {
           icon: "telescope",
-          title: "Khám phá Độc quyền",
-          body: "Sinh vật hiếm và huyền thoại chỉ dành cho Pro. Hơn 160 mục trong bộ sưu tập."
+          title: "Nhật ký thám hiểm đầy đủ",
+          body: "Đọc truyền thuyết, giả thuyết và ghi chú mật phía sau từng sinh vật/cổ vật đã khám phá."
         }
       ] as const,
       planLifetime: "MÃI MÃI",
@@ -300,13 +305,13 @@ export const vi = {
       planLifetimeSub: "một lần",
       planMonthlySub: "/ tháng",
       lifetimeCta: "LIFETIME — MỞ TẤT CẢ",
-      lifetimePrice: "999.000đ",
+      lifetimePrice: "799.000đ",
       annualCta: "1 NĂM — TỐT NHẤT",
-      annualPrice: "599.000đ / năm",
-      annualPricePerMonth: "49.917đ / tháng",
+      annualPrice: "299.000đ / năm",
+      annualPricePerMonth: "24.917đ / tháng",
       annualSaving: "Tiết kiệm 50%",
       monthlyCta: "THEO THÁNG",
-      monthlyPrice: "99.000đ / tháng",
+      monthlyPrice: "49.000đ / tháng",
       trialBadge: "7 NGÀY MIỄN PHÍ",
       trialDescription:
         "Trải nghiệm miễn phí 7 ngày. Hủy bất cứ lúc nào trước khi gia hạn.",
