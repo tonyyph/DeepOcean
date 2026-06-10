@@ -30,10 +30,16 @@ export function parseWidgetActionUrl(url: string): WidgetCommand | null {
     return null;
   }
 
-  if (parsed.protocol !== "deepocean:") return null;
+  if (parsed.protocol !== "deepocean:" && parsed.protocol !== "deepocean-widget:") {
+    return null;
+  }
   const host = parsed.hostname.toLowerCase();
   const path = parsed.pathname.replace(/^\/+/, "");
-  const isWidgetRoute = host === "widget" || path.startsWith("widget");
+  const isWidgetRoute =
+    host === "widget" ||
+    host === "action" ||
+    path.startsWith("widget") ||
+    path.startsWith("action");
   if (!isWidgetRoute) return null;
 
   const action = normalizeAction(parsed.searchParams.get("action"));

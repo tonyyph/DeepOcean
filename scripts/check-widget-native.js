@@ -79,6 +79,11 @@ expectContains(
   "ios app group value"
 );
 expectContains(
+  "ios/DeepOcean/Info.plist",
+  "deepocean-widget",
+  "ios dedicated widget URL scheme"
+);
+expectContains(
   "app.json",
   "./plugins/with-focus-widget",
   "plugin registration"

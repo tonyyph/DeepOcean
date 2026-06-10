@@ -4,6 +4,7 @@ const {
   withAndroidManifest,
   withDangerousMod,
   withEntitlementsPlist,
+  withInfoPlist,
   withStringsXml
 } = require("@expo/config-plugins");
 
@@ -521,6 +522,27 @@ function withFocusWidgetAppGroup(config, props = {}) {
   });
 }
 
+function withFocusWidgetIosScheme(config) {
+  return withInfoPlist(config, (modConfig) => {
+    const urlTypes = modConfig.modResults.CFBundleURLTypes || [];
+    const target = urlTypes.find((entry) =>
+      Array.isArray(entry.CFBundleURLSchemes)
+    );
+
+    if (target) {
+      const schemes = target.CFBundleURLSchemes || [];
+      if (!schemes.includes("deepocean-widget")) {
+        target.CFBundleURLSchemes = [...schemes, "deepocean-widget"];
+      }
+    } else {
+      urlTypes.push({ CFBundleURLSchemes: ["deepocean-widget"] });
+    }
+
+    modConfig.modResults.CFBundleURLTypes = urlTypes;
+    return modConfig;
+  });
+}
+
 function withFocusWidgetIosFiles(config, props = {}) {
   return withDangerousMod(config, [
     "ios",
@@ -644,7 +666,16 @@ struct DeepOceanFocusWidgetEntryView: View {
       }
       .padding(12)
     }
-    .containerBackground(.clear, for: .widget)
+    .containerBackground(for: .widget) {
+      LinearGradient(
+        colors: [
+          Color(red: 0.02, green: 0.06, blue: 0.11),
+          Color(red: 0.03, green: 0.12, blue: 0.20)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+      )
+    }
   }
 }
 
@@ -658,6 +689,7 @@ struct DeepOceanFocusWidget: Widget {
     .configurationDisplayName("DeepOcean Focus")
     .description("Start and control focus sessions directly from your Home Screen.")
     .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+    .contentMarginsDisabled()
   }
 }
 `
@@ -673,6 +705,7 @@ const withFocusWidget = (config, props = {}) => {
   config = withFocusWidgetAndroidManifest(config);
   config = withFocusWidgetAndroidStrings(config);
   config = withFocusWidgetAppGroup(config, props);
+  config = withFocusWidgetIosScheme(config);
   config = withFocusWidgetIosFiles(config, props);
   return config;
 };

@@ -7,6 +7,20 @@ describe("parseWidgetActionUrl", () => {
     ).toEqual({ action: "start_focus", minutes: 30 });
   });
 
+  test("parses a start action from the dedicated widget scheme", () => {
+    expect(
+      parseWidgetActionUrl(
+        "deepocean-widget://widget?action=start_focus&minutes=25"
+      )
+    ).toEqual({ action: "start_focus", minutes: 25 });
+  });
+
+  test("parses path-only widget URL form from iOS handoff", () => {
+    expect(
+      parseWidgetActionUrl("deepocean:///widget?action=pause_session")
+    ).toEqual({ action: "pause_session" });
+  });
+
   test("accepts widget path form and clamps minute bounds", () => {
     expect(
       parseWidgetActionUrl(

@@ -41,6 +41,42 @@ const MOOD_FOCUS: Record<Mood, { en: string; vi: string }> = {
   curious: {
     en: "follow your curiosity and explore without a target",
     vi: "đi theo sự tò mò và khám phá không cần mục tiêu"
+  },
+  happy: {
+    en: "turn that lightness into a steady, playful dive",
+    vi: "biến sự nhẹ nhõm đó thành một chuyến lặn đều và thoải mái"
+  },
+  calm: {
+    en: "keep the pace quiet and let the depth come naturally",
+    vi: "giữ nhịp thật yên và để độ sâu đến tự nhiên"
+  },
+  excited: {
+    en: "use that spark, but anchor it with one clear task",
+    vi: "tận dụng sự hào hứng đó, nhưng neo lại bằng một việc thật rõ"
+  },
+  anxious: {
+    en: "start small and make the first five minutes the whole goal",
+    vi: "bắt đầu thật nhỏ và xem năm phút đầu là toàn bộ mục tiêu"
+  },
+  stressed: {
+    en: "choose a shorter dive and let the pressure loosen first",
+    vi: "chọn một chuyến lặn ngắn hơn và để áp lực dịu xuống trước"
+  },
+  distracted: {
+    en: "pick one tiny target before you descend",
+    vi: "chọn một mục tiêu thật nhỏ trước khi lặn"
+  },
+  sluggish: {
+    en: "keep the dive shallow until your momentum returns",
+    vi: "giữ chuyến lặn ở tầng cạn cho tới khi nhịp quay lại"
+  },
+  bored: {
+    en: "add a small challenge to make the dive feel fresh",
+    vi: "thêm một thử thách nhỏ để chuyến lặn mới mẻ hơn"
+  },
+  overwhelmed: {
+    en: "lower the target and protect a calm first step",
+    vi: "hạ mục tiêu xuống và giữ một bước đầu thật bình tĩnh"
   }
 };
 
@@ -70,9 +106,14 @@ export function composeOfflineCompanion(
 
   // recommendation
   const suggestedMinutes =
-    ctx.mood === "tired" || ctx.mood === "burned_out"
+    ctx.mood === "tired" ||
+    ctx.mood === "burned_out" ||
+    ctx.mood === "anxious" ||
+    ctx.mood === "stressed" ||
+    ctx.mood === "overwhelmed" ||
+    ctx.mood === "sluggish"
       ? 15
-      : ctx.mood === "motivated"
+      : ctx.mood === "motivated" || ctx.mood === "excited"
         ? 45
         : 25;
 
