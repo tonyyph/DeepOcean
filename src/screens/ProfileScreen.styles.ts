@@ -83,9 +83,9 @@ export const makeStyles = (t: AppTheme) =>
       paddingVertical: t.spacing[2],
       paddingHorizontal: t.spacing[3],
       borderRadius: t.radii.sm,
-      backgroundColor: t.colors.glass,
+      backgroundColor: t.colors.panel,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.borderStrong
+      borderColor: t.colors.panelEdge
     },
     nameEditActions: {
       flexDirection: "row",

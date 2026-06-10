@@ -5,6 +5,10 @@ import { glowTheme } from "./glow";
 import { iceTheme } from "./ice";
 import { emberTheme } from "./ember";
 import { coralTheme } from "./coral";
+import { kelpTheme } from "./kelp";
+import { pearlTheme } from "./pearl";
+import { rubyTheme } from "./ruby";
+import { royalTheme } from "./royal";
 
 export const THEMES: Record<ThemeId, AppTheme> = {
   deep: deepTheme,
@@ -12,7 +16,11 @@ export const THEMES: Record<ThemeId, AppTheme> = {
   glow: glowTheme,
   ice: iceTheme,
   ember: emberTheme,
-  coral: coralTheme
+  coral: coralTheme,
+  kelp: kelpTheme,
+  pearl: pearlTheme,
+  ruby: rubyTheme,
+  royal: royalTheme
 };
 
 export const THEME_LIST: readonly AppTheme[] = [
@@ -21,7 +29,11 @@ export const THEME_LIST: readonly AppTheme[] = [
   glowTheme,
   iceTheme,
   emberTheme,
-  coralTheme
+  coralTheme,
+  kelpTheme,
+  pearlTheme,
+  rubyTheme,
+  royalTheme
 ];
 
 export const DEFAULT_THEME_ID: ThemeId = "deep";

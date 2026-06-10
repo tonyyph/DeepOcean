@@ -111,9 +111,9 @@ const makeStyles = (t: AppTheme) =>
     pill: {
       height: 40,
       borderRadius: t.radii.sm,
-      backgroundColor: t.colors.glass,
+      backgroundColor: t.colors.panel,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.glassEdge,
+      borderColor: t.colors.panelEdge,
       alignItems: "center",
       justifyContent: "center"
     },

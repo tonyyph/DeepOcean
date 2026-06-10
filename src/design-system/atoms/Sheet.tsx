@@ -18,7 +18,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
-import { Colors } from "@/theme";
 
 const SHEET_BLUR_INTENSITY = 70;
 const SHEET_MAX_HEIGHT_RATIO = 0.92;
@@ -150,7 +149,7 @@ export const Sheet = forwardRef<SheetHandle, Props>(function Sheet(
             style={StyleSheet.absoluteFill}
           />
           <LinearGradient
-            colors={[t.colors.surfaceElevated, t.colors.surface]}
+            colors={[t.colors.panelStrong, t.colors.panel]}
             style={StyleSheet.absoluteFill}
           />
           <View style={styles.bgEdge} pointerEvents="none" />
@@ -187,7 +186,7 @@ const makeStyles = (t: AppTheme) =>
       width: HANDLE_WIDTH,
       height: HANDLE_HEIGHT,
       borderRadius: 2,
-      backgroundColor: `${Colors.base.white}24`
+      backgroundColor: t.colors.panelEdge
     },
     content: {
       paddingHorizontal: t.spacing[6],

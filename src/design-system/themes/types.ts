@@ -11,7 +11,11 @@ export const THEME_IDS = [
   "glow",
   "ice",
   "ember",
-  "coral"
+  "coral",
+  "kelp",
+  "pearl",
+  "ruby",
+  "royal"
 ] as const;
 
 export type ThemeId = (typeof THEME_IDS)[number];
@@ -20,6 +24,14 @@ export type ThemeColors = {
   background: string;
   surface: string;
   surfaceElevated: string;
+  /** Frosted section fill: dark translucent panel tuned for readable glass. */
+  panel: string;
+  /** Stronger panel fill for sheets, modals, and nested controls. */
+  panelStrong: string;
+  /** Subtle top highlight used inside glass panels. */
+  panelTint: string;
+  /** Colored rim that separates glass panels from vivid zone backgrounds. */
+  panelEdge: string;
   border: string;
   borderStrong: string;
   text: string;
@@ -63,10 +75,18 @@ export type ParticleStyle =
   | "bubbles" // crisp rising orbs — Glow / Reef
   | "snow" // slow downward flakes — Ice
   | "embers" // warm upward sparks — Ember
-  | "petals"; // wide horizontal sway — Coral
+  | "petals" // wide horizontal sway — Coral
+  | "plankton" // tiny living specks with uneven pulse — Kelp
+  | "silt" // heavy suspended grains falling slowly — Pearl
+  | "shards" // angular-feeling red glints with sharp drift — Ruby
+  | "rays"; // slow luminous columns and motes — Royal
 
 export type ThemeParticles = {
   style: ParticleStyle;
+  /** Premium themes can opt into non-deterministic reseeding on remount. */
+  randomize?: boolean;
+  /** Spatial distribution for the ambient field. */
+  scatter?: "even" | "clustered" | "bands";
   count: number;
   /** [min, max] radius in px. */
   size: readonly [number, number];

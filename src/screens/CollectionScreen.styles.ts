@@ -53,7 +53,7 @@ export const makeStyles = (t: AppTheme) =>
       borderColor: t.colors.border,
       paddingHorizontal: t.spacing[2.5],
       paddingVertical: t.spacing[1],
-      backgroundColor: t.colors.glass
+      backgroundColor: t.colors.panel
     },
     compactChipActive: {
       borderColor: t.colors.accent,

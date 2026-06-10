@@ -35,6 +35,7 @@ type Particle = {
   speed: number;
   phase: number;
   hue: string;
+  seed: number;
 };
 
 /**
@@ -74,18 +75,43 @@ export const UnderwaterCanvas = React.memo(function UnderwaterCanvas({
 
   const particles = useMemo<Particle[]>(() => {
     const out: Particle[] = [];
+    const salt = cfg.randomize ? Math.random() * 10000 : themeSeed(t.id, zone);
     for (let i = 0; i < count; i++) {
+      const rx = rand(i, salt, 1);
+      const ry = rand(i, salt, 2);
+      const rr = rand(i, salt, 3);
+      const rs = rand(i, salt, 4);
+      const rp = rand(i, salt, 5);
+      const clusteredX =
+        width * 0.5 + (rx - 0.5) * width * (cfg.scatter === "clustered" ? 0.62 : 1);
+      const bandY =
+        Math.floor(ry * 4) * (height / 4) + rand(i, salt, 6) * (height / 8);
       out.push({
-        x: Math.random() * width,
-        baseY: Math.random() * height,
-        r: cfg.size[0] + Math.random() * (cfg.size[1] - cfg.size[0]),
-        speed: cfg.speed * (0.6 + Math.random() * 0.9),
-        phase: Math.random() * Math.PI * 2,
-        hue: cfg.hues[i % cfg.hues.length] ?? cfg.hues[0]!
+        x:
+          cfg.scatter === "clustered"
+            ? Math.max(0, Math.min(width, clusteredX))
+            : rx * width,
+        baseY: cfg.scatter === "bands" ? bandY % height : ry * height,
+        r: cfg.size[0] + rr * (cfg.size[1] - cfg.size[0]),
+        speed: cfg.speed * (0.6 + rs * 0.9),
+        phase: rp * Math.PI * 2,
+        hue: cfg.hues[i % cfg.hues.length] ?? cfg.hues[0]!,
+        seed: rand(i, salt, 7)
       });
     }
     return out;
-  }, [count, width, height, cfg.size, cfg.speed, cfg.hues]);
+  }, [
+    count,
+    width,
+    height,
+    cfg.size,
+    cfg.speed,
+    cfg.hues,
+    cfg.randomize,
+    cfg.scatter,
+    t.id,
+    zone
+  ]);
 
   // Vignette intensity scales softly with zone light level.
   const lightAdjustedVignette = useMemo(() => {
@@ -146,14 +172,32 @@ function ParticleDot({
     const sway =
       style === "petals"
         ? Math.sin(t.value * Math.PI * 4 + p.phase) * drift
+        : style === "plankton"
+          ? (Math.sin(t.value * Math.PI * 2 + p.phase) +
+              Math.cos(t.value * Math.PI * 5 + p.seed * 8)) *
+            drift *
+            0.55
+          : style === "shards"
+            ? Math.sin(t.value * Math.PI * 6 + p.phase) * drift * 0.45
+            : style === "rays"
+              ? Math.sin(t.value * Math.PI + p.phase) * drift * 0.35
         : Math.sin(t.value * Math.PI * 2 + p.phase) * drift;
     return (p.x + sway + width) % width;
   });
 
   const cy = useDerivedValue(() => {
     "worklet";
-    const dir = style === "snow" ? 1 : -1; // snow falls down; everything else rises
-    const speedScalar = style === "bubbles" || style === "embers" ? 1.6 : 1.0;
+    const dir = style === "snow" || style === "silt" ? 1 : -1;
+    const speedScalar =
+      style === "bubbles" || style === "embers"
+        ? 1.6
+        : style === "rays"
+          ? 0.35
+          : style === "plankton"
+            ? 0.55 + p.seed * 0.5
+            : style === "shards"
+              ? 1.9
+              : 1.0;
     const y =
       p.baseY + (dir * t.value * 14000 * (p.speed * speedScalar)) / 1000;
     return ((y % height) + height) % height;
@@ -161,11 +205,33 @@ function ParticleDot({
 
   const opacity = useDerivedValue(() => {
     "worklet";
-    const base = style === "embers" ? 0.55 : 0.45;
-    return base + 0.35 * Math.sin(t.value * Math.PI * 2 + p.phase);
+    const base =
+      style === "embers" || style === "shards"
+        ? 0.55
+        : style === "rays"
+          ? 0.28
+          : style === "silt"
+            ? 0.34
+            : 0.45;
+    const pulseSpeed = style === "plankton" ? 5 : style === "shards" ? 4 : 2;
+    return base + 0.35 * Math.sin(t.value * Math.PI * pulseSpeed + p.phase);
   });
 
   return <Circle cx={cx} cy={cy} r={p.r} color={p.hue} opacity={opacity} />;
+}
+
+function themeSeed(id: string, zone: OceanZone): number {
+  let out = 0;
+  const source = `${id}:${zone}`;
+  for (let i = 0; i < source.length; i++) {
+    out = (Math.imul(out, 31) + source.charCodeAt(i)) >>> 0;
+  }
+  return out / 1000;
+}
+
+function rand(index: number, salt: number, channel: number): number {
+  const x = Math.sin(index * 127.1 + salt * 311.7 + channel * 74.7) * 43758.5453;
+  return x - Math.floor(x);
 }
 
 /** Scale the alpha channel of an rgba(...) string by `factor` (clamped). */

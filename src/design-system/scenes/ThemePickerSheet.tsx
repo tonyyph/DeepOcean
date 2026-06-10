@@ -264,8 +264,8 @@ const makeStyles = (t: AppTheme) =>
       borderColor: "transparent"
     },
     swatchItemSelected: {
-      borderColor: t.colors.glassEdge,
-      backgroundColor: `${t.colors.glass}66`
+      borderColor: t.colors.panelEdge,
+      backgroundColor: t.colors.panel
     },
     swatchMotion: {
       alignItems: "center",
@@ -292,8 +292,8 @@ const makeStyles = (t: AppTheme) =>
       padding: t.spacing[4],
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.glass,
+      borderColor: t.colors.panelEdge,
+      backgroundColor: t.colors.panel,
       gap: t.spacing[3]
     },
     previewHeader: {
@@ -331,8 +331,8 @@ const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[3],
       borderRadius: t.radii.s,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
-      backgroundColor: `${t.colors.surfaceElevated}99`
+      borderColor: t.colors.panelEdge,
+      backgroundColor: t.colors.panelStrong
     },
     previewMetaItem: {
       color: t.colors.textMuted,

@@ -18,7 +18,7 @@ export type GlassCardProps = ViewProps & {
  * Reads `useTheme()` so it auto-restyles on theme switch.
  */
 export const GlassCard = React.memo(function GlassCard({
-  intensity = 22,
+  intensity = 10,
   tint = "dark",
   glow = false,
   radius,
@@ -33,12 +33,65 @@ export const GlassCard = React.memo(function GlassCard({
 
   const content = (
     <>
+      {/* Dense tinted glass body: keeps text readable over vivid zone gradients. */}
       <LinearGradient
         pointerEvents="none"
-        colors={["rgba(255,255,255,0.10)", "rgba(255,255,255,0.02)"]}
+        colors={[t.colors.panelStrong, t.colors.panel]}
+        start={{ x: 0.2, y: 0 }}
+        end={{ x: 0.8, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      {/* Soft color bloom from the active theme, like light caught inside glass. */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={[t.colors.panelTint, "rgba(255,255,255,0.015)"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
+      />
+      {/* Diagonal specular streak so the surface reads as glass, not a flat card. */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={[
+          "rgba(255,255,255,0.02)",
+          "rgba(255,255,255,0.10)",
+          "rgba(255,255,255,0.15)"
+        ]}
+        locations={[0, 0.38, 0.72]}
+        start={{ x: 0.05, y: 0 }}
+        end={{ x: 0.95, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      {/* Subtle lower absorption gives the material thickness and depth. */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.18)"]}
+        locations={[0.58, 1]}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={[StyleSheet.absoluteFill, styles.absorption]}
+      />
+      <View
+        pointerEvents="none"
+        style={[
+          styles.topHighlight,
+          {
+            borderTopLeftRadius: r,
+            borderTopRightRadius: r,
+            backgroundColor: "rgba(255,255,255,0.18)"
+          }
+        ]}
+      />
+      <View
+        pointerEvents="none"
+        style={[
+          styles.leftHighlight,
+          {
+            borderTopLeftRadius: r,
+            borderBottomLeftRadius: r,
+            backgroundColor: "rgba(255,255,255,0.08)"
+          }
+        ]}
       />
       <View
         pointerEvents="none"
@@ -46,8 +99,8 @@ export const GlassCard = React.memo(function GlassCard({
           StyleSheet.absoluteFill,
           {
             borderRadius: r,
-            borderWidth: StyleSheet.hairlineWidth,
-            borderColor: t.colors.glassEdge
+            borderWidth: 1,
+            borderColor: t.colors.panelEdge
           }
         ]}
       />
@@ -61,9 +114,9 @@ export const GlassCard = React.memo(function GlassCard({
         {
           borderRadius: r,
           shadowColor: glow ? t.colors.accent : "#000",
-          shadowOpacity: glow ? 0.35 : 0.22,
-          shadowRadius: glow ? 10 : 8,
-          shadowOffset: { width: 0, height: glow ? 0 : 6 }
+          shadowOpacity: glow ? 0.24 : 0.15,
+          shadowRadius: glow ? 10 : 10,
+          shadowOffset: { width: 0, height: glow ? 0 : 8 }
         },
         style
       ]}
@@ -87,7 +140,7 @@ export const GlassCard = React.memo(function GlassCard({
             {
               borderRadius: r,
               overflow: "hidden",
-              backgroundColor: t.colors.surface
+              backgroundColor: t.colors.panelStrong
             }
           ]}
         >
@@ -103,3 +156,23 @@ const containerStyle = {
   overflow: "visible" as const,
   backgroundColor: "transparent" as const
 };
+
+const styles = StyleSheet.create({
+  topHighlight: {
+    position: "absolute",
+    top: 0,
+    left: 1,
+    right: 1,
+    height: StyleSheet.hairlineWidth
+  },
+  leftHighlight: {
+    position: "absolute",
+    top: 1,
+    bottom: 1,
+    left: 0,
+    width: StyleSheet.hairlineWidth
+  },
+  absorption: {
+    opacity: 0.24
+  }
+});
