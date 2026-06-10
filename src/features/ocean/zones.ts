@@ -40,7 +40,7 @@ export const ZONE_TABLE: Record<OceanZone, ZoneDefinition> = {
     depth: [200, 1000],
     unlockMinutes: 15,
     description:
-      "Color fades to indigo. Bioluminescent jellies begin to appear.",
+      "Color fades to indigo. Glowing jellies begin to appear.",
     light: 0.45
   },
   midnight: {

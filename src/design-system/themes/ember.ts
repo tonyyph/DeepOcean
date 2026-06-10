@@ -2,10 +2,10 @@ import type { AppTheme } from "./types";
 import { radii, spacing, motion } from "../tokens";
 import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
-// Volcanic Vent — premium. Hydrothermal vent: dark plum + ember accents.
-export const volcanicTheme: AppTheme = {
-  id: "volcanic",
-  name: "Volcanic Vent",
+// Ember — premium. Hydrothermal vent: dark plum + ember accents.
+export const emberTheme: AppTheme = {
+  id: "ember",
+  name: "Ember Vent",
   description: "Hydrothermal vents in pitch black. Embers rising slowly.",
   premium: true,
   colors: {

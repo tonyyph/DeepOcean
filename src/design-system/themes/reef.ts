@@ -2,10 +2,10 @@ import type { AppTheme } from "./types";
 import { radii, spacing, motion, palette } from "../tokens";
 import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
-// Sunlit Reef — warm shallow reef. Free theme, brighter alternative to Abyss.
-export const sunlitTheme: AppTheme = {
-  id: "sunlit",
-  name: "Sunlit Reef",
+// Reef — warm shallow reef. Free theme, brighter alternative to Deep.
+export const reefTheme: AppTheme = {
+  id: "reef",
+  name: "Reef Gold",
   description: "Warm tropical shallows. Coral, sunlight, schools of fish.",
   premium: false,
   colors: {

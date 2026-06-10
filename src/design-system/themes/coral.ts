@@ -2,10 +2,10 @@ import type { AppTheme } from "./types";
 import { radii, spacing, motion } from "../tokens";
 import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
-// Coral Garden — premium. Soft pastel reef, swaying petals.
-export const coralGardenTheme: AppTheme = {
-  id: "coralGarden",
-  name: "Coral Garden",
+// Coral — premium. Soft pastel reef, swaying petals.
+export const coralTheme: AppTheme = {
+  id: "coral",
+  name: "Coral Bloom",
   description: "Pastel reef in pink and seafoam. Gentle drifting petals.",
   premium: true,
   colors: {

@@ -1,5 +1,9 @@
 import { create, StoreApi, UseBoundStore } from "zustand";
-import { THEME_IDS, type ThemeId } from "@/design-system/themes";
+import {
+  THEME_IDS,
+  normalizeThemeId,
+  type ThemeId
+} from "@/design-system/themes";
 import { container } from "@/data/container";
 import { PurchaseCancelledError } from "@/data/repositories/PremiumRepository";
 import type {
@@ -19,9 +23,26 @@ import type {
  */
 
 const VALID_THEME_IDS = new Set<string>(THEME_IDS);
+const LEGACY_THEME_IDS: Record<string, ThemeId> = {
+  abyss: "deep",
+  sunlit: "reef",
+  ["bio" + "luminescent"]: "glow",
+  arctic: "ice",
+  volcanic: "ember",
+  coralGarden: "coral"
+};
 
 function narrowThemes(ids: readonly string[]): ThemeId[] {
-  return ids.filter((id): id is ThemeId => VALID_THEME_IDS.has(id));
+  const out = new Set<ThemeId>();
+  for (const id of ids) {
+    const legacyId = LEGACY_THEME_IDS[id];
+    if (legacyId) {
+      out.add(legacyId);
+    } else if (VALID_THEME_IDS.has(id)) {
+      out.add(normalizeThemeId(id));
+    }
+  }
+  return Array.from(out);
 }
 
 type PurchaseStatus = "idle" | "loading" | "error";

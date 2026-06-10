@@ -2,10 +2,10 @@ import type { AppTheme } from "./types";
 import { radii, spacing, motion, palette } from "../tokens";
 import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
-export const abyssTheme: AppTheme = {
-  id: "abyss",
-  name: "Abyss",
-  description: "The default deep-blue dive. Calm, midnight, bioluminescent.",
+export const deepTheme: AppTheme = {
+  id: "deep",
+  name: "Deep Blue",
+  description: "The default deep-blue dive. Calm, midnight, softly glowing.",
   premium: false,
   colors: {
     background: palette.abyss[600],

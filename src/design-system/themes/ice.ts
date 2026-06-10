@@ -2,10 +2,10 @@ import type { AppTheme } from "./types";
 import { radii, spacing, motion } from "../tokens";
 import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
-// Arctic — premium. Glacial pale blues, frosted glass, falling snow particles.
-export const arcticTheme: AppTheme = {
-  id: "arctic",
-  name: "Arctic",
+// Ice — premium. Glacial pale blues, frosted glass, falling snow particles.
+export const iceTheme: AppTheme = {
+  id: "ice",
+  name: "Ice Drift",
   description: "Glacial pale blues. Quiet, crystalline, breath-frosted.",
   premium: true,
   colors: {

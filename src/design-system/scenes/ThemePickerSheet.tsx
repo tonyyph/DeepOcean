@@ -1,17 +1,19 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { useTranslations } from "@/core/i18n";
+import { canUseTheme, usePremium, useThemeStore } from "@/stores";
 import { MotiView } from "moti";
-import { useTheme } from "../useTheme";
-import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme, ThemeId } from "../themes";
-import { THEME_LIST } from "../themes";
-import { Sheet } from "../atoms/Sheet";
-import { ThemeSwatch } from "../atoms/ThemeSwatch";
+import React, { useCallback, useEffect, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PremiumBadge } from "../atoms/PremiumBadge";
 import { PressableCard } from "../atoms/PressableCard";
-import { useThemeStore, usePremium, canUseTheme } from "@/stores";
-import { useTranslations } from "@/core/i18n";
+import { Sheet } from "../atoms/Sheet";
+import { ThemeSwatch } from "../atoms/ThemeSwatch";
+import type { AppTheme, ThemeId } from "../themes";
+import { THEME_LIST } from "../themes";
+import { useTheme } from "../useTheme";
+import { useThemedStyles } from "../useThemedStyles";
+
+const SWATCH_SIZE = 62;
+const SWATCH_ITEM_WIDTH = 92;
 
 type Props = {
   visible: boolean;
@@ -67,105 +69,125 @@ export function ThemePickerSheet({
 
   return (
     <Sheet visible={visible} onDismiss={onDismiss}>
-      <View
-        style={[
-          styles.membershipBanner,
-          isPremium
-            ? styles.membershipBannerPremium
-            : styles.membershipBannerFree
-        ]}
-      >
-        <Text style={styles.membershipBannerTitle}>
-          {isPremium
-            ? tr.profile.premiumActive
-            : tr.profile.themeLockedCount(lockedThemesCount)}
-        </Text>
-      </View>
-
-      <View style={styles.header}>
-        <Text style={styles.title}>{tr.profile.themePickerTitle}</Text>
-        <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
-      </View>
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.swatchScroll}
-        contentContainerStyle={styles.swatchRow}
-      >
-        {THEME_LIST.map((th) => {
-          const locked = !canUseTheme(th.id, th.premium, isPremium, unlocked);
-          const isSelected = th.id === selected;
-          return (
-            <Pressable
-              key={th.id}
-              onPress={() => handlePick(th.id, th.premium)}
-              style={[styles.swatchItem, locked && styles.swatchItemLocked]}
-            >
-              <MotiView
-                from={{ scale: 0.94 }}
-                animate={{ scale: isSelected ? 1.06 : 1 }}
-                transition={{ type: "spring", damping: 14, stiffness: 220 }}
-              >
-                <View style={styles.swatchVisualWrap}>
-                  <ThemeSwatch theme={th} size={64} active={isSelected} />
-                  {locked && (
-                    <View style={styles.swatchLockVeil}>
-                      <Ionicons
-                        name="lock-closed"
-                        size={12}
-                        color={t.colors.text}
-                      />
-                      <Text style={styles.swatchLockText}>
-                        {tr.profile.proOnly}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </MotiView>
-              <Text
-                style={[
-                  styles.swatchLabel,
-                  isSelected && { color: th.colors.accent }
-                ]}
-              >
-                {th.name}
-              </Text>
-              {locked && (
-                <View style={styles.lockBadge}>
-                  <PremiumBadge variant="lock" label="PRO" />
-                </View>
-              )}
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
-      <View style={styles.previewCard}>
-        <Text
-          style={[styles.previewName, { color: previewTheme.colors.accent }]}
+      <View style={styles.container}>
+        <View
+          style={[
+            styles.membershipBanner,
+            isPremium
+              ? styles.membershipBannerPremium
+              : styles.membershipBannerFree
+          ]}
         >
-          {previewTheme.name}
-        </Text>
-        <Text style={styles.previewDesc}>{previewTheme.description}</Text>
-        <View style={styles.previewMeta}>
-          <Text style={styles.previewMetaItem}>
-            {tr.profile.themeFont}:{" "}
-            {readableFontName(previewTheme.fonts.display)}
-          </Text>
-          <Text style={styles.previewMetaItem}>
-            {tr.profile.themeParticles}: {previewTheme.particles.style}
+          <Text style={styles.membershipBannerTitle} numberOfLines={2}>
+            {isPremium
+              ? tr.profile.premiumActive
+              : tr.profile.themeLockedCount(lockedThemesCount)}
           </Text>
         </View>
-      </View>
 
-      <View style={styles.actions}>
-        <PressableCard haptic="medium" onPress={handleApply} glow>
-          <Text style={styles.applyText}>{tr.profile.applyTheme}</Text>
-        </PressableCard>
-        <PressableCard haptic="light" onPress={onDismiss}>
-          <Text style={styles.cancelText}>{tr.profile.cancel}</Text>
-        </PressableCard>
+        <View style={styles.header}>
+          <Text style={styles.title}>{tr.profile.themePickerTitle}</Text>
+          <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.swatchScroll}
+          contentContainerStyle={styles.swatchRow}
+        >
+          {THEME_LIST.map((th) => {
+            const locked = !canUseTheme(th.id, th.premium, isPremium, unlocked);
+            const isSelected = th.id === selected;
+            return (
+              <Pressable
+                key={th.id}
+                onPress={() => handlePick(th.id, th.premium)}
+                style={[
+                  styles.swatchItem,
+                  isSelected && styles.swatchItemSelected,
+                  locked && styles.swatchItemLocked
+                ]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+              >
+                <MotiView
+                  from={{ scale: 0.96 }}
+                  animate={{ scale: isSelected ? 1.05 : 1 }}
+                  transition={{ type: "spring", damping: 16, stiffness: 220 }}
+                  style={styles.swatchMotion}
+                >
+                  <ThemeSwatch
+                    theme={th}
+                    size={SWATCH_SIZE}
+                    active={isSelected}
+                  />
+                  {locked && (
+                    <View style={styles.lockBadge}>
+                      <PremiumBadge variant="lock" label="PRO" />
+                    </View>
+                  )}
+                </MotiView>
+                <Text
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.82}
+                  style={[
+                    styles.swatchLabel,
+                    isSelected && { color: th.colors.accent }
+                  ]}
+                >
+                  {th.name}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+
+        <View style={styles.previewCard}>
+          <View style={styles.previewHeader}>
+            <View
+              style={[
+                styles.previewAccent,
+                { backgroundColor: previewTheme.colors.accent }
+              ]}
+            />
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.previewName,
+                { color: previewTheme.colors.accent }
+              ]}
+            >
+              {previewTheme.name}
+            </Text>
+          </View>
+          <Text style={styles.previewDesc} numberOfLines={3}>
+            {previewTheme.description}
+          </Text>
+          <View style={styles.previewMeta}>
+            <View style={styles.previewMetaPill}>
+              <Text style={styles.previewMetaItem} numberOfLines={1}>
+                {tr.profile.themeFont}:{" "}
+                {readableFontName(previewTheme.fonts.display)}
+              </Text>
+            </View>
+            <View style={styles.previewMetaPill}>
+              <Text style={styles.previewMetaItem} numberOfLines={1}>
+                {tr.profile.themeParticles}: {previewTheme.particles.style}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.actions}>
+          <PressableCard haptic="medium" onPress={handleApply} glow>
+            <Text style={styles.applyText}>{tr.profile.applyTheme}</Text>
+          </PressableCard>
+          <PressableCard haptic="light" onPress={onDismiss}>
+            <Text style={styles.cancelText}>{tr.profile.cancel}</Text>
+          </PressableCard>
+        </View>
       </View>
     </Sheet>
   );
@@ -177,16 +199,19 @@ function readableFontName(family: string): string {
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
+    container: {
+      gap: t.spacing[4]
+    },
     header: {
-      gap: t.spacing[1],
-      marginBottom: t.spacing[4]
+      gap: t.spacing[1]
     },
     membershipBanner: {
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
       paddingHorizontal: t.spacing[4],
       paddingVertical: t.spacing[3],
-      marginBottom: t.spacing[3]
+      minHeight: 44,
+      justifyContent: "center"
     },
     membershipBannerPremium: {
       borderColor: `${t.colors.accent}66`,
@@ -208,75 +233,81 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.text,
       fontSize: 20,
       fontFamily: t.fonts.display,
-      letterSpacing: t.fonts.displayLetterSpacing
+      letterSpacing: t.fonts.displayLetterSpacing,
+      textAlign: "center"
     },
     subtitle: {
       color: t.colors.textMuted,
       fontSize: 13,
-      fontFamily: t.fonts.body
+      lineHeight: 19,
+      fontFamily: t.fonts.body,
+      textAlign: "center"
     },
     swatchScroll: {
-      height: 128
+      marginHorizontal: -t.spacing[6]
     },
     swatchRow: {
-      gap: t.spacing[5],
-      paddingVertical: t.spacing[4],
-      paddingHorizontal: t.spacing[4]
+      gap: t.spacing[3],
+      paddingVertical: t.spacing[2],
+      paddingHorizontal: t.spacing[6]
     },
     swatchItem: {
       alignItems: "center",
+      justifyContent: "space-between",
       gap: t.spacing[2],
-      position: "relative"
+      width: SWATCH_ITEM_WIDTH,
+      minHeight: 108,
+      paddingHorizontal: t.spacing[2],
+      paddingVertical: t.spacing[2],
+      borderRadius: t.radii.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: "transparent"
     },
-    swatchVisualWrap: {
-      position: "relative"
+    swatchItemSelected: {
+      borderColor: t.colors.glassEdge,
+      backgroundColor: `${t.colors.glass}66`
+    },
+    swatchMotion: {
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: SWATCH_SIZE + 10
     },
     swatchItemLocked: {
       opacity: 0.72
-    },
-    swatchLockVeil: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      bottom: 0,
-      borderBottomLeftRadius: t.radii.sm,
-      borderBottomRightRadius: t.radii.sm,
-      backgroundColor: `${t.colors.surface}CC`,
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: `${t.colors.premium}88`,
-      paddingVertical: 2,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 4
-    },
-    swatchLockText: {
-      color: t.colors.text,
-      fontSize: 9,
-      letterSpacing: 0.6,
-      fontFamily: t.fonts.label
     },
     swatchLabel: {
       color: t.colors.textSecondary,
       fontSize: 12,
       fontFamily: t.fonts.label,
-      letterSpacing: 1
+      letterSpacing: 0.8,
+      maxWidth: SWATCH_ITEM_WIDTH - t.spacing[3],
+      textAlign: "center"
     },
     lockBadge: {
       position: "absolute",
-      top: -4,
-      right: -10
+      top: 2,
+      right: -8
     },
     previewCard: {
-      marginVertical: t.spacing[4],
       padding: t.spacing[4],
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.border,
       backgroundColor: t.colors.glass,
+      gap: t.spacing[3]
+    },
+    previewHeader: {
+      flexDirection: "row",
+      alignItems: "center",
       gap: t.spacing[2]
     },
+    previewAccent: {
+      width: 4,
+      height: 24,
+      borderRadius: 2
+    },
     previewName: {
+      flex: 1,
       fontSize: 18,
       fontFamily: t.fonts.display,
       letterSpacing: t.fonts.displayLetterSpacing
@@ -290,19 +321,28 @@ const makeStyles = (t: AppTheme) =>
     previewMeta: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: t.spacing[3],
-      marginTop: t.spacing[1]
+      gap: t.spacing[2]
+    },
+    previewMetaPill: {
+      flexGrow: 1,
+      flexBasis: "47%",
+      minHeight: 34,
+      justifyContent: "center",
+      paddingHorizontal: t.spacing[3],
+      borderRadius: t.radii.s,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.border,
+      backgroundColor: `${t.colors.surfaceElevated}99`
     },
     previewMetaItem: {
       color: t.colors.textMuted,
       fontSize: 11,
-      letterSpacing: 1,
+      letterSpacing: 0.8,
       fontFamily: t.fonts.label,
       textTransform: "uppercase"
     },
     actions: {
-      marginTop: t.spacing[8],
-      gap: t.spacing[3.5]
+      gap: t.spacing[3]
     },
     applyText: {
       color: t.colors.text,

@@ -21,7 +21,7 @@ export type IapConfig = {
   apiKey: string | null;
   /** Entitlement id that grants the all-access lifetime pass. */
   premiumEntitlement: string;
-  /** Prefix for per-theme entitlement ids (e.g. `theme_volcanic`). */
+  /** Prefix for per-theme entitlement ids (e.g. `theme_ember`). */
   themeEntitlementPrefix: string;
   /** RevenueCat offering package identifier for the lifetime pass. */
   lifetimePackageId: string;

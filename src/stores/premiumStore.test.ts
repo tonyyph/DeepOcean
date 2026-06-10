@@ -39,7 +39,7 @@ describe("premiumStore debug toggle", () => {
       })),
       purchaseTheme: jest.fn(async () => ({
         isPremium: false,
-        unlockedThemes: ["arctic"],
+        unlockedThemes: ["ice"],
         activePlan: null,
         resolvedAt: Date.now()
       })),

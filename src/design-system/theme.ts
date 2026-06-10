@@ -1,4 +1,4 @@
-// Legacy `theme` export — a static snapshot of the Abyss theme.
+// Legacy `theme` export — a static snapshot of the Deep theme.
 //
 // **DO NOT USE in new code.** Use `useTheme()` / `useThemedStyles()` instead so
 // the component reacts to the user's selected theme.
@@ -7,7 +7,7 @@
 //   - Skia/non-reactive contexts that need a default palette at module load.
 //   - Backwards compatibility while migrating.
 
-import { abyssTheme } from "./themes/abyss";
+import { deepTheme } from "./themes/deep";
 
-export const theme = abyssTheme;
-export type Theme = typeof abyssTheme;
+export const theme = deepTheme;
+export type Theme = typeof deepTheme;

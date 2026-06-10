@@ -6,12 +6,12 @@ import type { OceanZone } from "@/features/ocean/zones";
 import { radii, spacing, motion } from "../tokens";
 
 export const THEME_IDS = [
-  "abyss",
-  "sunlit",
-  "bioluminescent",
-  "arctic",
-  "volcanic",
-  "coralGarden"
+  "deep",
+  "reef",
+  "glow",
+  "ice",
+  "ember",
+  "coral"
 ] as const;
 
 export type ThemeId = (typeof THEME_IDS)[number];
@@ -59,11 +59,11 @@ export type ThemeFonts = {
 };
 
 export type ParticleStyle =
-  | "dust" // soft drifting motes, upward — Abyss default
-  | "bubbles" // crisp rising orbs — Bioluminescent / Sunlit
-  | "snow" // slow downward flakes — Arctic
-  | "embers" // warm upward sparks — Volcanic
-  | "petals"; // wide horizontal sway — Coral Garden
+  | "dust" // soft drifting motes, upward — Deep default
+  | "bubbles" // crisp rising orbs — Glow / Reef
+  | "snow" // slow downward flakes — Ice
+  | "embers" // warm upward sparks — Ember
+  | "petals"; // wide horizontal sway — Coral
 
 export type ThemeParticles = {
   style: ParticleStyle;

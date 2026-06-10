@@ -25,7 +25,7 @@ module.exports = {
           700: "#000308"
         },
         bio: {
-          // Bioluminescent accents
+          // Glow accents
           cyan: "#22E4FF",
           aqua: "#5FF7E0",
           jade: "#7CFFC2",

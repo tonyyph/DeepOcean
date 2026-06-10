@@ -2,10 +2,10 @@ import type { AppTheme } from "./types";
 import { radii, spacing, motion } from "../tokens";
 import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
-// Bioluminescent — premium. True-black canvas with neon cyan/violet glow.
-export const bioluminescentTheme: AppTheme = {
-  id: "bioluminescent",
-  name: "Bioluminescent",
+// Glow — premium. True-black canvas with neon cyan/violet glow.
+export const glowTheme: AppTheme = {
+  id: "glow",
+  name: "Glow Mist",
   description: "Pure dark, neon edges. Like staring into a midnight reef.",
   premium: true,
   colors: {

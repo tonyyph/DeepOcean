@@ -61,7 +61,7 @@ export const LORE: Readonly<Record<string, LoreEntry>> = {
   cr_anglerfish: {
     whisper: "A single dot of light. It does not blink. It waits.",
     story:
-      "The lure is a tenant — a bioluminescent bacterial colony living in the angler's esca. Two organisms, one hunt.",
+      "The lure is a tenant — a glowing bacterial colony living in the angler's esca. Two organisms, one hunt.",
     proStory:
       "Field notes — In Melanocetus, males are dwarves that fuse permanently to the female, sharing her bloodstream. They become, in time, a single creature with several minds. The deep does not prefer solitude. It prefers commitment."
   },

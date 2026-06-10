@@ -1,34 +1,48 @@
 import type { AppTheme, ThemeId } from "./types";
-import { abyssTheme } from "./abyss";
-import { sunlitTheme } from "./sunlit";
-import { bioluminescentTheme } from "./bioluminescent";
-import { arcticTheme } from "./arctic";
-import { volcanicTheme } from "./volcanic";
-import { coralGardenTheme } from "./coralGarden";
+import { deepTheme } from "./deep";
+import { reefTheme } from "./reef";
+import { glowTheme } from "./glow";
+import { iceTheme } from "./ice";
+import { emberTheme } from "./ember";
+import { coralTheme } from "./coral";
 
 export const THEMES: Record<ThemeId, AppTheme> = {
-  abyss: abyssTheme,
-  sunlit: sunlitTheme,
-  bioluminescent: bioluminescentTheme,
-  arctic: arcticTheme,
-  volcanic: volcanicTheme,
-  coralGarden: coralGardenTheme
+  deep: deepTheme,
+  reef: reefTheme,
+  glow: glowTheme,
+  ice: iceTheme,
+  ember: emberTheme,
+  coral: coralTheme
 };
 
 export const THEME_LIST: readonly AppTheme[] = [
-  abyssTheme,
-  sunlitTheme,
-  bioluminescentTheme,
-  arcticTheme,
-  volcanicTheme,
-  coralGardenTheme
+  deepTheme,
+  reefTheme,
+  glowTheme,
+  iceTheme,
+  emberTheme,
+  coralTheme
 ];
 
-export const DEFAULT_THEME_ID: ThemeId = "abyss";
+export const DEFAULT_THEME_ID: ThemeId = "deep";
+const LEGACY_GLOW_THEME_ID = "bio" + "luminescent";
+const LEGACY_THEME_IDS: Record<string, ThemeId> = {
+  abyss: "deep",
+  sunlit: "reef",
+  [LEGACY_GLOW_THEME_ID]: "glow",
+  arctic: "ice",
+  volcanic: "ember",
+  coralGarden: "coral"
+};
+
+export function normalizeThemeId(id: ThemeId | string | undefined): ThemeId {
+  if (id && id in LEGACY_THEME_IDS) return LEGACY_THEME_IDS[id]!;
+  if (id && id in THEMES) return id as ThemeId;
+  return DEFAULT_THEME_ID;
+}
 
 export function getTheme(id: ThemeId | string | undefined): AppTheme {
-  if (!id) return THEMES[DEFAULT_THEME_ID];
-  return (THEMES as Record<string, AppTheme>)[id] ?? THEMES[DEFAULT_THEME_ID];
+  return THEMES[normalizeThemeId(id)];
 }
 
 export type { AppTheme, ThemeId } from "./types";
