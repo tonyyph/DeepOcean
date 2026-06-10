@@ -16,5 +16,14 @@ export const MOOD_META: Record<Mood, MoodMeta> = {
   tired: { mood: "tired", icon: "moon-outline" },
   burned_out: { mood: "burned_out", icon: "flame-outline" },
   motivated: { mood: "motivated", icon: "rocket-outline" },
-  curious: { mood: "curious", icon: "compass-outline" }
+  curious: { mood: "curious", icon: "compass-outline" },
+  happy: { mood: "happy", icon: "happy-outline" },
+  calm: { mood: "calm", icon: "leaf-outline" },
+  excited: { mood: "excited", icon: "flash-outline" },
+  anxious: { mood: "anxious", icon: "pulse-outline" },
+  stressed: { mood: "stressed", icon: "alert-circle-outline" },
+  distracted: { mood: "distracted", icon: "shuffle-outline" },
+  sluggish: { mood: "sluggish", icon: "battery-dead-outline" },
+  bored: { mood: "bored", icon: "remove-circle-outline" },
+  overwhelmed: { mood: "overwhelmed", icon: "thunderstorm-outline" }
 };
