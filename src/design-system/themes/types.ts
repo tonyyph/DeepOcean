@@ -6,16 +6,16 @@ import type { OceanZone } from "@/features/ocean/zones";
 import { radii, spacing, motion } from "../tokens";
 
 export const THEME_IDS = [
-  "deep",
-  "reef",
-  "glow",
-  "ice",
-  "ember",
-  "coral",
-  "kelp",
-  "pearl",
-  "ruby",
-  "royal"
+  "prismLight",
+  "prismFire",
+  "prismWater",
+  "prismAir",
+  "prismNature",
+  "prismIce",
+  "prismStorm",
+  "prismMagma",
+  "prismMystic",
+  "prismDark"
 ] as const;
 
 export type ThemeId = (typeof THEME_IDS)[number];
@@ -81,8 +81,22 @@ export type ParticleStyle =
   | "shards" // angular-feeling red glints with sharp drift — Ruby
   | "rays"; // slow luminous columns and motes — Royal
 
+export type ParticleEffect =
+  | "light"
+  | "fire"
+  | "water"
+  | "air"
+  | "nature"
+  | "ice"
+  | "storm"
+  | "magma"
+  | "mystic"
+  | "dark";
+
 export type ThemeParticles = {
   style: ParticleStyle;
+  /** Element-specific ambience layered on top of the base particle style. */
+  effect: ParticleEffect;
   /** Premium themes can opt into non-deterministic reseeding on remount. */
   randomize?: boolean;
   /** Spatial distribution for the ambient field. */
@@ -110,6 +124,13 @@ export type AppTheme = {
   id: ThemeId;
   name: string;
   description: string;
+  colorStory: readonly string[];
+  effectDescription: string;
+  element: string;
+  combo?: {
+    ingredients?: readonly [ThemeId, ThemeId];
+    combinesWith?: readonly ThemeId[];
+  };
   premium: boolean;
   colors: ThemeColors;
   gradients: ThemeGradients;

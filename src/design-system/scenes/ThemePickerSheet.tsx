@@ -8,7 +8,7 @@ import { PressableCard } from "../atoms/PressableCard";
 import { Sheet } from "../atoms/Sheet";
 import { ThemeSwatch } from "../atoms/ThemeSwatch";
 import type { AppTheme, ThemeId } from "../themes";
-import { THEME_LIST } from "../themes";
+import { combineThemes, THEME_LIST, THEMES } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 
@@ -62,29 +62,10 @@ export function ThemePickerSheet({
 
   const previewTheme =
     THEME_LIST.find((th) => th.id === selected) ?? THEME_LIST[0]!;
-  const lockedThemesCount = THEME_LIST.filter(
-    (theme) =>
-      theme.premium && !canUseTheme(theme.id, true, isPremium, unlocked)
-  ).length;
 
   return (
     <Sheet visible={visible} onDismiss={onDismiss}>
       <View style={styles.container}>
-        <View
-          style={[
-            styles.membershipBanner,
-            isPremium
-              ? styles.membershipBannerPremium
-              : styles.membershipBannerFree
-          ]}
-        >
-          <Text style={styles.membershipBannerTitle} numberOfLines={2}>
-            {isPremium
-              ? tr.profile.premiumActive
-              : tr.profile.themeLockedCount(lockedThemesCount)}
-          </Text>
-        </View>
-
         <View style={styles.header}>
           <Text style={styles.title}>{tr.profile.themePickerTitle}</Text>
           <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
@@ -165,16 +146,49 @@ export function ThemePickerSheet({
           <Text style={styles.previewDesc} numberOfLines={3}>
             {previewTheme.description}
           </Text>
+          <View style={styles.palettePanel}>
+            <View style={styles.paletteHeader}>
+              <Text style={styles.comboTitle} numberOfLines={1}>
+                Color identity
+              </Text>
+              <View style={styles.paletteDots}>
+                {[
+                  previewTheme.colors.accent,
+                  previewTheme.colors.accentSoft,
+                  previewTheme.colors.background
+                ].map((color) => (
+                  <View
+                    key={color}
+                    style={[styles.paletteDot, { backgroundColor: color }]}
+                  />
+                ))}
+              </View>
+            </View>
+            {previewTheme.colorStory.map((line) => (
+              <Text key={line} style={styles.paletteLine} numberOfLines={2}>
+                {line}
+              </Text>
+            ))}
+          </View>
+          <View style={styles.comboPanel}>
+            <Text style={styles.comboTitle} numberOfLines={1}>
+              {previewTheme.combo?.ingredients
+                ? "Element fusion"
+                : "Base element"}
+            </Text>
+            <Text style={styles.comboBody} numberOfLines={2}>
+              {describeThemeCombo(previewTheme)}
+            </Text>
+          </View>
           <View style={styles.previewMeta}>
             <View style={styles.previewMetaPill}>
               <Text style={styles.previewMetaItem} numberOfLines={1}>
-                {tr.profile.themeFont}:{" "}
-                {readableFontName(previewTheme.fonts.display)}
+                Element: {previewTheme.element}
               </Text>
             </View>
             <View style={styles.previewMetaPill}>
               <Text style={styles.previewMetaItem} numberOfLines={1}>
-                {tr.profile.themeParticles}: {previewTheme.particles.style}
+                {tr.profile.themeParticles}: {previewTheme.particles.effect}
               </Text>
             </View>
           </View>
@@ -193,8 +207,23 @@ export function ThemePickerSheet({
   );
 }
 
-function readableFontName(family: string): string {
-  return family.split("_")[0] ?? family;
+function describeThemeCombo(theme: AppTheme): string {
+  if (theme.combo?.ingredients) {
+    const [first, second] = theme.combo.ingredients;
+    const firstTheme = THEMES[first];
+    const secondTheme = THEMES[second];
+    return `${firstTheme.element} + ${secondTheme.element} creates ${theme.name}.`;
+  }
+
+  const resultIds = (theme.combo?.combinesWith ?? [])
+    .map((otherId) => combineThemes(theme.id, otherId))
+    .filter((id): id is ThemeId => id != null);
+  if (resultIds.length === 0) {
+    return "A standalone ultimate form in the prismatic set.";
+  }
+
+  const names = resultIds.map((id) => THEMES[id].name).join(", ");
+  return `Combine with matching elements to form: ${names}.`;
 }
 
 const makeStyles = (t: AppTheme) =>
@@ -316,6 +345,69 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.textSecondary,
       fontSize: 14,
       lineHeight: 20,
+      fontFamily: t.fonts.body
+    },
+    comboPanel: {
+      borderRadius: t.radii.s,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: `${t.colors.accent}42`,
+      backgroundColor: `${t.colors.accent}12`,
+      paddingHorizontal: t.spacing[3],
+      paddingVertical: t.spacing[2],
+      gap: t.spacing[1]
+    },
+    palettePanel: {
+      borderRadius: t.radii.s,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.panelEdge,
+      backgroundColor: t.colors.panelStrong,
+      paddingHorizontal: t.spacing[3],
+      paddingVertical: t.spacing[2],
+      gap: t.spacing[1.5]
+    },
+    paletteHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: t.spacing[2]
+    },
+    paletteDots: {
+      flexDirection: "row",
+      gap: t.spacing[1]
+    },
+    paletteDot: {
+      width: 16,
+      height: 16,
+      borderRadius: 8,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: `${t.colors.text}55`
+    },
+    paletteLine: {
+      color: t.colors.textSecondary,
+      fontSize: 11,
+      lineHeight: 16,
+      fontFamily: t.fonts.body
+    },
+    effectPanel: {
+      borderRadius: t.radii.s,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: `${t.colors.accentSoft}38`,
+      backgroundColor: `${t.colors.accentSoft}10`,
+      paddingHorizontal: t.spacing[3],
+      paddingVertical: t.spacing[2],
+      gap: t.spacing[1]
+    },
+    comboTitle: {
+      color: t.colors.accent,
+      fontSize: 11,
+      letterSpacing: 0.8,
+      fontFamily: t.fonts.label,
+      textTransform: "uppercase"
+    },
+    comboBody: {
+      color: t.colors.textSecondary,
+      fontSize: 12,
+      lineHeight: 17,
       fontFamily: t.fonts.body
     },
     previewMeta: {
