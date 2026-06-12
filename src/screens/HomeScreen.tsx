@@ -197,7 +197,7 @@ export default function HomeScreen() {
               {showHeaderSkeleton ? (
                 <Skeleton style={styles.nameSkeleton} radius={t.radii.s} />
               ) : (
-                <GlowText size={36} pulse>
+                <GlowText size={36} pulse style={styles.base}>
                   {profile?.name ?? tr.home.diver}
                 </GlowText>
               )}

@@ -5,6 +5,12 @@ import { Colors, Gradients } from "@/theme";
 export const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
+    base: {
+      color: t.colors.accent,
+      fontSize: 36,
+      fontFamily: t.fonts.display,
+      letterSpacing: t.fonts.displayLetterSpacing
+    },
     scroll: {
       padding: t.spacing[5],
       paddingBottom: t.spacing[24],
@@ -16,7 +22,7 @@ export const makeStyles = (t: AppTheme) =>
       gap: t.spacing[1]
     },
     headerEyebrow: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 11,
       letterSpacing: 1,
       fontFamily: t.fonts.label
@@ -63,7 +69,7 @@ export const makeStyles = (t: AppTheme) =>
     },
     pillItem: { flex: 1 },
     preferredSub: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 12,
       fontFamily: t.fonts.body,
       marginTop: 2
@@ -109,7 +115,7 @@ export const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.mono
     },
     aboutTagline: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 12,
       fontFamily: t.fonts.body,
       fontStyle: "italic"
@@ -134,7 +140,7 @@ export const makeStyles = (t: AppTheme) =>
       letterSpacing: t.fonts.displayLetterSpacing
     },
     premiumSub: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 12,
       marginTop: 2,
       fontFamily: t.fonts.body

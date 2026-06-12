@@ -4,6 +4,7 @@ import { MotiView } from "moti";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PremiumBadge } from "../atoms/PremiumBadge";
+import { GlowText } from "../atoms/GlowText";
 import { PressableCard } from "../atoms/PressableCard";
 import { Sheet } from "../atoms/Sheet";
 import { ThemeSwatch } from "../atoms/ThemeSwatch";
@@ -67,7 +68,9 @@ export function ThemePickerSheet({
     <Sheet visible={visible} onDismiss={onDismiss}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>{tr.profile.themePickerTitle}</Text>
+          <GlowText size={20} style={styles.title}>
+            {tr.profile.themePickerTitle}
+          </GlowText>
           <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
         </View>
 

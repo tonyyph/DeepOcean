@@ -74,9 +74,13 @@ export const OptionPill = React.memo(function OptionPill({
         onPressOut={handlePressOut}
         {...rest}
       >
-        <View style={styles.pill}>
+        <View style={[styles.pill, active && styles.pillActive]}>
           {icon && (
-            <Ionicons name={icon} size={20} color={t.colors.accentSoft} />
+            <Ionicons
+              name={icon}
+              size={20}
+              color={active ? t.colors.accent : t.colors.textSecondary}
+            />
           )}
           {label && (
             <Text style={[styles.label, active && { color: t.colors.accent }]}>
@@ -111,11 +115,15 @@ const makeStyles = (t: AppTheme) =>
     pill: {
       height: 40,
       borderRadius: t.radii.sm,
-      backgroundColor: t.colors.panel,
+      backgroundColor: t.colors.panelStrong,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.panelEdge,
       alignItems: "center",
       justifyContent: "center"
+    },
+    pillActive: {
+      backgroundColor: t.colors.accent + "26",
+      borderColor: t.colors.accent
     },
     label: {
       color: t.colors.textSecondary,

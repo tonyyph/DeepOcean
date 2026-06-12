@@ -13,6 +13,7 @@ import Animated, {
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
+import { GlowText } from "./GlowText";
 import { PressableCard } from "./PressableCard";
 
 type Props = {
@@ -98,7 +99,9 @@ export const FreeDiveModal = React.memo(function FreeDiveModal({
           <Animated.View style={[styles.card, cardStyle]}>
             <View style={styles.headerRow}>
               <View style={styles.flex}>
-                <Text style={styles.title}>{title}</Text>
+                <GlowText size={18} style={styles.title}>
+                  {title}
+                </GlowText>
                 <Text style={styles.description}>{description}</Text>
               </View>
               <Ionicons name="infinite" size={24} color={t.colors.accent} />

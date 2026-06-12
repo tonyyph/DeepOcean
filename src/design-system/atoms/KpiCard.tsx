@@ -42,7 +42,7 @@ const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
     kpiLabel: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 10,
       letterSpacing: 1,
       fontFamily: t.fonts.label

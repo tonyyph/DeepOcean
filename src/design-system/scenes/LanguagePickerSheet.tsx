@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
+import { GlowText } from "../atoms/GlowText";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { useTranslations, type Language } from "@/core/i18n";
@@ -38,7 +39,9 @@ export function LanguagePickerSheet({
 
   return (
     <Sheet visible={visible} onDismiss={onDismiss}>
-      <Text style={styles.title}>{tr.profile.language}</Text>
+      <GlowText size={20} style={styles.title}>
+        {tr.profile.language}
+      </GlowText>
       <Text style={styles.subtitle}>{tr.profile.languageDesc}</Text>
 
       <View style={styles.list}>

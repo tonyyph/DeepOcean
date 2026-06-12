@@ -16,7 +16,7 @@ export const THEMES: Record<ThemeId, AppTheme> = {
 
 export const THEME_LIST: readonly AppTheme[] = PRISMATIC_THEMES;
 
-export const DEFAULT_THEME_ID: ThemeId = "prismLight";
+export const DEFAULT_THEME_ID: ThemeId = "prismWater";
 const LEGACY_GLOW_THEME_ID = "bio" + "luminescent";
 const LEGACY_THEME_IDS: Record<string, ThemeId> = {
   deep: "prismWater",

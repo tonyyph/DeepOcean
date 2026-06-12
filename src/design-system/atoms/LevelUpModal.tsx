@@ -21,6 +21,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
+import { GlowText } from "./GlowText";
 import { getLevelTitle } from "@/features/diver/levelSystem";
 import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
@@ -177,7 +178,9 @@ export const LevelUpModal = React.memo(function LevelUpModal({
             </Animated.View>
 
             {/* New rank title */}
-            <Text style={styles.title}>{newTitle}</Text>
+            <GlowText size={22} style={styles.title}>
+              {newTitle}
+            </GlowText>
 
             {/* Previous level hint */}
             <Text style={styles.prevLabel}>

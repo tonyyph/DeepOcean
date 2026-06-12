@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
+import { GlowText } from "../atoms/GlowText";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { useTranslations } from "@/core/i18n";
@@ -60,7 +61,9 @@ export function ReminderTimePickerSheet({
 
   return (
     <Sheet visible={visible} onDismiss={onDismiss}>
-      <Text style={styles.title}>{tr.notifications.pickerTitle}</Text>
+      <GlowText size={20} style={styles.title}>
+        {tr.notifications.pickerTitle}
+      </GlowText>
       <Text style={styles.subtitle}>{tr.notifications.pickerSubtitle}</Text>
 
       <Text style={styles.preview}>{preview}</Text>

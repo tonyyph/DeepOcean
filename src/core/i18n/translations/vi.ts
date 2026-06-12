@@ -1,360 +1,358 @@
 export const vi = {
-    onboarding: {
-      chapters: [
-        {
-          title: "Thở đi.",
-          depth: "MẶT NƯỚC",
-          body: "Bạn đang đứng ở mặt biển. Thế giới bên trên ồn ào lắm. Ở đây thì không.",
-          detail:
-            "Deep Ocean biến một phiên tập trung thành một chuyến lặn: chọn thời lượng, thả điện thoại xuống, và để app giữ nhịp cho bạn bằng âm thanh biển, độ sâu và trạng thái thật yên."
-        },
-        {
-          title: "Xuống thôi.",
-          depth: "VÙNG CHẠNG VẠNG",
-          body: "Mỗi phút tập trung, bạn lặn thêm một chút. Mỗi vùng biển có ánh sáng riêng, sinh vật riêng, sự yên lặng riêng.",
-          detail:
-            "Bạn có thể lặn tự do hoặc đặt mục tiêu cụ thể. Trong lúc lặn, app theo dõi độ sâu, vùng biển, tiến độ và giữ mọi thứ tối giản để bạn không bị kéo ra khỏi công việc."
-        },
-        {
-          title: "Khám phá.",
-          depth: "VÙNG NỬA ĐÊM",
-          body: "Giữ sự chú ý đủ lâu và biển sâu sẽ cho bạn thấy những thứ mà hầu như chẳng ai nhìn thấy.",
-          detail:
-            "Sau mỗi phiên, bạn có thể gặp sinh vật, cổ vật, mẩu chuyện và phần thưởng XP. Bộ sưu tập lớn dần theo những lần bạn thật sự ở lại với sự tập trung."
-        },
-        {
-          title: "Trở về.",
-          depth: "NHẬT KÝ LẶN",
-          body: "Khi bạn nổi lên, tất cả những gì mang về đều là của bạn. Biển nhớ bạn đấy.",
-          detail:
-            "Deep Ocean lưu lịch sử lặn, streak, cấp độ, gợi ý từ người hướng dẫn và nhắc nhở hằng ngày. Không phải để gây áp lực, mà để bạn có một nghi thức quay lại thật nhẹ."
-        }
-      ],
-      pageLabel: "Trang giới thiệu",
-      back: "TRƯỚC",
-      next: "TIẾP",
-      holdToBegin: "GIỮ ĐỂ BẮT ĐẦU XUỐNG BIỂN",
-      tapToContinue: "CHẠM ĐỂ TIẾP TỤC"
-    },
-    profile: {
-      title: "HỒ SƠ CỦA BẠN",
-      level: (n: number) => `Cấp ${n} · Thám hiểm viên`,
-      xp: "ĐIỂM XP",
-      settings: "CÀI ĐẶT",
-      appearance: "GIAO DIỆN",
-      account: "TÀI KHOẢN",
-      haptics: "Rung",
-      hapticsDesc: "Rung nhẹ theo nhịp lặn — không phải bị gọi đâu",
-      reducedMotion: "Bớt hiệu ứng",
-      reducedMotionDesc: "Giảm animation cho mượt máy",
-      preferredLength: "Mỗi lần lặn bao lâu?",
-      language: "Ngôn ngữ",
-      languageDesc: "Chọn ngôn ngữ hiển thị trong app",
-      theme: "Chủ đề giao diện",
-      themeDesc: "Màu, font chữ, particle — đổi sạch luôn",
-      themePickerTitle: "Chọn chủ đề cho app",
-      themePickerSub:
-        "Mỗi theme thay đổi toàn bộ màu, chữ, hạt lơ lửng — cả cảm giác lặn cũng khác.",
-      themeLockedCount: (count: number) =>
-        `Đang khóa ${count} theme premium · nâng cấp Pro để mở`,
-      proOnly: "PRO",
-      themeFont: "Font",
-      themeParticles: "Hạt",
-      applyTheme: "Áp dụng chủ đề",
-      premium: "DeepOcean Pro",
-      premiumDesc: "Mở theme, phân tích sâu và nhật ký thám hiểm đầy đủ",
-      premiumActive: "Đã mở khoá toàn bộ. Cảm ơn bạn — lặn vui nha!",
-      replayOnboarding: "Xem lại phần giới thiệu",
-      confirm: "Xác nhận",
-      cancel: "Huỷ",
-      editNameTitle: "TÊN CỦA BẠN",
-      editNamePlaceholder: "Nhập tên thợ lặn",
-      editNameSave: "LƯU LẠI",
-      soundVolume: "Âm thanh biển",
-      soundVolumeDesc: "Mức âm lượng tiếng sóng khi lặn",
-      soundOff: "Tắt",
-      soundLow: "Nhỏ",
-      soundFull: "To",
-      diveReminders: "Nhắc nhở lặn",
-      diveRemindersDesc: "Nhắc bạn nhảy xuống mỗi ngày để giữ streak",
-      reminderTime: "Giờ nhắc nhở",
-      reminderTimeDesc: "Thời điểm lời nhắc mỗi ngày xuất hiện",
-      showDiscoveries: "Thông báo khám phá",
-      showDiscoveriesDesc: "Hiện pop-up khi bắt gặp sinh vật/cổ vật",
-      devEnablePremium: "Bật premium",
-      devEnablePremiumDesc:
-        "Bật nhanh premium cục bộ để test UI và các tính năng bị khóa",
-      developer: "NHÀ PHÁT TRIỂN",
-      about: "VỀ ỨNG DỤNG",
-      appVersion: "Phiên bản",
-      appVersionValue: "#Ynot",
-      builtWith: "Làm ra bởi tình yêu với biển sâu"
-    },
-    notifications: {
-      reminderTitle: "Biển sâu đang gọi",
-      reminderBody: "Hít một hơi và lặn xuống. Streak của bạn đang đợi.",
-      activeDiveTitle: "Đang lặn",
-      activeDiveBody: "Deep Ocean vẫn đang tính thời gian tập trung của bạn.",
-      diveCompleteTitle: "Chuyến lặn đã hoàn thành",
-      diveCompleteBody:
-        "Bạn có thể nổi lên khi sẵn sàng. Phiên tập trung đã xong.",
-      pickerTitle: "Giờ nhắc nhở",
-      pickerSubtitle: "Chọn thời điểm lời nhắc mỗi ngày",
-      hours: "Giờ",
-      minutes: "Phút"
-    },
-    home: {
-      greeting: {
-        awake: "Đêm hôm vẫn chưa ngủ à?",
-        morning: "Sáng rồi, tỉnh chưa?",
-        afternoon: "Chiều rồi đó,",
-        evening: "Tối rồi, lặn chút thôi,"
+  onboarding: {
+    chapters: [
+      {
+        title: "Thở đi.",
+        depth: "MẶT NƯỚC",
+        body: "Bạn đang đứng ở mặt biển. Thế giới bên trên ồn ào lắm. Ở đây thì không.",
+        detail:
+          "Deep Ocean biến một phiên tập trung thành một chuyến lặn: chọn thời lượng, thả điện thoại xuống, và để app giữ nhịp cho bạn bằng âm thanh biển, độ sâu và trạng thái thật yên."
       },
-      ready: "Sẵn sàng thì nhảy xuống thôi.",
-      beginDive: "BẮT ĐẦU LẶN",
-      estimatedReach: "Dự kiến xuống tới",
-      freeDive: "Lặn tự do",
-      freeDiveDesc: "Không đồng hồ, không áp lực. Nổi lên khi nào cũng được.",
-      customDuration: "Thời lượng tuỳ chỉnh",
-      startCustomDive: "BẮT ĐẦU LẶN TUỲ CHỈNH",
-      startFreeDive: "BẮT ĐẦU LẶN TỰ DO",
-      guideTitle: "NGƯỜI HƯỚNG DẪN GỢI Ý",
-      streak: "Liên tiếp",
-      dives: "Lần lặn",
-      level: "Cấp độ",
-      diver: "Thợ lặn",
-      min: "phút",
-      minShort: "ph",
-      lastDiveTitle: "CHUYẾN LẶN TRƯỚC",
-      lastDiveZone: "Vùng",
-      lastDiveMinutes: (n: number) => `${n} phút`,
-      lastDiveXp: (n: number) => `+${n} XP`,
-      zoneProgressTitle: "TIẾN ĐỘ ĐỘ SÂU",
-      zoneLocked: "Chưa mở",
-      noSessions: "Chưa lặn lần nào",
-      streakMilestoneTitle: "MỐC STREAK",
-      streakMilestoneBody: (days: number, target: number) =>
-        `Bạn đang giữ streak ${days} ngày. Chạm mốc ${target} ngày để mở milestone tiếp theo.`,
-      streakMilestoneReached: (days: number) =>
-        `Quá đỉnh. Bạn đã chạm streak ${days} ngày liên tiếp.`,
-      streakMilestoneCta: "GIỮ STREAK"
-    },
-    ai: {
-      title: "La Bàn Biển Cả",
-      subtitle: "Tiếng thì thầm từ nơi ánh sáng không chạm tới",
-      today: "HÔM NAY",
-      listening: "Đang hỏi cá biển xem thế nào\u2026",
-      askAgain: "HỎI LẠI",
-      refreshError: "Làm mới chưa thành công. Thử lại giúp mình nhé.",
-      nudge: "LỜI ĐỘNG VIÊN CHO BẠN",
-      lastExpedition: "CHUYẾN LẶN GẦN NHẤT",
-      mood: "TÂM TRẠNG",
-      moodPrompt: "Hôm nay muốn cảm thấy thế nào sau khi lặn?",
-      moodLabels: {
-        focused: "Tập trung",
-        tired: "Mệt mỏi",
-        burned_out: "Kiệt sức",
-        motivated: "Hăng hái",
-        curious: "Tò mò",
-        anxious: "Lo lắng",
-        excited: "Hào hứng",
-        happy: "Hạnh phúc",
-        calm: "Bình yên",
-        stressed: "Căng thẳng",
-        distracted: "Dễ xao nhãng",
-        sleepy: "Buồn ngủ",
-        bored: "Chán nản",
-        sluggish: "Uể oải",
-        overwhelmed: "Quá tải"
+      {
+        title: "Xuống thôi.",
+        depth: "VÙNG CHẠNG VẠNG",
+        body: "Mỗi phút tập trung, bạn lặn thêm một chút. Mỗi vùng biển có ánh sáng riêng, sinh vật riêng, sự yên lặng riêng.",
+        detail:
+          "Bạn có thể lặn tự do hoặc đặt mục tiêu cụ thể. Trong lúc lặn, app theo dõi độ sâu, vùng biển, tiến độ và giữ mọi thứ tối giản để bạn không bị kéo ra khỏi công việc."
       },
-      proHeader: "PHÂN TÍCH SÂU · PRO",
-      proLocked:
-        "Phân tích xu hướng cá nhân, kế hoạch lặn theo tâm trạng và bài thở riêng — chỉ có ở bản Pro.",
-      proUnlockCta: "MỞ PHÂN TÍCH SÂU",
-      proPatternTitle: "NHỊP LẶN",
-      proPatternBody:
-        "Buổi tối bạn lặn bền hơn. Thử chia 25 → 12 phút trong tuần này xem sao.",
-      proMoodTitle: "BẢN ĐỒ TÂM TRẠNG",
-      proMoodBody:
-        "Những hôm bạn thấy tò mò lại là những hôm lặn sâu nhất. Mai cứ lặn trong tinh thần đó.",
-      proRitualTitle: "NGHI THỨC HÍT THỞ",
-      proRitualBody:
-        "Hít 4 · giữ 7 · thở 8. Ba vòng trước khi lặn là tốc độ xuống ên như lụa."
-    },
-    stats: {
-      title: "Thống kê chiến tích",
-      subtitle: "Bạn đã lặn xa tới đâu rồi?",
-      maxDepth: "ĐỘ SÂU KỶ LỤC",
-      totalFocus: "TỔNG GIỜ TẬP TRUNG",
-      dives: "LẦN LẶN",
-      level: "CẤP ĐỘ",
-      weeklyHeatmap: "7 NGÀY QUA",
-      recentExpeditions: "CHUYẾN LẶN GẦN ĐÂY",
-      noDives: "Chưa có gì cả. Nhảy xuống lặn thử đi, nước ấm lắm!",
-      less: "ít",
-      more: "nhiều"
-    },
-    sessionDetail: {
-      title: "Báo cáo chuyến lặn",
-      duration: "THỜI LƯỢNG",
-      focusMinutes: "TẬP TRUNG",
-      xpEarned: "XP NHẬN ĐƯỢC",
-      maxDepth: "ĐỘ SÂU",
-      discoveries: "KHÁM PHÁ",
-      levelUp: (from: number, to: number) => `Cấp ${from} → ${to}`,
-      noLevelChange: "Chưa lên cấp",
-      zoneJourney: "HÀNH TRÌNH CÁC TẦNG",
-      discoveryLog: "NHẬT KÝ KHÁM PHÁ",
-      noDiscoveries: "Chuyến này chưa gặp sinh vật hay cổ vật nào.",
-      reachedAt: (m: number) => `phút ${m}`,
-      minuteMark: (m: number) => `phút ${m}`,
-      notFound: "Không tìm thấy chuyến lặn này.",
-      shareTitle: "CHIA SẺ CHUYẾN LẶN",
-      shareCta: "CHIA SẺ BÁO CÁO",
-      shareText: (
-        minutes: number,
-        depth: string,
-        xp: number,
-        discoveries: number
-      ) =>
-        `Mình vừa lặn với DeepOcean: tập trung ${minutes} phút, xuống ${depth} m, +${xp} XP, khám phá ${discoveries} mục.`
-    },
-    collection: {
-      title: "Nhật ký thám hiểm",
-      catalogued: (found: number, total: number) =>
-        `Tìm được ${found} / ${total} loài`,
-      undiscovered: "Còn ẩn trong bóng tối",
-      filters: {
-        all: "Tất cả",
-        zone: "Vùng",
-        rarity: "Độ hiếm",
-        common: "Thường",
-        uncommon: "Hiếm vừa",
-        rare: "Hiếm",
-        legendary: "Huyền thoại",
-        mythic: "Thần thoại",
-        proDetailsLabel: "Chi tiết Pro",
-        noResults: "Bộ lọc này chưa có mục nào."
+      {
+        title: "Khám phá.",
+        depth: "VÙNG NỬA ĐÊM",
+        body: "Giữ sự chú ý đủ lâu và biển sâu sẽ cho bạn thấy những thứ mà hầu như chẳng ai nhìn thấy.",
+        detail:
+          "Sau mỗi phiên, bạn có thể gặp sinh vật, cổ vật, mẩu chuyện và phần thưởng XP. Bộ sưu tập lớn dần theo những lần bạn thật sự ở lại với sự tập trung."
       },
-      story: {
-        whisperLabel: "TIẾNG THÌ THẦM TỪ ĐÁY BIỂN",
-        firstSeen: "Lần đầu gặp",
-        sightings: (n: number) =>
-          n === 1 ? "Mới gặp 1 lần" : `Đã gặp ${n} lần`,
-        rarityLabel: "ĐỘ HIẾM",
-        zoneLabel: "VÙNG BIỂN",
-        storyTitle: "GHI CHÉP CHUYẾN LẶN",
-        proTitle: "NHẬT KÝ MẬT · PRO",
-        proLocked:
-          "Diver Pro mới được mở trang nhật ký mật: truyền thuyết, giả thuyết, lời khai chưa công bố.",
-        proUnlockCta: "MỞ NHẬT KÝ MẬT",
-        lockedTitle: "Vẫn còn ẩn mình",
-        lockedBody:
-          "Thứ này chưa từng lộ diện với bạn. Cứ lặn tiếp đi — mỗi phút dưới biển là một cơ hội mới.",
-        close: "Nổi lên",
-        creature: "SINH VẬT",
-        artifact: "CỔ VẬT"
+      {
+        title: "Trở về.",
+        depth: "NHẬT KÝ LẶN",
+        body: "Khi bạn nổi lên, tất cả những gì mang về đều là của bạn. Biển nhớ bạn đấy.",
+        detail:
+          "Deep Ocean lưu lịch sử lặn, streak, cấp độ, gợi ý từ người hướng dẫn và nhắc nhở hằng ngày. Không phải để gây áp lực, mà để bạn có một nghi thức quay lại thật nhẹ."
       }
+    ],
+    pageLabel: "Trang giới thiệu",
+    back: "TRƯỚC",
+    next: "TIẾP",
+    holdToBegin: "GIỮ ĐỂ BẮT ĐẦU XUỐNG BIỂN",
+    tapToContinue: "CHẠM ĐỂ TIẾP TỤC"
+  },
+  profile: {
+    title: "Hồ sơ thợ lặn",
+    level: (n: number) => `Cấp ${n} · Thám hiểm viên`,
+    xp: "ĐIỂM XP",
+    settings: "CÀI ĐẶT",
+    appearance: "GIAO DIỆN",
+    account: "TÀI KHOẢN",
+    haptics: "Rung",
+    hapticsDesc: "Rung nhẹ theo nhịp lặn — không phải bị gọi đâu",
+    reducedMotion: "Bớt hiệu ứng",
+    reducedMotionDesc: "Giảm animation cho mượt máy",
+    preferredLength: "Mỗi lần lặn bao lâu?",
+    language: "Ngôn ngữ",
+    languageDesc: "Chọn ngôn ngữ hiển thị trong app",
+    theme: "Chủ đề giao diện",
+    themeDesc: "Màu, font chữ, particle — đổi sạch luôn",
+    themePickerTitle: "Chọn chủ đề cho app",
+    themePickerSub:
+      "Mỗi theme thay đổi toàn bộ màu, chữ, hạt lơ lửng — cả cảm giác lặn cũng khác.",
+    themeLockedCount: (count: number) =>
+      `Đang khóa ${count} theme premium · nâng cấp Pro để mở`,
+    proOnly: "PRO",
+    themeFont: "Font",
+    themeParticles: "Hạt",
+    applyTheme: "Áp dụng chủ đề",
+    premium: "DeepOcean Pro",
+    premiumDesc: "Mở theme, phân tích sâu và nhật ký thám hiểm đầy đủ",
+    premiumActive: "Đã mở khoá toàn bộ. Cảm ơn bạn — lặn vui nha!",
+    replayOnboarding: "Xem lại phần giới thiệu",
+    confirm: "Xác nhận",
+    cancel: "Huỷ",
+    editNameTitle: "TÊN CỦA BẠN",
+    editNamePlaceholder: "Nhập tên thợ lặn",
+    editNameSave: "LƯU LẠI",
+    soundVolume: "Âm thanh biển",
+    soundVolumeDesc: "Mức âm lượng tiếng sóng khi lặn",
+    soundOff: "Tắt",
+    soundLow: "Nhỏ",
+    soundFull: "To",
+    diveReminders: "Nhắc nhở lặn",
+    diveRemindersDesc: "Nhắc bạn nhảy xuống mỗi ngày để giữ streak",
+    reminderTime: "Giờ nhắc nhở",
+    reminderTimeDesc: "Thời điểm lời nhắc mỗi ngày xuất hiện",
+    showDiscoveries: "Thông báo khám phá",
+    showDiscoveriesDesc: "Hiện pop-up khi bắt gặp sinh vật/cổ vật",
+    devEnablePremium: "Bật premium",
+    devEnablePremiumDesc:
+      "Bật nhanh premium cục bộ để test UI và các tính năng bị khóa",
+    developer: "NHÀ PHÁT TRIỂN",
+    about: "VỀ ỨNG DỤNG",
+    appVersion: "Phiên bản",
+    appVersionValue: "#Ynot",
+    builtWith: "Làm ra bởi tình yêu với biển sâu"
+  },
+  notifications: {
+    reminderTitle: "Biển sâu đang gọi",
+    reminderBody: "Hít một hơi và lặn xuống. Streak của bạn đang đợi.",
+    activeDiveTitle: "Đang lặn",
+    activeDiveBody: "Deep Ocean vẫn đang tính thời gian tập trung của bạn.",
+    diveCompleteTitle: "Chuyến lặn đã hoàn thành",
+    diveCompleteBody:
+      "Bạn có thể nổi lên khi sẵn sàng. Phiên tập trung đã xong.",
+    pickerTitle: "Giờ nhắc nhở",
+    pickerSubtitle: "Chọn thời điểm lời nhắc mỗi ngày",
+    hours: "Giờ",
+    minutes: "Phút"
+  },
+  home: {
+    greeting: {
+      awake: "Đêm hôm vẫn chưa ngủ à?",
+      morning: "Sáng rồi, tỉnh chưa?",
+      afternoon: "Chiều rồi đó,",
+      evening: "Tối rồi, lặn chút thôi,"
     },
-    dive: {
-      discoveries: (n: number) =>
-        n === 1 ? "Tìm thấy 1 thứ!" : `Tìm thấy ${n} thứ!`,
-      discovered: "ĐÃ KHÁM PHÁ",
-      creature: "Sinh vật",
-      artifact: "Cổ vật",
-      resumeDive: "Lặn tiếp",
-      pause: "Nghỉ một chút",
-      surface: "Nổi lên",
-      abort: "Nghỉ luôn",
-      surfaceTitle: "Về mặt nước thôi?",
-      surfaceMsg: "Biển lúc nào cũng ở đây chờ bạn.",
-      keepDiving: "Chưa, lặn thêm chút",
-      abortTitle: "BỎ CUỘC RỒI À?",
-      abortMsg: "Chuyến này sẽ không được lưu lại đâu nhé.",
-      continue: "Không, lặn tiếp"
+    ready: "Sẵn sàng thì nhảy xuống thôi.",
+    beginDive: "BẮT ĐẦU LẶN",
+    estimatedReach: "Dự kiến xuống tới",
+    freeDive: "Lặn tự do",
+    freeDiveDesc: "Không đồng hồ, không áp lực. Nổi lên khi nào cũng được.",
+    customDuration: "Thời lượng tuỳ chỉnh",
+    startCustomDive: "BẮT ĐẦU LẶN TUỲ CHỈNH",
+    startFreeDive: "BẮT ĐẦU LẶN TỰ DO",
+    guideTitle: "NGƯỜI HƯỚNG DẪN GỢI Ý",
+    streak: "Liên tiếp",
+    dives: "Lần lặn",
+    level: "Cấp độ",
+    diver: "Thợ lặn",
+    min: "phút",
+    minShort: "ph",
+    lastDiveTitle: "CHUYẾN LẶN TRƯỚC",
+    lastDiveZone: "Vùng",
+    lastDiveMinutes: (n: number) => `${n} phút`,
+    lastDiveXp: (n: number) => `+${n} XP`,
+    zoneProgressTitle: "TIẾN ĐỘ ĐỘ SÂU",
+    zoneLocked: "Chưa mở",
+    noSessions: "Chưa lặn lần nào",
+    streakMilestoneTitle: "MỐC STREAK",
+    streakMilestoneBody: (days: number, target: number) =>
+      `Bạn đang giữ streak ${days} ngày. Chạm mốc ${target} ngày để mở milestone tiếp theo.`,
+    streakMilestoneReached: (days: number) =>
+      `Quá đỉnh. Bạn đã chạm streak ${days} ngày liên tiếp.`,
+    streakMilestoneCta: "GIỮ STREAK"
+  },
+  ai: {
+    title: "La Bàn Biển Cả",
+    subtitle: "Tiếng thì thầm từ nơi ánh sáng không chạm tới",
+    today: "HÔM NAY",
+    listening: "Đang hỏi cá biển xem thế nào\u2026",
+    askAgain: "HỎI LẠI",
+    refreshError: "Làm mới chưa thành công. Thử lại giúp mình nhé.",
+    nudge: "LỜI ĐỘNG VIÊN CHO BẠN",
+    lastExpedition: "CHUYẾN LẶN GẦN NHẤT",
+    mood: "TÂM TRẠNG",
+    moodPrompt: "Hôm nay muốn cảm thấy thế nào sau khi lặn?",
+    moodLabels: {
+      focused: "Tập trung",
+      tired: "Mệt mỏi",
+      burned_out: "Kiệt sức",
+      motivated: "Hăng hái",
+      curious: "Tò mò",
+      anxious: "Lo lắng",
+      excited: "Hào hứng",
+      happy: "Hạnh phúc",
+      calm: "Bình yên",
+      stressed: "Căng thẳng",
+      distracted: "Dễ xao nhãng",
+      sleepy: "Buồn ngủ",
+      bored: "Chán nản",
+      sluggish: "Uể oải",
+      overwhelmed: "Quá tải"
     },
-    paywall: {
-      title: "Lặn sâu hơn với Pro",
-      subtitle:
-        "Mở theme premium, phân tích AI sâu hơn và nhật ký thám hiểm đầy đủ. Ủng hộ đội ngũ nhỏ đang làm app.",
-      compareTitle: "Bản thường vs Pro",
-      compareFree: "Bản thường",
-      comparePro: "Pro",
-      compareThemesLabel: "Theme có thể dùng",
-      compareThemesFree: "1 theme",
-      compareThemesPro: "Toàn bộ",
-      compareJournalLabel: "Nhật ký thám hiểm",
-      compareJournalFree: "Chỉ xem nhá hàng",
-      compareJournalPro: "Xem đầy đủ",
-      compareAiLabel: "Hướng dẫn AI",
-      compareAiFree: "Cơ bản",
-      compareAiPro: "Phân tích sâu",
-      unlockingTheme: (name: string) => `Mở khoá "${name}"`,
-      unlockingThemeHint:
-        "Theme này đang bị khóa. Nâng cấp Pro để áp dụng ngay.",
-      benefits: [
-        {
-          icon: "water",
-          title: "Giữ trải nghiệm lặn miễn phí",
-          body: "Timer, XP, streak và lịch sử cơ bản vẫn mở; Pro thêm chiều sâu cho người dùng gắn bó."
-        },
-        {
-          icon: "diamond",
-          title: "8 Theme Premium",
-          body: "Giao diện riêng cho toàn app: bảng màu, font chữ, hạt lơ lửng và sương sâu."
-        },
-        {
-          icon: "sparkles",
-          title: "Phân tích AI sâu",
-          body: "Nhịp tập trung, kế hoạch theo tâm trạng và bài thở cá nhân hoá theo thói quen lặn."
-        },
-        {
-          icon: "telescope",
-          title: "Nhật ký thám hiểm đầy đủ",
-          body: "Đọc truyền thuyết, giả thuyết và ghi chú mật phía sau từng sinh vật/cổ vật đã khám phá."
-        }
-      ] as const,
-      planLifetime: "MÃI MÃI",
-      planAnnual: "1 NĂM",
-      planMonthly: "THÁNG",
-      planLifetimeSub: "một lần",
-      planMonthlySub: "/ tháng",
-      lifetimeCta: "LIFETIME — MỞ TẤT CẢ",
-      lifetimePrice: "799.000đ",
-      annualCta: "1 NĂM — TỐT NHẤT",
-      annualPrice: "299.000đ / năm",
-      annualPricePerMonth: "24.917đ / tháng",
-      annualSaving: "Tiết kiệm 50%",
-      monthlyCta: "THEO THÁNG",
-      monthlyPrice: "49.000đ / tháng",
-      trialBadge: "7 NGÀY MIỄN PHÍ",
-      trialDescription:
-        "Trải nghiệm miễn phí 7 ngày. Hủy bất cứ lúc nào trước khi gia hạn.",
-      trialCta: "BẮT ĐẦU DÙNG THỬ MIỄN PHÍ",
-      promoPlaceholder: "Mã trải nghiệm",
-      promoApply: "ÁP DỤNG",
-      promoInvalid: "Mã không hợp lệ",
-      promoExpired: "Mã đã hết hạn",
-      promoSuccess: (days: number) => `Hoạt động · còn ${days} ngày`,
-      restore: "KHÔI PHỤC GIAO DỊCH",
-      unavailable: "Bản dựng này chưa hỗ trợ mua hàng.",
-      errorTitle: "Mua hàng thất bại",
-      errorBody: "Đã có lỗi xảy ra. Bạn chưa bị trừ tiền — vui lòng thử lại.",
-      disclaimer:
-        "Thanh toán qua App Store / Google Play. Gói đăng ký tự gia hạn. Hủy bất kỳ lúc nào."
+    proHeader: "PHÂN TÍCH SÂU · PRO",
+    proLocked:
+      "Phân tích xu hướng cá nhân, kế hoạch lặn theo tâm trạng và bài thở riêng — chỉ có ở bản Pro.",
+    proUnlockCta: "MỞ PHÂN TÍCH SÂU",
+    proPatternTitle: "NHỊP LẶN",
+    proPatternBody:
+      "Buổi tối bạn lặn bền hơn. Thử chia 25 → 12 phút trong tuần này xem sao.",
+    proMoodTitle: "BẢN ĐỒ TÂM TRẠNG",
+    proMoodBody:
+      "Những hôm bạn thấy tò mò lại là những hôm lặn sâu nhất. Mai cứ lặn trong tinh thần đó.",
+    proRitualTitle: "NGHI THỨC HÍT THỞ",
+    proRitualBody:
+      "Hít 4 · giữ 7 · thở 8. Ba vòng trước khi lặn là tốc độ xuống ên như lụa."
+  },
+  stats: {
+    title: "Thống kê chiến tích",
+    subtitle: "Bạn đã lặn xa tới đâu rồi?",
+    maxDepth: "ĐỘ SÂU KỶ LỤC",
+    totalFocus: "TỔNG GIỜ TẬP TRUNG",
+    dives: "LẦN LẶN",
+    level: "CẤP ĐỘ",
+    weeklyHeatmap: "7 NGÀY QUA",
+    recentExpeditions: "CHUYẾN LẶN GẦN ĐÂY",
+    noDives: "Chưa có gì cả. Nhảy xuống lặn thử đi, nước ấm lắm!",
+    less: "ít",
+    more: "nhiều"
+  },
+  sessionDetail: {
+    title: "Báo cáo chuyến lặn",
+    duration: "THỜI LƯỢNG",
+    focusMinutes: "TẬP TRUNG",
+    xpEarned: "XP NHẬN ĐƯỢC",
+    maxDepth: "ĐỘ SÂU",
+    discoveries: "KHÁM PHÁ",
+    levelUp: (from: number, to: number) => `Cấp ${from} → ${to}`,
+    noLevelChange: "Chưa lên cấp",
+    zoneJourney: "HÀNH TRÌNH CÁC TẦNG",
+    discoveryLog: "NHẬT KÝ KHÁM PHÁ",
+    noDiscoveries: "Chuyến này chưa gặp sinh vật hay cổ vật nào.",
+    reachedAt: (m: number) => `phút ${m}`,
+    minuteMark: (m: number) => `phút ${m}`,
+    notFound: "Không tìm thấy chuyến lặn này.",
+    shareTitle: "CHIA SẺ CHUYẾN LẶN",
+    shareCta: "CHIA SẺ BÁO CÁO",
+    shareText: (
+      minutes: number,
+      depth: string,
+      xp: number,
+      discoveries: number
+    ) =>
+      `Mình vừa lặn với DeepOcean: tập trung ${minutes} phút, xuống ${depth} m, +${xp} XP, khám phá ${discoveries} mục.`
+  },
+  collection: {
+    title: "Nhật ký thám hiểm",
+    catalogued: (found: number, total: number) =>
+      `Tìm được ${found} / ${total} loài`,
+    undiscovered: "Còn ẩn trong bóng tối",
+    filters: {
+      all: "Tất cả",
+      zone: "Vùng",
+      rarity: "Độ hiếm",
+      common: "Thường",
+      uncommon: "Hiếm vừa",
+      rare: "Hiếm",
+      legendary: "Huyền thoại",
+      mythic: "Thần thoại",
+      proDetailsLabel: "Chi tiết Pro",
+      noResults: "Bộ lọc này chưa có mục nào."
     },
-    achievement: {
-      zoneUnlocked: "VÙNG MỚI MỞ KHOÁ",
-      tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
-    },
-    levelUp: {
-      badge: "LÊN CẤP",
-      multiLevel: (n: number) => `LÊN CẤP ×${n}`,
-      from: (prev: number, next: number) => `Cấp ${prev} → Cấp ${next}`,
-      tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
-    },
-    titleAchievement: {
-      badge: "THÀNH TỰU MỚI",
-      tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
+    story: {
+      whisperLabel: "TIẾNG THÌ THẦM TỪ ĐÁY BIỂN",
+      firstSeen: "Lần đầu gặp",
+      sightings: (n: number) => (n === 1 ? "Mới gặp 1 lần" : `Đã gặp ${n} lần`),
+      rarityLabel: "ĐỘ HIẾM",
+      zoneLabel: "VÙNG BIỂN",
+      storyTitle: "GHI CHÉP CHUYẾN LẶN",
+      proTitle: "NHẬT KÝ MẬT · PRO",
+      proLocked:
+        "Diver Pro mới được mở trang nhật ký mật: truyền thuyết, giả thuyết, lời khai chưa công bố.",
+      proUnlockCta: "MỞ NHẬT KÝ MẬT",
+      lockedTitle: "Vẫn còn ẩn mình",
+      lockedBody:
+        "Thứ này chưa từng lộ diện với bạn. Cứ lặn tiếp đi — mỗi phút dưới biển là một cơ hội mới.",
+      close: "Nổi lên",
+      creature: "SINH VẬT",
+      artifact: "CỔ VẬT"
     }
+  },
+  dive: {
+    discoveries: (n: number) =>
+      n === 1 ? "Tìm thấy 1 thứ!" : `Tìm thấy ${n} thứ!`,
+    discovered: "ĐÃ KHÁM PHÁ",
+    creature: "Sinh vật",
+    artifact: "Cổ vật",
+    resumeDive: "Lặn tiếp",
+    pause: "Nghỉ một chút",
+    surface: "Nổi lên",
+    abort: "Nghỉ luôn",
+    surfaceTitle: "Về mặt nước thôi?",
+    surfaceMsg: "Biển lúc nào cũng ở đây chờ bạn.",
+    keepDiving: "Chưa, lặn thêm chút",
+    abortTitle: "BỎ CUỘC RỒI À?",
+    abortMsg: "Chuyến này sẽ không được lưu lại đâu nhé.",
+    continue: "Không, lặn tiếp"
+  },
+  paywall: {
+    title: "Lặn sâu hơn với Pro",
+    subtitle:
+      "Mở theme premium, phân tích AI sâu hơn và nhật ký thám hiểm đầy đủ. Ủng hộ đội ngũ nhỏ đang làm app.",
+    compareTitle: "Bản thường vs Pro",
+    compareFree: "Bản thường",
+    comparePro: "Pro",
+    compareThemesLabel: "Theme có thể dùng",
+    compareThemesFree: "1 theme",
+    compareThemesPro: "Toàn bộ",
+    compareJournalLabel: "Nhật ký thám hiểm",
+    compareJournalFree: "Chỉ xem nhá hàng",
+    compareJournalPro: "Xem đầy đủ",
+    compareAiLabel: "Hướng dẫn AI",
+    compareAiFree: "Cơ bản",
+    compareAiPro: "Phân tích sâu",
+    unlockingTheme: (name: string) => `Mở khoá "${name}"`,
+    unlockingThemeHint: "Theme này đang bị khóa. Nâng cấp Pro để áp dụng ngay.",
+    benefits: [
+      {
+        icon: "water",
+        title: "Giữ trải nghiệm lặn miễn phí",
+        body: "Timer, XP, streak và lịch sử cơ bản vẫn mở; Pro thêm chiều sâu cho người dùng gắn bó."
+      },
+      {
+        icon: "diamond",
+        title: "8 Theme Premium",
+        body: "Giao diện riêng cho toàn app: bảng màu, font chữ, hạt lơ lửng và sương sâu."
+      },
+      {
+        icon: "sparkles",
+        title: "Phân tích AI sâu",
+        body: "Nhịp tập trung, kế hoạch theo tâm trạng và bài thở cá nhân hoá theo thói quen lặn."
+      },
+      {
+        icon: "telescope",
+        title: "Nhật ký thám hiểm đầy đủ",
+        body: "Đọc truyền thuyết, giả thuyết và ghi chú mật phía sau từng sinh vật/cổ vật đã khám phá."
+      }
+    ] as const,
+    planLifetime: "MÃI MÃI",
+    planAnnual: "1 NĂM",
+    planMonthly: "THÁNG",
+    planLifetimeSub: "một lần",
+    planMonthlySub: "/ tháng",
+    lifetimeCta: "LIFETIME — MỞ TẤT CẢ",
+    lifetimePrice: "799.000đ",
+    annualCta: "1 NĂM — TỐT NHẤT",
+    annualPrice: "299.000đ / năm",
+    annualPricePerMonth: "24.917đ / tháng",
+    annualSaving: "Tiết kiệm 50%",
+    monthlyCta: "THEO THÁNG",
+    monthlyPrice: "49.000đ / tháng",
+    trialBadge: "7 NGÀY MIỄN PHÍ",
+    trialDescription:
+      "Trải nghiệm miễn phí 7 ngày. Hủy bất cứ lúc nào trước khi gia hạn.",
+    trialCta: "BẮT ĐẦU DÙNG THỬ MIỄN PHÍ",
+    promoPlaceholder: "Mã trải nghiệm",
+    promoApply: "ÁP DỤNG",
+    promoInvalid: "Mã không hợp lệ",
+    promoExpired: "Mã đã hết hạn",
+    promoSuccess: (days: number) => `Hoạt động · còn ${days} ngày`,
+    restore: "KHÔI PHỤC GIAO DỊCH",
+    unavailable: "Bản dựng này chưa hỗ trợ mua hàng.",
+    errorTitle: "Mua hàng thất bại",
+    errorBody: "Đã có lỗi xảy ra. Bạn chưa bị trừ tiền — vui lòng thử lại.",
+    disclaimer:
+      "Thanh toán qua App Store / Google Play. Gói đăng ký tự gia hạn. Hủy bất kỳ lúc nào."
+  },
+  achievement: {
+    zoneUnlocked: "VÙNG MỚI MỞ KHOÁ",
+    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
+  },
+  levelUp: {
+    badge: "LÊN CẤP",
+    multiLevel: (n: number) => `LÊN CẤP ×${n}`,
+    from: (prev: number, next: number) => `Cấp ${prev} → Cấp ${next}`,
+    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
+  },
+  titleAchievement: {
+    badge: "THÀNH TỰU MỚI",
+    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
+  }
 } as const;

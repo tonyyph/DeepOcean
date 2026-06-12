@@ -12,6 +12,7 @@ import Animated, {
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
+import { GlowText } from "./GlowText";
 
 const tap = (style: Haptics.ImpactFeedbackStyle): void => {
   void Haptics.impactAsync(style).catch(() => {});
@@ -113,7 +114,9 @@ export const ConfirmModal = React.memo(function ConfirmModal({
               </View>
             )}
 
-            <Text style={styles.title}>{title}</Text>
+            <GlowText size={20} style={styles.title}>
+              {title}
+            </GlowText>
             <Text style={styles.message}>{message}</Text>
 
             <View style={styles.actions}>

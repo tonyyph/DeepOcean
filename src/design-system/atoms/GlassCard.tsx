@@ -53,9 +53,9 @@ export const GlassCard = React.memo(function GlassCard({
       <LinearGradient
         pointerEvents="none"
         colors={[
-          "rgba(255,255,255,0.02)",
-          "rgba(255,255,255,0.10)",
-          "rgba(255,255,255,0.15)"
+          "rgba(255,255,255,0.015)",
+          "rgba(255,255,255,0.055)",
+          "rgba(255,255,255,0.075)"
         ]}
         locations={[0, 0.38, 0.72]}
         start={{ x: 0.05, y: 0 }}
@@ -78,7 +78,7 @@ export const GlassCard = React.memo(function GlassCard({
           {
             borderTopLeftRadius: r,
             borderTopRightRadius: r,
-            backgroundColor: "rgba(255,255,255,0.18)"
+            backgroundColor: "rgba(255,255,255,0.11)"
           }
         ]}
       />
@@ -89,7 +89,7 @@ export const GlassCard = React.memo(function GlassCard({
           {
             borderTopLeftRadius: r,
             borderBottomLeftRadius: r,
-            backgroundColor: "rgba(255,255,255,0.08)"
+            backgroundColor: "rgba(255,255,255,0.055)"
           }
         ]}
       />
@@ -147,7 +147,7 @@ export const GlassCard = React.memo(function GlassCard({
           {content}
         </View>
       )}
-      <View style={{ padding: p }}>{children}</View>
+      <View style={[styles.content, { padding: p }]}>{children}</View>
     </View>
   );
 });
@@ -173,6 +173,10 @@ const styles = StyleSheet.create({
     width: StyleSheet.hairlineWidth
   },
   absorption: {
-    opacity: 0.24
+    opacity: 0.42
+  },
+  content: {
+    position: "relative",
+    zIndex: 1
   }
 });

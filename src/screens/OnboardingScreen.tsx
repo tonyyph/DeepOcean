@@ -10,6 +10,8 @@ import {
   type NativeSyntheticEvent
 } from "react-native";
 import { useRouter } from "expo-router";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -51,7 +53,7 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [idx, setIdx] = useState(0);
   const longPressProgress = useSharedValue(0);
   const listRef = useRef<FlatList<OnboardingChapter>>(null);
@@ -68,6 +70,8 @@ export default function OnboardingScreen() {
 
   const chapter = chapters[idx]!;
   const isFinal = idx === chapters.length - 1;
+  const compact = height < 720;
+  const titleSize = compact ? 34 : width < 380 ? 38 : 44;
 
   const completeOnboarding = useCallback(() => {
     Haptics.selectionAsync();
@@ -119,31 +123,52 @@ export default function OnboardingScreen() {
           style={styles.body}
         >
           <View style={styles.depthPill}>
+            <View style={styles.depthDot} />
             <Text style={styles.depthText}>{item.depth}</Text>
           </View>
           <GlowText
-            size={width < 380 ? 40 : 48}
+            size={titleSize}
             pulse
             color={t.colors.text}
             style={styles.titleAlign}
           >
             {item.title}
           </GlowText>
-          <Text style={[styles.copy, { maxWidth: width * 0.84 }]}>
-            {item.body}
-          </Text>
-          <Text style={[styles.detail, { maxWidth: width * 0.84 }]}>
-            {item.detail}
-          </Text>
+          <Text style={styles.copy}>{item.body}</Text>
+          <View style={styles.divider} />
+          <Text style={styles.detail}>{item.detail}</Text>
         </Animated.View>
       </View>
     ),
-    [styles, t.colors.text, width]
+    [styles, t.colors.text, titleSize, width]
   );
 
   return (
     <ZoneBackground zone={chapter.zone}>
       <UnderwaterCanvas zone={chapter.zone} particleCount={36} />
+      <BlurView
+        pointerEvents="none"
+        intensity={10}
+        tint="light"
+        style={styles.fullScreenGlass}
+      />
+      <LinearGradient
+        pointerEvents="none"
+        colors={[
+          t.colors.background + "CC",
+          t.colors.surfaceElevated + "5C",
+          t.colors.background + "E8"
+        ]}
+        locations={[0, 0.46, 1]}
+        style={styles.fullScreenGlass}
+      />
+      <LinearGradient
+        pointerEvents="none"
+        colors={["transparent", t.colors.accent + "18", "transparent"]}
+        start={{ x: 0, y: 0.2 }}
+        end={{ x: 1, y: 0.9 }}
+        style={styles.fullScreenGlass}
+      />
       <View style={styles.container}>
         <FlatList
           ref={listRef}
@@ -230,23 +255,46 @@ const makeStyles = (t: AppTheme) =>
     container: {
       flex: 1,
       justifyContent: "space-between",
-      paddingTop: t.spacing[20] + t.spacing[10],
-      paddingBottom: t.spacing[20],
+      paddingTop: t.spacing[12],
+      paddingBottom: t.spacing[8],
       paddingHorizontal: 0
+    },
+    fullScreenGlass: {
+      ...StyleSheet.absoluteFillObject
     },
     titleAlign: { textAlign: "center" },
     slide: {
       justifyContent: "center",
-      paddingHorizontal: t.spacing[6]
+      paddingHorizontal: t.spacing[6] + t.spacing[2]
     },
-    body: { alignItems: "center", gap: t.spacing[5] },
+    body: {
+      width: "100%",
+      maxWidth: 460,
+      alignSelf: "center",
+      alignItems: "center",
+      gap: t.spacing[4],
+      paddingTop: t.spacing[5],
+      paddingBottom: t.spacing[3]
+    },
     depthPill: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[2],
       borderWidth: 1,
-      borderColor: t.colors.glassEdge,
+      borderColor: t.colors.accent + "44",
       borderRadius: t.radii.pill,
-      backgroundColor: t.colors.glass,
-      paddingHorizontal: t.spacing[3],
+      backgroundColor: t.colors.background + "66",
+      paddingHorizontal: t.spacing[3.5],
       paddingVertical: t.spacing[1.5]
+    },
+    depthDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: t.colors.accent,
+      shadowColor: t.colors.accent,
+      shadowOpacity: 0.8,
+      shadowRadius: 8
     },
     depthText: {
       color: t.colors.accent,
@@ -255,29 +303,48 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.label
     },
     copy: {
-      color: t.colors.textSecondary,
+      color: t.colors.text,
       textAlign: "center",
-      fontSize: 17,
-      lineHeight: 26,
-      fontFamily: t.fonts.body
+      fontSize: 18,
+      lineHeight: 27,
+      fontFamily: t.fonts.body,
+      textShadowColor: "rgba(0,0,0,0.45)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 12
+    },
+    divider: {
+      width: 64,
+      height: 1,
+      backgroundColor: t.colors.accent + "40"
     },
     detail: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       textAlign: "center",
-      fontSize: 14,
-      lineHeight: 22,
-      fontFamily: t.fonts.body
+      fontSize: 15,
+      lineHeight: 23,
+      fontFamily: t.fonts.body,
+      textShadowColor: "rgba(0,0,0,0.4)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 10
     },
-    footer: { alignItems: "center", gap: t.spacing[6] },
-    dots: { flexDirection: "row", gap: 6 },
+    footer: {
+      alignItems: "center",
+      gap: t.spacing[5],
+      paddingHorizontal: t.spacing[6]
+    },
+    dots: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[2]
+    },
     dot: {
-      width: 6,
-      height: 6,
-      borderRadius: 3,
+      width: 7,
+      height: 7,
+      borderRadius: 4,
       backgroundColor: "rgba(255,255,255,0.18)"
     },
     navRow: {
-      width: "88%",
+      width: "100%",
       flexDirection: "row",
       gap: t.spacing[3]
     },
@@ -286,10 +353,10 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       borderWidth: 1,
-      borderColor: t.colors.glassEdge,
-      borderRadius: t.radii.s,
-      backgroundColor: t.colors.glass,
-      minHeight: 48,
+      borderColor: t.colors.accent + "36",
+      borderRadius: t.radii.md,
+      backgroundColor: t.colors.background + "78",
+      minHeight: 54,
       paddingHorizontal: t.spacing[3]
     },
     navButtonPrimary: {
@@ -304,13 +371,13 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.label
     },
     navTextPrimary: { color: t.colors.background },
-    cta: { width: "88%" },
+    cta: { width: "100%" },
     ctaText: {
       color: t.colors.text,
       textAlign: "center",
       letterSpacing: 1,
-      fontSize: 13,
-      paddingVertical: 4,
+      fontSize: 14,
+      paddingVertical: t.spacing[1],
       fontFamily: t.fonts.label
     }
   });

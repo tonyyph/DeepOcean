@@ -251,7 +251,7 @@ const makeStyles = (t: AppTheme) =>
     },
     kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
     dayLabel: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 11,
       letterSpacing: 1,
       fontFamily: t.fonts.label
@@ -269,7 +269,7 @@ const makeStyles = (t: AppTheme) =>
     },
     legendCells: { flexDirection: "row", gap: 4 },
     legendText: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 10,
       fontFamily: t.fonts.label
     },
@@ -291,7 +291,7 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.s
     },
     empty: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       marginTop: t.spacing[3],
       fontSize: 13,
       fontFamily: t.fonts.body

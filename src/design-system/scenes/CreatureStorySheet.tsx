@@ -6,6 +6,7 @@ import { MotiView } from "moti";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
+import { GlowText } from "../atoms/GlowText";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { PremiumBadge } from "../atoms/PremiumBadge";
@@ -133,9 +134,9 @@ export function CreatureStorySheet({
         </LinearGradient>
 
         <Text style={styles.kindLabel}>{kindLabel}</Text>
-        <Text style={styles.title}>
+        <GlowText size={24} style={styles.title}>
           {row.seen ? row.name : tr.collection.undiscovered}
-        </Text>
+        </GlowText>
 
         {/* Meta row */}
         <View style={styles.metaRow}>
