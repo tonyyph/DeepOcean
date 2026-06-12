@@ -24,12 +24,22 @@ import type {
 
 const VALID_THEME_IDS = new Set<string>(THEME_IDS);
 const LEGACY_THEME_IDS: Record<string, ThemeId> = {
-  abyss: "deep",
-  sunlit: "reef",
-  ["bio" + "luminescent"]: "glow",
-  arctic: "ice",
-  volcanic: "ember",
-  coralGarden: "coral"
+  deep: "prismWater",
+  reef: "prismNature",
+  glow: "prismLight",
+  ice: "prismIce",
+  ember: "prismFire",
+  coral: "prismMystic",
+  kelp: "prismNature",
+  pearl: "prismLight",
+  ruby: "prismDark",
+  royal: "prismStorm",
+  abyss: "prismWater",
+  sunlit: "prismLight",
+  ["bio" + "luminescent"]: "prismLight",
+  arctic: "prismIce",
+  volcanic: "prismMagma",
+  coralGarden: "prismMystic"
 };
 
 function narrowThemes(ids: readonly string[]): ThemeId[] {

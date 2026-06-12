@@ -3,21 +3,36 @@ export const en = {
       chapters: [
         {
           title: "Breathe.",
-          body: "You are standing at the surface of the ocean. The world above is loud. Down here, it isn't."
+          depth: "SURFACE",
+          body: "You are standing at the surface of the ocean. The world above is loud. Down here, it isn't.",
+          detail:
+            "Deep Ocean turns a focus session into a dive: choose a duration, put the phone down, and let the app hold the rhythm with ambient sound, depth, and a quiet state of mind."
         },
         {
           title: "Descend.",
-          body: "Each minute you focus, you sink a little deeper. Each zone has its own light, its own creatures, its own silence."
+          depth: "TWILIGHT ZONE",
+          body: "Each minute you focus, you sink a little deeper. Each zone has its own light, its own creatures, its own silence.",
+          detail:
+            "Start a free dive or set a target. While you work, the app tracks depth, zone, and progress while keeping the surface calm enough to stay out of your way."
         },
         {
           title: "Discover.",
-          body: "Hold attention long enough and the deep will show you things almost no one sees."
+          depth: "MIDNIGHT ZONE",
+          body: "Hold attention long enough and the deep will show you things almost no one sees.",
+          detail:
+            "After sessions, you can encounter creatures, artifacts, story fragments, and XP rewards. Your collection grows from the moments when you actually stay with your attention."
         },
         {
           title: "Return.",
-          body: "When you surface, what you brought back is yours to keep. The dive remembers you."
+          depth: "DIVE LOG",
+          body: "When you surface, what you brought back is yours to keep. The dive remembers you.",
+          detail:
+            "Deep Ocean keeps your dive history, streak, level, guide nudges, and daily reminders. Not to pressure you, but to make returning to focus feel like a small ritual."
         }
       ],
+      pageLabel: "Onboarding page",
+      back: "BACK",
+      next: "NEXT",
       holdToBegin: "HOLD TO BEGIN DESCENT",
       tapToContinue: "TAP TO CONTINUE"
     },

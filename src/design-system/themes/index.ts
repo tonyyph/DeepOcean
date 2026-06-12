@@ -1,50 +1,40 @@
 import type { AppTheme, ThemeId } from "./types";
-import { deepTheme } from "./deep";
-import { reefTheme } from "./reef";
-import { glowTheme } from "./glow";
-import { iceTheme } from "./ice";
-import { emberTheme } from "./ember";
-import { coralTheme } from "./coral";
-import { kelpTheme } from "./kelp";
-import { pearlTheme } from "./pearl";
-import { rubyTheme } from "./ruby";
-import { royalTheme } from "./royal";
+import { PRISMATIC_THEMES, THEME_COMBINATIONS } from "./prismatic";
 
 export const THEMES: Record<ThemeId, AppTheme> = {
-  deep: deepTheme,
-  reef: reefTheme,
-  glow: glowTheme,
-  ice: iceTheme,
-  ember: emberTheme,
-  coral: coralTheme,
-  kelp: kelpTheme,
-  pearl: pearlTheme,
-  ruby: rubyTheme,
-  royal: royalTheme
+  prismLight: PRISMATIC_THEMES[0],
+  prismFire: PRISMATIC_THEMES[1],
+  prismWater: PRISMATIC_THEMES[2],
+  prismAir: PRISMATIC_THEMES[3],
+  prismNature: PRISMATIC_THEMES[4],
+  prismIce: PRISMATIC_THEMES[5],
+  prismStorm: PRISMATIC_THEMES[6],
+  prismMagma: PRISMATIC_THEMES[7],
+  prismMystic: PRISMATIC_THEMES[8],
+  prismDark: PRISMATIC_THEMES[9]
 };
 
-export const THEME_LIST: readonly AppTheme[] = [
-  deepTheme,
-  reefTheme,
-  glowTheme,
-  iceTheme,
-  emberTheme,
-  coralTheme,
-  kelpTheme,
-  pearlTheme,
-  rubyTheme,
-  royalTheme
-];
+export const THEME_LIST: readonly AppTheme[] = PRISMATIC_THEMES;
 
-export const DEFAULT_THEME_ID: ThemeId = "deep";
+export const DEFAULT_THEME_ID: ThemeId = "prismLight";
 const LEGACY_GLOW_THEME_ID = "bio" + "luminescent";
 const LEGACY_THEME_IDS: Record<string, ThemeId> = {
-  abyss: "deep",
-  sunlit: "reef",
-  [LEGACY_GLOW_THEME_ID]: "glow",
-  arctic: "ice",
-  volcanic: "ember",
-  coralGarden: "coral"
+  deep: "prismWater",
+  reef: "prismNature",
+  glow: "prismLight",
+  ice: "prismIce",
+  ember: "prismFire",
+  coral: "prismMystic",
+  kelp: "prismNature",
+  pearl: "prismLight",
+  ruby: "prismDark",
+  royal: "prismStorm",
+  abyss: "prismWater",
+  sunlit: "prismLight",
+  [LEGACY_GLOW_THEME_ID]: "prismLight",
+  arctic: "prismIce",
+  volcanic: "prismMagma",
+  coralGarden: "prismMystic"
 };
 
 export function normalizeThemeId(id: ThemeId | string | undefined): ThemeId {
@@ -55,6 +45,18 @@ export function normalizeThemeId(id: ThemeId | string | undefined): ThemeId {
 
 export function getTheme(id: ThemeId | string | undefined): AppTheme {
   return THEMES[normalizeThemeId(id)];
+}
+
+export function combineThemes(
+  first: ThemeId | string | undefined,
+  second: ThemeId | string | undefined
+): ThemeId | null {
+  if (!first || !second) return null;
+  const a = normalizeThemeId(first);
+  const b = normalizeThemeId(second);
+  if (a === b) return null;
+  const key = [a, b].sort().join("+");
+  return THEME_COMBINATIONS[key] ?? null;
 }
 
 export type { AppTheme, ThemeId } from "./types";

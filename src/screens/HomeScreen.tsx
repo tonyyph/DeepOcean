@@ -220,9 +220,6 @@ export default function HomeScreen() {
           {!showLastDiveSkeleton && lastSession ? (
             <LastDiveCard session={lastSession} tr={tr} />
           ) : null}
-          {!showLastDiveSkeleton && !lastSession ? (
-            <NoLastDiveCard onStart={handleStartPreferredDive} tr={tr} />
-          ) : null}
 
           {/* ── Hero dive CTA ── */}
           <PressableCard

@@ -3,21 +3,36 @@ export const vi = {
       chapters: [
         {
           title: "Thở đi.",
-          body: "Bạn đang đứng ở mặt biển. Thế giới bên trên ồn ào lắm. Ở đây thì không."
+          depth: "MẶT NƯỚC",
+          body: "Bạn đang đứng ở mặt biển. Thế giới bên trên ồn ào lắm. Ở đây thì không.",
+          detail:
+            "Deep Ocean biến một phiên tập trung thành một chuyến lặn: chọn thời lượng, thả điện thoại xuống, và để app giữ nhịp cho bạn bằng âm thanh biển, độ sâu và trạng thái thật yên."
         },
         {
           title: "Xuống thôi.",
-          body: "Mỗi phút tập trung, bạn lặn thêm một chút. Mỗi vùng biển có ánh sáng riêng, sinh vật riêng, sự yên lặng riêng."
+          depth: "VÙNG CHẠNG VẠNG",
+          body: "Mỗi phút tập trung, bạn lặn thêm một chút. Mỗi vùng biển có ánh sáng riêng, sinh vật riêng, sự yên lặng riêng.",
+          detail:
+            "Bạn có thể lặn tự do hoặc đặt mục tiêu cụ thể. Trong lúc lặn, app theo dõi độ sâu, vùng biển, tiến độ và giữ mọi thứ tối giản để bạn không bị kéo ra khỏi công việc."
         },
         {
           title: "Khám phá.",
-          body: "Giữ sự chú ý đủ lâu và biển sâu sẽ cho bạn thấy những thứ mà hầu như chẳng ai nhìn thấy."
+          depth: "VÙNG NỬA ĐÊM",
+          body: "Giữ sự chú ý đủ lâu và biển sâu sẽ cho bạn thấy những thứ mà hầu như chẳng ai nhìn thấy.",
+          detail:
+            "Sau mỗi phiên, bạn có thể gặp sinh vật, cổ vật, mẩu chuyện và phần thưởng XP. Bộ sưu tập lớn dần theo những lần bạn thật sự ở lại với sự tập trung."
         },
         {
           title: "Trở về.",
-          body: "Khi bạn nổi lên, tất cả những gì mang về đều là của bạn. Biển nhớ bạn đấy."
+          depth: "NHẬT KÝ LẶN",
+          body: "Khi bạn nổi lên, tất cả những gì mang về đều là của bạn. Biển nhớ bạn đấy.",
+          detail:
+            "Deep Ocean lưu lịch sử lặn, streak, cấp độ, gợi ý từ người hướng dẫn và nhắc nhở hằng ngày. Không phải để gây áp lực, mà để bạn có một nghi thức quay lại thật nhẹ."
         }
       ],
+      pageLabel: "Trang giới thiệu",
+      back: "TRƯỚC",
+      next: "TIẾP",
       holdToBegin: "GIỮ ĐỂ BẮT ĐẦU XUỐNG BIỂN",
       tapToContinue: "CHẠM ĐỂ TIẾP TỤC"
     },

@@ -24,9 +24,9 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Deep Ocean — Expedition Intelligence System",
+  title: "Deep Ocean — Focus Dives for Mobile",
   description:
-    "Explore the deepest parts of the ocean. Track dives, discover rare species, and chart the abyss."
+    "Deep Ocean is a premium focus app that turns each session into an underwater dive with depth, discoveries, XP, streaks, AI insights, reminders, widgets, and premium themes."
 };
 
 export default function RootLayout({
