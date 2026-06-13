@@ -22,6 +22,7 @@ import Animated, {
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
+import { GlowText } from "./GlowText";
 import { Colors } from "@/theme";
 
 const ZONE_ICONS: Record<OceanZone, keyof typeof Ionicons.glyphMap> = {
@@ -182,7 +183,9 @@ export const AchievementModal = React.memo(function AchievementModal({
             </View>
 
             {/* Zone name */}
-            <Text style={styles.zoneName}>{zoneInfo.label}</Text>
+            <GlowText size={26} style={styles.zoneName}>
+              {zoneInfo.label}
+            </GlowText>
 
             {/* Depth range chip */}
             <View style={[styles.depthChip, { borderColor: accent + "44" }]}>

@@ -1,4 +1,5 @@
 import { useTranslations } from "@/core/i18n";
+import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLoading";
 import { container } from "@/data/container";
 import {
   ActionButton,
@@ -70,6 +71,10 @@ export default function AIScreen() {
         : Promise.resolve(""),
     enabled: Boolean(lastSession)
   });
+  useScreenTransitionLoading(
+    recommendationLoading || motivationLoading || summaryLoading,
+    "ai"
+  );
 
   const now = Date.now();
   const canAskAgain =

@@ -209,22 +209,35 @@ export function ZoneChip({
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const scale = useSharedValue(isDeepest ? 1 : 0.96);
+  const zoneColor = colors[0];
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }]
   }));
 
   return (
-    <Animated.View style={[styles.zoneChip, animStyle]}>
-      {isUnlocked && (
-        <LinearGradient
-          colors={[colors[0] + (isDeepest ? "55" : "30"), colors[1] + "18"]}
-          style={[StyleSheet.absoluteFill, { borderRadius: t.radii.sm }]}
-        />
-      )}
+    <Animated.View
+      style={[
+        styles.zoneChip,
+        isUnlocked ? styles.zoneChipUnlocked : styles.zoneChipLocked,
+        isDeepest && [
+          styles.zoneChipDeepest,
+          { borderColor: zoneColor + "A8" }
+        ],
+        animStyle
+      ]}
+    >
+      <LinearGradient
+        colors={
+          isUnlocked
+            ? [zoneColor + (isDeepest ? "66" : "36"), colors[1] + "1F"]
+            : [t.colors.panelStrong, t.colors.panel]
+        }
+        style={[StyleSheet.absoluteFill, { borderRadius: t.radii.sm }]}
+      />
       <Ionicons
         name={ZONE_ICONS[zone]}
         size={16}
-        color={isUnlocked ? colors[0] : t.colors.textFaint}
+        color={isUnlocked ? zoneColor : t.colors.textMuted}
       />
       <Text
         style={[
@@ -232,9 +245,9 @@ export function ZoneChip({
           {
             color: isUnlocked
               ? isDeepest
-                ? colors[0]
+                ? t.colors.text
                 : t.colors.textSecondary
-              : t.colors.textFaint
+              : t.colors.textMuted
           }
         ]}
         numberOfLines={1}
@@ -242,7 +255,7 @@ export function ZoneChip({
         {ZONE_TABLE[zone].label.split(" ")[0]}
       </Text>
       {isDeepest && (
-        <View style={[styles.zoneDeepestDot, { backgroundColor: colors[0] }]} />
+        <View style={[styles.zoneDeepestDot, { backgroundColor: zoneColor }]} />
       )}
     </Animated.View>
   );

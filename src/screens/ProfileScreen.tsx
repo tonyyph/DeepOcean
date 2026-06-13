@@ -243,7 +243,9 @@ export default function ProfileScreen() {
                   </View>
                 </GlassCard>
               ) : (
-                <GlowText size={34}>{profile?.name ?? tr.home.diver}</GlowText>
+                <GlowText size={36} pulse style={styles.base}>
+                  {profile?.name ?? tr.home.diver}
+                </GlowText>
               )}
               <PressableCard
                 haptic="light"

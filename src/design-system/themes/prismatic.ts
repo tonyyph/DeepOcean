@@ -1,9 +1,4 @@
-import type {
-  AppTheme,
-  ParticleEffect,
-  ParticleStyle,
-  ThemeId
-} from "./types";
+import type { AppTheme, ParticleEffect, ParticleStyle, ThemeId } from "./types";
 import { radii, spacing, motion } from "../tokens";
 import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 

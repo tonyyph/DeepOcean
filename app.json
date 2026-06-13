@@ -7,7 +7,7 @@
     "scheme": "deepocean",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
-    "icon": "./assets/deepocean-fixed.png",
+    "icon": "./assets/images/deepocean-fixed.png",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cuongphan2.OtherSide",
@@ -21,7 +21,7 @@
     "android": {
       "package": "com.cuongphan2.OtherSide",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/deepocean-fixed.png",
+        "foregroundImage": "./assets/images/deepocean-fixed.png",
         "backgroundColor": "#020617"
       },
       "permissions": [
@@ -55,7 +55,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#020617",
-          "image": "./assets/logo.png",
+          "image": "./assets/images/logo.png",
           "imageWidth": 200
         }
       ],

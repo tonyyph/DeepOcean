@@ -10,6 +10,8 @@ import {
   type NativeSyntheticEvent
 } from "react-native";
 import { useRouter } from "expo-router";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -51,7 +53,7 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [idx, setIdx] = useState(0);
   const longPressProgress = useSharedValue(0);
   const listRef = useRef<FlatList<OnboardingChapter>>(null);
@@ -68,6 +70,8 @@ export default function OnboardingScreen() {
 
   const chapter = chapters[idx]!;
   const isFinal = idx === chapters.length - 1;
+  const compact = height < 720;
+  const titleSize = compact ? 34 : width < 380 ? 38 : 44;
 
   const completeOnboarding = useCallback(() => {
     Haptics.selectionAsync();
@@ -274,6 +278,56 @@ const makeStyles = (t: AppTheme) =>
       width: 6,
       height: 6,
       borderRadius: 3,
+      backgroundColor: t.colors.accent,
+      shadowColor: t.colors.accent,
+      shadowOpacity: 0.8,
+      shadowRadius: 8
+    },
+    depthText: {
+      color: t.colors.accent,
+      fontSize: 11,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label
+    },
+    copy: {
+      color: t.colors.text,
+      textAlign: "center",
+      fontSize: 18,
+      lineHeight: 27,
+      fontFamily: t.fonts.body,
+      textShadowColor: "rgba(0,0,0,0.45)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 12
+    },
+    divider: {
+      width: 64,
+      height: 1,
+      backgroundColor: t.colors.accent + "40"
+    },
+    detail: {
+      color: t.colors.textSecondary,
+      textAlign: "center",
+      fontSize: 15,
+      lineHeight: 23,
+      fontFamily: t.fonts.body,
+      textShadowColor: "rgba(0,0,0,0.4)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 10
+    },
+    footer: {
+      alignItems: "center",
+      gap: t.spacing[5],
+      paddingHorizontal: t.spacing[6]
+    },
+    dots: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[2]
+    },
+    dot: {
+      width: 7,
+      height: 7,
+      borderRadius: 4,
       backgroundColor: "rgba(255,255,255,0.18)"
     },
     navRow: {
@@ -309,8 +363,8 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.text,
       textAlign: "center",
       letterSpacing: 1,
-      fontSize: 13,
-      paddingVertical: 4,
+      fontSize: 14,
+      paddingVertical: t.spacing[1],
       fontFamily: t.fonts.label
     }
   });

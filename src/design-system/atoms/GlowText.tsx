@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { StyleSheet, TextProps } from "react-native";
+import { StyleSheet, TextProps, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -19,7 +19,8 @@ type Props = TextProps & {
 };
 
 /**
- * GlowText — bio-luminescent text. Pulse loop honors `reducedMotion`.
+ * GlowText — raised headline text with a crisp cartoon backing layer.
+ * Pulse loop honors `reducedMotion`.
  * Font family follows the active theme (display font).
  */
 export const GlowText = React.memo(function GlowText({
@@ -56,32 +57,45 @@ export const GlowText = React.memo(function GlowText({
   }, [pulse, reducedMotion, opacity, t.motion.durations.breath]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    textShadowRadius: 18 * opacity.value
+    opacity: pulse && !reducedMotion ? 0.94 + 0.06 * opacity.value : 1
   }));
+  const textStyle = [
+    styles.base,
+    {
+      color: color ?? t.colors.text,
+      fontSize: size,
+      fontFamily: t.fonts.display,
+      letterSpacing: t.fonts.displayLetterSpacing
+    },
+    style
+  ];
 
   return (
-    <Animated.Text
-      style={[
-        styles.base,
-        {
-          color: color ?? t.colors.accent,
-          fontSize: size,
-          fontFamily: t.fonts.display,
-          letterSpacing: t.fonts.displayLetterSpacing
-        },
-        animatedStyle,
-        style
-      ]}
-      {...rest}
-    >
-      {children}
-    </Animated.Text>
+    <View style={styles.wrap}>
+      <Animated.Text
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        pointerEvents="none"
+        style={[textStyle, styles.backing, animatedStyle]}
+        {...rest}
+      >
+        {children}
+      </Animated.Text>
+      <Animated.Text style={[textStyle, animatedStyle]} {...rest}>
+        {children}
+      </Animated.Text>
+    </View>
   );
 });
 
 const styles = StyleSheet.create({
+  wrap: {},
   base: {
-    textShadowOffset: { width: 0, height: 0 }
+    includeFontPadding: false
+  },
+  backing: {
+    ...StyleSheet.absoluteFillObject,
+    color: "rgba(0, 42, 74, 0.35)",
+    transform: [{ translateY: 4 }]
   }
 });

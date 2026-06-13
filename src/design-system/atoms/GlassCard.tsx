@@ -150,7 +150,7 @@ export const GlassCard = React.memo(function GlassCard({
           {content}
         </View>
       )}
-      <View style={{ padding: p }}>{children}</View>
+      <View style={[styles.content, { padding: p }]}>{children}</View>
     </View>
   );
 });
@@ -176,6 +176,10 @@ const styles = StyleSheet.create({
     width: StyleSheet.hairlineWidth
   },
   absorption: {
-    opacity: 0.24
+    opacity: 0.42
+  },
+  content: {
+    position: "relative",
+    zIndex: 1
   }
 });

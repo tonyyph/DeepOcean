@@ -32,7 +32,7 @@ export const AppHeader = React.memo(function AppHeader({
   return (
     <View style={[styles.wrap, alignStyle]}>
       {eyebrow && <Text style={styles.eyebrow}>{eyebrow}</Text>}
-      <GlowText size={size} pulse={pulse}>
+      <GlowText size={size} pulse={pulse} style={styles.base}>
         {title}
       </GlowText>
       {subtitle && <Text style={styles.sub}>{subtitle}</Text>}
@@ -42,6 +42,11 @@ export const AppHeader = React.memo(function AppHeader({
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
+    base: {
+      color: t.colors.accent,
+      fontSize: 32,
+      letterSpacing: t.fonts.displayLetterSpacing
+    },
     wrap: {
       paddingVertical: t.spacing[4],
       gap: t.spacing[1]
@@ -49,7 +54,7 @@ const makeStyles = (t: AppTheme) =>
     left: { alignItems: "flex-start" },
     center: { alignItems: "center" },
     eyebrow: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 11,
       letterSpacing: 1,
       fontFamily: t.fonts.label

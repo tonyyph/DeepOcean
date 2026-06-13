@@ -20,6 +20,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
+import { GlowText } from "./GlowText";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { useTranslations } from "@/core/i18n";
 import { Colors } from "@/theme";
@@ -176,7 +177,9 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
             </View>
 
             {/* Title */}
-            <Text style={styles.title}>{achievement.title}</Text>
+            <GlowText size={22} style={styles.title}>
+              {achievement.title}
+            </GlowText>
 
             {/* Description */}
             <Text style={styles.description}>{achievement.description}</Text>

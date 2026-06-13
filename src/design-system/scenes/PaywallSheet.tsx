@@ -17,6 +17,7 @@ import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { THEME_LIST, type ThemeId } from "../themes";
 import { makeStyles } from "./PaywallSheet.styles";
+import { GlowText } from "../atoms/GlowText";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { usePremium } from "@/stores";
@@ -213,7 +214,9 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             />
             <Ionicons name={iconName} size={44} color={t.colors.accent} />
           </View>
-          <Text style={styles.slideTitle}>{item.title}</Text>
+          <GlowText size={20} style={styles.slideTitle}>
+            {item.title}
+          </GlowText>
           <Text style={styles.slideBody}>{item.body}</Text>
         </View>
       );
@@ -249,7 +252,9 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
         >
           <Ionicons name="close" size={28} color={t.colors.textMuted} />
         </TouchableOpacity>
-        <Text style={styles.heading}>{pw.title}</Text>
+        <GlowText size={26} style={styles.heading}>
+          {pw.title}
+        </GlowText>
         <Text style={styles.headingSub}>{pw.subtitle}</Text>
         {intentThemeName != null && (
           <View style={styles.intentBanner}>

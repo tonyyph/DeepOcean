@@ -29,7 +29,7 @@ export const makeStyles = (t: AppTheme) =>
       lineHeight: 17
     },
     filterTitle: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 11,
       letterSpacing: 1,
       fontFamily: t.fonts.label,
@@ -50,17 +50,17 @@ export const makeStyles = (t: AppTheme) =>
     compactChip: {
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
+      borderColor: t.colors.panelEdge,
       paddingHorizontal: t.spacing[2.5],
       paddingVertical: t.spacing[1],
-      backgroundColor: t.colors.panel
+      backgroundColor: t.colors.panelStrong
     },
     compactChipActive: {
       borderColor: t.colors.accent,
       backgroundColor: `${t.colors.accent}20`
     },
     compactChipText: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 11,
       fontFamily: t.fonts.label,
       letterSpacing: 0.4
@@ -123,7 +123,7 @@ export const makeStyles = (t: AppTheme) =>
       backgroundColor: `${Colors.premium.gold}1A`
     },
     zoneLabel: {
-      color: t.colors.textMuted,
+      color: t.colors.textSecondary,
       fontSize: 11,
       letterSpacing: 1,
       marginTop: 3,
@@ -161,7 +161,7 @@ export const makeStyles = (t: AppTheme) =>
       textTransform: "uppercase"
     },
     whisper: {
-      color: t.colors.textFaint,
+      color: t.colors.textMuted,
       fontSize: 12,
       marginTop: t.spacing[1.5],
       lineHeight: 17,
