@@ -1,5 +1,12 @@
 import type { AppTheme, ParticleEffect, ParticleStyle, ThemeId } from "./types";
-import { radii, spacing, motion } from "../tokens";
+import {
+  motion,
+  radii,
+  shadows,
+  spacing,
+  surfaces,
+  typography
+} from "../tokens";
 import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
 
 type PrismaticSpec = {
@@ -88,8 +95,11 @@ function makeTheme(spec: PrismaticSpec): AppTheme {
         alpha(THEME_HEX.black, 0.96)
       ]
     },
+    typography,
     radii,
     spacing,
+    surfaces,
+    shadows,
     motion
   };
 }

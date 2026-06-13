@@ -156,7 +156,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
               <Ionicons
                 name="arrow-up-circle"
                 size={12}
-                color={Colors.premium.gold}
+                color={t.colors.premium}
               />
               <Text style={styles.badgeText}>
                 {levelsGained > 1
@@ -224,7 +224,7 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.xl,
       backgroundColor: t.colors.surfaceElevated,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${Colors.premium.gold}33`,
+      borderColor: t.colors.premium,
       paddingVertical: t.spacing[6],
       paddingHorizontal: t.spacing[6],
       alignItems: "center",
@@ -244,14 +244,14 @@ const makeStyles = (t: AppTheme) =>
       paddingVertical: t.spacing[1],
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${Colors.premium.gold}44`,
-      backgroundColor: "rgba(255,210,122,0.06)"
+      borderColor: t.colors.premium,
+      backgroundColor: t.colors.glass
     },
     badgeText: {
       fontSize: 10,
       fontFamily: t.fonts.label,
       letterSpacing: 1.5,
-      color: Colors.premium.gold
+      color: t.colors.premium
     },
     levelWrap: {
       marginVertical: t.spacing[2]
@@ -268,7 +268,7 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 38,
       fontFamily: t.fonts.display,
       color: Colors.premium.deepInk,
-      letterSpacing: -1
+      letterSpacing: 0
     },
     title: {
       color: t.colors.text,
@@ -286,7 +286,7 @@ const makeStyles = (t: AppTheme) =>
     countdownTrack: {
       width: "100%",
       height: 2,
-      backgroundColor: "rgba(255,210,122,0.12)",
+      backgroundColor: t.colors.glass,
       borderRadius: 1,
       overflow: "hidden",
       marginTop: t.spacing[3]
@@ -294,7 +294,7 @@ const makeStyles = (t: AppTheme) =>
     countdownBar: {
       height: "100%",
       borderRadius: 1,
-      backgroundColor: Colors.premium.gold
+      backgroundColor: t.colors.premium
     },
     hint: {
       color: t.colors.textFaint,

@@ -13,8 +13,8 @@ import Animated, {
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
+import { ActionButton } from "./ActionButton";
 import { GlowText } from "./GlowText";
-import { PressableCard } from "./PressableCard";
 
 type Props = {
   visible: boolean;
@@ -89,7 +89,7 @@ export const FreeDiveModal = React.memo(function FreeDiveModal({
           <Pressable
             style={[
               StyleSheet.absoluteFill,
-              { backgroundColor: "rgba(0,0,0,0.58)" }
+              { backgroundColor: t.surfaces.scrim }
             ]}
             onPress={onDismiss}
           />
@@ -108,7 +108,7 @@ export const FreeDiveModal = React.memo(function FreeDiveModal({
             </View>
 
             <LinearGradient
-              colors={[t.colors.accent + "20", t.colors.glass]}
+              colors={[t.colors.glass, t.colors.panelStrong]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.spotlight}
@@ -136,16 +136,15 @@ export const FreeDiveModal = React.memo(function FreeDiveModal({
               style={styles.slider}
             />
 
-            <PressableCard
-              haptic="light"
+            <ActionButton
+              label={startLabel}
+              icon="play"
+              tone="primary"
+              size="md"
+              fullWidth
               onPress={onStart}
               containerStyle={styles.action}
-              radius={t.radii.sm}
-              padding={t.spacing[3]}
-              glow
-            >
-              <Text style={styles.actionText}>{startLabel}</Text>
-            </PressableCard>
+            />
           </Animated.View>
         </View>
       </View>
@@ -197,7 +196,7 @@ const makeStyles = (t: AppTheme) =>
       paddingVertical: t.spacing[3],
       paddingHorizontal: t.spacing[3],
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.accent + "44"
+      borderColor: t.colors.panelEdge
     },
     hintRow: {
       flexDirection: "row",
@@ -232,12 +231,5 @@ const makeStyles = (t: AppTheme) =>
     action: {
       width: "100%",
       marginTop: t.spacing[1]
-    },
-    actionText: {
-      color: t.colors.text,
-      textAlign: "center",
-      letterSpacing: 0.9,
-      fontSize: 12,
-      fontFamily: t.fonts.label
     }
   });

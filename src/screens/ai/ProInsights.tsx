@@ -1,6 +1,7 @@
 import { type Translations } from "@/core/i18n";
 import { MOODS, type Mood } from "@/domain/entities";
 import {
+  ActionButton,
   GlassCard,
   MoodMapChart,
   PremiumBadge,
@@ -12,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { MotiView } from "moti";
 import React, { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 type Props = {
   isPremium: boolean;
@@ -37,39 +38,38 @@ export const ProInsights = React.memo(function ProInsights({
 
   if (!isPremium) {
     return (
-      <Pressable onPress={onUnlock} accessibilityRole="button">
-        <View style={styles.proLockedCard}>
-          <LinearGradient
-            colors={[
-              t.gradients.bioGlow[0] + "33",
-              t.gradients.bioGlow[1] + "11"
-            ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={styles.proHeaderRow}>
-            <View style={styles.proHeaderTitleWrap}>
-              <Ionicons name="sparkles" size={18} color={t.colors.premium} />
-              <Text style={styles.proHeader}>{tr.ai.proHeader}</Text>
-            </View>
-            <PremiumBadge variant="lock" />
+      <View style={styles.proLockedCard}>
+        <LinearGradient
+          colors={[t.colors.glass, t.colors.panelStrong]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.proHeaderRow}>
+          <View style={styles.proHeaderTitleWrap}>
+            <Ionicons name="sparkles" size={18} color={t.colors.premium} />
+            <Text style={styles.proHeader}>{tr.ai.proHeader}</Text>
           </View>
-          <Text style={styles.proLockedBody}>{tr.ai.proLocked}</Text>
-          <View style={styles.proPreviewBlur}>
-            <Text style={styles.proPreviewText} numberOfLines={2}>
-              {tr.ai.proPatternBody}
-            </Text>
-            <Text style={styles.proPreviewText} numberOfLines={2}>
-              {tr.ai.proMoodBody}
-            </Text>
-          </View>
-          <View style={styles.proCtaRow}>
-            <Text style={styles.proCtaText}>{tr.ai.proUnlockCta}</Text>
-            <Ionicons name="arrow-forward" size={14} color={t.colors.premium} />
-          </View>
+          <PremiumBadge variant="lock" />
         </View>
-      </Pressable>
+        <Text style={styles.proLockedBody}>{tr.ai.proLocked}</Text>
+        <View style={styles.proPreviewBlur}>
+          <Text style={styles.proPreviewText} numberOfLines={2}>
+            {tr.ai.proPatternBody}
+          </Text>
+          <Text style={styles.proPreviewText} numberOfLines={2}>
+            {tr.ai.proMoodBody}
+          </Text>
+        </View>
+        <ActionButton
+          label={tr.ai.proUnlockCta}
+          icon="arrow-forward"
+          tone="premium"
+          size="sm"
+          fullWidth
+          onPress={onUnlock}
+        />
+      </View>
     );
   }
 
@@ -99,7 +99,7 @@ export const ProInsights = React.memo(function ProInsights({
           <View
             style={[
               styles.proTileIcon,
-              { borderColor: t.colors.premium + "66" }
+              { borderColor: t.colors.premium }
             ]}
           >
             <Ionicons name="compass" size={14} color={t.colors.premium} />
@@ -153,7 +153,7 @@ const ProInsightTile = React.memo(function ProInsightTile({
   return (
     <View style={styles.proTile}>
       <View
-        style={[styles.proTileIcon, { borderColor: t.colors.premium + "66" }]}
+        style={[styles.proTileIcon, { borderColor: t.colors.premium }]}
       >
         <Ionicons name={icon} size={14} color={t.colors.premium} />
       </View>
@@ -171,15 +171,15 @@ const makeStyles = (t: AppTheme) =>
     proLockedCard: {
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(255,210,122,0.32)",
+      borderColor: t.colors.premium,
       padding: t.spacing[4],
       overflow: "hidden",
       gap: t.spacing[3]
     },
     proUnlockedWrap: {
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(255,210,122,0.30)",
-      backgroundColor: "rgba(255,210,122,0.05)",
+      borderColor: t.colors.premium,
+      backgroundColor: t.colors.glass,
       padding: t.spacing[2],
       gap: t.spacing[6]
     },
@@ -218,19 +218,6 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.body,
       fontStyle: "italic"
     },
-    proCtaRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingTop: t.spacing[1]
-    },
-    proCtaText: {
-      color: t.colors.premium,
-      fontFamily: t.fonts.label,
-      fontSize: 12,
-      letterSpacing: 1.5,
-      fontWeight: "700"
-    },
     proTile: {
       flexDirection: "row",
       alignItems: "flex-start",
@@ -244,7 +231,7 @@ const makeStyles = (t: AppTheme) =>
       borderWidth: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "rgba(255,210,122,0.08)",
+      backgroundColor: t.colors.glass,
       marginTop: 2
     },
     proTileTitle: {

@@ -68,7 +68,8 @@ describe("premiumStore debug toggle", () => {
 
     let usePremium: typeof import("./premiumStore").usePremium;
     jest.isolateModules(() => {
-      usePremium = require("./premiumStore").usePremium;
+      ({ usePremium } =
+        jest.requireActual<typeof import("./premiumStore")>("./premiumStore"));
     });
 
     return { usePremium: usePremium!, premiumGatewayMock };

@@ -107,7 +107,7 @@ const makeStyles = (t: AppTheme) =>
       flex: 1,
       height: 6,
       borderRadius: 3,
-      backgroundColor: "rgba(255,255,255,0.07)",
+      backgroundColor: t.colors.glass,
       overflow: "hidden"
     },
     fill: {

@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 import type { AppTheme } from "@/design-system";
-import { Colors } from "@/theme";
 
 export const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
@@ -109,7 +108,7 @@ export const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
-      backgroundColor: `${Colors.base.white}0D`
+      backgroundColor: t.colors.glass
     },
     lastDiveIconSkeleton: {
       width: 44,
@@ -147,9 +146,9 @@ export const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[1],
       borderRadius: t.radii.pill,
-      backgroundColor: t.colors.accent + "22",
+      backgroundColor: t.colors.glass,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.accent + "55"
+      borderColor: t.colors.panelEdge
     },
     lastDiveXpText: {
       color: t.colors.accent,

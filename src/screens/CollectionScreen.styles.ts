@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 import type { AppTheme } from "@/design-system";
-import { Colors } from "@/theme";
 
 export const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
@@ -17,8 +16,8 @@ export const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[4],
       borderRadius: t.radii.sm,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${Colors.premium.gold}47`,
-      backgroundColor: `${Colors.premium.gold}0F`,
+      borderColor: t.colors.premium,
+      backgroundColor: t.colors.glass,
       marginBottom: t.spacing[2]
     },
     proCalloutText: {
@@ -57,7 +56,7 @@ export const makeStyles = (t: AppTheme) =>
     },
     compactChipActive: {
       borderColor: t.colors.accent,
-      backgroundColor: `${t.colors.accent}20`
+      backgroundColor: t.colors.glass
     },
     compactChipText: {
       color: t.colors.textSecondary,
@@ -95,7 +94,7 @@ export const makeStyles = (t: AppTheme) =>
       borderWidth: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: `${Colors.base.white}0A`,
+      backgroundColor: t.colors.glass,
       shadowOpacity: 0.55,
       shadowRadius: 10,
       shadowOffset: { width: 0, height: 0 }
@@ -120,7 +119,7 @@ export const makeStyles = (t: AppTheme) =>
       justifyContent: "center",
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.premium,
-      backgroundColor: `${Colors.premium.gold}1A`
+      backgroundColor: t.colors.glass
     },
     zoneLabel: {
       color: t.colors.textSecondary,

@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 import type { AppTheme } from "@/design-system";
-import { Colors, Gradients } from "@/theme";
 
 export const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
@@ -43,7 +42,7 @@ export const makeStyles = (t: AppTheme) =>
     xpTrack: {
       height: 10,
       borderRadius: t.radii.pill,
-      backgroundColor: `${Colors.base.white}14`,
+      backgroundColor: t.colors.glass,
       overflow: "hidden"
     },
     xpFill: {

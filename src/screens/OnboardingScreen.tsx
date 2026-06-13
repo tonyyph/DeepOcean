@@ -1,8 +1,8 @@
 import { useTranslations } from "@/core/i18n";
 import { storage, StorageKeys } from "@/core/storage/mmkv";
 import {
+  ActionButton,
   GlowText,
-  PressableCard,
   UnderwaterCanvas,
   useTheme,
   useThemedStyles,
@@ -189,36 +189,38 @@ export default function OnboardingScreen() {
           </View>
           {isFinal ? (
             <Animated.View style={[styles.cta, ctaStyle]}>
-              <PressableCard
-                haptic="heavy"
-                glow
+              <ActionButton
+                label={tr.onboarding.holdToBegin}
+                icon="water"
+                tone="primary"
+                size="lg"
+                fullWidth
                 onLongPress={completeOnboarding}
                 onPressIn={handleCtaPressIn}
                 onPressOut={handleCtaPressOut}
                 delayLongPress={800}
-              >
-                <Text style={styles.ctaText}>{tr.onboarding.holdToBegin}</Text>
-              </PressableCard>
+              />
             </Animated.View>
           ) : (
             <View style={styles.navRow}>
-              <Pressable
-                accessibilityRole="button"
+              <ActionButton
+                label={tr.onboarding.back}
+                tone="secondary"
+                size="md"
+                fullWidth
                 disabled={idx === 0}
                 onPress={() => goTo(idx - 1)}
-                style={[styles.navButton, idx === 0 && styles.navDisabled]}
-              >
-                <Text style={styles.navText}>{tr.onboarding.back}</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
+                containerStyle={styles.navButton}
+              />
+              <ActionButton
+                label={tr.onboarding.next}
+                icon="arrow-forward"
+                tone="primary"
+                size="md"
+                fullWidth
                 onPress={() => goTo(idx + 1)}
-                style={[styles.navButton, styles.navButtonPrimary]}
-              >
-                <Text style={[styles.navText, styles.navTextPrimary]}>
-                  {tr.onboarding.next}
-                </Text>
-              </Pressable>
+                containerStyle={styles.navButton}
+              />
             </View>
           )}
         </View>
@@ -292,35 +294,7 @@ const makeStyles = (t: AppTheme) =>
       gap: t.spacing[3]
     },
     navButton: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      borderWidth: 1,
-      borderColor: t.colors.glassEdge,
-      borderRadius: t.radii.s,
-      backgroundColor: t.colors.glass,
-      minHeight: 48,
-      paddingHorizontal: t.spacing[3]
+      flex: 1
     },
-    navButtonPrimary: {
-      borderColor: t.colors.accent,
-      backgroundColor: t.colors.accent
-    },
-    navDisabled: { opacity: 0.35 },
-    navText: {
-      color: t.colors.textMuted,
-      fontSize: 12,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label
-    },
-    navTextPrimary: { color: t.colors.background },
-    cta: { width: "88%" },
-    ctaText: {
-      color: t.colors.text,
-      textAlign: "center",
-      letterSpacing: 1,
-      fontSize: 14,
-      paddingVertical: t.spacing[1],
-      fontFamily: t.fonts.label
-    }
+    cta: { width: "88%" }
   });

@@ -106,7 +106,7 @@ const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[2]
     },
     pillActive: {
-      backgroundColor: t.colors.accent + "26",
+      backgroundColor: t.colors.glass,
       borderColor: t.colors.accent
     },
     label: {

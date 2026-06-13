@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 import type { AppTheme } from "../themes";
-import { Colors } from "@/theme";
 
 export function makeStyles(t: AppTheme) {
   return StyleSheet.create({
@@ -34,8 +33,8 @@ export function makeStyles(t: AppTheme) {
     intentBanner: {
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${Colors.premium.gold}5A`,
-      backgroundColor: `${Colors.premium.gold}14`,
+      borderColor: t.colors.premium,
+      backgroundColor: t.colors.glass,
       paddingHorizontal: t.spacing[4],
       paddingVertical: t.spacing[3],
       marginBottom: t.spacing[3]
@@ -44,7 +43,7 @@ export function makeStyles(t: AppTheme) {
       fontFamily: t.fonts.label,
       fontSize: 11,
       letterSpacing: 0.8,
-      color: Colors.premium.gold,
+      color: t.colors.premium,
       textTransform: "uppercase"
     },
     intentBannerBody: {
@@ -153,7 +152,7 @@ export function makeStyles(t: AppTheme) {
     savingBadgeText: {
       fontFamily: t.fonts.label,
       fontSize: 10,
-      color: Colors.base.white
+      color: t.colors.background
     },
     planInner: {
       paddingVertical: t.spacing[3],
@@ -197,7 +196,7 @@ export function makeStyles(t: AppTheme) {
       borderRadius: 14
     },
     trialPill: {
-      backgroundColor: `${Colors.base.white}38`,
+      backgroundColor: t.surfaces.glassHighlight,
       borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[3],
       paddingVertical: 3,
@@ -206,41 +205,26 @@ export function makeStyles(t: AppTheme) {
     trialPillText: {
       fontFamily: t.fonts.label,
       fontSize: 10,
-      color: Colors.base.white,
+      color: t.colors.background,
       letterSpacing: 1
     },
     trialCtaLabel: {
       fontFamily: t.fonts.display,
       fontSize: 18,
-      color: Colors.base.white,
+      color: t.colors.background,
       letterSpacing: t.fonts.displayLetterSpacing,
       marginBottom: 4
     },
     trialCtaSub: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: `${Colors.base.white}B8`,
+      color: t.colors.background,
       textAlign: "center"
     },
     // ── Purchase CTA ─────────────────────────────────────────────────────
-    purchaseCard: {
+    purchaseButton: {
       marginBottom: t.spacing[2],
       borderRadius: 14
-    },
-    purchaseInner: {
-      backgroundColor: t.colors.accent,
-      paddingVertical: t.spacing[4],
-      alignItems: "center",
-      borderRadius: 14
-    },
-    purchaseDisabled: {
-      opacity: 0.45
-    },
-    purchaseLabel: {
-      fontFamily: t.fonts.label,
-      fontSize: 13,
-      color: Colors.base.white,
-      letterSpacing: 1
     },
     unavailableNote: {
       fontFamily: t.fonts.body,
@@ -268,7 +252,7 @@ export function makeStyles(t: AppTheme) {
       borderColor: t.colors.glassEdge
     },
     promoInputSuccess: {
-      borderColor: Colors.bio.cyan
+      borderColor: t.colors.success
     },
     promoApplyBtn: {
       height: 44,
@@ -292,14 +276,14 @@ export function makeStyles(t: AppTheme) {
     promoFeedbackError: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: Colors.bio.coral,
+      color: t.colors.danger,
       textAlign: "center",
       marginBottom: t.spacing[2]
     },
     promoFeedbackSuccess: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: Colors.bio.cyan,
+      color: t.colors.success,
       textAlign: "center",
       marginBottom: t.spacing[2]
     },

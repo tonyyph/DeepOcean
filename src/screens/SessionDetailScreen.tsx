@@ -19,6 +19,7 @@ import {
   SessionTimeline,
   DiscoveryTimeline,
   KpiCard,
+  ActionButton,
   useTheme,
   useThemedStyles,
   type AppTheme
@@ -175,20 +176,15 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
 
       <GlassCard radius={t.radii.md}>
         <SectionLabel>{tr.sessionDetail.shareTitle}</SectionLabel>
-        <Pressable
-          accessibilityRole="button"
+        <ActionButton
+          label={tr.sessionDetail.shareCta}
+          icon="share-social-outline"
+          tone="secondary"
+          size="md"
+          fullWidth
           onPress={handleShare}
-          style={styles.shareButton}
-        >
-          <Ionicons
-            name="share-social-outline"
-            size={16}
-            color={t.colors.text}
-          />
-          <Text style={styles.shareButtonText}>
-            {tr.sessionDetail.shareCta}
-          </Text>
-        </Pressable>
+          containerStyle={styles.shareButton}
+        />
       </GlassCard>
     </ScrollView>
   );
@@ -237,22 +233,6 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.accentSoft
     },
     shareButton: {
-      marginTop: t.spacing[2],
-      borderRadius: t.radii.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.glass,
-      paddingHorizontal: t.spacing[4],
-      paddingVertical: t.spacing[3],
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: t.spacing[2]
-    },
-    shareButtonText: {
-      color: t.colors.text,
-      fontFamily: t.fonts.label,
-      fontSize: 12,
-      letterSpacing: 1
+      marginTop: t.spacing[2]
     }
   });

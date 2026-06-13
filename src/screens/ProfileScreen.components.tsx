@@ -6,7 +6,7 @@ import {
   useTheme,
   useThemedStyles
 } from "@/design-system";
-import { Colors, Gradients } from "@/theme";
+import { Gradients } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -31,7 +31,7 @@ export function PremiumSection({
           <View
             style={[
               styles.premiumCrest,
-              { backgroundColor: `${Colors.premium.gold}26` }
+              { backgroundColor: t.colors.glass }
             ]}
           >
             <Ionicons name="diamond" size={20} color={t.colors.premium} />
@@ -58,7 +58,7 @@ export function PremiumSection({
           colors={Gradients.premium.crest}
           style={styles.premiumCrest}
         >
-          <Ionicons name="diamond" size={20} color={Colors.premium.deepInk} />
+          <Ionicons name="diamond" size={20} color={t.colors.background} />
         </LinearGradient>
         <View style={styles.premiumText}>
           <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>

@@ -81,11 +81,11 @@ function renderTrailing(
         onValueChange={props.onChange}
         style={styles.trailingSwitch}
         trackColor={{
-          false: "rgba(255,255,255,0.14)",
+          false: t.colors.glass,
           true: t.colors.accent
         }}
-        thumbColor="#fff"
-        ios_backgroundColor="rgba(255,255,255,0.14)"
+        thumbColor={t.colors.text}
+        ios_backgroundColor={t.colors.glass}
       />
     );
   }

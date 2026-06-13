@@ -95,7 +95,7 @@ export const ConfirmModal = React.memo(function ConfirmModal({
           <Pressable
             style={[
               StyleSheet.absoluteFill,
-              { backgroundColor: "rgba(0,0,0,0.55)" }
+              { backgroundColor: t.surfaces.scrim }
             ]}
             onPress={onDismiss}
           />
@@ -153,7 +153,7 @@ export const ConfirmModal = React.memo(function ConfirmModal({
                   style={[
                     styles.confirmText,
                     {
-                      color: tone === "danger" ? "#FFFFFF" : t.colors.background
+                      color: t.colors.background
                     }
                   ]}
                 >
@@ -196,7 +196,7 @@ const makeStyles = (t: AppTheme) =>
       borderWidth: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "rgba(255,255,255,0.04)",
+      backgroundColor: t.colors.glass,
       shadowOpacity: 0.5,
       shadowRadius: 14,
       shadowOffset: { width: 0, height: 0 },

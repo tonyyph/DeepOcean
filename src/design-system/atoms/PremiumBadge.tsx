@@ -4,7 +4,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
-import { Colors } from "@/theme";
 
 type Props = {
   /** "lock" shows a padlock; "star" shows a premium star. */
@@ -48,7 +47,7 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.premium,
-      backgroundColor: `${Colors.premium.gold}1A`
+      backgroundColor: t.colors.glass
     },
     text: {
       color: t.colors.premium,

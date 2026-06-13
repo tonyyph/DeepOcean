@@ -124,7 +124,7 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.text,
       fontSize: 48,
       fontFamily: t.fonts.mono,
-      letterSpacing: -1
+      letterSpacing: 0
     },
     label: {
       color: t.colors.textMuted,

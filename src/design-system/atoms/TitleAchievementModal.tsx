@@ -241,7 +241,7 @@ const makeStyles = (t: AppTheme) =>
       paddingVertical: t.spacing[1],
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
-      backgroundColor: "rgba(255,255,255,0.04)"
+      backgroundColor: t.colors.glass
     },
     badgeText: {
       fontSize: 10,
@@ -255,7 +255,7 @@ const makeStyles = (t: AppTheme) =>
       borderWidth: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "rgba(255,255,255,0.05)",
+      backgroundColor: t.colors.glass,
       shadowOpacity: 0.55,
       shadowRadius: 20,
       shadowOffset: { width: 0, height: 0 },
@@ -279,7 +279,7 @@ const makeStyles = (t: AppTheme) =>
     countdownTrack: {
       width: "100%",
       height: 2,
-      backgroundColor: "rgba(255,255,255,0.06)",
+      backgroundColor: t.colors.glass,
       borderRadius: 1,
       overflow: "hidden",
       marginTop: t.spacing[3]

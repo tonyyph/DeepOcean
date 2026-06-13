@@ -20,11 +20,11 @@ import { makeStyles } from "./PaywallSheet.styles";
 import { GlowText } from "../atoms/GlowText";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
+import { ActionButton } from "../atoms/ActionButton";
 import { usePremium } from "@/stores";
 import { container } from "@/data/container";
 import type { PromoCodeResult, PurchaseOffering } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
-import { Colors } from "@/theme";
 import {
   ICON_MAP,
   SCREEN_WIDTH,
@@ -390,7 +390,7 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
               end={{ x: 1, y: 0 }}
             >
               {busy ? (
-                <ActivityIndicator color={Colors.base.white} size="small" />
+                <ActivityIndicator color={t.colors.background} size="small" />
               ) : (
                 <>
                   <View style={styles.trialPill}>
@@ -403,33 +403,23 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             </LinearGradient>
           </PressableCard>
         )}
-        <PressableCard
+        <ActionButton
+          label={
+            selectedPlan === "lifetime"
+              ? pw.lifetimeCta
+              : selectedPlan === "annual"
+                ? pw.annualCta
+                : pw.monthlyCta
+          }
+          tone="premium"
+          size="lg"
+          fullWidth
+          icon="sparkles"
           onPress={handlePurchase}
-          containerStyle={styles.purchaseCard}
-          haptic="medium"
-          radius={14}
-          padding={0}
           disabled={busy || !isConfigured}
-        >
-          <View
-            style={[
-              styles.purchaseInner,
-              (!isConfigured || busy) && styles.purchaseDisabled
-            ]}
-          >
-            {busy ? (
-              <ActivityIndicator color={Colors.base.white} size="small" />
-            ) : (
-              <Text style={styles.purchaseLabel}>
-                {selectedPlan === "lifetime"
-                  ? pw.lifetimeCta
-                  : selectedPlan === "annual"
-                    ? pw.annualCta
-                    : pw.monthlyCta}
-              </Text>
-            )}
-          </View>
-        </PressableCard>
+          loading={busy}
+          containerStyle={styles.purchaseButton}
+        />
         {!isConfigured && (
           <Text style={styles.unavailableNote}>{pw.unavailable}</Text>
         )}
