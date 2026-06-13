@@ -160,13 +160,6 @@ export const makeStyles = (t: AppTheme) =>
     emptyLastDiveCtaWrap: {
       marginTop: t.spacing[3]
     },
-    emptyLastDiveCta: {
-      color: t.colors.text,
-      fontSize: 12,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label,
-      textAlign: "center"
-    },
     // Zone progress
     zoneStrip: {
       flexDirection: "row",
@@ -239,12 +232,5 @@ export const makeStyles = (t: AppTheme) =>
     },
     streakMilestoneCtaWrap: {
       marginTop: t.spacing[3]
-    },
-    streakMilestoneCtaText: {
-      color: t.colors.text,
-      fontSize: 12,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label,
-      textAlign: "center"
     }
   });

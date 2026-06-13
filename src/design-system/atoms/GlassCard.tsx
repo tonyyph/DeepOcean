@@ -44,7 +44,7 @@ export const GlassCard = React.memo(function GlassCard({
       {/* Soft color bloom from the active theme, like light caught inside glass. */}
       <LinearGradient
         pointerEvents="none"
-        colors={[t.colors.panelTint, "rgba(255,255,255,0.015)"]}
+        colors={[t.colors.panelTint, t.surfaces.glassSpecularLow]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -53,9 +53,9 @@ export const GlassCard = React.memo(function GlassCard({
       <LinearGradient
         pointerEvents="none"
         colors={[
-          "rgba(255,255,255,0.02)",
-          "rgba(255,255,255,0.10)",
-          "rgba(255,255,255,0.15)"
+          t.surfaces.glassSpecularLow,
+          t.surfaces.glassSpecularMid,
+          t.surfaces.glassSpecularHigh
         ]}
         locations={[0, 0.38, 0.72]}
         start={{ x: 0.05, y: 0 }}
@@ -65,7 +65,7 @@ export const GlassCard = React.memo(function GlassCard({
       {/* Subtle lower absorption gives the material thickness and depth. */}
       <LinearGradient
         pointerEvents="none"
-        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.18)"]}
+        colors={["transparent", t.surfaces.absorption]}
         locations={[0.58, 1]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
@@ -78,7 +78,7 @@ export const GlassCard = React.memo(function GlassCard({
           {
             borderTopLeftRadius: r,
             borderTopRightRadius: r,
-            backgroundColor: "rgba(255,255,255,0.18)"
+            backgroundColor: t.surfaces.glassHighlight
           }
         ]}
       />
@@ -89,7 +89,7 @@ export const GlassCard = React.memo(function GlassCard({
           {
             borderTopLeftRadius: r,
             borderBottomLeftRadius: r,
-            backgroundColor: "rgba(255,255,255,0.08)"
+            backgroundColor: t.surfaces.glassHighlightSoft
           }
         ]}
       />
@@ -113,10 +113,13 @@ export const GlassCard = React.memo(function GlassCard({
         containerStyle,
         {
           borderRadius: r,
-          shadowColor: glow ? t.colors.accent : "#000",
-          shadowOpacity: glow ? 0.24 : 0.15,
-          shadowRadius: glow ? 10 : 10,
-          shadowOffset: { width: 0, height: glow ? 0 : 8 }
+          shadowColor: glow ? t.colors.accent : t.shadows.card.color,
+          shadowOpacity: glow ? t.shadows.glow.opacity : t.shadows.card.opacity,
+          shadowRadius: glow ? t.shadows.glow.radius : t.shadows.card.radius,
+          shadowOffset: {
+            width: 0,
+            height: glow ? t.shadows.glow.offsetY : t.shadows.card.offsetY
+          }
         },
         style
       ]}

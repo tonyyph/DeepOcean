@@ -3,7 +3,14 @@
 // require touching any consumer code — just register a new file in `./index.ts`.
 
 import type { OceanZone } from "@/features/ocean/zones";
-import { radii, spacing, motion } from "../tokens";
+import {
+  motion,
+  radii,
+  shadows,
+  spacing,
+  surfaces,
+  typography
+} from "../tokens";
 
 export const THEME_IDS = [
   "prismLight",
@@ -136,8 +143,11 @@ export type AppTheme = {
   gradients: ThemeGradients;
   fonts: ThemeFonts;
   particles: ThemeParticles;
+  typography: typeof typography;
   radii: typeof radii;
   spacing: typeof spacing;
+  surfaces: typeof surfaces;
+  shadows: typeof shadows;
   motion: typeof motion;
 };
 

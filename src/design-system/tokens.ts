@@ -33,6 +33,12 @@ export const palette = {
     secondary: "rgba(234,246,255,0.72)",
     muted: "rgba(234,246,255,0.48)",
     faint: "rgba(234,246,255,0.24)"
+  },
+  semantic: {
+    success: "#8CFFD6",
+    error: "#FF7EA8",
+    warning: "#FFD27A",
+    info: "#7CC4FA"
   }
 } as const;
 
@@ -80,16 +86,58 @@ export const elevation = {
   }
 } as const;
 
+export const surfaces = {
+  glassHighlight: "rgba(255,255,255,0.11)",
+  glassHighlightSoft: "rgba(255,255,255,0.055)",
+  glassSpecularLow: "rgba(255,255,255,0.015)",
+  glassSpecularMid: "rgba(255,255,255,0.055)",
+  glassSpecularHigh: "rgba(255,255,255,0.075)",
+  absorption: "rgba(0,0,0,0.18)",
+  scrim: "rgba(0,0,0,0.65)",
+  pressDisabledOpacity: 0.52
+} as const;
+
+export const shadows = {
+  card: {
+    color: "#000000",
+    opacity: 0.18,
+    radius: 12,
+    offsetY: 8
+  },
+  glow: {
+    opacity: 0.28,
+    radius: 14,
+    offsetY: 0
+  },
+  premium: {
+    color: palette.semantic.warning,
+    opacity: 0.32,
+    radius: 24,
+    offsetY: 0
+  }
+} as const;
+
 export const typography = {
+  scale: {
+    hero: 44,
+    h1: 32,
+    h2: 26,
+    h3: 20,
+    bodyLg: 17,
+    body: 15,
+    bodySm: 13,
+    caption: 11,
+    micro: 10
+  },
   display: {
     fontFamily: "Sora_700Bold",
     sizes: { hero: 44, h1: 32, h2: 26, h3: 20 },
-    letterSpacing: -0.5
+    letterSpacing: 0
   },
   body: {
     fontFamily: "Inter_400Regular",
     sizes: { lg: 17, md: 15, sm: 13, xs: 11 },
-    letterSpacing: 1
+    letterSpacing: 0
   },
   label: {
     fontFamily: "Sora_400Regular",

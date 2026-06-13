@@ -1,11 +1,11 @@
 import { useTranslations } from "@/core/i18n";
 import { container } from "@/data/container";
 import {
+  ActionButton,
   AppHeader,
   GlassCard,
   OptionPill,
   PaywallSheet,
-  PressableCard,
   SectionLabel,
   SectionSkeleton,
   Skeleton,
@@ -140,15 +140,14 @@ export default function AIScreen() {
               </Text>
             )}
             <View style={styles.askWrap}>
-              <PressableCard
-                haptic="light"
+              <ActionButton
+                label={tr.ai.askAgain}
+                icon="sparkles"
+                tone="secondary"
+                size="sm"
                 onPress={handleRefreshAI}
                 disabled={!canAskAgain}
-              >
-                <Text style={[styles.cta, !canAskAgain && styles.ctaDisabled]}>
-                  {tr.ai.askAgain}
-                </Text>
-              </PressableCard>
+              />
               {refreshError != null && (
                 <Text style={styles.refreshErrorText}>{refreshError}</Text>
               )}
@@ -270,17 +269,6 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.body
     },
     askWrap: { marginTop: t.spacing[4] },
-    cta: {
-      color: t.colors.text,
-      textAlign: "center",
-      letterSpacing: 1,
-      fontSize: 12,
-      paddingVertical: 2,
-      fontFamily: t.fonts.label
-    },
-    ctaDisabled: {
-      opacity: 0.55
-    },
     refreshErrorText: {
       color: t.colors.danger,
       fontSize: 12,

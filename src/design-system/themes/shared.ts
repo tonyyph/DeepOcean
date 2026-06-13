@@ -17,7 +17,7 @@ export const THEME_FONTS: FontSet = {
   body: "SpaceGrotesk_400Regular",
   label: "SpaceGrotesk_500Medium",
   mono: "JetBrainsMono_400Regular",
-  displayLetterSpacing: -0.8
+  displayLetterSpacing: 0
 };
 
 export function alpha(hex: string, opacity: number): string {

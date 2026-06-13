@@ -1,6 +1,7 @@
 export { GlassCard } from "./atoms/GlassCard";
 export { GlowText } from "./atoms/GlowText";
 export { PressableCard } from "./atoms/PressableCard";
+export { ActionButton } from "./atoms/ActionButton";
 export { ZoneBackground } from "./atoms/ZoneBackground";
 export { DepthIndicator } from "./atoms/DepthIndicator";
 export { DiveProgressRing } from "./atoms/DiveProgressRing";
@@ -58,5 +59,14 @@ export {
   type ParticleStyle
 } from "./themes";
 
-export { palette, radii, motion, typography, spacing } from "./tokens";
+export {
+  elevation,
+  motion,
+  palette,
+  radii,
+  shadows,
+  spacing,
+  surfaces,
+  typography
+} from "./tokens";
 export * as tokens from "./tokens";

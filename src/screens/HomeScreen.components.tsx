@@ -1,7 +1,7 @@
 import { useTranslations } from "@/core/i18n";
 import {
+  ActionButton,
   GlassCard,
-  PressableCard,
   SectionLabel,
   SectionSkeleton,
   Skeleton,
@@ -51,13 +51,15 @@ export function StreakMilestoneCard({
         <SectionLabel>{tr.home.streakMilestoneTitle}</SectionLabel>
       </View>
       <Text style={styles.streakMilestoneBody}>{milestoneBody}</Text>
-      <View style={styles.streakMilestoneCtaWrap}>
-        <PressableCard haptic="light" onPress={onPress}>
-          <Text style={styles.streakMilestoneCtaText}>
-            {tr.home.streakMilestoneCta}
-          </Text>
-        </PressableCard>
-      </View>
+      <ActionButton
+        label={tr.home.streakMilestoneCta}
+        icon="water"
+        size="sm"
+        tone="secondary"
+        fullWidth
+        onPress={onPress}
+        containerStyle={styles.streakMilestoneCtaWrap}
+      />
     </GlassCard>
   );
 }
@@ -153,11 +155,14 @@ export function NoLastDiveCard({
     <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
       <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
       <Text style={styles.emptyLastDiveText}>{tr.home.noSessions}</Text>
-      <View style={styles.emptyLastDiveCtaWrap}>
-        <PressableCard haptic="light" onPress={onStart}>
-          <Text style={styles.emptyLastDiveCta}>{tr.home.beginDive}</Text>
-        </PressableCard>
-      </View>
+      <ActionButton
+        label={tr.home.beginDive}
+        icon="play"
+        size="sm"
+        fullWidth
+        onPress={onStart}
+        containerStyle={styles.emptyLastDiveCtaWrap}
+      />
     </GlassCard>
   );
 }

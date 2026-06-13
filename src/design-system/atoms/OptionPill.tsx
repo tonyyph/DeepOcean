@@ -89,37 +89,25 @@ export const OptionPill = React.memo(function OptionPill({
   );
 });
 
-function hexWithAlpha(color: string, alpha: number): string {
-  // Already rgba(...) — return as-is
-  if (color.startsWith("rgba")) return color;
-  // Hex #RRGGBB -> rgba()
-  if (color.startsWith("#") && (color.length === 7 || color.length === 4)) {
-    const c =
-      color.length === 4
-        ? `#${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}`
-        : color;
-    const r = parseInt(c.slice(1, 3), 16);
-    const g = parseInt(c.slice(3, 5), 16);
-    const b = parseInt(c.slice(5, 7), 16);
-    return `rgba(${r},${g},${b},${alpha})`;
-  }
-  return color;
-}
-
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     pill: {
       height: 40,
       borderRadius: t.radii.sm,
-      backgroundColor: t.colors.panel,
+      backgroundColor: t.colors.panelStrong,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.panelEdge,
       alignItems: "center",
-      justifyContent: "center"
+      justifyContent: "center",
+      paddingHorizontal: t.spacing[2]
+    },
+    pillActive: {
+      backgroundColor: t.colors.glass,
+      borderColor: t.colors.accent
     },
     label: {
       color: t.colors.textSecondary,
-      fontSize: 14,
+      fontSize: t.typography.scale.bodySm,
       fontFamily: t.fonts.body,
       textAlign: "center"
     }
