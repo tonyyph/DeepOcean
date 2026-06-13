@@ -1,4 +1,5 @@
 import { useTranslations } from "@/core/i18n";
+import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLoading";
 import {
   AppHeader,
   CreatureStorySheet,
@@ -51,6 +52,7 @@ export default function CollectionScreen() {
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
   const isPremium = usePremium((s) => s.isPremium);
+  useScreenTransitionLoading(isLoading, "collection");
 
   const [activeRow, setActiveRow] = useState<StoryRow | null>(null);
   const [storyOpen, setStoryOpen] = useState(false);

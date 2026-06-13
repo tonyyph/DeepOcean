@@ -33,6 +33,7 @@ import {
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { queryClient } from "@/core/query/client";
 import { NetworkProvider } from "@/core/network/NetworkProvider";
+import { ScreenTransitionLoadingProvider } from "@/core/navigation/screenTransitionLoading";
 import { palette } from "@/design-system";
 import { AmbientAudio } from "@/core/audio/AmbientAudioManager";
 import { NotificationService } from "@/core/notifications/NotificationService";
@@ -189,30 +190,32 @@ export default function RootLayout() {
           <NetworkProvider>
             <BottomSheetModalProvider>
               <StatusBar style="light" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: palette.abyss[600] },
-                  animation: "fade",
-                  animationDuration: 360
-                }}
-              >
-                <Stack.Screen name="index" />
-                <Stack.Screen name="onboarding" />
-                <Stack.Screen
-                  name="dive"
-                  options={{
-                    animation: "fade_from_bottom",
-                    animationDuration: 720,
-                    gestureEnabled: false
+              <ScreenTransitionLoadingProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: palette.abyss[600] },
+                    animation: "fade",
+                    animationDuration: 360
                   }}
-                />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen
-                  name="session/[id]"
-                  options={{ animation: "slide_from_right" }}
-                />
-              </Stack>
+                >
+                  <Stack.Screen name="index" />
+                  <Stack.Screen name="onboarding" />
+                  <Stack.Screen
+                    name="dive"
+                    options={{
+                      animation: "fade_from_bottom",
+                      animationDuration: 720,
+                      gestureEnabled: false
+                    }}
+                  />
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen
+                    name="session/[id]"
+                    options={{ animation: "slide_from_right" }}
+                  />
+                </Stack>
+              </ScreenTransitionLoadingProvider>
             </BottomSheetModalProvider>
           </NetworkProvider>
         </QueryClientProvider>

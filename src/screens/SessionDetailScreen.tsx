@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLoading";
 import {
   ZoneBackground,
   GlassCard,
@@ -44,6 +45,7 @@ export default function SessionDetailScreen() {
   const tr = useTranslations();
   const locale = useSettings((s) => s.language ?? "en");
   const { data: session, isLoading } = useSession(id);
+  useScreenTransitionLoading(isLoading && !session, "session-detail");
 
   return (
     <ZoneBackground zone={session?.zone ?? "abyss"}>

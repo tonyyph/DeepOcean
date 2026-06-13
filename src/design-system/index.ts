@@ -24,6 +24,8 @@ export type { MoodMapEntry } from "./atoms/MoodMapChart";
 export { Skeleton } from "./atoms/Skeleton";
 export { SectionSkeleton } from "./atoms/SectionSkeleton";
 export { KpiCard } from "./atoms/KpiCard";
+export { ScreenTransitionOverlay } from "./atoms/ScreenTransitionOverlay";
+export type { ScreenTransitionOverlayProps } from "./atoms/ScreenTransitionOverlay";
 
 // Scene-level reusable composites
 export { ThemePickerSheet } from "./scenes/ThemePickerSheet";

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLoading";
 import {
   ZoneBackground,
   GlassCard,
@@ -44,6 +45,7 @@ export default function StatsScreen() {
     [sessions]
   );
   const isLoading = sessionsLoading || profileLoading;
+  useScreenTransitionLoading(isLoading, "stats");
 
   return (
     <ZoneBackground zone="abyss">

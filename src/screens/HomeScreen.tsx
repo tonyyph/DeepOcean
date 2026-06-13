@@ -1,4 +1,5 @@
 import { useTranslations } from "@/core/i18n";
+import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLoading";
 import { container } from "@/data/container";
 import {
   FreeDiveModal,
@@ -135,6 +136,10 @@ export default function HomeScreen() {
     lastSession
   );
   const showHeaderSkeleton = profileLoading;
+  useScreenTransitionLoading(
+    showHeaderSkeleton || showLastDiveSkeleton || dailyRecLoading,
+    "home"
+  );
 
   const startDive = useCallback(
     (minutes: number | null) => {
