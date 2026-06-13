@@ -1,38 +1,36 @@
+import { useTranslations } from "@/core/i18n";
+import { storage, StorageKeys } from "@/core/storage/mmkv";
+import {
+  GlowText,
+  PressableCard,
+  UnderwaterCanvas,
+  useTheme,
+  useThemedStyles,
+  ZoneBackground,
+  type AppTheme
+} from "@/design-system";
+import type { OceanZone } from "@/features/ocean";
+import * as Haptics from "expo-haptics";
+import { useRouter } from "expo-router";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   Pressable,
-  View,
-  Text,
   StyleSheet,
+  Text,
   useWindowDimensions,
+  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent
 } from "react-native";
-import { useRouter } from "expo-router";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
+  Easing,
   FadeIn,
   FadeOut,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
-  Easing
+  withTiming
 } from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
-import { storage, StorageKeys } from "@/core/storage/mmkv";
-import {
-  ZoneBackground,
-  UnderwaterCanvas,
-  GlowText,
-  PressableCard,
-  useTheme,
-  useThemedStyles,
-  type AppTheme
-} from "@/design-system";
-import type { OceanZone } from "@/features/ocean";
-import { useTranslations } from "@/core/i18n";
 
 const ZONES: readonly OceanZone[] = [
   "abyss",
@@ -283,52 +281,10 @@ const makeStyles = (t: AppTheme) =>
       shadowOpacity: 0.8,
       shadowRadius: 8
     },
-    depthText: {
-      color: t.colors.accent,
-      fontSize: 11,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label
-    },
-    copy: {
-      color: t.colors.text,
-      textAlign: "center",
-      fontSize: 18,
-      lineHeight: 27,
-      fontFamily: t.fonts.body,
-      textShadowColor: "rgba(0,0,0,0.45)",
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 12
-    },
     divider: {
       width: 64,
       height: 1,
       backgroundColor: t.colors.accent + "40"
-    },
-    detail: {
-      color: t.colors.textSecondary,
-      textAlign: "center",
-      fontSize: 15,
-      lineHeight: 23,
-      fontFamily: t.fonts.body,
-      textShadowColor: "rgba(0,0,0,0.4)",
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 10
-    },
-    footer: {
-      alignItems: "center",
-      gap: t.spacing[5],
-      paddingHorizontal: t.spacing[6]
-    },
-    dots: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[2]
-    },
-    dot: {
-      width: 7,
-      height: 7,
-      borderRadius: 4,
-      backgroundColor: "rgba(255,255,255,0.18)"
     },
     navRow: {
       width: "88%",
