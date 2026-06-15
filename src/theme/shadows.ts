@@ -4,14 +4,14 @@ export const Shadows = {
   premium: {
     glow: {
       shadowColor: Colors.premium.gold,
-      shadowOpacity: 0.7,
-      shadowRadius: 24,
+      shadowOpacity: 0.24,
+      shadowRadius: 12,
       shadowOffset: { width: 0, height: 0 }
     },
     card: {
       shadowColor: Colors.premium.gold,
-      shadowOpacity: 0.25,
-      shadowRadius: 32,
+      shadowOpacity: 0.14,
+      shadowRadius: 16,
       shadowOffset: { width: 0, height: 0 }
     }
   }

@@ -74,7 +74,7 @@ export const ProInsights = React.memo(function ProInsights({
   }
 
   return (
-    <GlassCard glow radius={t.radii.lg} style={styles.proUnlockedWrap}>
+    <GlassCard radius={t.radii.lg} style={styles.proUnlockedWrap}>
       <MotiView
         from={{ opacity: 0, translateY: 6 }}
         animate={{ opacity: 1, translateY: 0 }}
@@ -171,15 +171,15 @@ const makeStyles = (t: AppTheme) =>
     proLockedCard: {
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.premium,
+      borderColor: t.colors.borderStrong,
       padding: t.spacing[4],
       overflow: "hidden",
       gap: t.spacing[3]
     },
     proUnlockedWrap: {
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.premium,
-      backgroundColor: t.colors.glass,
+      borderColor: t.colors.borderStrong,
+      backgroundColor: t.colors.panelStrong,
       padding: t.spacing[2],
       gap: t.spacing[6]
     },
@@ -197,7 +197,7 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.premium,
       fontFamily: t.fonts.label,
       fontSize: 13,
-      letterSpacing: 1.5,
+      letterSpacing: 0.8,
       fontWeight: "700"
     },
     proLockedBody: {
@@ -209,7 +209,7 @@ const makeStyles = (t: AppTheme) =>
     proPreviewBlur: {
       gap: t.spacing[1.5],
       paddingVertical: t.spacing[2],
-      opacity: 0.45
+      opacity: 0.72
     },
     proPreviewText: {
       color: t.colors.textSecondary,
@@ -238,7 +238,7 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.premium,
       fontFamily: t.fonts.label,
       fontSize: 10,
-      letterSpacing: 1.5
+      letterSpacing: 0.8
     },
     proTileBody: {
       color: t.colors.text,

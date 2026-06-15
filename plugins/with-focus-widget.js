@@ -36,7 +36,7 @@ function withFocusWidgetAndroidFiles(config) {
       writeFile(
         modConfig.modRequest.projectRoot,
         "android/app/src/main/java/com/cuongphan2/OtherSide/widget/FocusWidgetProvider.kt",
-        `package com.cuongphan2.OtherSide.widget
+        `package co.deepocean.app.OtherSide.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -47,8 +47,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.RemoteViews
-import com.cuongphan2.OtherSide.MainActivity
-import com.cuongphan2.OtherSide.R
+import co.deepocean.app.OtherSide.MainActivity
+import co.deepocean.app.OtherSide.R
 
 class FocusWidgetProvider : AppWidgetProvider() {
 
@@ -509,7 +509,8 @@ function withFocusWidgetAndroidStrings(config) {
 
 function withFocusWidgetAppGroup(config, props = {}) {
   return withEntitlementsPlist(config, (modConfig) => {
-    const bundleId = config.ios?.bundleIdentifier || "com.cuongphan2.OtherSide";
+    const bundleId =
+      config.ios?.bundleIdentifier || "co.deepocean.app.OtherSide";
     const appGroup = props.appGroup || `group.${bundleId}`;
 
     const key = "com.apple.security.application-groups";
@@ -548,7 +549,7 @@ function withFocusWidgetIosFiles(config, props = {}) {
     "ios",
     async (modConfig) => {
       const bundleId =
-        config.ios?.bundleIdentifier || "com.cuongphan2.OtherSide";
+        config.ios?.bundleIdentifier || "co.deepocean.app.OtherSide";
       const appGroup = props.appGroup || `group.${bundleId}`;
       const iosRoot = modConfig.modRequest.platformProjectRoot;
 

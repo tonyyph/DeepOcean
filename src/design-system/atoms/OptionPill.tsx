@@ -70,6 +70,8 @@ export const OptionPill = React.memo(function OptionPill({
   return (
     <Animated.View style={[animatedStyle, containerStyle]}>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         {...rest}
@@ -96,7 +98,7 @@ export const OptionPill = React.memo(function OptionPill({
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     pill: {
-      height: 40,
+      minHeight: 44,
       borderRadius: t.radii.sm,
       backgroundColor: t.colors.panelStrong,
       borderWidth: StyleSheet.hairlineWidth,

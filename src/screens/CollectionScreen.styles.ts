@@ -51,7 +51,9 @@ export const makeStyles = (t: AppTheme) =>
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.panelEdge,
       paddingHorizontal: t.spacing[2.5],
-      paddingVertical: t.spacing[1],
+      paddingVertical: t.spacing[1.5],
+      minHeight: 44,
+      justifyContent: "center",
       backgroundColor: t.colors.panelStrong
     },
     compactChipActive: {
@@ -95,8 +97,8 @@ export const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: t.colors.glass,
-      shadowOpacity: 0.55,
-      shadowRadius: 10,
+      shadowOpacity: 0.22,
+      shadowRadius: 6,
       shadowOffset: { width: 0, height: 0 }
     },
     iconText: { fontSize: 18, fontFamily: t.fonts.display },

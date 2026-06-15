@@ -215,6 +215,8 @@ export default function DiveScreen() {
           <Pressable
             onPress={isPaused ? resume : pause}
             style={styles.primaryBtn}
+            accessibilityRole="button"
+            accessibilityLabel={isPaused ? tr.dive.resumeDive : tr.dive.pause}
           >
             <GlassCard glow={isPaused}>
               <Text style={styles.primaryText}>
@@ -223,12 +225,22 @@ export default function DiveScreen() {
             </GlassCard>
           </Pressable>
           <View style={styles.row}>
-            <Pressable onPress={confirmSurface} style={styles.flex}>
+            <Pressable
+              onPress={confirmSurface}
+              style={styles.flex}
+              accessibilityRole="button"
+              accessibilityLabel={tr.dive.surface}
+            >
               <GlassCard>
                 <Text style={styles.secondaryText}>{tr.dive.surface}</Text>
               </GlassCard>
             </Pressable>
-            <Pressable onPress={handleCancel} style={styles.flex}>
+            <Pressable
+              onPress={handleCancel}
+              style={styles.flex}
+              accessibilityRole="button"
+              accessibilityLabel={tr.dive.abort}
+            >
               <GlassCard>
                 <Text
                   style={[styles.secondaryText, { color: t.colors.danger }]}

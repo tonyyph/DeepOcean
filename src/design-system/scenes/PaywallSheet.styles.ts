@@ -9,6 +9,10 @@ export function makeStyles(t: AppTheme) {
     },
     closeBtn: {
       alignSelf: "flex-end",
+      width: 44,
+      minHeight: 44,
+      alignItems: "center",
+      justifyContent: "center",
       padding: t.spacing[2],
       marginRight: -t.spacing[2],
       marginBottom: t.spacing[1]
@@ -33,8 +37,8 @@ export function makeStyles(t: AppTheme) {
     intentBanner: {
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.premium,
-      backgroundColor: t.colors.glass,
+      borderColor: t.colors.borderStrong,
+      backgroundColor: t.colors.panelStrong,
       paddingHorizontal: t.spacing[4],
       paddingVertical: t.spacing[3],
       marginBottom: t.spacing[3]
@@ -57,7 +61,7 @@ export function makeStyles(t: AppTheme) {
       alignItems: "center",
       alignSelf: "center",
       gap: 6,
-      backgroundColor: t.colors.accent + "22",
+      backgroundColor: t.colors.panelStrong,
       borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[1],
@@ -142,7 +146,9 @@ export function makeStyles(t: AppTheme) {
       borderRadius: 16
     },
     savingBadge: {
-      backgroundColor: t.colors.accent,
+      backgroundColor: t.colors.panelStrong,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.borderStrong,
       borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[2],
       paddingVertical: 3,
@@ -152,7 +158,7 @@ export function makeStyles(t: AppTheme) {
     savingBadgeText: {
       fontFamily: t.fonts.label,
       fontSize: 10,
-      color: t.colors.background
+      color: t.colors.text
     },
     planInner: {
       paddingVertical: t.spacing[3],
@@ -205,20 +211,20 @@ export function makeStyles(t: AppTheme) {
     trialPillText: {
       fontFamily: t.fonts.label,
       fontSize: 10,
-      color: t.colors.background,
+      color: t.colors.text,
       letterSpacing: 1
     },
     trialCtaLabel: {
       fontFamily: t.fonts.display,
       fontSize: 18,
-      color: t.colors.background,
+      color: t.colors.text,
       letterSpacing: t.fonts.displayLetterSpacing,
       marginBottom: 4
     },
     trialCtaSub: {
       fontFamily: t.fonts.body,
       fontSize: 11,
-      color: t.colors.background,
+      color: t.colors.textSecondary,
       textAlign: "center"
     },
     // ── Purchase CTA ─────────────────────────────────────────────────────

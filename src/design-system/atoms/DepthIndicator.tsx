@@ -66,7 +66,7 @@ const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[5],
       paddingVertical: t.spacing[2.5],
       borderRadius: t.radii.pill,
-      backgroundColor: "rgba(2,8,28,0.55)",
+      backgroundColor: t.colors.panelStrong,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.glassEdge,
       alignItems: "center",
@@ -88,8 +88,8 @@ const makeStyles = (t: AppTheme) =>
       height: 6,
       borderRadius: 3,
       shadowColor: t.colors.accent,
-      shadowOpacity: 0.9,
-      shadowRadius: 6
+      shadowOpacity: 0,
+      shadowRadius: 0
     },
     label: {
       color: t.colors.textSecondary,

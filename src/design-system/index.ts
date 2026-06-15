@@ -14,6 +14,7 @@ export { SettingRow } from "./atoms/SettingRow";
 export { OptionPill } from "./atoms/OptionPill";
 export { AppHeader } from "./atoms/AppHeader";
 export { PremiumBadge } from "./atoms/PremiumBadge";
+export { GuidanceCard } from "./atoms/GuidanceCard";
 export { ThemeSwatch } from "./atoms/ThemeSwatch";
 export { ConfirmModal } from "./atoms/ConfirmModal";
 export { FreeDiveModal } from "./atoms/FreeDiveModal";

@@ -63,7 +63,11 @@ function MoodBar({ entry, delay }: { entry: MoodMapEntry; delay: number }) {
   const accent = entry.color ?? t.colors.accent;
 
   return (
-    <View style={styles.row}>
+    <View
+      style={styles.row}
+      accessible
+      accessibilityLabel={`${entry.label}: ${Math.round(entry.value * 100)}%`}
+    >
       <Text style={styles.label} numberOfLines={1}>
         {entry.label}
       </Text>
@@ -122,8 +126,8 @@ const makeStyles = (t: AppTheme) =>
       width: 8,
       height: 8,
       borderRadius: 4,
-      shadowOpacity: 0.9,
-      shadowRadius: 6,
+      shadowOpacity: 0.18,
+      shadowRadius: 4,
       shadowOffset: { width: 0, height: 0 }
     },
     pct: {

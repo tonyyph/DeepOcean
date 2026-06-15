@@ -57,8 +57,16 @@ export const SessionTimeline = React.memo(function SessionTimeline({
       {steps.map((step, i) => {
         const isFinal = step.zone === finalZone;
         const color = step.reached ? t.colors.accent : t.colors.textFaint;
+        const reachedLabel = step.reached
+          ? tr.sessionDetail.reachedAt(step.unlockMinutes)
+          : tr.home.zoneLocked;
         return (
-          <View key={step.zone} style={styles.row}>
+          <View
+            key={step.zone}
+            style={styles.row}
+            accessible
+            accessibilityLabel={`${step.label}, ${reachedLabel}`}
+          >
             <View style={styles.railCol}>
               <View
                 style={[
@@ -99,9 +107,7 @@ export const SessionTimeline = React.memo(function SessionTimeline({
               </Text>
               {step.reached && (
                 <Text style={styles.meta}>
-                  {step.unlockMinutes === 0
-                    ? tr.sessionDetail.reachedAt(0)
-                    : tr.sessionDetail.reachedAt(step.unlockMinutes)}
+                  {tr.sessionDetail.reachedAt(step.unlockMinutes)}
                 </Text>
               )}
             </View>

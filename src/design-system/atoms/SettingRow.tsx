@@ -59,6 +59,8 @@ export const SettingRow = React.memo(function SettingRow(props: Props) {
     return (
       <Pressable
         onPress={props.onPress}
+        accessibilityRole="button"
+        accessibilityLabel={props.title}
         android_ripple={{ color: t.colors.glass }}
         style={({ pressed }) => (pressed ? styles.rowPressed : null)}
       >

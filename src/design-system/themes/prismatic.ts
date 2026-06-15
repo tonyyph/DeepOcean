@@ -7,7 +7,7 @@ import {
   surfaces,
   typography
 } from "../tokens";
-import { THEME_FONTS, THEME_HEX, alpha } from "./shared";
+import { THEME_FONTS, THEME_HEX, alpha, scaleAlpha } from "./shared";
 
 type PrismaticSpec = {
   id: ThemeId;
@@ -66,23 +66,23 @@ function makeTheme(spec: PrismaticSpec): AppTheme {
       background: spec.background,
       surface: spec.surface,
       surfaceElevated: spec.elevated,
-      panel: alpha(spec.surface, 0.12),
-      panelStrong: alpha(spec.elevated, 0.2),
-      panelTint: alpha(spec.accent, 0.1),
-      panelEdge: alpha(spec.accent, 0.36),
-      border: alpha(spec.accentSoft, 0.18),
-      borderStrong: alpha(spec.accent, 0.42),
+      panel: alpha(spec.surface, 0.34),
+      panelStrong: alpha(spec.elevated, 0.46),
+      panelTint: alpha(spec.accent, 0.045),
+      panelEdge: alpha(spec.accent, 0.22),
+      border: alpha(spec.accentSoft, 0.22),
+      borderStrong: alpha(spec.accent, 0.32),
       text: spec.text,
-      textSecondary: alpha(spec.text, 0.82),
-      textMuted: spec.muted,
-      textFaint: alpha(spec.text, 0.34),
+      textSecondary: alpha(spec.text, 0.86),
+      textMuted: scaleAlpha(spec.muted, 1.22),
+      textFaint: alpha(spec.text, 0.52),
       accent: spec.accent,
       accentSoft: spec.accentSoft,
       danger: spec.danger,
       success: spec.success,
       warning: spec.warning,
-      glass: alpha(spec.accent, 0.09),
-      glassEdge: alpha(spec.accent, 0.24),
+      glass: alpha(spec.accent, 0.055),
+      glassEdge: alpha(spec.accent, 0.18),
       premium: THEME_HEX.premium
     },
     gradients: spec.gradients,
@@ -90,8 +90,8 @@ function makeTheme(spec: PrismaticSpec): AppTheme {
     particles: {
       ...spec.particles,
       vignette: [
-        alpha(spec.accent, 0.13),
-        alpha(spec.surface, 0.82),
+        alpha(spec.accent, 0.065),
+        alpha(spec.surface, 0.9),
         alpha(THEME_HEX.black, 0.96)
       ]
     },

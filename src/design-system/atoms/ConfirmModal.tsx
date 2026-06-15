@@ -197,8 +197,8 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: t.colors.glass,
-      shadowOpacity: 0.5,
-      shadowRadius: 14,
+      shadowOpacity: 0.18,
+      shadowRadius: 8,
       shadowOffset: { width: 0, height: 0 },
       marginBottom: t.spacing[1]
     },

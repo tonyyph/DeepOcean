@@ -1,40 +1,60 @@
 export const vi = {
+  common: {
+    dismiss: "Đóng"
+  },
   onboarding: {
     chapters: [
       {
-        title: "Thở đi.",
+        title: "DeepOcean",
         depth: "MẶT NƯỚC",
-        body: "Bạn đang đứng ở mặt biển. Thế giới bên trên ồn ào lắm. Ở đây thì không.",
+        body: "Một phiên tập trung trở thành một chuyến lặn.",
         detail:
-          "Deep Ocean biến một phiên tập trung thành một chuyến lặn: chọn thời lượng, thả điện thoại xuống, và để app giữ nhịp cho bạn bằng âm thanh biển, độ sâu và trạng thái thật yên."
+          "Chọn thời lượng, đặt điện thoại xuống, rồi để app giữ nhịp bằng âm thanh dịu, độ sâu và một nơi rõ ràng để bạn quay lại."
       },
       {
-        title: "Xuống thôi.",
+        title: "Phiên lặn",
         depth: "VÙNG CHẠNG VẠNG",
-        body: "Mỗi phút tập trung, bạn lặn thêm một chút. Mỗi vùng biển có ánh sáng riêng, sinh vật riêng, sự yên lặng riêng.",
+        body: "Mỗi phút tập trung đưa bạn xuống sâu thêm một chút.",
         detail:
-          "Bạn có thể lặn tự do hoặc đặt mục tiêu cụ thể. Trong lúc lặn, app theo dõi độ sâu, vùng biển, tiến độ và giữ mọi thứ tối giản để bạn không bị kéo ra khỏi công việc."
+          "Bạn có thể đặt giờ hoặc lặn tự do. Màn hình lặn theo dõi thời gian, độ sâu và vùng biển nhưng vẫn đủ yên để không kéo bạn khỏi việc chính."
       },
       {
-        title: "Khám phá.",
+        title: "XP và streak",
         depth: "VÙNG NỬA ĐÊM",
-        body: "Giữ sự chú ý đủ lâu và biển sâu sẽ cho bạn thấy những thứ mà hầu như chẳng ai nhìn thấy.",
+        body: "Kết thúc chuyến lặn để nhận XP, cấp độ và tiến độ streak.",
         detail:
-          "Sau mỗi phiên, bạn có thể gặp sinh vật, cổ vật, mẩu chuyện và phần thưởng XP. Bộ sưu tập lớn dần theo những lần bạn thật sự ở lại với sự tập trung."
+          "DeepOcean thưởng cho sự đều đặn mà không gây áp lực. Phiên ngắn vẫn có giá trị, lặn lâu hơn thì chạm vùng sâu hơn."
       },
       {
-        title: "Trở về.",
-        depth: "NHẬT KÝ LẶN",
-        body: "Khi bạn nổi lên, tất cả những gì mang về đều là của bạn. Biển nhớ bạn đấy.",
+        title: "Bộ sưu tập",
+        depth: "VỰC SÂU",
+        body: "Sinh vật, cổ vật và ghi chép sẽ hiện ra sau những lần thật sự tập trung.",
         detail:
-          "Deep Ocean lưu lịch sử lặn, streak, cấp độ, gợi ý từ người hướng dẫn và nhắc nhở hằng ngày. Không phải để gây áp lực, mà để bạn có một nghi thức quay lại thật nhẹ."
+          "Nhật ký thám hiểm ban đầu sẽ trống, rồi lớn dần sau mỗi chuyến lặn. Mục bị khóa cũng nói rõ bạn nên làm gì tiếp."
+      },
+      {
+        title: "Pro, thật nhẹ",
+        depth: "RÃNH SÂU",
+        body: "Premium mở theme sâu hơn, nhật ký đầy đủ hơn và insight cá nhân hơn.",
+        detail:
+          "Pro nên tinh tế chứ không lòe loẹt: hướng dẫn riêng hơn, nhật ký giàu hơn và giao diện thanh lịch khi bạn muốn đại dương này giống mình hơn."
       }
     ],
     pageLabel: "Trang giới thiệu",
     back: "TRƯỚC",
     next: "TIẾP",
-    holdToBegin: "GIỮ ĐỂ BẮT ĐẦU XUỐNG BIỂN",
+    holdToBegin: "BẮT ĐẦU CHUYẾN LẶN ĐẦU",
     tapToContinue: "CHẠM ĐỂ TIẾP TỤC"
+  },
+  guidance: {
+    ai: {
+      title: "Người hướng dẫn sẽ hiểu bạn hơn sau mỗi lần lặn",
+      body: "Hoàn thành phiên tập trung đầu tiên để gợi ý dựa trên nhịp lặn, tâm trạng và chuyến gần nhất thay vì chỉ nói chung chung."
+    },
+    collection: {
+      title: "Nhật ký trống là có chủ ý",
+      body: "Hoàn thành các chuyến lặn để mở sinh vật và cổ vật. Mục bị khóa vẫn hiện để bạn biết ngoài kia còn gì đang chờ."
+    }
   },
   profile: {
     title: "Hồ sơ thợ lặn",
@@ -55,11 +75,23 @@ export const vi = {
     themePickerTitle: "Chọn chủ đề cho app",
     themePickerSub:
       "Mỗi theme thay đổi toàn bộ màu, chữ, hạt lơ lửng — cả cảm giác lặn cũng khác.",
+    themePickerPremiumActive:
+      "Theme Pro đã sẵn sàng. Chọn bầu không khí hợp nhất với phiên tập trung tối nay.",
     themeLockedCount: (count: number) =>
       `Đang khóa ${count} theme premium · nâng cấp Pro để mở`,
     proOnly: "PRO",
     themeFont: "Font",
     themeParticles: "Hạt",
+    themeColorIdentity: "Bản sắc màu",
+    themeElementFusion: "Kết hợp nguyên tố",
+    themeBaseElement: "Nguyên tố gốc",
+    themeElement: "Nguyên tố",
+    themeFusionDescription: (first: string, second: string, name: string) =>
+      `${first} + ${second} tạo thành ${name}.`,
+    themeStandaloneDescription:
+      "Một dạng tối thượng độc lập trong bộ prismatic.",
+    themeCombinationDescription: (names: string) =>
+      `Kết hợp với nguyên tố phù hợp để tạo: ${names}.`,
     applyTheme: "Áp dụng chủ đề",
     premium: "DeepOcean Pro",
     premiumDesc: "Mở theme, phân tích sâu và nhật ký thám hiểm đầy đủ",
@@ -81,6 +113,7 @@ export const vi = {
     reminderTimeDesc: "Thời điểm lời nhắc mỗi ngày xuất hiện",
     showDiscoveries: "Thông báo khám phá",
     showDiscoveriesDesc: "Hiện pop-up khi bắt gặp sinh vật/cổ vật",
+    notifications: "THÔNG BÁO",
     devEnablePremium: "Bật premium",
     devEnablePremiumDesc:
       "Bật nhanh premium cục bộ để test UI và các tính năng bị khóa",
@@ -131,7 +164,8 @@ export const vi = {
     lastDiveXp: (n: number) => `+${n} XP`,
     zoneProgressTitle: "TIẾN ĐỘ ĐỘ SÂU",
     zoneLocked: "Chưa mở",
-    noSessions: "Chưa lặn lần nào",
+    noSessions:
+      "Chuyến lặn đầu tiên sẽ hiện ở đây. Bắt đầu bằng timer mặc định, ở lại với một việc, rồi nổi lên khi phiên hoàn tất.",
     streakMilestoneTitle: "MỐC STREAK",
     streakMilestoneBody: (days: number, target: number) =>
       `Bạn đang giữ streak ${days} ngày. Chạm mốc ${target} ngày để mở milestone tiếp theo.`,
@@ -190,12 +224,15 @@ export const vi = {
     level: "CẤP ĐỘ",
     weeklyHeatmap: "7 NGÀY QUA",
     recentExpeditions: "CHUYẾN LẶN GẦN ĐÂY",
-    noDives: "Chưa có gì cả. Nhảy xuống lặn thử đi, nước ấm lắm!",
+    noDivesTitle: "Chưa có chuyến lặn nào",
+    noDives:
+      "Bắt đầu một phiên tập trung và khu vực này sẽ thành nhịp tuần, lịch sử lặn và độ sâu của bạn.",
     less: "ít",
     more: "nhiều"
   },
   sessionDetail: {
     title: "Báo cáo chuyến lặn",
+    back: "Quay lại",
     duration: "THỜI LƯỢNG",
     focusMinutes: "TẬP TRUNG",
     xpEarned: "XP NHẬN ĐƯỢC",
@@ -205,7 +242,8 @@ export const vi = {
     noLevelChange: "Chưa lên cấp",
     zoneJourney: "HÀNH TRÌNH CÁC TẦNG",
     discoveryLog: "NHẬT KÝ KHÁM PHÁ",
-    noDiscoveries: "Chuyến này chưa gặp sinh vật hay cổ vật nào.",
+    noDiscoveries:
+      "Chuyến này chưa gặp sinh vật hay cổ vật nào. Lặn lâu hơn và xuống vùng sâu hơn sẽ tăng cơ hội lần tới.",
     reachedAt: (m: number) => `phút ${m}`,
     minuteMark: (m: number) => `phút ${m}`,
     notFound: "Không tìm thấy chuyến lặn này.",
@@ -234,7 +272,8 @@ export const vi = {
       legendary: "Huyền thoại",
       mythic: "Thần thoại",
       proDetailsLabel: "Chi tiết Pro",
-      noResults: "Bộ lọc này chưa có mục nào."
+      noResults:
+        "Bộ lọc này chưa có mục nào. Xóa bộ lọc hoặc tiếp tục lặn để mở thêm nhật ký."
     },
     story: {
       whisperLabel: "TIẾNG THÌ THẦM TỪ ĐÁY BIỂN",

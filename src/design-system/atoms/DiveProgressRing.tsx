@@ -115,7 +115,7 @@ const makeStyles = (t: AppTheme) =>
     },
     activeRing: {
       position: "absolute",
-      shadowRadius: 20,
+      shadowRadius: 10,
       shadowOffset: { width: 0, height: 0 },
       pointerEvents: "none"
     },

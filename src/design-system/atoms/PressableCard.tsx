@@ -121,8 +121,8 @@ export const PressableCard = React.memo(function PressableCard({
                 borderWidth: 1,
                 borderColor: t.colors.accent,
                 shadowColor: t.colors.accent,
-                shadowOpacity: 0.5,
-                shadowRadius: 8,
+                shadowOpacity: 0.22,
+                shadowRadius: 6,
                 shadowOffset: { width: 0, height: 0 }
               },
               selected ? selectedGlow : animatedGlow

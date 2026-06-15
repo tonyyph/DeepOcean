@@ -75,7 +75,7 @@ expectContains(
 );
 expectContains(
   "ios/DeepOcean/DeepOcean.entitlements",
-  "group.com.cuongphan2.OtherSide",
+  "group.co.deepocean.app.OtherSide",
   "ios app group value"
 );
 expectContains(

@@ -10,7 +10,7 @@
     "icon": "./assets/images/deepocean-fixed.png",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cuongphan2.OtherSide",
+      "bundleIdentifier": "co.deepocean.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "package": "com.cuongphan2.OtherSide",
+      "package": "co.focus.DeepOcean",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/deepocean-fixed.png",
         "backgroundColor": "#020617"
@@ -71,7 +71,7 @@
       [
         "./plugins/with-focus-widget",
         {
-          "appGroup": "group.com.cuongphan2.OtherSide"
+          "appGroup": "group.co.deepocean.app.OtherSide"
         }
       ]
     ],

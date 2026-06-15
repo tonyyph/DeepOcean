@@ -56,6 +56,7 @@ export default function SessionDetailScreen() {
             onPress={() => router.back()}
             hitSlop={12}
             accessibilityRole="button"
+            accessibilityLabel={tr.sessionDetail.back}
             style={styles.backBtn}
           >
             <Ionicons name="chevron-back" size={24} color={t.colors.text} />
@@ -201,7 +202,12 @@ const makeStyles = (t: AppTheme) =>
       paddingTop: t.spacing[2],
       paddingBottom: t.spacing[3]
     },
-    backBtn: { width: 32, alignItems: "flex-start" },
+    backBtn: {
+      width: 44,
+      minHeight: 44,
+      alignItems: "flex-start",
+      justifyContent: "center"
+    },
     center: { flex: 1, alignItems: "center", justifyContent: "center" },
     empty: {
       fontFamily: t.fonts.body,

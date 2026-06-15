@@ -75,7 +75,13 @@ const DiscoveryRow = React.memo(function DiscoveryRow({
   const zoneLabel = ZONE_TABLE[discovery.entry.zone].label;
 
   return (
-    <View style={styles.row}>
+    <View
+      style={styles.row}
+      accessible
+      accessibilityLabel={`${discovery.entry.name}, ${kindLabel}, ${zoneLabel}, ${tr.sessionDetail.minuteMark(
+        discovery.atMinute
+      )}, ${discovery.entry.rarity}`}
+    >
       <Text style={styles.minute}>
         {tr.sessionDetail.minuteMark(discovery.atMinute)}
       </Text>

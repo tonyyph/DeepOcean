@@ -157,8 +157,9 @@ export function NoLastDiveCard({
       <Text style={styles.emptyLastDiveText}>{tr.home.noSessions}</Text>
       <ActionButton
         label={tr.home.beginDive}
-        icon="play"
+        icon="water"
         size="sm"
+        tone="secondary"
         fullWidth
         onPress={onStart}
         containerStyle={styles.emptyLastDiveCtaWrap}
@@ -169,7 +170,11 @@ export function NoLastDiveCard({
 
 // ─── Zone Progress Strip ──────────────────────────────────────────────────────
 
-export function ZoneProgressStrip({ unlockedZones }: { unlockedZones: OceanZone[] }) {
+export function ZoneProgressStrip({
+  unlockedZones
+}: {
+  unlockedZones: OceanZone[];
+}) {
   const styles = useThemedStyles(makeStyles);
 
   return (

@@ -30,3 +30,14 @@ export function alpha(hex: string, opacity: number): string {
   const b = parseInt(normalized.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${opacity})`;
 }
+
+export function scaleAlpha(color: string, factor: number): string {
+  const rgbaMatch = color.match(
+    /^rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)$/
+  );
+  if (rgbaMatch) {
+    const [, r, g, b, a] = rgbaMatch;
+    return `rgba(${r},${g},${b},${Math.min(Number(a) * factor, 1)})`;
+  }
+  return color;
+}

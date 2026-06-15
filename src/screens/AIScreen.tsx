@@ -4,6 +4,7 @@ import { container } from "@/data/container";
 import {
   ActionButton,
   AppHeader,
+  GuidanceCard,
   GlassCard,
   OptionPill,
   PaywallSheet,
@@ -128,12 +129,16 @@ export default function AIScreen() {
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
-          <AppHeader
-            title={tr.ai.title}
-            subtitle={tr.ai.subtitle}
-            pulse
-            size={28}
-          />
+          <AppHeader title={tr.ai.title} subtitle={tr.ai.subtitle} size={28} />
+          {sessions.length === 0 && (
+            <GuidanceCard
+              storageKey="guidance.ai.first"
+              title={tr.guidance.ai.title}
+              body={tr.guidance.ai.body}
+              dismissLabel={tr.common.dismiss}
+              icon="sparkles-outline"
+            />
+          )}
 
           <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.ai.today}</SectionLabel>

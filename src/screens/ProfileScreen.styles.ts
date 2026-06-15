@@ -50,8 +50,8 @@ export const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       overflow: "hidden",
       shadowColor: t.colors.accent,
-      shadowOpacity: 0.8,
-      shadowRadius: 8
+      shadowOpacity: 0.18,
+      shadowRadius: 5
     },
     preferredBlock: {
       paddingTop: t.spacing[4],
@@ -130,6 +130,11 @@ export const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.md,
       alignItems: "center",
       justifyContent: "center"
+    },
+    premiumCrestLocked: {
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.borderStrong,
+      backgroundColor: t.colors.panelStrong
     },
     premiumText: { flex: 1 },
     premiumTitle: {

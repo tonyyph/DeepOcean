@@ -52,6 +52,7 @@ export const ActionButton = React.memo(function ActionButton({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
       disabled={disabled || loading}
       style={({ pressed }) => [
         styles.base,
@@ -81,8 +82,8 @@ export const ActionButton = React.memo(function ActionButton({
           <LinearGradient
             colors={
               tone === "premium"
-                ? [t.colors.premium, t.colors.accentSoft]
-                : [t.colors.accent, t.colors.accentSoft]
+                ? [t.colors.premium, t.colors.warning]
+                : [t.colors.accent, t.colors.accent]
             }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -139,9 +140,9 @@ const makeStyles = (t: AppTheme) =>
       shadowOffset: { width: 0, height: t.shadows.glow.offsetY }
     },
     sm: {
-      minHeight: 34,
+      minHeight: 44,
       paddingHorizontal: t.spacing[3.5],
-      paddingVertical: t.spacing[1.5]
+      paddingVertical: t.spacing[2]
     },
     md: {
       minHeight: 48,
@@ -182,7 +183,7 @@ const makeStyles = (t: AppTheme) =>
     },
     label: {
       fontFamily: t.fonts.label,
-      letterSpacing: 0.6,
+      letterSpacing: 0.2,
       textAlign: "center",
       flexShrink: 1
     },

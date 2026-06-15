@@ -1,40 +1,60 @@
 export const en = {
+  common: {
+    dismiss: "Dismiss"
+  },
   onboarding: {
     chapters: [
       {
-        title: "Breathe.",
+        title: "DeepOcean",
         depth: "SURFACE",
-        body: "You are standing at the surface of the ocean. The world above is loud. Down here, it isn't.",
+        body: "A focus session becomes an underwater dive.",
         detail:
-          "Deep Ocean turns a focus session into a dive: choose a duration, put the phone down, and let the app hold the rhythm with ambient sound, depth, and a quiet state of mind."
+          "Choose a duration, put the phone down, and let the app hold the rhythm with calm sound, depth, and a clear place to return."
       },
       {
-        title: "Descend.",
+        title: "Focus dives",
         depth: "TWILIGHT ZONE",
-        body: "Each minute you focus, you sink a little deeper. Each zone has its own light, its own creatures, its own silence.",
+        body: "Every focused minute carries you a little deeper.",
         detail:
-          "Start a free dive or set a target. While you work, the app tracks depth, zone, and progress while keeping the surface calm enough to stay out of your way."
+          "Start a timed dive or a free dive. The dive screen tracks time, depth, and zone while staying quiet enough to leave your attention alone."
       },
       {
-        title: "Discover.",
+        title: "XP and streaks",
         depth: "MIDNIGHT ZONE",
-        body: "Hold attention long enough and the deep will show you things almost no one sees.",
+        body: "Return from a dive with XP, levels, and streak progress.",
         detail:
-          "After sessions, you can encounter creatures, artifacts, story fragments, and XP rewards. Your collection grows from the moments when you actually stay with your attention."
+          "DeepOcean rewards consistency without pressure. Short sessions count, longer dives reach deeper zones, and daily returns build momentum."
       },
       {
-        title: "Return.",
-        depth: "DIVE LOG",
-        body: "When you surface, what you brought back is yours to keep. The dive remembers you.",
+        title: "Collections",
+        depth: "ABYSS",
+        body: "Creatures, artifacts, and field notes surface after real focus.",
         detail:
-          "Deep Ocean keeps your dive history, streak, level, guide nudges, and daily reminders. Not to pressure you, but to make returning to focus feel like a small ritual."
+          "Your Expedition Log starts empty and grows from completed dives. Locked entries tell you what to do next instead of leaving you guessing."
+      },
+      {
+        title: "Pro, quietly",
+        depth: "TRENCH",
+        body: "Premium adds deeper themes, journals, and insights.",
+        detail:
+          "Pro should feel refined, not loud: more personal guidance, richer logs, and elegant themes when you want the ocean to feel more like yours."
       }
     ],
     pageLabel: "Onboarding page",
     back: "BACK",
     next: "NEXT",
-    holdToBegin: "HOLD TO BEGIN DESCENT",
+    holdToBegin: "START FIRST DIVE",
     tapToContinue: "TAP TO CONTINUE"
+  },
+  guidance: {
+    ai: {
+      title: "Your guide improves after dives",
+      body: "Log a first focus session and the guide can reflect on your rhythm, mood, and recent expedition instead of speaking generally."
+    },
+    collection: {
+      title: "The log starts empty on purpose",
+      body: "Complete dives to surface creatures and artifacts. Locked entries stay visible so you always know what kind of discovery is still waiting."
+    }
   },
   profile: {
     title: "Diver Profile",
@@ -55,11 +75,23 @@ export const en = {
     themePickerTitle: "Choose a theme",
     themePickerSub:
       "Each theme reshapes the entire app — palette, typography, ambient field.",
+    themePickerPremiumActive:
+      "Pro themes are available. Choose the atmosphere that best supports tonight's focus.",
     themeLockedCount: (count: number) =>
       `${count} premium theme${count === 1 ? "" : "s"} locked · upgrade to Pro`,
     proOnly: "PRO",
     themeFont: "Font",
     themeParticles: "Particles",
+    themeColorIdentity: "Color identity",
+    themeElementFusion: "Element fusion",
+    themeBaseElement: "Base element",
+    themeElement: "Element",
+    themeFusionDescription: (first: string, second: string, name: string) =>
+      `${first} + ${second} creates ${name}.`,
+    themeStandaloneDescription:
+      "A standalone ultimate form in the prismatic set.",
+    themeCombinationDescription: (names: string) =>
+      `Combine with matching elements to form: ${names}.`,
     applyTheme: "Apply theme",
     premium: "DeepOcean Pro",
     premiumDesc: "Unlock themes, deep insights, and full field journals",
@@ -81,6 +113,7 @@ export const en = {
     reminderTimeDesc: "When your daily nudge arrives",
     showDiscoveries: "Discovery alerts",
     showDiscoveriesDesc: "Show pop-ups when you encounter something",
+    notifications: "NOTIFICATIONS",
     devEnablePremium: "Enable premium",
     devEnablePremiumDesc: "Local test toggle for premium UI and feature gates",
     developer: "DEVELOPER",
@@ -129,7 +162,8 @@ export const en = {
     lastDiveXp: (n: number) => `+${n} XP`,
     zoneProgressTitle: "DEPTH PROGRESS",
     zoneLocked: "Locked",
-    noSessions: "No dives yet",
+    noSessions:
+      "Your first dive will appear here. Start with the default timer, stay with one task, and surface when the session is complete.",
     streakMilestoneTitle: "STREAK MILESTONE",
     streakMilestoneBody: (days: number, target: number) =>
       `You're on a ${days}-day streak. Reach ${target} days for your next milestone.`,
@@ -188,12 +222,15 @@ export const en = {
     level: "LEVEL",
     weeklyHeatmap: "WEEKLY HEATMAP",
     recentExpeditions: "RECENT EXPEDITIONS",
-    noDives: "No dives yet. Your first descent will appear here.",
+    noDivesTitle: "No dives logged yet",
+    noDives:
+      "Start one focus dive and this space will turn into your weekly rhythm, recent expeditions, and depth history.",
     less: "less",
     more: "more"
   },
   sessionDetail: {
     title: "Expedition Report",
+    back: "Back",
     duration: "DURATION",
     focusMinutes: "FOCUS",
     xpEarned: "XP EARNED",
@@ -203,7 +240,8 @@ export const en = {
     noLevelChange: "No level change",
     zoneJourney: "ZONE JOURNEY",
     discoveryLog: "DISCOVERY LOG",
-    noDiscoveries: "No creatures or artifacts surfaced this dive.",
+    noDiscoveries:
+      "No creatures or artifacts surfaced this dive. Longer dives and deeper zones improve the odds next time.",
     reachedAt: (m: number) => `at ${m} min`,
     minuteMark: (m: number) => `${m}m`,
     notFound: "This expedition could not be found.",
@@ -232,7 +270,8 @@ export const en = {
       legendary: "Legendary",
       mythic: "Mythic",
       proDetailsLabel: "Pro details",
-      noResults: "No entries match this filter yet."
+      noResults:
+        "No entries match this filter yet. Clear the filter or keep diving to unlock more of the log."
     },
     story: {
       whisperLabel: "WHISPER FROM THE DEEP",

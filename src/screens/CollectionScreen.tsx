@@ -3,6 +3,7 @@ import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLo
 import {
   AppHeader,
   CreatureStorySheet,
+  GuidanceCard,
   GlassCard,
   PaywallSheet,
   PremiumBadge,
@@ -155,6 +156,9 @@ export default function CollectionScreen() {
                 <Pressable
                   key={value}
                   onPress={() => setRarityFilter(value)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={`${tr.collection.filters.rarity}: ${label}`}
                   style={[
                     styles.compactChip,
                     active && styles.compactChipActive
@@ -178,6 +182,7 @@ export default function CollectionScreen() {
             onPress={handlePaywall}
             style={styles.proCallout}
             accessibilityRole="button"
+            accessibilityLabel={tr.collection.story.proUnlockCta}
           >
             <PremiumBadge variant="lock" />
             <Text style={styles.proCalloutText} numberOfLines={2}>
@@ -240,6 +245,15 @@ export default function CollectionScreen() {
             subtitle={tr.collection.catalogued(discoveredCount, rows.length)}
             size={28}
           />
+          {discoveredCount === 0 && !isLoading && (
+            <GuidanceCard
+              storageKey="guidance.collection.first"
+              title={tr.guidance.collection.title}
+              body={tr.guidance.collection.body}
+              dismissLabel={tr.common.dismiss}
+              icon="book-outline"
+            />
+          )}
         </View>
         <FlashList<StoryRow | number>
           data={isLoading ? skeletonRows : filteredRows}

@@ -33,10 +33,11 @@ import Animated, {
 } from "react-native-reanimated";
 
 const ZONES: readonly OceanZone[] = [
+  "surface",
+  "twilight",
   "abyss",
   "midnight",
-  "twilight",
-  "surface"
+  "trench"
 ];
 
 type OnboardingChapter = {
@@ -108,8 +109,8 @@ export default function OnboardingScreen() {
   }, [longPressProgress]);
 
   const ctaStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 + longPressProgress.value * 0.06 }],
-    shadowOpacity: 0.4 + longPressProgress.value * 0.5
+    transform: [{ scale: 1 + longPressProgress.value * 0.025 }],
+    shadowOpacity: 0.22 + longPressProgress.value * 0.18
   }));
 
   const renderChapter = useCallback(
@@ -125,7 +126,6 @@ export default function OnboardingScreen() {
           </View>
           <GlowText
             size={width < 380 ? 40 : 48}
-            pulse
             color={t.colors.text}
             style={styles.titleAlign}
           >
@@ -145,7 +145,7 @@ export default function OnboardingScreen() {
 
   return (
     <ZoneBackground zone={chapter.zone}>
-      <UnderwaterCanvas zone={chapter.zone} particleCount={36} />
+      <UnderwaterCanvas zone={chapter.zone} particleCount={24} />
       <View style={styles.container}>
         <FlatList
           ref={listRef}
@@ -173,7 +173,7 @@ export default function OnboardingScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`${tr.onboarding.pageLabel} ${i + 1}`}
                 onPress={() => goTo(i)}
-                hitSlop={10}
+                hitSlop={19}
               >
                 <View
                   style={[
@@ -195,10 +195,9 @@ export default function OnboardingScreen() {
                 tone="primary"
                 size="lg"
                 fullWidth
-                onLongPress={completeOnboarding}
+                onPress={completeOnboarding}
                 onPressIn={handleCtaPressIn}
                 onPressOut={handleCtaPressOut}
-                delayLongPress={800}
               />
             </Animated.View>
           ) : (
@@ -234,7 +233,7 @@ const makeStyles = (t: AppTheme) =>
     container: {
       flex: 1,
       justifyContent: "space-between",
-      paddingTop: t.spacing[20] + t.spacing[10],
+      paddingTop: t.spacing[20],
       paddingBottom: t.spacing[20],
       paddingHorizontal: 0
     },
@@ -280,8 +279,8 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: 3,
       backgroundColor: t.colors.accent,
       shadowColor: t.colors.accent,
-      shadowOpacity: 0.8,
-      shadowRadius: 8
+      shadowOpacity: 0,
+      shadowRadius: 0
     },
     divider: {
       width: 64,

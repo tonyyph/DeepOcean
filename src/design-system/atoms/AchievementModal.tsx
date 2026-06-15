@@ -274,8 +274,8 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: t.colors.glass,
-      shadowOpacity: 0.6,
-      shadowRadius: 20,
+      shadowOpacity: 0.22,
+      shadowRadius: 10,
       shadowOffset: { width: 0, height: 0 },
       marginVertical: t.spacing[1]
     },

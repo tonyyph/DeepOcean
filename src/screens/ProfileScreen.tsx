@@ -220,6 +220,8 @@ export default function ProfileScreen() {
                         onPress={cancelEditName}
                         radius={t.radii.sm}
                         padding={t.spacing[2]}
+                        accessibilityRole="button"
+                        accessibilityLabel={tr.profile.cancel}
                       >
                         <Ionicons
                           name="close"
@@ -232,6 +234,8 @@ export default function ProfileScreen() {
                         onPress={confirmEditName}
                         radius={t.radii.sm}
                         padding={t.spacing[2]}
+                        accessibilityRole="button"
+                        accessibilityLabel={tr.profile.confirm}
                       >
                         <Ionicons
                           name="checkmark"
@@ -252,6 +256,8 @@ export default function ProfileScreen() {
                 onPress={startEditName}
                 radius={t.radii.s}
                 padding={t.spacing[2]}
+                accessibilityRole="button"
+                accessibilityLabel={tr.profile.editNameTitle}
               >
                 <Ionicons
                   name="pencil-outline"
@@ -370,7 +376,7 @@ export default function ProfileScreen() {
             </View>
           </GlassCard>
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
-            <SectionLabel>NOTIFICATIONS</SectionLabel>
+            <SectionLabel>{tr.profile.notifications}</SectionLabel>
             <SettingRow
               type="switch"
               title={tr.profile.diveReminders}

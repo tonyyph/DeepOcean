@@ -14,7 +14,6 @@ import { useTranslations } from "@/core/i18n";
 import { usePremium } from "@/stores";
 import { getLore } from "@/features/ocean";
 import type { Rarity } from "@/features/ocean";
-import { Colors } from "@/theme";
 
 export type StoryRow = {
   id: string;
@@ -126,7 +125,7 @@ export function CreatureStorySheet({
           <Text
             style={[
               styles.sigil,
-              { color: row.seen ? Colors.base.white : t.colors.textFaint }
+              { color: row.seen ? t.colors.text : t.colors.textFaint }
             ]}
           >
             {row.seen ? sigil : "?"}
@@ -196,8 +195,9 @@ export function CreatureStorySheet({
                   <PressableCard
                     haptic="medium"
                     onPress={handlePaywall}
-                    glow
                     radius={t.radii.md}
+                    accessibilityRole="button"
+                    accessibilityLabel={tr.collection.story.proUnlockCta}
                   >
                     <Text style={styles.proCta}>
                       {tr.collection.story.proUnlockCta}
@@ -248,8 +248,8 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii["2xl"],
       alignItems: "center",
       justifyContent: "center",
-      shadowOpacity: 0.45,
-      shadowRadius: 18,
+      shadowOpacity: 0.18,
+      shadowRadius: 10,
       shadowOffset: { width: 0, height: 0 },
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.borderStrong
@@ -307,8 +307,8 @@ const makeStyles = (t: AppTheme) =>
       padding: t.spacing[4],
       borderRadius: t.radii.lg,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${Colors.premium.gold}47`,
-      backgroundColor: `${Colors.premium.gold}0F`
+      borderColor: t.colors.borderStrong,
+      backgroundColor: t.colors.panelStrong
     },
     proHeader: {
       flexDirection: "row",

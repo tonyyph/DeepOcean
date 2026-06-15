@@ -248,7 +248,8 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
           style={styles.closeBtn}
           onPress={onDismiss}
           hitSlop={{ top: 12, left: 12, bottom: 12, right: 12 }}
-          accessibilityLabel="Close"
+          accessibilityRole="button"
+          accessibilityLabel={tr.common.dismiss}
         >
           <Ionicons name="close" size={28} color={t.colors.textMuted} />
         </TouchableOpacity>
@@ -318,7 +319,6 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             }}
             haptic="light"
             radius={16}
-            glow
             padding={0}
           >
             <View style={styles.planInner}>
@@ -339,7 +339,6 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             }}
             haptic="light"
             radius={16}
-            glow
             padding={0}
           >
             <View style={styles.savingBadge}>
@@ -364,7 +363,6 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             }}
             haptic="light"
             radius={16}
-            glow
             padding={0}
           >
             <View style={styles.planInner}>
@@ -384,13 +382,13 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             disabled={busy}
           >
             <LinearGradient
-              colors={[t.colors.accent, `${t.colors.accent}AA`]}
+              colors={[t.colors.panelStrong, t.colors.glass]}
               style={styles.trialGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
               {busy ? (
-                <ActivityIndicator color={t.colors.background} size="small" />
+                <ActivityIndicator color={t.colors.text} size="small" />
               ) : (
                 <>
                   <View style={styles.trialPill}>

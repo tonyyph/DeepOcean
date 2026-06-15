@@ -11,9 +11,11 @@ import {
   SectionLabel,
   Skeleton,
   KpiCard,
+  ActionButton,
   useTheme,
   useThemedStyles,
-  type AppTheme
+  type AppTheme,
+  UnderwaterCanvas
 } from "@/design-system";
 import { useSessions, useDiverProfile } from "@/features/diver";
 import type { DiveSession } from "@/domain/entities";
@@ -49,6 +51,8 @@ export default function StatsScreen() {
 
   return (
     <ZoneBackground zone="abyss">
+      <UnderwaterCanvas zone="abyss" />
+
       <SafeAreaView style={styles.flex}>
         <ScrollView
           contentContainerStyle={styles.scroll}
@@ -104,7 +108,24 @@ export default function StatsScreen() {
             {isLoading ? (
               <RecentSessionsSkeleton />
             ) : sessions.length === 0 ? (
-              <Text style={styles.empty}>{tr.stats.noDives}</Text>
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="compass-outline"
+                  size={24}
+                  color={t.colors.accent}
+                />
+                <Text style={styles.emptyTitle}>{tr.stats.noDivesTitle}</Text>
+                <Text style={styles.empty}>{tr.stats.noDives}</Text>
+                <ActionButton
+                  label={tr.home.beginDive}
+                  icon="water"
+                  tone="secondary"
+                  size="sm"
+                  fullWidth
+                  onPress={() => router.push("/dive")}
+                  containerStyle={styles.emptyCta}
+                />
+              </View>
             ) : (
               sessions.slice(0, 6).map((s: DiveSession) => (
                 <Pressable
@@ -112,6 +133,9 @@ export default function StatsScreen() {
                   onPress={() => router.push(`/session/${s.id}`)}
                   style={styles.sessionRow}
                   accessibilityRole="button"
+                  accessibilityLabel={`${tr.sessionDetail.title}: ${Math.round(
+                    s.elapsedSeconds / 60
+                  )}m, ${Math.round(s.depthMeters)}m`}
                 >
                   <Text style={styles.sessionDate}>
                     {new Date(s.startedAt).toLocaleDateString()}
@@ -147,7 +171,7 @@ function HeatmapSkeleton() {
     <View style={styles.heatRow}>
       {Array.from({ length: 7 }, (_, i) => (
         <View key={i} style={styles.heatCol}>
-          <Skeleton style={styles.heatBar} radius={t.radii.s} />
+          <Skeleton style={styles.heatBarTrack} radius={t.radii.s} />
           <Skeleton style={styles.daySkeleton} />
         </View>
       ))}
@@ -182,17 +206,25 @@ function Heatmap({
     <View style={styles.heatRow}>
       {data.map((d) => {
         const intensity = d.minutes / max;
+        const height = 12 + intensity * 60;
         return (
           <View key={d.day} style={styles.heatCol}>
             <View
-              style={[
-                styles.heatBar,
-                {
-                  backgroundColor: t.colors.accent,
-                  opacity: 0.15 + 0.85 * intensity
-                }
-              ]}
-            />
+              style={styles.heatBarTrack}
+              accessible
+              accessibilityLabel={`${d.label}: ${Math.round(d.minutes)} min`}
+            >
+              <View
+                style={[
+                  styles.heatBar,
+                  {
+                    height,
+                    backgroundColor: t.colors.accent,
+                    opacity: 0.42 + 0.58 * intensity
+                  }
+                ]}
+              />
+            </View>
             <Text style={styles.dayLabel}>{d.label}</Text>
           </View>
         );
@@ -287,20 +319,46 @@ const makeStyles = (t: AppTheme) =>
       marginTop: t.spacing[3]
     },
     heatCol: { flex: 1, alignItems: "center", gap: t.spacing[1.5] },
-    heatBar: {
+    heatBarTrack: {
       width: "100%",
       height: 72,
+      borderRadius: t.radii.s,
+      justifyContent: "flex-end",
+      backgroundColor: t.colors.panelStrong,
+      overflow: "hidden"
+    },
+    heatBar: {
+      width: "100%",
       borderRadius: t.radii.s
+    },
+    emptyState: {
+      alignItems: "center",
+      gap: t.spacing[2],
+      paddingVertical: t.spacing[3]
+    },
+    emptyTitle: {
+      color: t.colors.text,
+      marginTop: t.spacing[1],
+      fontSize: 15,
+      fontFamily: t.fonts.body,
+      textAlign: "center"
     },
     empty: {
       color: t.colors.textSecondary,
-      marginTop: t.spacing[3],
       fontSize: 13,
-      fontFamily: t.fonts.body
+      lineHeight: 19,
+      fontFamily: t.fonts.body,
+      textAlign: "center"
+    },
+    emptyCta: {
+      marginTop: t.spacing[2],
+      alignSelf: "stretch"
     },
     sessionRow: {
       flexDirection: "row",
+      alignItems: "center",
       justifyContent: "space-between",
+      minHeight: 44,
       paddingVertical: t.spacing[2.5],
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: t.colors.border

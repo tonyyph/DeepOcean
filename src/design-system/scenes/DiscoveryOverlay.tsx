@@ -68,7 +68,11 @@ export const DiscoveryOverlay = React.memo(function DiscoveryOverlay({
       style={styles.wrap}
       pointerEvents="box-none"
     >
-      <Pressable onPress={onDismiss} accessibilityRole="button">
+      <Pressable
+        onPress={onDismiss}
+        accessibilityRole="button"
+        accessibilityLabel={`${tr.dive.discovered}: ${discovery.entry.name}`}
+      >
         <GlassCard glow radius={t.radii.lg}>
           <View style={styles.row}>
             <View style={[styles.iconWrap, { borderColor: accent }]}>
@@ -102,9 +106,9 @@ const makeStyles = (t: AppTheme) =>
     },
     row: { flexDirection: "row", alignItems: "center", gap: t.spacing[3] },
     iconWrap: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: 44,
+      height: 44,
+      borderRadius: 22,
       borderWidth: 1.5,
       alignItems: "center",
       justifyContent: "center"

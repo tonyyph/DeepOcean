@@ -76,25 +76,25 @@ export const spacing = {
 export const elevation = {
   glow: {
     color: palette.bio.cyan,
-    radius: 24,
-    opacity: 0.55
+    radius: 14,
+    opacity: 0.28
   },
   deep: {
     color: "#000",
     radius: 32,
-    opacity: 0.6
+    opacity: 0.42
   }
 } as const;
 
 export const surfaces = {
-  glassHighlight: "rgba(255,255,255,0.11)",
-  glassHighlightSoft: "rgba(255,255,255,0.055)",
-  glassSpecularLow: "rgba(255,255,255,0.015)",
-  glassSpecularMid: "rgba(255,255,255,0.055)",
-  glassSpecularHigh: "rgba(255,255,255,0.075)",
-  absorption: "rgba(0,0,0,0.18)",
-  scrim: "rgba(0,0,0,0.65)",
-  pressDisabledOpacity: 0.52
+  glassHighlight: "rgba(255,255,255,0.075)",
+  glassHighlightSoft: "rgba(255,255,255,0.035)",
+  glassSpecularLow: "rgba(255,255,255,0.01)",
+  glassSpecularMid: "rgba(255,255,255,0.032)",
+  glassSpecularHigh: "rgba(255,255,255,0.045)",
+  absorption: "rgba(0,0,0,0.26)",
+  scrim: "rgba(0,0,0,0.72)",
+  pressDisabledOpacity: 0.62
 } as const;
 
 export const shadows = {
@@ -105,14 +105,14 @@ export const shadows = {
     offsetY: 8
   },
   glow: {
-    opacity: 0.28,
-    radius: 14,
+    opacity: 0.16,
+    radius: 10,
     offsetY: 0
   },
   premium: {
     color: palette.semantic.warning,
-    opacity: 0.32,
-    radius: 24,
+    opacity: 0.2,
+    radius: 16,
     offsetY: 0
   }
 } as const;

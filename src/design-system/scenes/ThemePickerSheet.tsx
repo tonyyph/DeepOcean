@@ -73,6 +73,22 @@ export function ThemePickerSheet({
           </GlowText>
           <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
         </View>
+        <View
+          style={[
+            styles.membershipBanner,
+            isPremium
+              ? styles.membershipBannerPremium
+              : styles.membershipBannerFree
+          ]}
+        >
+          <Text style={styles.membershipBannerTitle}>
+            {isPremium
+              ? tr.profile.themePickerPremiumActive
+              : tr.profile.themeLockedCount(
+                  THEME_LIST.filter((theme) => theme.premium).length
+                )}
+          </Text>
+        </View>
 
         <ScrollView
           horizontal
@@ -94,6 +110,9 @@ export function ThemePickerSheet({
                 ]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
+                accessibilityLabel={`${th.name}${
+                  locked ? `, ${tr.profile.proOnly}` : ""
+                }`}
               >
                 <MotiView
                   from={{ scale: 0.96 }}
@@ -152,7 +171,7 @@ export function ThemePickerSheet({
           <View style={styles.palettePanel}>
             <View style={styles.paletteHeader}>
               <Text style={styles.comboTitle} numberOfLines={1}>
-                Color identity
+                {tr.profile.themeColorIdentity}
               </Text>
               <View style={styles.paletteDots}>
                 {[
@@ -176,17 +195,17 @@ export function ThemePickerSheet({
           <View style={styles.comboPanel}>
             <Text style={styles.comboTitle} numberOfLines={1}>
               {previewTheme.combo?.ingredients
-                ? "Element fusion"
-                : "Base element"}
+                ? tr.profile.themeElementFusion
+                : tr.profile.themeBaseElement}
             </Text>
             <Text style={styles.comboBody} numberOfLines={2}>
-              {describeThemeCombo(previewTheme)}
+              {describeThemeCombo(previewTheme, tr)}
             </Text>
           </View>
           <View style={styles.previewMeta}>
             <View style={styles.previewMetaPill}>
               <Text style={styles.previewMetaItem} numberOfLines={1}>
-                Element: {previewTheme.element}
+                {tr.profile.themeElement}: {previewTheme.element}
               </Text>
             </View>
             <View style={styles.previewMetaPill}>
@@ -198,10 +217,20 @@ export function ThemePickerSheet({
         </View>
 
         <View style={styles.actions}>
-          <PressableCard haptic="medium" onPress={handleApply} glow>
+          <PressableCard
+            haptic="medium"
+            onPress={handleApply}
+            accessibilityRole="button"
+            accessibilityLabel={tr.profile.applyTheme}
+          >
             <Text style={styles.applyText}>{tr.profile.applyTheme}</Text>
           </PressableCard>
-          <PressableCard haptic="light" onPress={onDismiss}>
+          <PressableCard
+            haptic="light"
+            onPress={onDismiss}
+            accessibilityRole="button"
+            accessibilityLabel={tr.profile.cancel}
+          >
             <Text style={styles.cancelText}>{tr.profile.cancel}</Text>
           </PressableCard>
         </View>
@@ -210,23 +239,30 @@ export function ThemePickerSheet({
   );
 }
 
-function describeThemeCombo(theme: AppTheme): string {
+function describeThemeCombo(
+  theme: AppTheme,
+  tr: ReturnType<typeof useTranslations>
+): string {
   if (theme.combo?.ingredients) {
     const [first, second] = theme.combo.ingredients;
     const firstTheme = THEMES[first];
     const secondTheme = THEMES[second];
-    return `${firstTheme.element} + ${secondTheme.element} creates ${theme.name}.`;
+    return tr.profile.themeFusionDescription(
+      firstTheme.element,
+      secondTheme.element,
+      theme.name
+    );
   }
 
   const resultIds = (theme.combo?.combinesWith ?? [])
     .map((otherId) => combineThemes(theme.id, otherId))
     .filter((id): id is ThemeId => id != null);
   if (resultIds.length === 0) {
-    return "A standalone ultimate form in the prismatic set.";
+    return tr.profile.themeStandaloneDescription;
   }
 
   const names = resultIds.map((id) => THEMES[id].name).join(", ");
-  return `Combine with matching elements to form: ${names}.`;
+  return tr.profile.themeCombinationDescription(names);
 }
 
 const makeStyles = (t: AppTheme) =>
@@ -246,12 +282,12 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "center"
     },
     membershipBannerPremium: {
-      borderColor: `${t.colors.accent}66`,
-      backgroundColor: `${t.colors.accent}1F`
+      borderColor: t.colors.borderStrong,
+      backgroundColor: t.colors.panelStrong
     },
     membershipBannerFree: {
-      borderColor: `${t.colors.premium}66`,
-      backgroundColor: `${t.colors.premium}14`
+      borderColor: t.colors.borderStrong,
+      backgroundColor: t.colors.panelStrong
     },
     membershipBannerTitle: {
       color: t.colors.text,
@@ -353,8 +389,8 @@ const makeStyles = (t: AppTheme) =>
     comboPanel: {
       borderRadius: t.radii.s,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${t.colors.accent}42`,
-      backgroundColor: `${t.colors.accent}12`,
+      borderColor: t.colors.border,
+      backgroundColor: t.colors.panelStrong,
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[2],
       gap: t.spacing[1]
@@ -383,7 +419,7 @@ const makeStyles = (t: AppTheme) =>
       height: 16,
       borderRadius: 8,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${t.colors.text}55`
+      borderColor: t.colors.border
     },
     paletteLine: {
       color: t.colors.textSecondary,
@@ -394,8 +430,8 @@ const makeStyles = (t: AppTheme) =>
     effectPanel: {
       borderRadius: t.radii.s,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${t.colors.accentSoft}38`,
-      backgroundColor: `${t.colors.accentSoft}10`,
+      borderColor: t.colors.border,
+      backgroundColor: t.colors.panelStrong,
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[2],
       gap: t.spacing[1]
@@ -421,7 +457,7 @@ const makeStyles = (t: AppTheme) =>
     previewMetaPill: {
       flexGrow: 1,
       flexBasis: "47%",
-      minHeight: 34,
+      minHeight: 44,
       justifyContent: "center",
       paddingHorizontal: t.spacing[3],
       borderRadius: t.radii.s,

@@ -18,7 +18,7 @@ export type GlassCardProps = ViewProps & {
  * Reads `useTheme()` so it auto-restyles on theme switch.
  */
 export const GlassCard = React.memo(function GlassCard({
-  intensity = 10,
+  intensity = 6,
   tint = "dark",
   glow = false,
   radius,
@@ -41,7 +41,7 @@ export const GlassCard = React.memo(function GlassCard({
         end={{ x: 0.8, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      {/* Soft color bloom from the active theme, like light caught inside glass. */}
+      {/* Soft color bloom from the active theme, kept quiet for night readability. */}
       <LinearGradient
         pointerEvents="none"
         colors={[t.colors.panelTint, t.surfaces.glassSpecularLow]}
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     width: StyleSheet.hairlineWidth
   },
   absorption: {
-    opacity: 0.42
+    opacity: 0.58
   },
   content: {
     position: "relative",
