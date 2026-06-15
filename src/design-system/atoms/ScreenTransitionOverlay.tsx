@@ -31,10 +31,11 @@ export function ScreenTransitionOverlay({
   const [mounted, setMounted] = useState(visible);
 
   useEffect(() => {
+    let showFrame: number | undefined;
     let hideTimer: ReturnType<typeof setTimeout> | undefined;
 
     if (visible) {
-      setMounted(true);
+      showFrame = requestAnimationFrame(() => setMounted(true));
       opacity.value = withTiming(1, {
         duration: FADE_MS,
         easing: Easing.out(Easing.cubic)
@@ -48,6 +49,7 @@ export function ScreenTransitionOverlay({
     }
 
     return () => {
+      if (showFrame !== undefined) cancelAnimationFrame(showFrame);
       if (hideTimer) clearTimeout(hideTimer);
     };
   }, [opacity, visible]);
@@ -95,7 +97,7 @@ export function ScreenTransitionOverlay({
 
 const styles = StyleSheet.create({
   root: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 9999,
     alignItems: "center",
     justifyContent: "center"

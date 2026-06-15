@@ -52,7 +52,6 @@ export const DiscoveryTimeline = React.memo(function DiscoveryTimeline({
         data={data}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        estimatedItemSize={64}
         scrollEnabled={false}
         showsVerticalScrollIndicator={false}
       />

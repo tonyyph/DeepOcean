@@ -23,11 +23,16 @@ export function useNotificationPermission(): {
   }, []);
 
   useEffect(() => {
-    void refresh();
+    const syncTimer = setTimeout(() => {
+      void refresh();
+    }, 0);
     const sub = AppState.addEventListener("change", (next: AppStateStatus) => {
       if (next === "active") void refresh();
     });
-    return () => sub.remove();
+    return () => {
+      clearTimeout(syncTimer);
+      sub.remove();
+    };
   }, [refresh]);
 
   const request = useCallback(async () => {

@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -38,23 +39,26 @@ export function ScreenTransitionLoadingProvider({
   const [routePending, setRoutePending] = useState(false);
   const [coldRoute, setColdRoute] = useState(false);
 
-  const setScreenLoading = useCallback((key: string, loading: boolean) => {
-    if (!coldRoute) return;
+  const setScreenLoading = useCallback(
+    (key: string, loading: boolean) => {
+      if (!coldRoute) return;
 
-    const activeScreens = activeScreensRef.current;
-    const hadKey = activeScreens.has(key);
+      const activeScreens = activeScreensRef.current;
+      const hadKey = activeScreens.has(key);
 
-    if (loading && !hadKey) {
-      activeScreens.add(key);
-      setActiveScreenCount(activeScreens.size);
-      return;
-    }
+      if (loading && !hadKey) {
+        activeScreens.add(key);
+        setActiveScreenCount(activeScreens.size);
+        return;
+      }
 
-    if (!loading && hadKey) {
-      activeScreens.delete(key);
-      setActiveScreenCount(activeScreens.size);
-    }
-  }, []);
+      if (!loading && hadKey) {
+        activeScreens.delete(key);
+        setActiveScreenCount(activeScreens.size);
+      }
+    },
+    [coldRoute]
+  );
 
   useEffect(() => {
     if (previousPathRef.current === pathname) return;
@@ -130,23 +134,17 @@ export function useScreenTransitionLoading(
   keyHint = "screen"
 ) {
   const context = useContext(TransitionLoadingContext);
-  const keyRef = useRef<string | null>(null);
-
-  if (!keyRef.current) {
-    keyRef.current = `${keyHint}-${Math.random().toString(36).slice(2)}`;
-  }
+  const reactId = useId();
+  const key = `${keyHint}-${reactId}`;
 
   useEffect(() => {
     if (!context) return;
-    if (!keyRef.current) return;
-    context.setScreenLoading(keyRef.current, loading);
+    context.setScreenLoading(key, loading);
 
     return () => {
-      if (keyRef.current) {
-        context.setScreenLoading(keyRef.current, false);
-      }
+      context.setScreenLoading(key, false);
     };
-  }, [context, loading]);
+  }, [context, key, loading]);
 
   return context?.isVisible ?? false;
 }

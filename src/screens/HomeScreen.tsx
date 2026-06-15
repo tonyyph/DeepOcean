@@ -30,7 +30,6 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState
 } from "react";
 import { ScrollView, Text, View } from "react-native";
@@ -93,12 +92,14 @@ export default function HomeScreen() {
   const liveLastSession = (sessions[0] as HomeSession | undefined) ?? null;
   const [fallbackLastSession, setFallbackLastSession] =
     useState<HomeSession | null>(null);
-  const lastSessionRef = useRef<HomeSession | null>(null);
 
   useEffect(() => {
     if (liveLastSession != null) {
-      lastSessionRef.current = liveLastSession;
-      setFallbackLastSession(liveLastSession);
+      const fallbackTimer = setTimeout(
+        () => setFallbackLastSession(liveLastSession),
+        0
+      );
+      return () => clearTimeout(fallbackTimer);
     }
   }, [liveLastSession]);
 
@@ -114,7 +115,6 @@ export default function HomeScreen() {
         const item = (items[0] as HomeSession | undefined) ?? null;
         if (item != null) {
           setFallbackLastSession(item);
-          lastSessionRef.current = item;
         }
       })
       .catch(() => {
@@ -129,7 +129,7 @@ export default function HomeScreen() {
   const lastSession = resolveLastDiveSession(
     liveLastSession,
     fallbackLastSession,
-    lastSessionRef.current
+    null
   );
   const showLastDiveSkeleton = shouldShowLastDiveSkeleton(
     sessionsLoading,

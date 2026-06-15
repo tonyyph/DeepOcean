@@ -65,10 +65,10 @@ export default function DiveScreen() {
   const [abortOpen, setAbortOpen] = useState(false);
   const [achievedZone, setAchievedZone] = useState<OceanZone | null>(null);
   const [rewardQueue, setRewardQueue] = useState<RewardItem[]>([]);
-  const [navigateAfterQueue, setNavigateAfterQueue] = useState(false);
 
   const prevZoneRef = useRef<OceanZone | null>(null);
   const queueBuiltRef = useRef(false);
+  const navigateAfterQueueRef = useRef(false);
   const unlockZone = useAchievements((s) => s.unlockZone);
   const pendingLevelUp = useDiveSession((s) => s.pendingLevelUp);
   const pendingAchievements = useDiveSession((s) => s.pendingAchievements);
@@ -118,7 +118,12 @@ export default function DiveScreen() {
     ) {
       const isNew = unlockZone(currentZone);
       if (isNew) {
-        setAchievedZone(currentZone);
+        const achievementTimer = setTimeout(
+          () => setAchievedZone(currentZone),
+          0
+        );
+        prevZoneRef.current = currentZone;
+        return () => clearTimeout(achievementTimer);
       }
     }
     prevZoneRef.current = currentZone;
@@ -141,8 +146,8 @@ export default function DiveScreen() {
       }
       clearPendingRewards();
       if (queue.length > 0) {
-        setRewardQueue(queue);
-        setNavigateAfterQueue(true);
+        navigateAfterQueueRef.current = true;
+        setTimeout(() => setRewardQueue(queue), 0);
       } else {
         router.replace("/(tabs)");
       }
@@ -156,11 +161,11 @@ export default function DiveScreen() {
   ]);
 
   useEffect(() => {
-    if (navigateAfterQueue && rewardQueue.length === 0) {
+    if (navigateAfterQueueRef.current && rewardQueue.length === 0) {
+      navigateAfterQueueRef.current = false;
       router.replace("/(tabs)");
-      setNavigateAfterQueue(false);
     }
-  }, [rewardQueue.length, navigateAfterQueue, router]);
+  }, [rewardQueue.length, router]);
 
   const progress = useMemo(() => {
     if (!session) return 0;

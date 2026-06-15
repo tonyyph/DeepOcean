@@ -1,7 +1,7 @@
 import { useTranslations } from "@/core/i18n";
 import { canUseTheme, usePremium, useThemeStore } from "@/stores";
 import { MotiView } from "moti";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PremiumBadge } from "../atoms/PremiumBadge";
 import { GlowText } from "../atoms/GlowText";
@@ -40,10 +40,13 @@ export function ThemePickerSheet({
   const isPremium = usePremium((s) => s.isPremium);
   const unlocked = usePremium((s) => s.unlockedThemes);
 
-  const [selected, setSelected] = useState<ThemeId>(activeId);
-  useEffect(() => {
-    if (visible) setSelected(activeId);
-  }, [visible, activeId]);
+  const [draftTheme, setDraftTheme] = useState<ThemeId | null>(null);
+  const selected = draftTheme ?? activeId;
+
+  const dismiss = useCallback(() => {
+    setDraftTheme(null);
+    onDismiss();
+  }, [onDismiss]);
 
   const handlePick = useCallback(
     (id: ThemeId, premium: boolean) => {
@@ -51,13 +54,14 @@ export function ThemePickerSheet({
         onRequestPaywall(id);
         return;
       }
-      setSelected(id);
+      setDraftTheme(id);
     },
     [isPremium, unlocked, onRequestPaywall]
   );
 
   const handleApply = useCallback(() => {
     setTheme(selected);
+    setDraftTheme(null);
     onDismiss();
   }, [selected, setTheme, onDismiss]);
 
@@ -65,7 +69,7 @@ export function ThemePickerSheet({
     THEME_LIST.find((th) => th.id === selected) ?? THEME_LIST[0]!;
 
   return (
-    <Sheet visible={visible} onDismiss={onDismiss}>
+    <Sheet visible={visible} onDismiss={dismiss}>
       <View style={styles.container}>
         <View style={styles.header}>
           <GlowText size={20} style={styles.title}>

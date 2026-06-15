@@ -28,13 +28,21 @@ import { diverKeys } from "@/features/diver/hooks";
 import { selectCurrentMood, useMoodRecord, useSetMood } from "@/features/mood";
 import { usePremium, useSettings } from "@/stores";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProInsights } from "./ai/ProInsights";
 
 const ASK_AGAIN_COOLDOWN_MS = 20_000;
 const REFRESH_ERROR_RETRY_MS = 3_000;
+
+function stableMoodRank(mood: string): number {
+  let hash = 0;
+  for (let i = 0; i < mood.length; i++) {
+    hash = (hash * 31 + mood.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
 
 export default function AIScreen() {
   const t = useTheme();
@@ -56,8 +64,9 @@ export default function AIScreen() {
   const { mutate: setMood } = useSetMood();
   const selectedMood = selectCurrentMood(moodRecord);
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const [lastManualRefreshAt, setLastManualRefreshAt] = useState(0);
+  const [manualRefreshReady, setManualRefreshReady] = useState(true);
   const [refreshError, setRefreshError] = useState<string | null>(null);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tr = useTranslations();
   const isPremium = usePremium((s) => s.isPremium);
   const language = useSettings((s) => s.language);
@@ -77,17 +86,30 @@ export default function AIScreen() {
     "ai"
   );
 
-  const now = Date.now();
   const canAskAgain =
-    !isFetching &&
-    !motivationFetching &&
-    now - lastManualRefreshAt >= ASK_AGAIN_COOLDOWN_MS;
+    !isFetching && !motivationFetching && manualRefreshReady;
+
+  const startManualRefreshCooldown = useCallback((duration: number) => {
+    if (cooldownTimerRef.current) {
+      clearTimeout(cooldownTimerRef.current);
+    }
+    setManualRefreshReady(false);
+    cooldownTimerRef.current = setTimeout(() => {
+      cooldownTimerRef.current = null;
+      setManualRefreshReady(true);
+    }, duration);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+    };
+  }, []);
 
   const handleOpenPaywall = useCallback(() => setPaywallOpen(true), []);
   const handleRefreshAI = useCallback(() => {
     if (!canAskAgain) return;
-    const refreshStartedAt = Date.now();
-    setLastManualRefreshAt(refreshStartedAt);
+    startManualRefreshCooldown(ASK_AGAIN_COOLDOWN_MS);
     setRefreshError(null);
 
     void (async () => {
@@ -106,16 +128,20 @@ export default function AIScreen() {
         queryClient.setQueryData(["diver", "motivation", lang], nextMotivation);
       } catch {
         // Keep UI resilient while throttling repeated error retries.
-        setLastManualRefreshAt(
-          Date.now() - ASK_AGAIN_COOLDOWN_MS + REFRESH_ERROR_RETRY_MS
-        );
+        startManualRefreshCooldown(REFRESH_ERROR_RETRY_MS);
         setRefreshError(tr.ai.refreshError);
       }
     })();
-  }, [canAskAgain, language, queryClient, tr.ai.refreshError]);
+  }, [
+    canAskAgain,
+    language,
+    queryClient,
+    startManualRefreshCooldown,
+    tr.ai.refreshError
+  ]);
 
   const randomMoods = React.useMemo(() => {
-    return [...MOODS].sort(() => 0.5 - Math.random()).slice(0, 6);
+    return [...MOODS].sort((a, b) => stableMoodRank(a) - stableMoodRank(b)).slice(0, 6);
   }, []);
 
   return (

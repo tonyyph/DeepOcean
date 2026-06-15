@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import {
   Canvas,
@@ -68,6 +68,7 @@ export const UnderwaterCanvas = React.memo(function UnderwaterCanvas({
   const light = ZONE_TABLE[zone].light;
   const cfg = t.particles;
   const count = particleCount ?? cfg.count;
+  const [randomSalt, setRandomSalt] = useState(0);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -82,9 +83,15 @@ export const UnderwaterCanvas = React.memo(function UnderwaterCanvas({
     );
   }, [time, cfg.loopMs, reducedMotion]);
 
+  useEffect(() => {
+    if (!cfg.randomize) return;
+    const saltTimer = setTimeout(() => setRandomSalt(Math.random() * 10000), 0);
+    return () => clearTimeout(saltTimer);
+  }, [cfg.randomize, t.id, zone]);
+
   const particles = useMemo<Particle[]>(() => {
     const out: Particle[] = [];
-    const salt = cfg.randomize ? Math.random() * 10000 : themeSeed(t.id, zone);
+    const salt = cfg.randomize ? randomSalt : themeSeed(t.id, zone);
     for (let i = 0; i < count; i++) {
       const rx = rand(i, salt, 1);
       const ry = rand(i, salt, 2);
@@ -118,6 +125,7 @@ export const UnderwaterCanvas = React.memo(function UnderwaterCanvas({
     cfg.hues,
     cfg.randomize,
     cfg.scatter,
+    randomSalt,
     t.id,
     zone
   ]);

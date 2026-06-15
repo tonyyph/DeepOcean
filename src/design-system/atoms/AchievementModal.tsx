@@ -248,7 +248,7 @@ const makeStyles = (t: AppTheme) =>
       overflow: "hidden"
     },
     cardGlow: {
-      ...StyleSheet.absoluteFillObject,
+      ...StyleSheet.absoluteFill,
       borderRadius: t.radii.xl
     },
     badge: {

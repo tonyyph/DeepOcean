@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
@@ -29,16 +29,21 @@ export function LanguagePickerSheet({
   const t = useTheme();
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
-  const [selected, setSelected] = useState<Language>(current);
+  const [draft, setDraft] = useState<Language | null>(null);
+  const selected = draft ?? current;
 
-  useEffect(() => {
-    if (visible) setSelected(current);
-  }, [visible, current]);
+  const dismiss = useCallback(() => {
+    setDraft(null);
+    onDismiss();
+  }, [onDismiss]);
 
-  const confirm = useCallback(() => onConfirm(selected), [onConfirm, selected]);
+  const confirm = useCallback(() => {
+    onConfirm(selected);
+    setDraft(null);
+  }, [onConfirm, selected]);
 
   return (
-    <Sheet visible={visible} onDismiss={onDismiss}>
+    <Sheet visible={visible} onDismiss={dismiss}>
       <GlowText size={20} style={styles.title}>
         {tr.profile.language}
       </GlowText>
@@ -50,7 +55,7 @@ export function LanguagePickerSheet({
           return (
             <Pressable
               key={code}
-              onPress={() => setSelected(code)}
+              onPress={() => setDraft(code)}
               style={[styles.row, active && styles.rowActive]}
             >
               <View style={[styles.radio, active && styles.radioActive]}>

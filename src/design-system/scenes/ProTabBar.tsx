@@ -5,6 +5,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
+import type {
+  ParamListBase,
+  Route
+} from "expo-router/build/react-navigation/native";
 import Animated, {
   Easing,
   useAnimatedProps,
@@ -12,7 +16,7 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
 import { useTheme } from "../useTheme";
 import type { AppTheme } from "../themes";
 import { useSettings } from "@/stores";
@@ -24,6 +28,8 @@ type IconPair = {
   inactive: keyof typeof Ionicons.glyphMap;
   size: number;
 };
+
+type TabRoute = Route<string, ParamListBase[string]>;
 
 const ICONS: Readonly<Record<string, IconPair>> = {
   index: { active: "water", inactive: "water-outline", size: 24 },
@@ -227,7 +233,7 @@ export function ProTabBar(props: BottomTabBarProps) {
 
         {/* ② Flat inactive-tab slots ───────────────────────────────── */}
         <View style={[styles.tabsRow, { top: BUBBLE_R, height: BAR_H }]}>
-          {state.routes.map((route, index) => {
+          {state.routes.map((route: TabRoute, index: number) => {
             const focused = state.index === index;
             const icons = ICONS[route.name] ?? ICONS.index!;
             const desc = descriptors[route.key];

@@ -97,16 +97,16 @@ export default function OnboardingScreen() {
     [chapters.length, width]
   );
 
-  const handleCtaPressIn = useCallback(() => {
+  const handleCtaPressIn = () => {
     longPressProgress.value = withTiming(1, {
       duration: 800,
       easing: Easing.bezier(0.16, 1, 0.3, 1)
     });
-  }, [longPressProgress]);
+  };
 
-  const handleCtaPressOut = useCallback(() => {
+  const handleCtaPressOut = () => {
     longPressProgress.value = withTiming(0, { duration: 280 });
-  }, [longPressProgress]);
+  };
 
   const ctaStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 + longPressProgress.value * 0.025 }],
@@ -289,6 +289,7 @@ const makeStyles = (t: AppTheme) =>
     },
     navRow: {
       width: "88%",
+      justifyContent: "center",
       flexDirection: "row",
       gap: t.spacing[3]
     },

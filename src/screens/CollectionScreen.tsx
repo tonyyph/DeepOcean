@@ -48,7 +48,7 @@ type RarityFilter =
 
 export default function CollectionScreen() {
   const { data: entries = [], isLoading } = useCollection();
-  const { height, width } = useWindowDimensions();
+  const { height } = useWindowDimensions();
   const t = useTheme();
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
@@ -124,11 +124,6 @@ export default function CollectionScreen() {
       ["mythic", tr.collection.filters.mythic]
     ],
     [tr.collection.filters]
-  );
-
-  const estimatedListSize = useMemo(
-    () => ({ height, width }),
-    [height, width]
   );
 
   const handleRowPress = useCallback((row: StoryRow) => {
@@ -258,8 +253,6 @@ export default function CollectionScreen() {
         <FlashList<StoryRow | number>
           data={isLoading ? skeletonRows : filteredRows}
           keyExtractor={keyExtractor}
-          estimatedItemSize={120}
-          estimatedListSize={estimatedListSize}
           drawDistance={height * 1.5}
           extraData={isPremium}
           showsVerticalScrollIndicator={false}

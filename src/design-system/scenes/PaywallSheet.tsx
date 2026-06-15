@@ -38,6 +38,14 @@ type Props = {
   intentTheme?: ThemeId;
 };
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const CLOCK_SYNC_MS = 60_000;
+const PAYWALL_INITIAL_NOW = Date.now();
+
+function daysUntil(expiresAt: number, now: number): number {
+  return Math.max(1, Math.ceil((expiresAt - now) / MS_PER_DAY));
+}
+
 export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
@@ -62,6 +70,7 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
   const [promoError, setPromoError] = useState<string | null>(null);
   const [promoLoading, setPromoLoading] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [clockNow, setClockNow] = useState(PAYWALL_INITIAL_NOW);
   const carouselRef = useRef<FlatList<BenefitSlide>>(null);
   const busy = status === "loading";
   const pw = tr.paywall;
@@ -85,12 +94,24 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
   }, [isPremium, visible, onDismiss]);
   useEffect(() => {
     if (!visible) {
-      setPromoInput("");
-      setPromoResult(null);
-      setPromoError(null);
-      setCarouselIndex(0);
-      setSelectedPlan("annual");
+      const resetTimer = setTimeout(() => {
+        setPromoInput("");
+        setPromoResult(null);
+        setPromoError(null);
+        setCarouselIndex(0);
+        setSelectedPlan("annual");
+      }, 0);
+      return () => clearTimeout(resetTimer);
     }
+  }, [visible]);
+  useEffect(() => {
+    if (!visible) return;
+    const syncTimer = setTimeout(() => setClockNow(Date.now()), 0);
+    const interval = setInterval(() => setClockNow(Date.now()), CLOCK_SYNC_MS);
+    return () => {
+      clearTimeout(syncTimer);
+      clearInterval(interval);
+    };
   }, [visible]);
   const slides = useMemo<BenefitSlide[]>(
     () =>
@@ -104,19 +125,14 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
   const trialActive =
     trialState != null &&
     trialState.kind === "trial" &&
-    Date.now() < trialState.expiresAt;
+    clockNow < trialState.expiresAt;
   const promoActive =
     trialState != null &&
     trialState.kind === "promo" &&
-    Date.now() < trialState.expiresAt;
+    clockNow < trialState.expiresAt;
   const showTrialCta = !trialActive && !promoActive;
   const activeBadgeDays =
-    trialState != null
-      ? Math.max(
-          1,
-          Math.ceil((trialState.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))
-        )
-      : 0;
+    trialState != null ? daysUntil(trialState.expiresAt, clockNow) : 0;
   const handlePurchase = useCallback(async () => {
     if (busy || !isConfigured) return;
     try {
@@ -461,14 +477,7 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
         )}
         {promoResult?.valid === true && (
           <Text style={styles.promoFeedbackSuccess}>
-            {pw.promoSuccess(
-              Math.max(
-                1,
-                Math.ceil(
-                  (promoResult.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)
-                )
-              )
-            )}
+            {pw.promoSuccess(daysUntil(promoResult.expiresAt, clockNow))}
           </Text>
         )}
         <View style={styles.footerRow}>

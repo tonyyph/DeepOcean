@@ -156,7 +156,9 @@ export default function ProfileScreen() {
     newAchievements.forEach((a) =>
       queue.push({ type: "achievement", achievement: a })
     );
-    if (queue.length > 0) setRewardQueue(queue);
+    if (queue.length > 0) {
+      setTimeout(() => setRewardQueue(queue), 0);
+    }
   }, [profile, alreadyUnlocked, persistTitleAchievements, updateDiver]);
   const dismissReward = useCallback(() => {
     setRewardQueue((q) => q.slice(1));

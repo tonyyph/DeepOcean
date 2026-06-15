@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
@@ -23,6 +23,10 @@ function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
 
+function snapMinute(minute: number): number {
+  return (Math.round(minute / 5) * 5) % 60;
+}
+
 /**
  * ReminderTimePickerSheet — lightweight 24h time picker built on the existing
  * Sheet atom. Avoids pulling a native date-time picker dependency (keeps the
@@ -38,19 +42,23 @@ export function ReminderTimePickerSheet({
   const t = useTheme();
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
-  const [selHour, setSelHour] = useState(hour);
-  const [selMinute, setSelMinute] = useState(minute);
+  const [draftHour, setDraftHour] = useState<number | null>(null);
+  const [draftMinute, setDraftMinute] = useState<number | null>(null);
+  const selHour = draftHour ?? hour;
+  const selMinute = draftMinute ?? snapMinute(minute);
 
-  useEffect(() => {
-    if (visible) {
-      setSelHour(hour);
-      // Snap to nearest 5-min step so the value always exists in the list.
-      setSelMinute((Math.round(minute / 5) * 5) % 60);
-    }
-  }, [visible, hour, minute]);
+  const dismiss = useCallback(() => {
+    setDraftHour(null);
+    setDraftMinute(null);
+    onDismiss();
+  }, [onDismiss]);
 
   const confirm = useCallback(
-    () => onConfirm(selHour, selMinute),
+    () => {
+      onConfirm(selHour, selMinute);
+      setDraftHour(null);
+      setDraftMinute(null);
+    },
     [onConfirm, selHour, selMinute]
   );
 
@@ -60,7 +68,7 @@ export function ReminderTimePickerSheet({
   );
 
   return (
-    <Sheet visible={visible} onDismiss={onDismiss}>
+    <Sheet visible={visible} onDismiss={dismiss}>
       <GlowText size={20} style={styles.title}>
         {tr.notifications.pickerTitle}
       </GlowText>
@@ -80,7 +88,7 @@ export function ReminderTimePickerSheet({
               return (
                 <Pressable
                   key={h}
-                  onPress={() => setSelHour(h)}
+                  onPress={() => setDraftHour(h)}
                   style={[styles.cell, active && styles.cellActive]}
                 >
                   <Text
@@ -108,7 +116,7 @@ export function ReminderTimePickerSheet({
               return (
                 <Pressable
                   key={m}
-                  onPress={() => setSelMinute(m)}
+                  onPress={() => setDraftMinute(m)}
                   style={[styles.cell, active && styles.cellActive]}
                 >
                   <Text

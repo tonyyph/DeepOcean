@@ -587,9 +587,9 @@ export const prismDarkTheme = makeTheme({
 });
 
 export const PRISMATIC_THEMES = [
-  prismLightTheme,
-  prismFireTheme,
   prismWaterTheme,
+  prismFireTheme,
+  prismLightTheme,
   prismAirTheme,
   prismNatureTheme,
   prismIceTheme,

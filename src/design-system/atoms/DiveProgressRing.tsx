@@ -57,7 +57,7 @@ export const DiveProgressRing = React.memo(function DiveProgressRing({
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>
-      <Svg width={size} height={size} style={StyleSheet.absoluteFillObject}>
+      <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
         <G rotation={-90} originX={size / 2} originY={size / 2}>
           <Circle
             cx={size / 2}

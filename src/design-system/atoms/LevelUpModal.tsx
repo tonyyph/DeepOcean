@@ -233,7 +233,7 @@ const makeStyles = (t: AppTheme) =>
       ...Shadows.premium.card
     },
     cardGlow: {
-      ...StyleSheet.absoluteFillObject,
+      ...StyleSheet.absoluteFill,
       borderRadius: t.radii.xl
     },
     badge: {

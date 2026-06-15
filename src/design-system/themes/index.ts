@@ -2,9 +2,9 @@ import type { AppTheme, ThemeId } from "./types";
 import { PRISMATIC_THEMES, THEME_COMBINATIONS } from "./prismatic";
 
 export const THEMES: Record<ThemeId, AppTheme> = {
-  prismLight: PRISMATIC_THEMES[0],
+  prismWater: PRISMATIC_THEMES[0],
   prismFire: PRISMATIC_THEMES[1],
-  prismWater: PRISMATIC_THEMES[2],
+  prismLight: PRISMATIC_THEMES[2],
   prismAir: PRISMATIC_THEMES[3],
   prismNature: PRISMATIC_THEMES[4],
   prismIce: PRISMATIC_THEMES[5],

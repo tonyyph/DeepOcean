@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false
   },
   backing: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     color: "rgba(0, 42, 74, 0.35)",
     transform: [{ translateY: 4 }]
   }

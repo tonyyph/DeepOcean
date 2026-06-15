@@ -6,10 +6,10 @@
     "orientation": "portrait",
     "scheme": "deepocean",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "icon": "./assets/images/deepocean-fixed.png",
     "ios": {
       "supportsTablet": true,
+      "deploymentTarget": "16.4",
       "bundleIdentifier": "co.deepocean.app",
       "infoPlist": {
         "UIBackgroundModes": [
@@ -75,7 +75,9 @@
         {
           "appGroup": "group.co.deepocean.app"
         }
-      ]
+      ],
+      "expo-status-bar",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

@@ -73,7 +73,7 @@ const makeStyles = (t: AppTheme) =>
       overflow: "hidden"
     },
     progressTrack: {
-      ...StyleSheet.absoluteFillObject
+      ...StyleSheet.absoluteFill
     },
     progressFill: {
       height: "100%"
