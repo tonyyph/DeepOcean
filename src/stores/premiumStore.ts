@@ -203,7 +203,6 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
       },
 
       setDebugPremiumEnabled: (enabled) => {
-        if (!__DEV__) return;
         set((state) => ({
           debugPremiumEnabled: enabled,
           isPremium: state.entitlementPremium || enabled

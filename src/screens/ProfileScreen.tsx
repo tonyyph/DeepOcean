@@ -419,7 +419,7 @@ export default function ProfileScreen() {
               divider={false}
             />
           </GlassCard>
-          {__DEV__ && process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
+          {process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
             <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
               <SectionLabel>{tr.profile.developer}</SectionLabel>
               <SettingRow

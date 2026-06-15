@@ -1,8 +1,6 @@
 describe("premiumStore debug toggle", () => {
   const setup = () => {
     jest.resetModules();
-    (global as any).__DEV__ = true;
-
     const premiumGatewayMock = {
       isConfigured: true,
       cached: () => ({
