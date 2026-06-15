@@ -29,14 +29,33 @@ function addOrUpdateString(resources, name, value) {
   resources.string = list;
 }
 
+function packageNameToPath(packageName) {
+  return packageName.replace(/\./g, "/");
+}
+
+function getAndroidPackage(config) {
+  return config.android?.package || config.ios?.bundleIdentifier || "co.deepocean.app";
+}
+
+function getIosBundleIdentifier(config) {
+  return config.ios?.bundleIdentifier || "co.deepocean.app";
+}
+
+function getAppGroup(config, props = {}) {
+  return props.appGroup || `group.${getIosBundleIdentifier(config)}`;
+}
+
 function withFocusWidgetAndroidFiles(config) {
   return withDangerousMod(config, [
     "android",
     async (modConfig) => {
+      const androidPackage = getAndroidPackage(config);
+      const androidPackagePath = packageNameToPath(androidPackage);
+
       writeFile(
         modConfig.modRequest.projectRoot,
-        "android/app/src/main/java/com/cuongphan2/OtherSide/widget/FocusWidgetProvider.kt",
-        `package co.deepocean.app.OtherSide.widget
+        `android/app/src/main/java/${androidPackagePath}/widget/FocusWidgetProvider.kt`,
+        `package ${androidPackage}.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -47,8 +66,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.RemoteViews
-import co.deepocean.app.OtherSide.MainActivity
-import co.deepocean.app.OtherSide.R
+import ${androidPackage}.MainActivity
+import ${androidPackage}.R
 
 class FocusWidgetProvider : AppWidgetProvider() {
 
@@ -509,9 +528,7 @@ function withFocusWidgetAndroidStrings(config) {
 
 function withFocusWidgetAppGroup(config, props = {}) {
   return withEntitlementsPlist(config, (modConfig) => {
-    const bundleId =
-      config.ios?.bundleIdentifier || "co.deepocean.app.OtherSide";
-    const appGroup = props.appGroup || `group.${bundleId}`;
+    const appGroup = getAppGroup(config, props);
 
     const key = "com.apple.security.application-groups";
     const current = modConfig.modResults[key] || [];
@@ -548,9 +565,7 @@ function withFocusWidgetIosFiles(config, props = {}) {
   return withDangerousMod(config, [
     "ios",
     async (modConfig) => {
-      const bundleId =
-        config.ios?.bundleIdentifier || "co.deepocean.app.OtherSide";
-      const appGroup = props.appGroup || `group.${bundleId}`;
+      const appGroup = getAppGroup(config, props);
       const iosRoot = modConfig.modRequest.platformProjectRoot;
 
       writeFile(

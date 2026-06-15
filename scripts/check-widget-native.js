@@ -46,7 +46,7 @@ function expectContains(relPath, needle, label) {
 
 const requiredFiles = [
   "plugins/with-focus-widget.js",
-  "android/app/src/main/java/com/cuongphan2/OtherSide/widget/FocusWidgetProvider.kt",
+  "android/app/src/main/java/co/deepocean/app/widget/FocusWidgetProvider.kt",
   "android/app/src/main/res/layout/widget_focus_small.xml",
   "android/app/src/main/res/layout/widget_focus_medium.xml",
   "android/app/src/main/res/layout/widget_focus_large.xml",
@@ -75,7 +75,7 @@ expectContains(
 );
 expectContains(
   "ios/DeepOcean/DeepOcean.entitlements",
-  "group.co.deepocean.app.OtherSide",
+  "group.co.deepocean.app",
   "ios app group value"
 );
 expectContains(

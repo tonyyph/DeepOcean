@@ -27,12 +27,12 @@ end
 
 def read_bundle_id
   app_json = File.join(ROOT, "app.json")
-  return "co.deepocean.app.OtherSide" unless File.exist?(app_json)
+  return "co.deepocean.app" unless File.exist?(app_json)
 
   json = JSON.parse(File.read(app_json))
-  json.dig("expo", "ios", "bundleIdentifier") || "co.deepocean.app.OtherSide"
+  json.dig("expo", "ios", "bundleIdentifier") || "co.deepocean.app"
 rescue StandardError
-  "co.deepocean.app.OtherSide"
+  "co.deepocean.app"
 end
 
 def ensure_file(path, content)

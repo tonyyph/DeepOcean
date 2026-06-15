@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "package": "co.focus.DeepOcean",
+      "package": "co.deepocean.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/deepocean-fixed.png",
         "backgroundColor": "#020617"
@@ -71,7 +71,7 @@
       [
         "./plugins/with-focus-widget",
         {
-          "appGroup": "group.co.deepocean.app.OtherSide"
+          "appGroup": "group.co.deepocean.app"
         }
       ]
     ],
