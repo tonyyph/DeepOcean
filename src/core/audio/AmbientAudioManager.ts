@@ -123,7 +123,6 @@ class AmbientAudioManagerImpl {
         playsInSilentMode: true,
         shouldPlayInBackground: true,
         interruptionMode: "duckOthers",
-        interruptionModeAndroid: "duckOthers",
         shouldRouteThroughEarpiece: false,
         allowsBackgroundRecording: false
       });

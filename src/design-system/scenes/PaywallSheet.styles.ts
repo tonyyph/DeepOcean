@@ -17,6 +17,9 @@ export function makeStyles(t: AppTheme) {
       marginRight: -t.spacing[2],
       marginBottom: t.spacing[1]
     },
+    pressed: {
+      opacity: 0.72
+    },
     // ── Header ───────────────────────────────────────────────────────────
     heading: {
       fontFamily: t.fonts.display,

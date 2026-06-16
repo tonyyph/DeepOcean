@@ -123,42 +123,45 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (!profile || overflowChecked.current) return;
     overflowChecked.current = true;
-    const threshold = xpForNextLevel(profile.level);
-    if (profile.xp < threshold) return; // nothing to do
-    const {
-      level: newLevel,
-      xp: newXp,
-      levelsGained
-    } = computeLevelUp(profile.level, profile.xp, 0);
-    updateDiver({ level: newLevel, xp: newXp });
-    const updatedProfile = { ...profile, level: newLevel, xp: newXp };
-    const collectionItems = container.collection
-      ? (() => {
-          try {
-            return (container as any).collection?.allSync?.() ?? [];
-          } catch {
-            return [];
-          }
-        })()
-      : [];
-    const newAchievements = checkNewAchievements(
-      updatedProfile,
-      { collectionCount: collectionItems.length },
-      alreadyUnlocked
-    );
-    if (newAchievements.length > 0) {
-      persistTitleAchievements(newAchievements);
-    }
-    const queue: RewardItem[] = [];
-    if (levelsGained > 0) {
-      queue.push({ type: "levelUp", from: profile.level, to: newLevel });
-    }
-    newAchievements.forEach((a) =>
-      queue.push({ type: "achievement", achievement: a })
-    );
-    if (queue.length > 0) {
-      setTimeout(() => setRewardQueue(queue), 0);
-    }
+    let active = true;
+
+    void (async () => {
+      const threshold = xpForNextLevel(profile.level);
+      if (profile.xp < threshold) return;
+      const {
+        level: newLevel,
+        xp: newXp,
+        levelsGained
+      } = computeLevelUp(profile.level, profile.xp, 0);
+      updateDiver({ level: newLevel, xp: newXp });
+      const updatedProfile = { ...profile, level: newLevel, xp: newXp };
+      const collectionItems = await container.collection.all().catch(() => []);
+      if (!active) return;
+      const newAchievements = checkNewAchievements(
+        updatedProfile,
+        { collectionCount: collectionItems.length },
+        alreadyUnlocked
+      );
+      if (newAchievements.length > 0) {
+        persistTitleAchievements(newAchievements);
+      }
+      const queue: RewardItem[] = [];
+      if (levelsGained > 0) {
+        queue.push({ type: "levelUp", from: profile.level, to: newLevel });
+      }
+      newAchievements.forEach((a) =>
+        queue.push({ type: "achievement", achievement: a })
+      );
+      if (queue.length > 0) {
+        setTimeout(() => {
+          if (active) setRewardQueue(queue);
+        }, 0);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
   }, [profile, alreadyUnlocked, persistTitleAchievements, updateDiver]);
   const dismissReward = useCallback(() => {
     setRewardQueue((q) => q.slice(1));

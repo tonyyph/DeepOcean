@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  View, Text,
-  StyleSheet, ActivityIndicator,
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
   Alert,
   FlatList,
+  Pressable,
   TextInput,
-  TouchableOpacity,
   type ListRenderItemInfo,
   type NativeSyntheticEvent,
   type NativeScrollEvent
@@ -260,15 +262,18 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
           }
         ]}
       >
-        <TouchableOpacity
-          style={styles.closeBtn}
+        <Pressable
+          style={({ pressed }) => [
+            styles.closeBtn,
+            pressed && styles.pressed
+          ]}
           onPress={onDismiss}
           hitSlop={{ top: 12, left: 12, bottom: 12, right: 12 }}
           accessibilityRole="button"
           accessibilityLabel={tr.common.dismiss}
         >
           <Ionicons name="close" size={28} color={t.colors.textMuted} />
-        </TouchableOpacity>
+        </Pressable>
         <GlowText size={26} style={styles.heading}>
           {pw.title}
         </GlowText>
@@ -456,21 +461,23 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             returnKeyType="done"
             onSubmitEditing={handlePromoApply}
           />
-          <TouchableOpacity
-            style={[
+          <Pressable
+            style={({ pressed }) => [
               styles.promoApplyBtn,
               (promoLoading || !promoInput.trim()) &&
-                styles.promoApplyBtnDisabled
+                styles.promoApplyBtnDisabled,
+              pressed && styles.pressed
             ]}
             onPress={handlePromoApply}
             disabled={promoLoading || !promoInput.trim()}
+            accessibilityRole="button"
           >
             {promoLoading ? (
               <ActivityIndicator size="small" color={t.colors.accent} />
             ) : (
               <Text style={styles.promoApplyText}>{pw.promoApply}</Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
         {promoError != null && (
           <Text style={styles.promoFeedbackError}>{promoError}</Text>
@@ -481,9 +488,11 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
           </Text>
         )}
         <View style={styles.footerRow}>
-          <TouchableOpacity
+          <Pressable
             onPress={handleRestore}
             disabled={busy || !isConfigured}
+            accessibilityRole="button"
+            style={({ pressed }) => pressed && styles.pressed}
           >
             <Text
               style={[
@@ -493,7 +502,7 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
             >
               {pw.restore}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <Text style={styles.disclaimer}>{pw.disclaimer}</Text>
       </View>

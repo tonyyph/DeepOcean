@@ -7,7 +7,7 @@ const {
   withEntitlementsPlist,
   withInfoPlist,
   withStringsXml
-} = require("@expo/config-plugins");
+} = require("expo/config-plugins");
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
