@@ -75,6 +75,7 @@ async function syncDiveReminders(): Promise<void> {
 
 export default function RootLayout() {
   const router = useRouter();
+  const ambientVolume = useSettings((s) => s.ambientVolume);
   const [fontsLoaded] = useFonts({
     Sora_400Regular,
     Sora_600SemiBold,
@@ -140,7 +141,7 @@ export default function RootLayout() {
     if (!fontsLoaded) return;
     (async () => {
       await SystemUI.setBackgroundColorAsync(palette.abyss[600]);
-      await AmbientAudio.init();
+      void AmbientAudio.init();
       await SplashScreen.hideAsync();
       await checkAndForceUpdates();
       await syncDiveReminders();
@@ -150,6 +151,10 @@ export default function RootLayout() {
       writeWidgetSnapshot();
     })();
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    AmbientAudio.setAmbientVolume(ambientVolume);
+  }, [ambientVolume]);
 
   useEffect(() => {
     if (!fontsLoaded) return;

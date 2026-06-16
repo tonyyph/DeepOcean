@@ -114,7 +114,7 @@ function advanceSession(
 
   if (runEffects && zone !== session.zone) {
     hapticZoneChange(zone);
-    AmbientAudio.setZone(zone);
+    void AmbientAudio.setZone(zone);
   }
 
   let nextRollMinute = lastRollMinute;
@@ -242,7 +242,8 @@ export const useDiveSession = create<State & Actions>()(
         seed
       };
       hapticDiveStart();
-      AmbientAudio.init().then(() => AmbientAudio.setZone("surface"));
+      AmbientAudio.setAmbientVolume(useSettings.getState().ambientVolume);
+      void AmbientAudio.init().then(() => AmbientAudio.setZone("surface"));
       const handle = setInterval(() => get().tick(), TICK_MS);
       set({
         session,
@@ -339,6 +340,7 @@ export const useDiveSession = create<State & Actions>()(
       const { _intervalHandle, _completionNotificationId, _activeNotificationId } =
         get();
       if (_intervalHandle) clearInterval(_intervalHandle);
+      void AmbientAudio.stopAll();
       void clearDiveNotifications(_completionNotificationId, _activeNotificationId);
       void DeepOceanLiveActivity.end(get().session?.id);
       set({

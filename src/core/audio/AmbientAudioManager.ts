@@ -1,9 +1,11 @@
 import {
   createAudioPlayer,
+  preload,
   setAudioModeAsync,
   type AudioPlayer,
   type AudioSource
 } from "expo-audio";
+import { Asset } from "expo-asset";
 import type { OceanZone } from "@/features/ocean/zones";
 
 /**
@@ -14,9 +16,8 @@ import type { OceanZone } from "@/features/ocean/zones";
  *    outside React lifecycle to survive screen unmounts.
  *  - Each zone has a base ambient track + optional creature/sonar overlays.
  *  - Crossfades use linear ramps over 1.6s — feels "liquid" without lag spikes.
- *  - Sources are intentionally typed as `AudioSource | null`: a bare
- *    scaffold ships with `null` so we can demo without binary assets. Drop
- *    real `require('@assets/audio/*.mp3')` files in to enable playback.
+ *  - Sources are static `require(...)` values so Metro/EAS can fingerprint and
+ *    include the audio in production/TestFlight bundles.
  */
 
 export type AmbientLayer = "base" | "creature" | "sonar" | "pressure";
@@ -28,14 +29,17 @@ type LayerSlot = {
 };
 
 const CROSSFADE_MS = 1600;
+const PRELOAD_BUFFER_SECONDS = 12;
+const DEFAULT_AMBIENT_VOLUME = 0.65;
+const BUNDLED_AMBIENT_LOOP = require("@assets/audio/luffy.wav") as number;
 
 const ZONE_SOURCES: Record<OceanZone, AudioSource | null> = {
-  // Replace nulls with require('@assets/audio/surface.mp3') etc. when assets exist.
-  surface: null,
-  twilight: null,
-  midnight: null,
-  abyss: null,
-  trench: null
+  // Use the bundled loop for every zone until zone-specific stems are added.
+  surface: BUNDLED_AMBIENT_LOOP,
+  twilight: BUNDLED_AMBIENT_LOOP,
+  midnight: BUNDLED_AMBIENT_LOOP,
+  abyss: BUNDLED_AMBIENT_LOOP,
+  trench: BUNDLED_AMBIENT_LOOP
 };
 
 class AmbientAudioManagerImpl {
@@ -48,31 +52,48 @@ class AmbientAudioManagerImpl {
 
   private currentZone: OceanZone | null = null;
   private initialized = false;
+  private initPromise: Promise<void> | null = null;
+  private ambientVolume = DEFAULT_AMBIENT_VOLUME;
 
   async init(): Promise<void> {
     if (this.initialized) return;
-    await setAudioModeAsync({
-      playsInSilentMode: true,
-      shouldPlayInBackground: true,
-      interruptionMode: "duckOthers",
-      interruptionModeAndroid: "duckOthers",
-      shouldRouteThroughEarpiece: false
+    if (this.initPromise) return this.initPromise;
+    this.initPromise = this.configureAudio().finally(() => {
+      this.initialized = true;
+      this.initPromise = null;
     });
-    this.initialized = true;
+    return this.initPromise;
   }
 
   /** Switch zones with a slow crossfade. Safe to call repeatedly. */
   async setZone(zone: OceanZone): Promise<void> {
-    if (this.currentZone === zone) return;
-    this.currentZone = zone;
+    await this.init();
     const next = ZONE_SOURCES[zone];
-    await this.swapLayer("base", next, 0.65);
+    const base = this.layers.base;
+    if (this.currentZone === zone && base.source === next && base.player) {
+      return;
+    }
+    const swapped = await this.swapLayer("base", next, this.ambientVolume);
+    if (swapped) this.currentZone = zone;
   }
 
   async setVolume(layer: AmbientLayer, volume: number): Promise<void> {
     const slot = this.layers[layer];
     slot.volume = clamp01(volume);
     if (slot.player) slot.player.volume = slot.volume;
+  }
+
+  setAmbientVolume(volume: number): void {
+    this.ambientVolume = clamp01(volume);
+    const base = this.layers.base;
+    base.volume = this.ambientVolume;
+    if (base.player) {
+      try {
+        base.player.volume = this.ambientVolume;
+      } catch {
+        // Ignore released-player races.
+      }
+    }
   }
 
   async stopAll(): Promise<void> {
@@ -92,13 +113,41 @@ class AmbientAudioManagerImpl {
         }
       })
     );
+    this.currentZone = null;
+  }
+
+  private async configureAudio(): Promise<void> {
+    try {
+      await setAudioModeAsync({
+        allowsRecording: false,
+        playsInSilentMode: true,
+        shouldPlayInBackground: true,
+        interruptionMode: "duckOthers",
+        interruptionModeAndroid: "duckOthers",
+        shouldRouteThroughEarpiece: false,
+        allowsBackgroundRecording: false
+      });
+    } catch (err) {
+      console.warn("[AmbientAudioManager] audio mode unavailable", err);
+    }
+
+    try {
+      await Asset.loadAsync([BUNDLED_AMBIENT_LOOP]);
+      await preload(BUNDLED_AMBIENT_LOOP, {
+        preferredForwardBufferDuration: PRELOAD_BUFFER_SECONDS
+      });
+    } catch (err) {
+      // Player creation still has its own fallback path; preload is only a
+      // release-build warmup and must never block the app from booting.
+      console.warn("[AmbientAudioManager] preload failed", err);
+    }
   }
 
   private async swapLayer(
     layer: AmbientLayer,
     source: AudioSource | null,
     targetVolume: number
-  ): Promise<void> {
+  ): Promise<boolean> {
     const slot = this.layers[layer];
     const previous = slot.player;
 
@@ -111,10 +160,14 @@ class AmbientAudioManagerImpl {
       slot.player = null;
       slot.source = null;
       slot.volume = 0;
-      return;
+      return true;
     }
 
-    const next = createAudioPlayer(source);
+    const next = createAudioPlayer(source, {
+      keepAudioSessionActive: true,
+      preferredForwardBufferDuration: PRELOAD_BUFFER_SECONDS,
+      updateInterval: 1000
+    });
     try {
       next.loop = true;
       next.volume = 0;
@@ -123,7 +176,7 @@ class AmbientAudioManagerImpl {
       // If loading fails, do nothing destructive — keep previous track playing.
       console.warn("[AmbientAudioManager] load failed", err);
       releasePlayer(next);
-      return;
+      return false;
     }
 
     // Begin crossfade
@@ -137,6 +190,7 @@ class AmbientAudioManagerImpl {
     slot.player = next;
     slot.source = source;
     slot.volume = targetVolume;
+    return true;
   }
 }
 
