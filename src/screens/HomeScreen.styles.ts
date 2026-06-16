@@ -10,11 +10,6 @@ export const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.display,
       letterSpacing: t.fonts.displayLetterSpacing
     },
-    scroll: {
-      padding: t.spacing[5],
-      paddingBottom: t.spacing[24],
-      gap: t.spacing[4]
-    },
     header: { paddingBottom: t.spacing[3], gap: t.spacing[1] },
     greeting: {
       color: t.colors.textSecondary,

@@ -8,6 +8,7 @@ import {
   GlassCard,
   OptionPill,
   PaywallSheet,
+  ScreenScrollView,
   SectionLabel,
   SectionSkeleton,
   Skeleton,
@@ -29,7 +30,7 @@ import { selectCurrentMood, useMoodRecord, useSetMood } from "@/features/mood";
 import { usePremium, useSettings } from "@/stores";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProInsights } from "./ai/ProInsights";
 
@@ -151,10 +152,7 @@ export default function AIScreen() {
         particleCount={32}
       />
       <SafeAreaView style={styles.flex}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScreenScrollView>
           <AppHeader title={tr.ai.title} subtitle={tr.ai.subtitle} size={28} />
           {sessions.length === 0 && (
             <GuidanceCard
@@ -239,7 +237,7 @@ export default function AIScreen() {
               ))}
             </View>
           </GlassCard>
-        </ScrollView>
+        </ScreenScrollView>
       </SafeAreaView>
 
       <PaywallSheet
@@ -279,11 +277,6 @@ function AiCardSkeleton() {
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    scroll: {
-      padding: t.spacing[5],
-      paddingBottom: t.spacing[24],
-      gap: t.spacing[4]
-    },
     body: {
       color: t.colors.text,
       fontSize: 16,

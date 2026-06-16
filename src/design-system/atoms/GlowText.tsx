@@ -79,7 +79,12 @@ export const GlowText = React.memo(function GlowText({
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
           pointerEvents="none"
-          style={[textStyle, styles.backing, animatedStyle]}
+          style={[
+            textStyle,
+            styles.backing,
+            { color: t.colors.panelStrong },
+            animatedStyle
+          ]}
           {...rest}
         >
           {children}
@@ -99,7 +104,6 @@ const styles = StyleSheet.create({
   },
   backing: {
     ...StyleSheet.absoluteFill,
-    color: "rgba(0, 42, 74, 0.35)",
     transform: [{ translateY: 4 }]
   }
 });

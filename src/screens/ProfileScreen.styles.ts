@@ -10,11 +10,6 @@ export const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.display,
       letterSpacing: t.fonts.displayLetterSpacing
     },
-    scroll: {
-      padding: t.spacing[5],
-      paddingBottom: t.spacing[24],
-      gap: t.spacing[4]
-    },
     // Custom profile header
     profileHeader: {
       paddingVertical: t.spacing[4],

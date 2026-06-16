@@ -1,12 +1,13 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import { useTranslations } from "@/core/i18n";
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { useCallback, useMemo, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { GlowText } from "../atoms/GlowText";
+import { PressableCard } from "../atoms/PressableCard";
+import { Sheet } from "../atoms/Sheet";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
-import { GlowText } from "../atoms/GlowText";
-import { Sheet } from "../atoms/Sheet";
-import { PressableCard } from "../atoms/PressableCard";
-import { useTranslations } from "@/core/i18n";
 
 type Props = {
   visible: boolean;
@@ -76,8 +77,10 @@ export function ReminderTimePickerSheet({
       <View style={styles.columns}>
         <View style={styles.column}>
           <Text style={styles.colLabel}>{tr.notifications.hours}</Text>
-          <ScrollView
+          <BottomSheetScrollView
             style={styles.scroll}
+            keyboardShouldPersistTaps="handled"
+            overScrollMode="never"
             showsVerticalScrollIndicator={false}
           >
             {HOURS.map((h) => {
@@ -99,13 +102,15 @@ export function ReminderTimePickerSheet({
                 </Pressable>
               );
             })}
-          </ScrollView>
+          </BottomSheetScrollView>
         </View>
 
         <View style={styles.column}>
           <Text style={styles.colLabel}>{tr.notifications.minutes}</Text>
-          <ScrollView
+          <BottomSheetScrollView
             style={styles.scroll}
+            keyboardShouldPersistTaps="handled"
+            overScrollMode="never"
             showsVerticalScrollIndicator={false}
           >
             {MINUTES.map((m) => {
@@ -127,7 +132,7 @@ export function ReminderTimePickerSheet({
                 </Pressable>
               );
             })}
-          </ScrollView>
+          </BottomSheetScrollView>
         </View>
       </View>
 

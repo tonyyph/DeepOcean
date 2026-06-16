@@ -13,6 +13,7 @@ export { SectionLabel } from "./atoms/SectionLabel";
 export { SettingRow } from "./atoms/SettingRow";
 export { OptionPill } from "./atoms/OptionPill";
 export { AppHeader } from "./atoms/AppHeader";
+export { ScreenScrollView } from "./atoms/ScreenScrollView";
 export { PremiumBadge } from "./atoms/PremiumBadge";
 export { GuidanceCard } from "./atoms/GuidanceCard";
 export { ThemeSwatch } from "./atoms/ThemeSwatch";

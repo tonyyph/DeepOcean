@@ -48,6 +48,9 @@ export const ActionButton = React.memo(function ActionButton({
       : tone === "premium"
         ? t.colors.premium
         : t.colors.accent;
+  const foregroundColor = isPrimary
+    ? readableOn(toneColor, t.colors.background, t.colors.text)
+    : toneColor;
 
   return (
     <Pressable
@@ -102,20 +105,20 @@ export const ActionButton = React.memo(function ActionButton({
         {loading ? (
           <ActivityIndicator
             size="small"
-            color={isPrimary ? t.colors.background : toneColor}
+            color={foregroundColor}
           />
         ) : icon ? (
           <Ionicons
             name={icon}
             size={size === "sm" ? 14 : 16}
-            color={isPrimary ? t.colors.background : toneColor}
+            color={foregroundColor}
           />
         ) : null}
         <Text
           style={[
             styles.label,
             styles[`${size}Label`],
-            { color: isPrimary ? t.colors.background : toneColor }
+            { color: foregroundColor }
           ]}
           numberOfLines={1}
         >
@@ -125,6 +128,21 @@ export const ActionButton = React.memo(function ActionButton({
     </Pressable>
   );
 });
+
+function readableOn(
+  background: string,
+  darkText: string,
+  lightText: string
+): string {
+  const match = /^#?([0-9a-f]{6})$/i.exec(background);
+  if (!match?.[1]) return darkText;
+  const n = parseInt(match[1], 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const luma = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luma > 0.62 ? darkText : lightText;
+}
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
@@ -183,7 +201,7 @@ const makeStyles = (t: AppTheme) =>
     },
     label: {
       fontFamily: t.fonts.label,
-      letterSpacing: 0.2,
+      letterSpacing: 0,
       textAlign: "center",
       flexShrink: 1
     },

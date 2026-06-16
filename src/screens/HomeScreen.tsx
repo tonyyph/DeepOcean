@@ -7,6 +7,7 @@ import {
   GlowText,
   OptionPill,
   PressableCard,
+  ScreenScrollView,
   SectionLabel,
   Skeleton,
   UnderwaterCanvas,
@@ -32,7 +33,7 @@ import React, {
   useMemo,
   useState
 } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { makeStyles } from "./HomeScreen.styles";
 import {
   DailyCompanionSkeleton,
@@ -191,10 +192,7 @@ export default function HomeScreen() {
     <ZoneBackground zone="midnight">
       <UnderwaterCanvas zone="midnight" />
       <SafeAreaView style={styles.flex}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScreenScrollView>
           {/* ── Header ── */}
           <View style={styles.header}>
             <Text style={styles.greeting}>{greeting}</Text>
@@ -307,7 +305,7 @@ export default function HomeScreen() {
               tr={tr}
             />
           )}
-        </ScrollView>
+        </ScreenScrollView>
 
         <FreeDiveModal
           visible={isFreeDiveModalVisible}

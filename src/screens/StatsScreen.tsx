@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,6 +10,7 @@ import {
   AppHeader,
   SectionLabel,
   Skeleton,
+  ScreenScrollView,
   KpiCard,
   ActionButton,
   useTheme,
@@ -54,10 +55,7 @@ export default function StatsScreen() {
       <UnderwaterCanvas zone="abyss" />
 
       <SafeAreaView style={styles.flex}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScreenScrollView>
           <AppHeader
             title={tr.stats.title}
             subtitle={tr.stats.subtitle}
@@ -158,7 +156,7 @@ export default function StatsScreen() {
               ))
             )}
           </GlassCard>
-        </ScrollView>
+        </ScreenScrollView>
       </SafeAreaView>
     </ZoneBackground>
   );
@@ -278,11 +276,6 @@ function buildLast7Days(
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    scroll: {
-      padding: t.spacing[5],
-      paddingBottom: t.spacing[24],
-      gap: t.spacing[4]
-    },
     kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
     dayLabel: {
       color: t.colors.textSecondary,

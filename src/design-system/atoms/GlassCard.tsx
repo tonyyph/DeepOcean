@@ -7,6 +7,7 @@ import { useTheme } from "../useTheme";
 export type GlassCardProps = ViewProps & {
   intensity?: number;
   tint?: "dark" | "light";
+  blur?: boolean;
   glow?: boolean;
   radius?: number;
   /** Inner padding override (defaults to spacing[5]). */
@@ -20,6 +21,7 @@ export type GlassCardProps = ViewProps & {
 export const GlassCard = React.memo(function GlassCard({
   intensity = 6,
   tint = "dark",
+  blur = true,
   glow = false,
   radius,
   padding,
@@ -125,7 +127,7 @@ export const GlassCard = React.memo(function GlassCard({
       ]}
       {...rest}
     >
-      {Platform.OS === "ios" ? (
+      {Platform.OS === "ios" && blur ? (
         <BlurView
           intensity={intensity}
           tint={tint}

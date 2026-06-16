@@ -1,10 +1,11 @@
 import { useTranslations } from "@/core/i18n";
 import { canUseTheme, usePremium, useThemeStore } from "@/stores";
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { MotiView } from "moti";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { PremiumBadge } from "../atoms/PremiumBadge";
 import { GlowText } from "../atoms/GlowText";
+import { PremiumBadge } from "../atoms/PremiumBadge";
 import { PressableCard } from "../atoms/PressableCard";
 import { Sheet } from "../atoms/Sheet";
 import { ThemeSwatch } from "../atoms/ThemeSwatch";
@@ -69,8 +70,13 @@ export function ThemePickerSheet({
     THEME_LIST.find((th) => th.id === selected) ?? THEME_LIST[0]!;
 
   return (
-    <Sheet visible={visible} onDismiss={dismiss}>
-      <View style={styles.container}>
+    <Sheet visible={visible} onDismiss={dismiss} noPadding>
+      <BottomSheetScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        overScrollMode="never"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <GlowText shadow={false} size={20} style={styles.title}>
             {tr.profile.themePickerTitle}
@@ -238,7 +244,7 @@ export function ThemePickerSheet({
             <Text style={styles.cancelText}>{tr.profile.cancel}</Text>
           </PressableCard>
         </View>
-      </View>
+      </BottomSheetScrollView>
     </Sheet>
   );
 }
@@ -272,6 +278,9 @@ function describeThemeCombo(
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     container: {
+      paddingHorizontal: t.spacing[6],
+      paddingTop: t.spacing[4],
+      paddingBottom: t.spacing[8],
       gap: t.spacing[4]
     },
     header: {

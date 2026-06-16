@@ -1,12 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  Share
-} from "react-native";
+import { View, Text, StyleSheet, Pressable, Share } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -17,6 +10,7 @@ import {
   GlowText,
   SectionLabel,
   SessionTimeline,
+  ScreenScrollView,
   DiscoveryTimeline,
   KpiCard,
   ActionButton,
@@ -121,10 +115,7 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
   }, [session, tr, xpEarned]);
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scroll}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScreenScrollView topInset={0}>
       <Text style={styles.date}>{dateLabel}</Text>
 
       <View style={styles.kpiRow}>
@@ -189,7 +180,7 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
           containerStyle={styles.shareButton}
         />
       </GlassCard>
-    </ScrollView>
+    </ScreenScrollView>
   );
 }
 
@@ -215,11 +206,6 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.body,
       fontSize: 14,
       color: t.colors.textMuted
-    },
-    scroll: {
-      paddingHorizontal: t.spacing[5],
-      paddingBottom: t.spacing[24],
-      gap: t.spacing[4]
     },
     date: {
       fontFamily: t.fonts.mono,

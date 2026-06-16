@@ -142,6 +142,8 @@ export default function CollectionScreen() {
           <Text style={styles.filterTitle}>{tr.collection.filters.rarity}</Text>
           <ScrollView
             horizontal
+            overScrollMode="never"
+            scrollEventThrottle={16}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.compactRow}
           >
@@ -314,7 +316,7 @@ const CollectionRow = React.memo(function CollectionRow({
       accessibilityRole="button"
       accessibilityLabel={row.seen ? row.name : tr.collection.story.lockedTitle}
     >
-      <GlassCard radius={t.radii.lg}>
+      <GlassCard radius={t.radii.lg} blur={false}>
         <View style={styles.itemRow}>
           <View
             style={[
@@ -405,7 +407,7 @@ function CollectionRowSkeleton() {
   const styles = useThemedStyles(makeStyles);
 
   return (
-    <GlassCard radius={t.radii.lg}>
+    <GlassCard radius={t.radii.lg} blur={false}>
       <View style={styles.itemRow}>
         <Skeleton
           style={styles.iconBubble}

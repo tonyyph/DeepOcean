@@ -11,6 +11,7 @@ import {
   PremiumBadge,
   PressableCard,
   ReminderTimePickerSheet,
+  ScreenScrollView,
   SectionLabel,
   SettingRow,
   ThemePickerSheet,
@@ -44,7 +45,6 @@ import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Keyboard,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -187,10 +187,7 @@ export default function ProfileScreen() {
     <ZoneBackground zone="trench">
       <UnderwaterCanvas zone="trench" />
       <SafeAreaView style={styles.flex}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScreenScrollView>
           <View style={styles.profileHeader}>
             {!isEditingName && (
               <Text style={styles.headerEyebrow}>{tr.profile.title}</Text>
@@ -445,7 +442,7 @@ export default function ProfileScreen() {
               <Text style={styles.aboutTagline}>{tr.profile.builtWith}</Text>
             </View>
           </GlassCard>
-        </ScrollView>
+        </ScreenScrollView>
       </SafeAreaView>
       <ThemePickerSheet
         visible={themeOpen}
