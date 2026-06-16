@@ -16,6 +16,8 @@
           "audio"
         ],
         "ITSAppUsesNonExemptEncryption": false,
+        "NSSupportsLiveActivities": true,
+        "NSSupportsLiveActivitiesFrequentUpdates": true,
         "NSMicrophoneUsageDescription": "Deep Ocean uses the microphone only when you choose an audio feature that needs recording."
       }
     },

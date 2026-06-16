@@ -53,14 +53,11 @@ export function ReminderTimePickerSheet({
     onDismiss();
   }, [onDismiss]);
 
-  const confirm = useCallback(
-    () => {
-      onConfirm(selHour, selMinute);
-      setDraftHour(null);
-      setDraftMinute(null);
-    },
-    [onConfirm, selHour, selMinute]
-  );
+  const confirm = useCallback(() => {
+    onConfirm(selHour, selMinute);
+    setDraftHour(null);
+    setDraftMinute(null);
+  }, [onConfirm, selHour, selMinute]);
 
   const preview = useMemo(
     () => `${pad(selHour)}:${pad(selMinute)}`,
@@ -69,7 +66,7 @@ export function ReminderTimePickerSheet({
 
   return (
     <Sheet visible={visible} onDismiss={dismiss}>
-      <GlowText size={20} style={styles.title}>
+      <GlowText size={20} shadow={false} style={styles.title}>
         {tr.notifications.pickerTitle}
       </GlowText>
       <Text style={styles.subtitle}>{tr.notifications.pickerSubtitle}</Text>

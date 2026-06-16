@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { spawnSync } = require("child_process");
 const {
   withAndroidManifest,
   withDangerousMod,
@@ -16,6 +17,23 @@ function writeFile(projectRoot, relativePath, content) {
   const absPath = path.join(projectRoot, relativePath);
   ensureDir(path.dirname(absPath));
   fs.writeFileSync(absPath, content, "utf8");
+}
+
+function runIosWidgetPatcher(projectRoot) {
+  const scriptPath = path.join(projectRoot, "scripts/patch-ios-widget-target.rb");
+  if (!fs.existsSync(scriptPath)) {
+    throw new Error(`Missing iOS widget patcher at ${scriptPath}`);
+  }
+
+  const result = spawnSync("ruby", [scriptPath], {
+    cwd: projectRoot,
+    stdio: "inherit"
+  });
+  if (result.status !== 0) {
+    throw new Error(
+      `iOS widget patcher failed with exit code ${result.status ?? "unknown"}`
+    );
+  }
 }
 
 function addOrUpdateString(resources, name, value) {
@@ -710,6 +728,8 @@ struct DeepOceanFocusWidget: Widget {
 }
 `
       );
+
+      runIosWidgetPatcher(modConfig.modRequest.projectRoot);
 
       return modConfig;
     }

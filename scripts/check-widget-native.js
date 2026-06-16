@@ -53,6 +53,11 @@ const requiredFiles = [
   "android/app/src/main/res/xml/focus_widget_info.xml",
   "ios/Widgets/DeepOceanFocusWidget.swift",
   "ios/Widgets/DeepOceanWidgetIntents.swift",
+  "ios/Widgets/DeepOceanWidgetBundle.swift",
+  "ios/Widgets/DeepOceanDiveAttributes.swift",
+  "ios/Widgets/DeepOceanDiveLiveActivity.swift",
+  "ios/DeepOcean/DeepOceanLiveActivity.swift",
+  "ios/DeepOcean/DeepOceanLiveActivityBridge.m",
   "ios/DeepOcean/DeepOcean.entitlements"
 ];
 
@@ -84,9 +89,19 @@ expectContains(
   "ios dedicated widget URL scheme"
 );
 expectContains(
+  "ios/DeepOcean/Info.plist",
+  "NSSupportsLiveActivities",
+  "ios live activities info plist flag"
+);
+expectContains(
   "app.json",
   "./plugins/with-focus-widget",
   "plugin registration"
+);
+expectContains(
+  "app.json",
+  "NSSupportsLiveActivities",
+  "app config live activities flag"
 );
 
 const pbxprojPath = "ios/DeepOcean.xcodeproj/project.pbxproj";
@@ -104,6 +119,21 @@ expectContains(
   pbxprojPath,
   "Embed App Extensions",
   "ios embed app extensions build phase"
+);
+expectContains(
+  pbxprojPath,
+  "DeepOceanLiveActivity.swift",
+  "ios app live activity native module source"
+);
+expectContains(
+  pbxprojPath,
+  "DeepOceanDiveAttributes.swift",
+  "ios live activity attributes source"
+);
+expectContains(
+  pbxprojPath,
+  "DeepOceanDiveLiveActivity.swift",
+  "ios widget live activity source"
 );
 
 if (process.exitCode && process.exitCode !== 0) {

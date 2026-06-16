@@ -72,7 +72,7 @@ export function ThemePickerSheet({
     <Sheet visible={visible} onDismiss={dismiss}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <GlowText size={20} style={styles.title}>
+          <GlowText shadow={false} size={20} style={styles.title}>
             {tr.profile.themePickerTitle}
           </GlowText>
           <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>

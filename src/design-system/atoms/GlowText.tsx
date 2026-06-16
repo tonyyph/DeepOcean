@@ -15,6 +15,7 @@ type Props = TextProps & {
   color?: string;
   size?: number;
   pulse?: boolean;
+  shadow?: boolean;
   children: React.ReactNode;
 };
 
@@ -27,6 +28,7 @@ export const GlowText = React.memo(function GlowText({
   color,
   size = 16,
   pulse = false,
+  shadow = true,
   style,
   children,
   ...rest
@@ -72,15 +74,17 @@ export const GlowText = React.memo(function GlowText({
 
   return (
     <View style={styles.wrap}>
-      <Animated.Text
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        pointerEvents="none"
-        style={[textStyle, styles.backing, animatedStyle]}
-        {...rest}
-      >
-        {children}
-      </Animated.Text>
+      {shadow && (
+        <Animated.Text
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          pointerEvents="none"
+          style={[textStyle, styles.backing, animatedStyle]}
+          {...rest}
+        >
+          {children}
+        </Animated.Text>
+      )}
       <Animated.Text style={[textStyle, animatedStyle]} {...rest}>
         {children}
       </Animated.Text>

@@ -61,7 +61,9 @@ export default function SessionDetailScreen() {
           >
             <Ionicons name="chevron-back" size={24} color={t.colors.text} />
           </Pressable>
-          <GlowText size={18}>{tr.sessionDetail.title}</GlowText>
+          <GlowText shadow={false} size={24}>
+            {tr.sessionDetail.title}
+          </GlowText>
           <View style={styles.backBtn} />
         </View>
 
