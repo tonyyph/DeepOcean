@@ -186,8 +186,12 @@ export default function DiveScreen() {
   const isPaused = session.status === "paused";
 
   return (
-    <ZoneBackground zone={session.zone}>
-      <UnderwaterCanvas zone={session.zone} particleCount={40} />
+    <ZoneBackground
+      zone={
+        "midnight" /* Always show midnight zone in the background for better contrast */
+      }
+    >
+      <UnderwaterCanvas zone={"midnight"} particleCount={12} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.topBlock}>
           <DepthIndicator
