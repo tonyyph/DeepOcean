@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -33,6 +32,7 @@ import {
   type PlanId
 } from "./PaywallSheet.constants";
 import { makeStyles } from "./PaywallSheet.styles";
+import { Pressable } from "react-native-gesture-handler";
 
 type Props = {
   visible: boolean;

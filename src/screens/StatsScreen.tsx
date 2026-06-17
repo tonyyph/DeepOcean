@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "moti";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,6 +21,7 @@ import {
 import { useSessions, useDiverProfile } from "@/features/diver";
 import type { DiveSession } from "@/domain/entities";
 import { useTranslations } from "@/core/i18n";
+import { Pressable } from "react-native-gesture-handler";
 
 export default function StatsScreen() {
   const { data: sessions = [], isLoading: sessionsLoading } = useSessions();

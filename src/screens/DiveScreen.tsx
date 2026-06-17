@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useRef
 } from "react";
-import { View, Text, StyleSheet, Pressable, BackHandler } from "react-native";
+import { View, Text, StyleSheet, BackHandler } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "moti";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
@@ -32,6 +32,7 @@ import { useTranslations } from "@/core/i18n";
 import { useDiveEventEngine } from "@/features/discovery";
 import type { OceanZone } from "@/features/ocean/zones";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
+import { Pressable } from "react-native-gesture-handler";
 
 type DialogConfig = {
   title: string;

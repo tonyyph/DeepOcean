@@ -7,7 +7,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import {
   Modal,
-  Pressable,
   Animated as RNAnimated,
   StyleSheet,
   Text,
@@ -24,6 +23,7 @@ import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { GlowText } from "./GlowText";
 import { Colors } from "@/theme";
+import { Pressable } from "react-native-gesture-handler";
 
 const ZONE_ICONS: Record<OceanZone, keyof typeof Ionicons.glyphMap> = {
   surface: "sunny-outline",

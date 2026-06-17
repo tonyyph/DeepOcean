@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import {
   Modal,
-  Pressable,
   StyleSheet,
   Text,
   View,
@@ -24,6 +23,7 @@ import { GlowText } from "./GlowText";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { useTranslations } from "@/core/i18n";
 import { Colors } from "@/theme";
+import { Pressable } from "react-native-gesture-handler";
 
 const AUTO_DISMISS_MS = 5500;
 

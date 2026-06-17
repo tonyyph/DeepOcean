@@ -3,14 +3,7 @@ import { useTranslations, type Translations } from "@/core/i18n";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import {
   ActionButton,
   GlassCard,
@@ -30,6 +23,7 @@ import {
   useNotificationCenter
 } from "@/features/notifications";
 import { SafeAreaView } from "moti";
+import { Pressable } from "react-native-gesture-handler";
 
 type FilterMode = "all" | "unread";
 

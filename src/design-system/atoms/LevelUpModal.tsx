@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import {
   Modal,
-  Pressable,
   StyleSheet,
   Text,
   View,
@@ -26,6 +25,7 @@ import { getLevelTitle } from "@/features/diver/levelSystem";
 import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
 import { Colors, Gradients, Shadows } from "@/theme";
+import { Pressable } from "react-native-gesture-handler";
 
 const AUTO_DISMISS_MS = 6000;
 

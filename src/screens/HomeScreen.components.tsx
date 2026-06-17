@@ -15,6 +15,10 @@ import {
   ZONE_TABLE
 } from "@/features/ocean";
 import type { OceanZone } from "@/features/ocean/zones";
+import type {
+  AIRecommendation,
+  RecommendedWorkflow
+} from "@/domain/entities";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -95,6 +99,88 @@ export function DailyCompanionSkeleton() {
         widths={["100%", "72%"]}
         lineHeight={14}
       />
+    </GlassCard>
+  );
+}
+
+export function PersonalizedPlanCard({
+  recommendation,
+  workflowId,
+  isPremium,
+  onUnlock,
+  tr
+}: {
+  recommendation: AIRecommendation | null;
+  workflowId: RecommendedWorkflow["id"] | null;
+  isPremium: boolean;
+  onUnlock: () => void;
+  tr: ReturnType<typeof useTranslations>;
+}) {
+  const t = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const workflow =
+    recommendation?.recommendedWorkflow ??
+    (workflowId ? tr.onboarding.workflowOptions[workflowId] : null);
+  if (!workflow) return null;
+  const previewItems = recommendation?.recommendedItems.slice(0, isPremium ? 3 : 2) ?? [];
+
+  return (
+    <GlassCard
+      radius={t.radii.md}
+      padding={t.spacing[4]}
+      glow={isPremium}
+      style={styles.personalPlanCard}
+    >
+      <View style={styles.personalPlanHeader}>
+        <View style={styles.personalPlanTitleRow}>
+          <Ionicons
+            name={isPremium ? "diamond" : "compass"}
+            size={16}
+            color={isPremium ? t.colors.premium : t.colors.accent}
+          />
+          <SectionLabel>{tr.home.personalPlanTitle}</SectionLabel>
+        </View>
+      </View>
+      {!isPremium && (
+        <View style={styles.personalPlanLock}>
+          <Ionicons name="lock-closed" size={12} color={t.colors.premium} />
+          <Text style={styles.personalPlanLockText}>{tr.profile.proOnly}</Text>
+        </View>
+      )}
+      <Text style={styles.personalPlanName}>{workflow.title}</Text>
+      <Text style={styles.companionBody}>{workflow.description}</Text>
+      <View style={styles.personalPlanSteps}>
+        {workflow.steps.slice(0, 3).map((step, index) => (
+          <View key={`${workflow.id}.${step}`} style={styles.personalPlanStep}>
+            <Text style={styles.personalPlanStepIndex}>{index + 1}</Text>
+            <Text style={styles.personalPlanStepText}>{step}</Text>
+          </View>
+        ))}
+      </View>
+      {previewItems.length > 0 && (
+        <View style={styles.personalPlanItems}>
+          {previewItems.map((item) => (
+            <Text key={item.id} style={styles.personalPlanItem} numberOfLines={1}>
+              {item.isPremium && !isPremium ? "* " : "- "}
+              {item.title}
+            </Text>
+          ))}
+        </View>
+      )}
+      {!isPremium && (
+        <>
+          <View style={styles.personalPlanFade} />
+          <ActionButton
+            label={tr.home.personalPlanUnlock}
+            icon="sparkles"
+            tone="premium"
+            size="sm"
+            fullWidth
+            onPress={onUnlock}
+            containerStyle={styles.personalPlanCta}
+          />
+        </>
+      )}
     </GlassCard>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, Pressable, Share } from "react-native";
+import { View, Text, StyleSheet, Share } from "react-native";
 import { SafeAreaView } from "moti";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -23,6 +23,7 @@ import { xpForSession } from "@/features/diver/levelSystem";
 import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
 import type { DiveSession } from "@/domain/entities";
+import { Pressable } from "react-native-gesture-handler";
 
 function formatDuration(seconds: number): string {
   const totalMin = Math.round(seconds / 60);

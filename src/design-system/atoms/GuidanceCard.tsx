@@ -1,11 +1,12 @@
 import { storage } from "@/core/storage/mmkv";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { GlassCard } from "./GlassCard";
+import { Pressable } from "react-native-gesture-handler";
 
 type Props = {
   storageKey: string;

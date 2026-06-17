@@ -3,7 +3,7 @@ import Slider from "@react-native-community/slider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -15,6 +15,7 @@ import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { ActionButton } from "./ActionButton";
 import { GlowText } from "./GlowText";
+import { Pressable } from "react-native-gesture-handler";
 
 type Props = {
   visible: boolean;

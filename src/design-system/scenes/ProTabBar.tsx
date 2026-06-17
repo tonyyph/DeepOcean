@@ -9,7 +9,7 @@ import type {
   Route
 } from "expo-router/build/react-navigation/native";
 import { useEffect, useMemo } from "react";
-import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
   useAnimatedProps,
@@ -21,6 +21,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
+import { Pressable } from "react-native-gesture-handler";
 
 type IconPair = {
   active: keyof typeof Ionicons.glyphMap;

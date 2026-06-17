@@ -28,7 +28,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
 import React, { useCallback, useMemo, useState } from "react";
 import {
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -37,6 +36,7 @@ import {
 } from "react-native";
 import { makeStyles } from "./CollectionScreen.styles";
 import { SafeAreaView } from "moti";
+import { Pressable } from "react-native-gesture-handler";
 
 type RarityFilter =
   | "all"

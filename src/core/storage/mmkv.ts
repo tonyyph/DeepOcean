@@ -35,6 +35,7 @@ export const StorageKeys = {
   collection: "discovery.collection",
   sessions: "sessions.history",
   settings: "app.settings",
+  personalization: "app.personalization",
   theme: "app.theme",
   premium: "app.premium",
   achievements: "app.achievements",

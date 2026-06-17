@@ -3,7 +3,7 @@ import { canUseTheme, usePremium, useThemeStore } from "@/stores";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { MotiView } from "moti";
 import { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { GlowText } from "../atoms/GlowText";
 import { PremiumBadge } from "../atoms/PremiumBadge";
 import { PressableCard } from "../atoms/PressableCard";
@@ -13,6 +13,7 @@ import type { AppTheme, ThemeId } from "../themes";
 import { combineThemes, THEME_LIST, THEMES } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
+import { Pressable } from "react-native-gesture-handler";
 
 const SWATCH_SIZE = 62;
 const SWATCH_ITEM_WIDTH = 92;
@@ -31,7 +32,7 @@ type Props = {
 export function ThemePickerSheet({
   visible,
   onDismiss,
-  onRequestPaywall,
+  onRequestPaywall
 }: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
@@ -57,7 +58,7 @@ export function ThemePickerSheet({
       }
       setDraftTheme(id);
     },
-    [isPremium, unlocked, onRequestPaywall],
+    [isPremium, unlocked, onRequestPaywall]
   );
 
   const handleApply = useCallback(() => {
@@ -88,14 +89,14 @@ export function ThemePickerSheet({
             styles.membershipBanner,
             isPremium
               ? styles.membershipBannerPremium
-              : styles.membershipBannerFree,
+              : styles.membershipBannerFree
           ]}
         >
           <Text style={styles.membershipBannerTitle}>
             {isPremium
               ? tr.profile.themePickerPremiumActive
               : tr.profile.themeLockedCount(
-                  THEME_LIST.filter((theme) => theme.premium).length,
+                  THEME_LIST.filter((theme) => theme.premium).length
                 )}
           </Text>
         </View>
@@ -116,7 +117,7 @@ export function ThemePickerSheet({
                 style={[
                   styles.swatchItem,
                   isSelected && styles.swatchItemSelected,
-                  locked && styles.swatchItemLocked,
+                  locked && styles.swatchItemLocked
                 ]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
@@ -147,7 +148,7 @@ export function ThemePickerSheet({
                   minimumFontScale={0.82}
                   style={[
                     styles.swatchLabel,
-                    isSelected && { color: th.colors.accent },
+                    isSelected && { color: th.colors.accent }
                   ]}
                 >
                   {th.name}
@@ -162,14 +163,14 @@ export function ThemePickerSheet({
             <View
               style={[
                 styles.previewAccent,
-                { backgroundColor: previewTheme.colors.accent },
+                { backgroundColor: previewTheme.colors.accent }
               ]}
             />
             <Text
               numberOfLines={1}
               style={[
                 styles.previewName,
-                { color: previewTheme.colors.accent },
+                { color: previewTheme.colors.accent }
               ]}
             >
               {previewTheme.name}
@@ -187,7 +188,7 @@ export function ThemePickerSheet({
                 {[
                   previewTheme.colors.accent,
                   previewTheme.colors.accentSoft,
-                  previewTheme.colors.background,
+                  previewTheme.colors.background
                 ].map((color) => (
                   <View
                     key={color}
@@ -251,7 +252,7 @@ export function ThemePickerSheet({
 
 function describeThemeCombo(
   theme: AppTheme,
-  tr: ReturnType<typeof useTranslations>,
+  tr: ReturnType<typeof useTranslations>
 ): string {
   if (theme.combo?.ingredients) {
     const [first, second] = theme.combo.ingredients;
@@ -260,7 +261,7 @@ function describeThemeCombo(
     return tr.profile.themeFusionDescription(
       firstTheme.element,
       secondTheme.element,
-      theme.name,
+      theme.name
     );
   }
 
@@ -281,10 +282,10 @@ const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[6],
       paddingTop: t.spacing[4],
       paddingBottom: t.spacing[8],
-      gap: t.spacing[4],
+      gap: t.spacing[4]
     },
     header: {
-      gap: t.spacing[1],
+      gap: t.spacing[1]
     },
     membershipBanner: {
       borderRadius: t.radii.md,
@@ -292,15 +293,15 @@ const makeStyles = (t: AppTheme) =>
       paddingHorizontal: t.spacing[4],
       paddingVertical: t.spacing[3],
       minHeight: 44,
-      justifyContent: "center",
+      justifyContent: "center"
     },
     membershipBannerPremium: {
       borderColor: t.colors.borderStrong,
-      backgroundColor: t.colors.panelStrong,
+      backgroundColor: t.colors.panelStrong
     },
     membershipBannerFree: {
       borderColor: t.colors.borderStrong,
-      backgroundColor: t.colors.panelStrong,
+      backgroundColor: t.colors.panelStrong
     },
     membershipBannerTitle: {
       color: t.colors.text,
@@ -308,29 +309,29 @@ const makeStyles = (t: AppTheme) =>
       lineHeight: 17,
       letterSpacing: 0.6,
       fontFamily: t.fonts.label,
-      textAlign: "center",
+      textAlign: "center"
     },
     title: {
       color: t.colors.text,
       fontSize: 20,
       fontFamily: t.fonts.display,
       letterSpacing: t.fonts.displayLetterSpacing,
-      textAlign: "center",
+      textAlign: "center"
     },
     subtitle: {
       color: t.colors.textMuted,
       fontSize: 13,
       lineHeight: 19,
       fontFamily: t.fonts.body,
-      textAlign: "center",
+      textAlign: "center"
     },
     swatchScroll: {
-      marginHorizontal: -t.spacing[6],
+      marginHorizontal: -t.spacing[6]
     },
     swatchRow: {
       gap: t.spacing[3],
       paddingVertical: t.spacing[2],
-      paddingHorizontal: t.spacing[6],
+      paddingHorizontal: t.spacing[6]
     },
     swatchItem: {
       alignItems: "center",
@@ -342,19 +343,19 @@ const makeStyles = (t: AppTheme) =>
       paddingVertical: t.spacing[2],
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "transparent",
+      borderColor: "transparent"
     },
     swatchItemSelected: {
       borderColor: t.colors.panelEdge,
-      backgroundColor: t.colors.panel,
+      backgroundColor: t.colors.panel
     },
     swatchMotion: {
       alignItems: "center",
       justifyContent: "center",
-      minHeight: SWATCH_SIZE + 10,
+      minHeight: SWATCH_SIZE + 10
     },
     swatchItemLocked: {
-      opacity: 0.72,
+      opacity: 0.72
     },
     swatchLabel: {
       color: t.colors.textSecondary,
@@ -362,12 +363,12 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.label,
       letterSpacing: 0.8,
       maxWidth: SWATCH_ITEM_WIDTH - t.spacing[3],
-      textAlign: "center",
+      textAlign: "center"
     },
     lockBadge: {
       position: "absolute",
       top: 2,
-      right: -8,
+      right: -8
     },
     previewCard: {
       padding: t.spacing[4],
@@ -375,29 +376,29 @@ const makeStyles = (t: AppTheme) =>
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.panelEdge,
       backgroundColor: t.colors.panel,
-      gap: t.spacing[3],
+      gap: t.spacing[3]
     },
     previewHeader: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[2],
+      gap: t.spacing[2]
     },
     previewAccent: {
       width: 4,
       height: 24,
-      borderRadius: 2,
+      borderRadius: 2
     },
     previewName: {
       flex: 1,
       fontSize: 18,
       fontFamily: t.fonts.display,
-      letterSpacing: t.fonts.displayLetterSpacing,
+      letterSpacing: t.fonts.displayLetterSpacing
     },
     previewDesc: {
       color: t.colors.textSecondary,
       fontSize: 14,
       lineHeight: 20,
-      fontFamily: t.fonts.body,
+      fontFamily: t.fonts.body
     },
     comboPanel: {
       borderRadius: t.radii.s,
@@ -406,7 +407,7 @@ const makeStyles = (t: AppTheme) =>
       backgroundColor: t.colors.panelStrong,
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[2],
-      gap: t.spacing[1],
+      gap: t.spacing[1]
     },
     palettePanel: {
       borderRadius: t.radii.s,
@@ -415,30 +416,30 @@ const makeStyles = (t: AppTheme) =>
       backgroundColor: t.colors.panelStrong,
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[2],
-      gap: t.spacing[1.5],
+      gap: t.spacing[1.5]
     },
     paletteHeader: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      gap: t.spacing[2],
+      gap: t.spacing[2]
     },
     paletteDots: {
       flexDirection: "row",
-      gap: t.spacing[1],
+      gap: t.spacing[1]
     },
     paletteDot: {
       width: 16,
       height: 16,
       borderRadius: 8,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
+      borderColor: t.colors.border
     },
     paletteLine: {
       color: t.colors.textSecondary,
       fontSize: 11,
       lineHeight: 16,
-      fontFamily: t.fonts.body,
+      fontFamily: t.fonts.body
     },
     effectPanel: {
       borderRadius: t.radii.s,
@@ -447,25 +448,25 @@ const makeStyles = (t: AppTheme) =>
       backgroundColor: t.colors.panelStrong,
       paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[2],
-      gap: t.spacing[1],
+      gap: t.spacing[1]
     },
     comboTitle: {
       color: t.colors.accent,
       fontSize: 11,
       letterSpacing: 0.8,
       fontFamily: t.fonts.label,
-      textTransform: "uppercase",
+      textTransform: "uppercase"
     },
     comboBody: {
       color: t.colors.textSecondary,
       fontSize: 12,
       lineHeight: 17,
-      fontFamily: t.fonts.body,
+      fontFamily: t.fonts.body
     },
     previewMeta: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: t.spacing[2],
+      gap: t.spacing[2]
     },
     previewMetaPill: {
       flexGrow: 1,
@@ -476,17 +477,17 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.s,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.panelEdge,
-      backgroundColor: t.colors.panelStrong,
+      backgroundColor: t.colors.panelStrong
     },
     previewMetaItem: {
       color: t.colors.textMuted,
       fontSize: 11,
       letterSpacing: 0.8,
       fontFamily: t.fonts.label,
-      textTransform: "uppercase",
+      textTransform: "uppercase"
     },
     actions: {
-      gap: t.spacing[3],
+      gap: t.spacing[3]
     },
     applyText: {
       color: t.colors.text,
@@ -494,7 +495,7 @@ const makeStyles = (t: AppTheme) =>
       letterSpacing: 1,
       fontSize: 13,
       fontFamily: t.fonts.label,
-      paddingVertical: t.spacing[1],
+      paddingVertical: t.spacing[1]
     },
     cancelText: {
       color: t.colors.textSecondary,
@@ -502,6 +503,6 @@ const makeStyles = (t: AppTheme) =>
       letterSpacing: 1,
       fontSize: 12,
       fontFamily: t.fonts.label,
-      paddingVertical: t.spacing[1],
-    },
+      paddingVertical: t.spacing[1]
+    }
   });

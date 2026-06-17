@@ -1,5 +1,4 @@
 import { useTranslations, type Language } from "@/core/i18n";
-import { storage, StorageKeys } from "@/core/storage/mmkv";
 import { container } from "@/data/container";
 import {
   GlassCard,
@@ -34,6 +33,7 @@ import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { useDiveReminders } from "@/features/notifications";
 import {
   useAchievements,
+  usePersonalization,
   usePremium,
   useSettings,
   useThemeStore,
@@ -77,6 +77,7 @@ export default function ProfileScreen() {
   const isPremium = usePremium((s) => s.isPremium);
   const debugPremiumEnabled = usePremium((s) => s.debugPremiumEnabled);
   const setDebugPremiumEnabled = usePremium((s) => s.setDebugPremiumEnabled);
+  const resetOnboarding = usePersonalization((s) => s.resetOnboarding);
   const alreadyUnlocked = useAchievements((s) => s.unlockedTitleAchievements);
   const persistTitleAchievements = useAchievements(
     (s) => s.persistTitleAchievements,
@@ -397,6 +398,22 @@ export default function ProfileScreen() {
             <SectionLabel>{tr.profile.account}</SectionLabel>
             <SettingRow
               type="nav"
+              title={tr.profile.changeGoals}
+              subtitle={tr.profile.changeGoalsDesc}
+              icon={
+                <Ionicons
+                  name="compass-outline"
+                  size={22}
+                  color={t.colors.textSecondary}
+                />
+              }
+              onPress={() => {
+                resetOnboarding();
+                router.replace("/onboarding");
+              }}
+            />
+            <SettingRow
+              type="nav"
               title={tr.profile.replayOnboarding}
               icon={
                 <Ionicons
@@ -406,7 +423,7 @@ export default function ProfileScreen() {
                 />
               }
               onPress={() => {
-                storage.delete(StorageKeys.onboardingComplete);
+                resetOnboarding();
                 router.replace("/onboarding");
               }}
               divider={false}

@@ -3,7 +3,7 @@ import type { AppTheme } from "@/design-system";
 
 export const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
-    flex: { flex: 1 },
+    flex: { flex: 1, minWidth: 0 },
     base: {
       color: t.colors.accent,
       fontSize: 36,
@@ -116,22 +116,27 @@ export const makeStyles = (t: AppTheme) =>
     },
     premiumActiveRow: {
       flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[3.5]
+      alignItems: "flex-start",
+      gap: t.spacing[3],
+      flexWrap: "wrap"
     },
     premiumCrest: {
       width: 44,
       height: 44,
       borderRadius: t.radii.md,
       alignItems: "center",
-      justifyContent: "center"
+      justifyContent: "center",
+      flexShrink: 0
     },
     premiumCrestLocked: {
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.borderStrong,
       backgroundColor: t.colors.panelStrong
     },
-    premiumText: { flex: 1 },
+    premiumText: {
+      flex: 1,
+      minWidth: 0
+    },
     premiumTitle: {
       color: t.colors.text,
       fontSize: 16,
@@ -143,6 +148,46 @@ export const makeStyles = (t: AppTheme) =>
       fontSize: 12,
       marginTop: 2,
       fontFamily: t.fonts.body
+    },
+    premiumDashboardGrid: {
+      gap: t.spacing[2],
+      marginTop: t.spacing[4]
+    },
+    premiumSignal: {
+      minHeight: 66,
+      borderRadius: t.radii.sm,
+      backgroundColor: t.colors.glass,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.borderStrong,
+      padding: t.spacing[3],
+      justifyContent: "center"
+    },
+    premiumSignalLabel: {
+      color: t.colors.textMuted,
+      fontFamily: t.fonts.label,
+      fontSize: 9,
+      letterSpacing: 0.4,
+      marginTop: t.spacing[2]
+    },
+    premiumSignalValue: {
+      color: t.colors.text,
+      fontFamily: t.fonts.body,
+      fontSize: 12,
+      lineHeight: 16,
+      marginTop: t.spacing[1]
+    },
+    premiumPreviewGrid: {
+      gap: t.spacing[1.5],
+      marginTop: t.spacing[4],
+      paddingTop: t.spacing[3],
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: t.colors.panelEdge
+    },
+    premiumPreviewText: {
+      color: t.colors.textSecondary,
+      fontFamily: t.fonts.body,
+      fontSize: 12,
+      lineHeight: 17
     },
     nameEditCard: {
       flex: 1,

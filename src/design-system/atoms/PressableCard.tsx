@@ -1,11 +1,5 @@
 import React, { useCallback } from "react";
-import {
-  Pressable,
-  PressableProps,
-  View,
-  ViewStyle,
-  StyleSheet
-} from "react-native";
+import { View, ViewStyle, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -16,6 +10,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "../useTheme";
 import { useSettings } from "@/stores";
 import { GlassCard } from "./GlassCard";
+import { Pressable, PressableProps } from "react-native-gesture-handler";
 
 type Props = PressableProps & {
   haptic?: "light" | "medium" | "heavy" | "selection" | null;

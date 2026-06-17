@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet, Switch, Pressable } from "react-native";
+import { View, Text, StyleSheet, Switch } from "react-native";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
+import { Pressable } from "react-native-gesture-handler";
 
 type SwitchRow = {
   type: "switch";

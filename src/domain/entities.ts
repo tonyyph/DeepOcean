@@ -198,6 +198,57 @@ export type AppSettings = {
   showDiscoveryAlerts: boolean;
 };
 
+export type GoalId =
+  | "improve_focus"
+  | "build_consistency"
+  | "reduce_stress"
+  | "learn_better"
+  | "track_progress"
+  | "build_daily_routine"
+  | "stay_motivated"
+  | "improve_productivity";
+
+export type RecommendedItem = {
+  id: string;
+  title: string;
+  description: string;
+  reason: string;
+  isPremium?: boolean;
+};
+
+export type RecommendedWorkflow = {
+  id:
+    | "daily_focus"
+    | "deep_work"
+    | "recovery"
+    | "learning"
+    | "habit_building";
+  title: string;
+  description: string;
+  steps: string[];
+  estimatedTime?: string;
+  isPremium?: boolean;
+};
+
+export type AIRecommendation = {
+  recommendedItems: RecommendedItem[];
+  recommendedWorkflow: RecommendedWorkflow;
+  shortExplanation: string;
+  generatedAt: number;
+  source: "ai" | "fallback" | "cache";
+};
+
+export type OnboardingPersonalization = {
+  onboardingCompleted: boolean;
+  onboardingVersion: number;
+  selectedGoals: GoalId[];
+  selectedRecommendedItems: string[];
+  selectedWorkflow: RecommendedWorkflow["id"] | null;
+  lastActiveWorkflow: RecommendedWorkflow["id"] | null;
+  lastAIRecommendation: AIRecommendation | null;
+  premiumPreference: "curious" | "not_now" | "unknown";
+};
+
 /**
  * Persisted record of the OS-level daily reminder we have scheduled.
  * Used to cancel/replace the exact notification across restarts and to

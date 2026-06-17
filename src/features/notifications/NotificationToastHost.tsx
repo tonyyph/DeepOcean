@@ -6,9 +6,9 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslations } from "@/core/i18n";
@@ -16,6 +16,7 @@ import { NotificationService } from "@/core/notifications/NotificationService";
 import { GlassCard, useTheme } from "@/design-system";
 import type { NotificationMessage } from "@/domain/entities";
 import { useNotificationCenter } from "./notificationCenter";
+import { Pressable } from "react-native-gesture-handler";
 
 const TOAST_MS = 4200;
 
@@ -23,7 +24,7 @@ const iconByType = {
   success: "checkmark-circle",
   error: "alert-circle",
   warning: "warning",
-  info: "notifications",
+  info: "notifications"
 } as const;
 
 export function NotificationToastHost() {
@@ -50,7 +51,7 @@ export function NotificationToastHost() {
         router.push(message.deepLink as never);
       }
     },
-    [markRead, router],
+    [markRead, router]
   );
 
   const showToast = useCallback((message: NotificationMessage) => {
@@ -64,7 +65,7 @@ export function NotificationToastHost() {
   const persistNotification = useCallback(
     async (
       notification: Notifications.Notification,
-      options?: { foregroundToast?: boolean },
+      options?: { foregroundToast?: boolean }
     ) => {
       const request = notification.request;
       const content = request.content;
@@ -80,12 +81,12 @@ export function NotificationToastHost() {
         type: notificationTypeFromKind(data.kind),
         deepLink: typeof data.deepLink === "string" ? data.deepLink : null,
         source: "system",
-        createdAt: notification.date,
+        createdAt: notification.date
       });
       if (options?.foregroundToast) showToast(message);
       return message;
     },
-    [record, showToast, tr],
+    [record, showToast, tr]
   );
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export function NotificationToastHost() {
 
   const toastStyle = useMemo(
     () => [styles.wrap, { top: insets.top + t.spacing[2] }],
-    [insets.top, t.spacing],
+    [insets.top, t.spacing]
   );
 
   if (!toast) return null;
@@ -131,8 +132,8 @@ export function NotificationToastHost() {
                 styles.iconWrap,
                 {
                   backgroundColor: t.colors.glass,
-                  borderColor: t.colors.panelEdge,
-                },
+                  borderColor: t.colors.panelEdge
+                }
               ]}
             >
               <Ionicons
@@ -170,7 +171,7 @@ function notificationTypeFromKind(kind: unknown): NotificationMessage["type"] {
 
 function toneColor(
   type: NotificationMessage["type"],
-  colors: ReturnType<typeof useTheme>["colors"],
+  colors: ReturnType<typeof useTheme>["colors"]
 ): string {
   if (type === "success") return colors.success;
   if (type === "error") return colors.danger;
@@ -183,12 +184,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 16,
     right: 16,
-    zIndex: 1200,
+    zIndex: 1200
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 12
   },
   iconWrap: {
     width: 38,
@@ -196,20 +197,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: StyleSheet.hairlineWidth
   },
   textWrap: {
     flex: 1,
-    minWidth: 0,
+    minWidth: 0
   },
   title: {
     fontFamily: "Sora_600SemiBold",
-    fontSize: 14,
+    fontSize: 14
   },
   body: {
     fontFamily: "Inter_400Regular",
     fontSize: 12,
     lineHeight: 17,
-    marginTop: 2,
-  },
+    marginTop: 2
+  }
 });

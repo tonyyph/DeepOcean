@@ -1,13 +1,14 @@
 import { useTranslations } from "@/core/i18n";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useCallback, useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { GlowText } from "../atoms/GlowText";
 import { PressableCard } from "../atoms/PressableCard";
 import { Sheet } from "../atoms/Sheet";
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
+import { Pressable } from "react-native-gesture-handler";
 
 type Props = {
   visible: boolean;

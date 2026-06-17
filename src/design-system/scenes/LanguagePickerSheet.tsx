@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
@@ -7,10 +7,11 @@ import { GlowText } from "../atoms/GlowText";
 import { Sheet } from "../atoms/Sheet";
 import { PressableCard } from "../atoms/PressableCard";
 import { useTranslations, type Language } from "@/core/i18n";
+import { Pressable } from "react-native-gesture-handler";
 
 const LANGUAGES: { code: Language; native: string }[] = [
   { code: "en", native: "EN" },
-  { code: "vi", native: "VI" },
+  { code: "vi", native: "VI" }
 ];
 
 type Props = {
@@ -24,7 +25,7 @@ export function LanguagePickerSheet({
   visible,
   current,
   onConfirm,
-  onDismiss,
+  onDismiss
 }: Props) {
   const t = useTheme();
   const tr = useTranslations();
@@ -93,16 +94,16 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 20,
       fontFamily: t.fonts.display,
       letterSpacing: t.fonts.displayLetterSpacing,
-      marginBottom: t.spacing[1],
+      marginBottom: t.spacing[1]
     },
     subtitle: {
       color: t.colors.textMuted,
       fontSize: 13,
       fontFamily: t.fonts.body,
-      marginBottom: t.spacing[5],
+      marginBottom: t.spacing[5]
     },
     list: {
-      gap: t.spacing[2.5],
+      gap: t.spacing[2.5]
     },
     row: {
       flexDirection: "row",
@@ -113,11 +114,11 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.md,
       backgroundColor: t.colors.glass,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
+      borderColor: t.colors.border
     },
     rowActive: {
       backgroundColor: `${t.colors.accent}12`,
-      borderColor: t.colors.accent,
+      borderColor: t.colors.accent
     },
     radio: {
       width: 18,
@@ -126,30 +127,30 @@ const makeStyles = (t: AppTheme) =>
       borderWidth: 1.5,
       borderColor: t.colors.border,
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "center"
     },
     radioActive: { borderColor: t.colors.accent },
     radioDot: {
       width: 8,
       height: 8,
       borderRadius: 4,
-      backgroundColor: t.colors.accent,
+      backgroundColor: t.colors.accent
     },
     label: {
       flex: 1,
       color: t.colors.text,
       fontSize: 15,
-      fontFamily: t.fonts.body,
+      fontFamily: t.fonts.body
     },
     native: {
       color: t.colors.textMuted,
       fontSize: 13,
       letterSpacing: 1,
-      fontFamily: t.fonts.label,
+      fontFamily: t.fonts.label
     },
     actions: {
       marginTop: t.spacing[8],
-      gap: t.spacing[3.5],
+      gap: t.spacing[3.5]
     },
     confirmText: {
       color: t.colors.text,
@@ -157,6 +158,6 @@ const makeStyles = (t: AppTheme) =>
       letterSpacing: 1,
       fontSize: 13,
       fontFamily: t.fonts.mono,
-      paddingVertical: t.spacing[1],
-    },
+      paddingVertical: t.spacing[1]
+    }
   });

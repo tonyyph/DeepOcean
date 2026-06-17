@@ -2,8 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
-  Pressable,
-  type PressableProps,
   StyleSheet,
   Text,
   View,
@@ -13,6 +11,7 @@ import {
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
+import { Pressable, PressableProps } from "react-native-gesture-handler";
 
 type Tone = "primary" | "secondary" | "danger" | "premium";
 type Size = "sm" | "md" | "lg";
@@ -103,10 +102,7 @@ export const ActionButton = React.memo(function ActionButton({
       </View>
       <View style={styles.content}>
         {loading ? (
-          <ActivityIndicator
-            size="small"
-            color={foregroundColor}
-          />
+          <ActivityIndicator size="small" color={foregroundColor} />
         ) : icon ? (
           <Ionicons
             name={icon}
@@ -158,19 +154,19 @@ const makeStyles = (t: AppTheme) =>
       shadowOffset: { width: 0, height: t.shadows.glow.offsetY }
     },
     sm: {
-      minHeight: 44,
+      minHeight: 36,
       paddingHorizontal: t.spacing[3.5],
-      paddingVertical: t.spacing[2]
+      paddingVertical: t.spacing[1]
     },
     md: {
-      minHeight: 48,
-      paddingHorizontal: t.spacing[5],
-      paddingVertical: t.spacing[3]
+      minHeight: 40,
+      paddingHorizontal: t.spacing[4],
+      paddingVertical: t.spacing[1]
     },
     lg: {
-      minHeight: 54,
-      paddingHorizontal: t.spacing[6],
-      paddingVertical: t.spacing[3.5]
+      minHeight: 44,
+      paddingHorizontal: t.spacing[4],
+      paddingVertical: t.spacing[1]
     },
     secondary: {
       shadowOpacity: 0

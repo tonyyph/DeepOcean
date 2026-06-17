@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   FadeInDown,
@@ -16,6 +16,7 @@ import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
 import { rarityColor } from "@/features/ocean";
 import type { Discovery } from "@/features/ocean";
+import { Pressable } from "react-native-gesture-handler";
 
 export type DiscoveryOverlayProps = {
   /** The discovery to present, or null when idle. */
