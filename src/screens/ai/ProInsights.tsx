@@ -21,6 +21,7 @@ type Props = {
   theme: AppTheme;
   tr: Translations;
   selectedMood: Mood | null;
+  randomMoods: Mood[];
 };
 
 export const ProInsights = React.memo(function ProInsights({
@@ -28,12 +29,13 @@ export const ProInsights = React.memo(function ProInsights({
   onUnlock,
   theme: t,
   tr,
-  selectedMood
+  selectedMood,
+  randomMoods
 }: Props) {
   const styles = useThemedStyles(makeStyles);
   const moodData = useMemo(
-    () => buildMoodData(tr, selectedMood),
-    [tr, selectedMood]
+    () => buildMoodData(tr, selectedMood, randomMoods),
+    [tr, selectedMood, randomMoods]
   );
 
   if (!isPremium) {
@@ -96,12 +98,7 @@ export const ProInsights = React.memo(function ProInsights({
         />
 
         <View style={styles.proTile}>
-          <View
-            style={[
-              styles.proTileIcon,
-              { borderColor: t.colors.premium }
-            ]}
-          >
+          <View style={[styles.proTileIcon, { borderColor: t.colors.premium }]}>
             <Ionicons name="compass" size={14} color={t.colors.premium} />
           </View>
           <View style={styles.flex}>
@@ -125,11 +122,12 @@ export const ProInsights = React.memo(function ProInsights({
 
 function buildMoodData(
   tr: Translations,
-  selected: Mood | null
+  selected: Mood | null,
+  moods: Mood[]
 ): MoodMapEntry[] {
   const BASE = [0.72, 0.55, 0.68, 0.41, 0.6];
   const BOOST = 0.22;
-  return MOODS.map((mood, i) => ({
+  return moods.map((mood, i) => ({
     label: tr.ai.moodLabels[mood],
     value: Math.min(
       1,
@@ -152,9 +150,7 @@ const ProInsightTile = React.memo(function ProInsightTile({
   const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.proTile}>
-      <View
-        style={[styles.proTileIcon, { borderColor: t.colors.premium }]}
-      >
+      <View style={[styles.proTileIcon, { borderColor: t.colors.premium }]}>
         <Ionicons name={icon} size={14} color={t.colors.premium} />
       </View>
       <View style={styles.flex}>

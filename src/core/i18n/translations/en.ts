@@ -301,6 +301,8 @@ export const en = {
     today: "TODAY",
     listening: "Listening to the currents\u2026",
     askAgain: "ASK AGAIN",
+    askAgainRetriesLeft: (count: number) =>
+      count === 1 ? "1 free retry left" : `${count} free retries left`,
     refreshError: "Unable to refresh now. Please try again.",
     nudge: "A NUDGE FOR YOU",
     lastExpedition: "LAST EXPEDITION",

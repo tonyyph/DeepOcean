@@ -303,6 +303,8 @@ export const vi = {
     today: "HÔM NAY",
     listening: "Đang hỏi cá biển xem thế nào\u2026",
     askAgain: "HỎI LẠI",
+    askAgainRetriesLeft: (count: number) =>
+      count === 1 ? "Còn 1 lượt hỏi lại miễn phí" : `Còn ${count} lượt hỏi lại miễn phí`,
     refreshError: "Làm mới chưa thành công. Thử lại giúp mình nhé.",
     nudge: "LỜI ĐỘNG VIÊN CHO BẠN",
     lastExpedition: "CHUYẾN LẶN GẦN NHẤT",

@@ -95,7 +95,7 @@ export default function NotificationCenterScreen() {
           <GlowText shadow={false} size={20}>
             {tr.notifications.center.title}
           </GlowText>
-          <View style={styles.backBtn} />
+          <View style={styles.backBtnNoColor} />
         </View>
         <ScreenScrollView
           bottomInset={t.spacing[10]}
@@ -421,10 +421,22 @@ const makeStyles = (t: AppTheme) =>
       paddingBottom: t.spacing[3]
     },
     backBtn: {
-      width: 36,
-      minHeight: 36,
-      alignItems: "flex-start",
-      justifyContent: "center"
+      width: 44,
+      minHeight: 44,
+      borderRadius: t.radii.lg,
+      backgroundColor: t.colors.panelStrong,
+      alignItems: "center",
+      justifyContent: "center",
+      marginLeft: t.spacing[4]
+    },
+    backBtnNoColor: {
+      width: 44,
+      minHeight: 44,
+      borderRadius: t.radii.lg,
+      backgroundColor: "transparent",
+      alignItems: "center",
+      justifyContent: "center",
+      marginRight: t.spacing[4]
     },
     markAllButton: {
       alignSelf: "flex-start"

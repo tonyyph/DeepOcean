@@ -19,7 +19,7 @@ import {
   type AppTheme
 } from "@/design-system";
 import { MOODS, type Language } from "@/domain/entities";
-import { buildAIContext } from "@/features/ai";
+import { buildAIContext, useAskAgainLimit } from "@/features/ai";
 import {
   useDailyMotivation,
   useDailyRecommendation,
@@ -33,9 +33,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ProInsights } from "./ai/ProInsights";
 import { SafeAreaView } from "moti";
-
-const ASK_AGAIN_COOL_DOWN_MS = 20_000;
-const REFRESH_ERROR_RETRY_MS = 3_000;
 
 function stableMoodRank(mood: string): number {
   let hash = 0;
@@ -65,9 +62,10 @@ export default function AIScreen() {
   const { mutate: setMood } = useSetMood();
   const selectedMood = selectCurrentMood(moodRecord);
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const [manualRefreshReady, setManualRefreshReady] = useState(true);
+  const [manualRefreshing, setManualRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
-  const coolDownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const manualRefreshingRef = useRef(false);
+  const mountedRef = useRef(true);
   const tr = useTranslations();
   const isPremium = usePremium((s) => s.isPremium);
   const language = useSettings((s) => s.language);
@@ -87,29 +85,29 @@ export default function AIScreen() {
     "ai"
   );
 
-  const canAskAgain = !isFetching && !motivationFetching && manualRefreshReady;
-
-  const startManualRefreshCoolDown = useCallback((duration: number) => {
-    if (coolDownTimerRef.current) {
-      clearTimeout(coolDownTimerRef.current);
-    }
-    setManualRefreshReady(false);
-    coolDownTimerRef.current = setTimeout(() => {
-      coolDownTimerRef.current = null;
-      setManualRefreshReady(true);
-    }, duration);
-  }, []);
-
   useEffect(() => {
     return () => {
-      if (coolDownTimerRef.current) clearTimeout(coolDownTimerRef.current);
+      mountedRef.current = false;
     };
   }, []);
 
-  const handleOpenPaywall = useCallback(() => setPaywallOpen(true), []);
-  const handleRefreshAI = useCallback(() => {
-    if (!canAskAgain) return;
-    startManualRefreshCoolDown(ASK_AGAIN_COOL_DOWN_MS);
+  const handleOpenPaywall = useCallback((_reason?: string) => {
+    setPaywallOpen(true);
+  }, []);
+  const { askAgainUsesLeft, consumeAskAgain } = useAskAgainLimit({
+    isPremium,
+    onLimitReached: handleOpenPaywall
+  });
+  const aiRefreshInFlight =
+    isFetching || motivationFetching || manualRefreshing;
+  const canAskAgain = !aiRefreshInFlight;
+
+  const runAIRefresh = useCallback((shouldConsumeAskAgain: boolean) => {
+    if (manualRefreshingRef.current || aiRefreshInFlight) return;
+    if (shouldConsumeAskAgain && !consumeAskAgain()) return;
+
+    manualRefreshingRef.current = true;
+    setManualRefreshing(true);
     setRefreshError(null);
 
     void (async () => {
@@ -127,18 +125,29 @@ export default function AIScreen() {
         );
         queryClient.setQueryData(["diver", "motivation", lang], nextMotivation);
       } catch {
-        // Keep UI resilient while throttling repeated error retries.
-        startManualRefreshCoolDown(REFRESH_ERROR_RETRY_MS);
-        setRefreshError(tr.ai.refreshError);
+        if (mountedRef.current) {
+          setRefreshError(tr.ai.refreshError);
+        }
+      } finally {
+        manualRefreshingRef.current = false;
+        if (mountedRef.current) {
+          setManualRefreshing(false);
+        }
       }
     })();
   }, [
-    canAskAgain,
+    aiRefreshInFlight,
+    consumeAskAgain,
     language,
     queryClient,
-    startManualRefreshCoolDown,
     tr.ai.refreshError
   ]);
+  const handleRefreshAI = useCallback(() => {
+    runAIRefresh(true);
+  }, [runAIRefresh]);
+  const handleMoodRefreshAI = useCallback(() => {
+    runAIRefresh(false);
+  }, [runAIRefresh]);
 
   const randomMoods = React.useMemo(() => {
     return [...MOODS]
@@ -180,9 +189,15 @@ export default function AIScreen() {
                 icon="sparkles"
                 tone="secondary"
                 size="sm"
+                fullWidth
                 onPress={handleRefreshAI}
                 disabled={!canAskAgain}
               />
+              {!isPremium && (
+                <Text style={styles.askLimitText}>
+                  {tr.ai.askAgainRetriesLeft(askAgainUsesLeft)}
+                </Text>
+              )}
               {refreshError != null && (
                 <Text style={styles.refreshErrorText}>{refreshError}</Text>
               )}
@@ -218,6 +233,7 @@ export default function AIScreen() {
             theme={t}
             tr={tr}
             selectedMood={selectedMood}
+            randomMoods={randomMoods}
           />
 
           <GlassCard radius={t.radii.md}>
@@ -231,7 +247,7 @@ export default function AIScreen() {
                   active={selectedMood === m}
                   onPress={() => {
                     setMood(m);
-                    if (canAskAgain) handleRefreshAI();
+                    if (canAskAgain) handleMoodRefreshAI();
                   }}
                   containerStyle={styles.moodItem}
                 />
@@ -301,6 +317,14 @@ const makeStyles = (t: AppTheme) =>
     askWrap: { marginTop: t.spacing[4] },
     refreshErrorText: {
       color: t.colors.danger,
+      fontSize: 12,
+      lineHeight: 18,
+      textAlign: "center",
+      marginTop: t.spacing[2],
+      fontFamily: t.fonts.body
+    },
+    askLimitText: {
+      color: t.colors.textSecondary,
       fontSize: 12,
       lineHeight: 18,
       textAlign: "center",

@@ -6,3 +6,4 @@ export {
   type PromptPair
 } from "./prompts";
 export { buildAIContext } from "./context";
+export { useAskAgainLimit } from "./useAskAgainLimit";
