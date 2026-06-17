@@ -43,13 +43,7 @@ import * as Application from "expo-application";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Keyboard,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
-} from "react-native";
+import { Keyboard, StyleSheet, Text, TextInput, View } from "react-native";
 import { makeStyles } from "./ProfileScreen.styles";
 import { PremiumSection } from "./ProfileScreen.components";
 import Animated, {
@@ -58,7 +52,7 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "moti";
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
 const SOUND_LEVELS = [
   { key: "off", value: 0 },

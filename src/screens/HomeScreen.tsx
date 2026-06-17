@@ -27,12 +27,7 @@ import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import { makeStyles } from "./HomeScreen.styles";
 import {
@@ -44,7 +39,7 @@ import {
   StreakMilestoneCard,
   ZoneProgressStrip
 } from "./HomeScreen.components";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "moti";
 import {
   resolveLastDiveSession,
   shouldShowLastDiveSkeleton

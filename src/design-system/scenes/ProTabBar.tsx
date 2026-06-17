@@ -1,14 +1,15 @@
-import React, { useEffect, useMemo } from "react";
-import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
-import Svg, { Path } from "react-native-svg";
-import { LinearGradient } from "expo-linear-gradient";
+import { useSettings } from "@/stores";
+import { Colors } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
+import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
 import type {
   ParamListBase,
   Route
 } from "expo-router/build/react-navigation/native";
+import { useEffect, useMemo } from "react";
+import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
   useAnimatedProps,
@@ -16,13 +17,11 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
-import { useTheme } from "../useTheme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Path } from "react-native-svg";
 import type { AppTheme } from "../themes";
-import { useSettings } from "@/stores";
-import { Colors } from "@/theme";
+import { useTheme } from "../useTheme";
 
-// ── Icon map ──────────────────────────────────────────────────────────
 type IconPair = {
   active: keyof typeof Ionicons.glyphMap;
   inactive: keyof typeof Ionicons.glyphMap;
@@ -43,7 +42,6 @@ const ICONS: Readonly<Record<string, IconPair>> = {
   }
 };
 
-// ── Layout constants ──────────────────────────────────────────────────
 const BAR_H = 72;
 const BUBBLE_DIAM = 60;
 const BUBBLE_R = BUBBLE_DIAM / 2; // 30
@@ -72,7 +70,6 @@ const BUBBLE_SHADOW = {
 
 const AnimatedSvgPath = Animated.createAnimatedComponent(Path);
 
-// ── Worklet: builds the rounded-rect bar shape with a concave notch ───
 // Runs on the UI thread so it can access notchX.value every frame.
 function buildNotchPath(cx: number, W: number, nd: number): string {
   "worklet";
@@ -110,7 +107,6 @@ function buildNotchPath(cx: number, W: number, nd: number): string {
   );
 }
 
-// ── Luminance-based contrast (unchanged from original) ────────────────
 function contrastOn(t: AppTheme): string {
   const [g0] = t.gradients.bioGlow;
   const m = /^#?([0-9a-f]{6})$/i.exec(g0);
@@ -123,7 +119,6 @@ function contrastOn(t: AppTheme): string {
   return luma > 0.65 ? "#0A0A12" : Colors.base.white;
 }
 
-// ── ProTabBar ─────────────────────────────────────────────────────────
 /**
  * Notch-bubble Pro tab bar.
  *
@@ -166,7 +161,6 @@ export function ProTabBar(props: BottomTabBarProps) {
     );
   }, [state.index, tabW, notchX, notchDepth]);
 
-  // ── Animated SVG path ──────────────────────────────────────────────
   const animatedPathProps = useAnimatedProps(() => ({
     d: buildNotchPath(notchX.value, dockW, notchDepth.value)
   }));
@@ -304,7 +298,6 @@ export function ProTabBar(props: BottomTabBarProps) {
   );
 }
 
-// ── Styles ────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
@@ -315,7 +308,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end"
   },
   barContainer: {
-    // overflow visible so the bubble (at top:0) doesn't clip on Android
     overflow: "visible"
   },
   svgBar: {
@@ -340,7 +332,6 @@ const styles = StyleSheet.create({
     width: BUBBLE_DIAM,
     height: BUBBLE_DIAM,
     borderRadius: BUBBLE_R,
-    // No overflow:hidden here — shadow needs to bleed. Gradient handles its own clip.
     elevation: BUBBLE_SHADOW.elevation
   },
   bubbleGrad: {
@@ -348,7 +339,6 @@ const styles = StyleSheet.create({
     borderRadius: BUBBLE_R,
     alignItems: "center",
     justifyContent: "center",
-    // Clip gradient to circle on both platforms
     overflow: "hidden"
   }
 });

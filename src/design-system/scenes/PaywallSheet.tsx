@@ -1,38 +1,38 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "@/core/i18n";
+import { container } from "@/data/container";
+import type { PromoCodeResult, PurchaseOffering } from "@/domain/entities";
+import { usePremium } from "@/stores";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   ActivityIndicator,
   Alert,
   FlatList,
   Pressable,
+  StyleSheet,
+  Text,
   TextInput,
+  View,
   type ListRenderItemInfo,
-  type NativeSyntheticEvent,
-  type NativeScrollEvent
+  type NativeScrollEvent,
+  type NativeSyntheticEvent
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ActionButton } from "../atoms/ActionButton";
+import { GlowText } from "../atoms/GlowText";
+import { PressableCard } from "../atoms/PressableCard";
+import { Sheet } from "../atoms/Sheet";
+import { THEME_LIST, type ThemeId } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import { THEME_LIST, type ThemeId } from "../themes";
-import { makeStyles } from "./PaywallSheet.styles";
-import { GlowText } from "../atoms/GlowText";
-import { Sheet } from "../atoms/Sheet";
-import { PressableCard } from "../atoms/PressableCard";
-import { ActionButton } from "../atoms/ActionButton";
-import { usePremium } from "@/stores";
-import { container } from "@/data/container";
-import type { PromoCodeResult, PurchaseOffering } from "@/domain/entities";
-import { useTranslations } from "@/core/i18n";
 import {
   ICON_MAP,
   SCREEN_WIDTH,
   type BenefitSlide,
   type PlanId
 } from "./PaywallSheet.constants";
+import { makeStyles } from "./PaywallSheet.styles";
 
 type Props = {
   visible: boolean;
@@ -263,10 +263,7 @@ export function PaywallSheet({ visible, onDismiss, intentTheme }: Props) {
         ]}
       >
         <Pressable
-          style={({ pressed }) => [
-            styles.closeBtn,
-            pressed && styles.pressed
-          ]}
+          style={({ pressed }) => [styles.closeBtn, pressed && styles.pressed]}
           onPress={onDismiss}
           hitSlop={{ top: 12, left: 12, bottom: 12, right: 12 }}
           accessibilityRole="button"

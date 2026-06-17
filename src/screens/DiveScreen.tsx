@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { View, Text, StyleSheet, Pressable, BackHandler } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "moti";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useDiveSession, useAchievements } from "@/stores";
 import {

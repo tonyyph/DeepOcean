@@ -31,8 +31,8 @@ import { usePremium, useSettings } from "@/stores";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ProInsights } from "./ai/ProInsights";
+import { SafeAreaView } from "moti";
 
 const ASK_AGAIN_COOLDOWN_MS = 20_000;
 const REFRESH_ERROR_RETRY_MS = 3_000;
@@ -87,8 +87,7 @@ export default function AIScreen() {
     "ai"
   );
 
-  const canAskAgain =
-    !isFetching && !motivationFetching && manualRefreshReady;
+  const canAskAgain = !isFetching && !motivationFetching && manualRefreshReady;
 
   const startManualRefreshCooldown = useCallback((duration: number) => {
     if (cooldownTimerRef.current) {
@@ -142,7 +141,9 @@ export default function AIScreen() {
   ]);
 
   const randomMoods = React.useMemo(() => {
-    return [...MOODS].sort((a, b) => stableMoodRank(a) - stableMoodRank(b)).slice(0, 6);
+    return [...MOODS]
+      .sort((a, b) => stableMoodRank(a) - stableMoodRank(b))
+      .slice(0, 6);
   }, []);
 
   return (

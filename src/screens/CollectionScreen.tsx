@@ -36,7 +36,7 @@ import {
   View
 } from "react-native";
 import { makeStyles } from "./CollectionScreen.styles";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "moti";
 
 type RarityFilter =
   | "all"

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "moti";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLoading";

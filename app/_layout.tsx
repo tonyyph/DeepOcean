@@ -1,42 +1,10 @@
-import "../global.css";
-import React, { useCallback, useEffect, useState } from "react";
-import { Stack, useRouter } from "expo-router";
-import { Linking } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { QueryClientProvider } from "@tanstack/react-query";
-import * as SplashScreen from "expo-splash-screen";
-import * as SystemUI from "expo-system-ui";
-import { useFonts } from "expo-font";
-import {
-  Sora_400Regular,
-  Sora_600SemiBold,
-  Sora_700Bold
-} from "@expo-google-fonts/sora";
-import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold
-} from "@expo-google-fonts/inter";
-import { JetBrainsMono_400Regular } from "@expo-google-fonts/jetbrains-mono";
-import {
-  SpaceGrotesk_400Regular,
-  SpaceGrotesk_500Medium,
-  SpaceGrotesk_700Bold
-} from "@expo-google-fonts/space-grotesk";
-import {
-  Manrope_400Regular,
-  Manrope_600SemiBold,
-  Manrope_700Bold
-} from "@expo-google-fonts/manrope";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { queryClient } from "@/core/query/client";
-import { NetworkProvider } from "@/core/network/NetworkProvider";
-import { ScreenTransitionLoadingProvider } from "@/core/navigation/screenTransitionLoading";
-import { palette } from "@/design-system";
 import { AmbientAudio } from "@/core/audio/AmbientAudioManager";
+import { translations, type Language } from "@/core/i18n/translations";
+import { ScreenTransitionLoadingProvider } from "@/core/navigation/screenTransitionLoading";
+import { NetworkProvider } from "@/core/network/NetworkProvider";
 import { NotificationService } from "@/core/notifications/NotificationService";
+import { queryClient } from "@/core/query/client";
+import { palette } from "@/design-system";
 import { reconcileDiveReminder } from "@/features/notifications";
 import {
   dispatchWidgetCommand,
@@ -45,9 +13,41 @@ import {
   writeWidgetSnapshot,
   type WidgetNavigateTarget
 } from "@/features/widget";
-import { useSettings, usePremium } from "@/stores";
-import { translations, type Language } from "@/core/i18n/translations";
+import { usePremium, useSettings } from "@/stores";
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold
+} from "@expo-google-fonts/inter";
+import { JetBrainsMono_400Regular } from "@expo-google-fonts/jetbrains-mono";
+import {
+  Manrope_400Regular,
+  Manrope_600SemiBold,
+  Manrope_700Bold
+} from "@expo-google-fonts/manrope";
+import {
+  Sora_400Regular,
+  Sora_600SemiBold,
+  Sora_700Bold
+} from "@expo-google-fonts/sora";
+import {
+  SpaceGrotesk_400Regular,
+  SpaceGrotesk_500Medium,
+  SpaceGrotesk_700Bold
+} from "@expo-google-fonts/space-grotesk";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { useFonts } from "expo-font";
+import { Stack, useRouter } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import * as SystemUI from "expo-system-ui";
 import * as Updates from "expo-updates";
+import { useCallback, useEffect, useState } from "react";
+import { Linking } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import "../global.css";
 
 // Keep splash visible while we prime fonts + audio.
 SplashScreen.preventAutoHideAsync().catch(() => {});
