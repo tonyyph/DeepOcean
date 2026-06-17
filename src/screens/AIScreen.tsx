@@ -32,7 +32,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ProInsights } from "./ai/ProInsights";
-import { SafeAreaView } from "moti";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function stableMoodRank(mood: string): number {
   let hash = 0;
@@ -102,46 +102,52 @@ export default function AIScreen() {
     isFetching || motivationFetching || manualRefreshing;
   const canAskAgain = !aiRefreshInFlight;
 
-  const runAIRefresh = useCallback((shouldConsumeAskAgain: boolean) => {
-    if (manualRefreshingRef.current || aiRefreshInFlight) return;
-    if (shouldConsumeAskAgain && !consumeAskAgain()) return;
+  const runAIRefresh = useCallback(
+    (shouldConsumeAskAgain: boolean) => {
+      if (manualRefreshingRef.current || aiRefreshInFlight) return;
+      if (shouldConsumeAskAgain && !consumeAskAgain()) return;
 
-    manualRefreshingRef.current = true;
-    setManualRefreshing(true);
-    setRefreshError(null);
+      manualRefreshingRef.current = true;
+      setManualRefreshing(true);
+      setRefreshError(null);
 
-    void (async () => {
-      try {
-        const lang = (language ?? "en") as Language;
-        const context = await buildAIContext(lang);
-        const [nextRecommendation, nextMotivation] = await Promise.all([
-          container.ai.dailyRecommendation(context, { forceRefresh: true }),
-          container.ai.motivation(context, { forceRefresh: true })
-        ]);
+      void (async () => {
+        try {
+          const lang = (language ?? "en") as Language;
+          const context = await buildAIContext(lang);
+          const [nextRecommendation, nextMotivation] = await Promise.all([
+            container.ai.dailyRecommendation(context, { forceRefresh: true }),
+            container.ai.motivation(context, { forceRefresh: true })
+          ]);
 
-        queryClient.setQueryData(
-          [...diverKeys.dailyRec, lang],
-          nextRecommendation
-        );
-        queryClient.setQueryData(["diver", "motivation", lang], nextMotivation);
-      } catch {
-        if (mountedRef.current) {
-          setRefreshError(tr.ai.refreshError);
+          queryClient.setQueryData(
+            [...diverKeys.dailyRec, lang],
+            nextRecommendation
+          );
+          queryClient.setQueryData(
+            ["diver", "motivation", lang],
+            nextMotivation
+          );
+        } catch {
+          if (mountedRef.current) {
+            setRefreshError(tr.ai.refreshError);
+          }
+        } finally {
+          manualRefreshingRef.current = false;
+          if (mountedRef.current) {
+            setManualRefreshing(false);
+          }
         }
-      } finally {
-        manualRefreshingRef.current = false;
-        if (mountedRef.current) {
-          setManualRefreshing(false);
-        }
-      }
-    })();
-  }, [
-    aiRefreshInFlight,
-    consumeAskAgain,
-    language,
-    queryClient,
-    tr.ai.refreshError
-  ]);
+      })();
+    },
+    [
+      aiRefreshInFlight,
+      consumeAskAgain,
+      language,
+      queryClient,
+      tr.ai.refreshError
+    ]
+  );
   const handleRefreshAI = useCallback(() => {
     runAIRefresh(true);
   }, [runAIRefresh]);

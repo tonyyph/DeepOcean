@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { View, Text, StyleSheet, BackHandler } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { SafeAreaView } from "moti";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useDiveSession, useAchievements } from "@/stores";
 import {
@@ -33,6 +32,7 @@ import { useDiveEventEngine } from "@/features/discovery";
 import type { OceanZone } from "@/features/ocean/zones";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { Pressable } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogConfig = {
   title: string;
@@ -197,7 +197,7 @@ export default function DiveScreen() {
           />
           {session.discoveries.length > 0 && (
             <Animated.View entering={FadeIn} exiting={FadeOut}>
-              <GlowText size={13} color={t.colors.accentSoft}>
+              <GlowText size={13} shadow={false} color={t.colors.accentSoft}>
                 {tr.dive.discoveries(session.discoveries.length)}
               </GlowText>
             </Animated.View>
@@ -337,7 +337,7 @@ const makeStyles = (t: AppTheme) =>
     safe: {
       flex: 1,
       justifyContent: "space-between",
-      padding: t.spacing[6]
+      padding: t.spacing[4]
     },
     topBlock: { alignItems: "center", gap: t.spacing[4] + 2 },
     ringWrap: { alignItems: "center" },

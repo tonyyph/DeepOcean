@@ -19,6 +19,15 @@ function writeFile(projectRoot, relativePath, content) {
   fs.writeFileSync(absPath, content, "utf8");
 }
 
+function writeTemplate(projectRoot, templatePath, outputPath, replacements = {}) {
+  const absTemplate = path.join(__dirname, "focus-widget", templatePath);
+  let content = fs.readFileSync(absTemplate, "utf8");
+  Object.entries(replacements).forEach(([key, value]) => {
+    content = content.split(key).join(value);
+  });
+  writeFile(projectRoot, outputPath, content);
+}
+
 function runIosWidgetPatcher(projectRoot) {
   const scriptPath = path.join(projectRoot, "scripts/patch-ios-widget-target.rb");
   if (!fs.existsSync(scriptPath)) {
@@ -69,6 +78,57 @@ function withFocusWidgetAndroidFiles(config) {
     async (modConfig) => {
       const androidPackage = getAndroidPackage(config);
       const androidPackagePath = packageNameToPath(androidPackage);
+
+      writeTemplate(
+        modConfig.modRequest.projectRoot,
+        "native/android-widget/java/FocusWidgetProvider.kt",
+        `android/app/src/main/java/${androidPackagePath}/widget/FocusWidgetProvider.kt`,
+        { __ANDROID_PACKAGE__: androidPackage }
+      );
+
+      [
+        "widget_focus_small.xml",
+        "widget_focus_medium.xml",
+        "widget_focus_large.xml"
+      ].forEach((fileName) => {
+        writeTemplate(
+          modConfig.modRequest.projectRoot,
+          `native/android-widget/layout/${fileName}`,
+          `android/app/src/main/res/layout/${fileName}`
+        );
+      });
+
+      [
+        "widget_glass_panel.xml",
+        "widget_ocean_background.xml",
+        "widget_premium_pill.xml",
+        "widget_primary_cta.xml",
+        "widget_progress_chip.xml",
+        "widget_secondary_action.xml"
+      ].forEach((fileName) => {
+        writeTemplate(
+          modConfig.modRequest.projectRoot,
+          `native/android-widget/drawable/${fileName}`,
+          `android/app/src/main/res/drawable/${fileName}`
+        );
+      });
+
+      writeFile(
+        modConfig.modRequest.projectRoot,
+        "android/app/src/main/res/xml/focus_widget_info.xml",
+        `<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="120dp"
+    android:minHeight="120dp"
+    android:maxResizeWidth="320dp"
+    android:maxResizeHeight="320dp"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_focus_small"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:description="@string/widget_focus_description" />
+`
+      );
 
       writeFile(
         modConfig.modRequest.projectRoot,
@@ -478,6 +538,40 @@ class FocusWidgetProvider : AppWidgetProvider() {
 `
       );
 
+      writeTemplate(
+        modConfig.modRequest.projectRoot,
+        "native/android-widget/java/FocusWidgetProvider.kt",
+        `android/app/src/main/java/${androidPackagePath}/widget/FocusWidgetProvider.kt`,
+        { __ANDROID_PACKAGE__: androidPackage }
+      );
+
+      [
+        "widget_focus_small.xml",
+        "widget_focus_medium.xml",
+        "widget_focus_large.xml"
+      ].forEach((fileName) => {
+        writeTemplate(
+          modConfig.modRequest.projectRoot,
+          `native/android-widget/layout/${fileName}`,
+          `android/app/src/main/res/layout/${fileName}`
+        );
+      });
+
+      [
+        "widget_glass_panel.xml",
+        "widget_ocean_background.xml",
+        "widget_premium_pill.xml",
+        "widget_primary_cta.xml",
+        "widget_progress_chip.xml",
+        "widget_secondary_action.xml"
+      ].forEach((fileName) => {
+        writeTemplate(
+          modConfig.modRequest.projectRoot,
+          `native/android-widget/drawable/${fileName}`,
+          `android/app/src/main/res/drawable/${fileName}`
+        );
+      });
+
       return modConfig;
     }
   ]);
@@ -585,6 +679,13 @@ function withFocusWidgetIosFiles(config, props = {}) {
     async (modConfig) => {
       const appGroup = getAppGroup(config, props);
       const iosRoot = modConfig.modRequest.platformProjectRoot;
+
+      writeTemplate(
+        iosRoot,
+        "native/ios-widget/DeepOceanFocusWidget.swift",
+        "Widgets/DeepOceanFocusWidget.swift",
+        { __APP_GROUP__: appGroup }
+      );
 
       writeFile(
         iosRoot,
@@ -727,6 +828,13 @@ struct DeepOceanFocusWidget: Widget {
   }
 }
 `
+      );
+
+      writeTemplate(
+        iosRoot,
+        "native/ios-widget/DeepOceanFocusWidget.swift",
+        "Widgets/DeepOceanFocusWidget.swift",
+        { __APP_GROUP__: appGroup }
       );
 
       runIosWidgetPatcher(modConfig.modRequest.projectRoot);

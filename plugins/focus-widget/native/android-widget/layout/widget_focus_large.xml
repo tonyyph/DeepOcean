@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_ocean_background"
+    android:padding="14dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_primary_action"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.85"
+                android:background="@drawable/widget_primary_cta"
+                android:contentDescription="Start focus session"
+                android:gravity="center"
+                android:minHeight="56dp"
+                android:paddingHorizontal="12dp"
+                android:text="Start Focus"
+                android:textColor="#02111D"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/widget_glass_panel"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="8dp">
+
+                <TextView
+                    android:id="@+id/widget_goal_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="Goal 25m"
+                    android:textColor="#EAF6FF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/widget_premium_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/widget_premium_pill"
+                    android:gravity="center"
+                    android:minWidth="58dp"
+                    android:paddingHorizontal="8dp"
+                    android:text="FOCUS"
+                    android:textColor="#FFD27A"
+                    android:textSize="9sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_action_resume"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/widget_secondary_action"
+                android:gravity="center"
+                android:minWidth="48dp"
+                android:text="Resume"
+                android:textColor="#EAF6FF"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_action_pause"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="7dp"
+                android:layout_weight="1"
+                android:background="@drawable/widget_secondary_action"
+                android:gravity="center"
+                android:minWidth="48dp"
+                android:text="Pause"
+                android:textColor="#EAF6FF"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_action_skip"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="7dp"
+                android:layout_weight="1"
+                android:background="@drawable/widget_secondary_action"
+                android:gravity="center"
+                android:minWidth="48dp"
+                android:text="Skip"
+                android:textColor="#EAF6FF"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_action_ai"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="7dp"
+                android:layout_weight="1"
+                android:background="@drawable/widget_secondary_action"
+                android:gravity="center"
+                android:minWidth="48dp"
+                android:text="AI"
+                android:textColor="#EAF6FF"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_action_stats"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="7dp"
+                android:layout_weight="1"
+                android:background="@drawable/widget_secondary_action"
+                android:gravity="center"
+                android:minWidth="48dp"
+                android:text="Stats"
+                android:textColor="#EAF6FF"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_glass_panel"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp">
+
+            <TextView
+                android:id="@+id/widget_context_primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="One tap starts your next deep-work block"
+                android:textColor="#EAF6FF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_context_secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="AI and progress are one tap away"
+                android:textColor="#B8D6E8"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/widget_premium_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Premium layout: smarter cue, glass depth, richer state"
+                android:textColor="#FFD27A"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

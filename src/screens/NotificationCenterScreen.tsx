@@ -22,7 +22,7 @@ import {
   selectUnreadNotificationCount,
   useNotificationCenter
 } from "@/features/notifications";
-import { SafeAreaView } from "moti";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Pressable } from "react-native-gesture-handler";
 
 type FilterMode = "all" | "unread";
