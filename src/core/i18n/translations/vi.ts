@@ -1,6 +1,6 @@
 export const vi = {
   common: {
-    dismiss: "Đóng",
+    dismiss: "Đóng"
   },
   onboarding: {
     chapters: [
@@ -9,36 +9,36 @@ export const vi = {
         depth: "MẶT NƯỚC",
         body: "Một phiên tập trung trở thành một chuyến lặn.",
         detail:
-          "Chọn thời lượng, đặt điện thoại xuống, rồi để app giữ nhịp bằng âm thanh dịu, độ sâu và một nơi rõ ràng để bạn quay lại.",
+          "Chọn thời lượng, đặt điện thoại xuống, rồi để app giữ nhịp bằng âm thanh dịu, độ sâu và một nơi rõ ràng để bạn quay lại."
       },
       {
         title: "Phiên lặn",
         depth: "VÙNG CHẠNG VẠNG",
         body: "Mỗi phút tập trung đưa bạn xuống sâu thêm một chút.",
         detail:
-          "Bạn có thể đặt giờ hoặc lặn tự do. Màn hình lặn theo dõi thời gian, độ sâu và vùng biển nhưng vẫn đủ yên để không kéo bạn khỏi việc chính.",
+          "Bạn có thể đặt giờ hoặc lặn tự do. Màn hình lặn theo dõi thời gian, độ sâu và vùng biển nhưng vẫn đủ yên để không kéo bạn khỏi việc chính."
       },
       {
         title: "XP và streak",
         depth: "VÙNG NỬA ĐÊM",
         body: "Kết thúc chuyến lặn để nhận XP, cấp độ và tiến độ streak.",
         detail:
-          "DeepOcean thưởng cho sự đều đặn mà không gây áp lực. Phiên ngắn vẫn có giá trị, lặn lâu hơn thì chạm vùng sâu hơn.",
+          "DeepOcean thưởng cho sự đều đặn mà không gây áp lực. Phiên ngắn vẫn có giá trị, lặn lâu hơn thì chạm vùng sâu hơn."
       },
       {
         title: "Bộ sưu tập",
         depth: "VỰC SÂU",
         body: "Sinh vật, cổ vật và ghi chép sẽ hiện ra sau những lần thật sự tập trung.",
         detail:
-          "Nhật ký thám hiểm ban đầu sẽ trống, rồi lớn dần sau mỗi chuyến lặn. Mục bị khóa cũng nói rõ bạn nên làm gì tiếp.",
+          "Nhật ký thám hiểm ban đầu sẽ trống, rồi lớn dần sau mỗi chuyến lặn. Mục bị khóa cũng nói rõ bạn nên làm gì tiếp."
       },
       {
         title: "Pro, thật nhẹ",
         depth: "RÃNH SÂU",
         body: "Premium mở theme sâu hơn, nhật ký đầy đủ hơn và insight cá nhân hơn.",
         detail:
-          "Pro nên tinh tế chứ không lòe loẹt: hướng dẫn riêng hơn, nhật ký giàu hơn và giao diện thanh lịch khi bạn muốn đại dương này giống mình hơn.",
-      },
+          "Pro nên tinh tế chứ không lòe loẹt: hướng dẫn riêng hơn, nhật ký giàu hơn và giao diện thanh lịch khi bạn muốn đại dương này giống mình hơn."
+      }
     ],
     pageLabel: "Trang giới thiệu",
     back: "TRƯỚC",
@@ -61,7 +61,7 @@ export const vi = {
       track_progress: "Theo dõi tiến độ",
       build_daily_routine: "Xây routine hằng ngày",
       stay_motivated: "Giữ động lực",
-      improve_productivity: "Năng suất hơn",
+      improve_productivity: "Năng suất hơn"
     },
     planEyebrow: "BƯỚC 2 · KẾ HOẠCH RIÊNG",
     planTitle: "Dòng chảy đầu tiên đang hình thành",
@@ -79,9 +79,14 @@ export const vi = {
       daily_focus: {
         id: "daily_focus" as const,
         title: "Workflow tập trung hằng ngày",
-        description: "Một nhịp ổn định để mỗi ngày có một phiên thật sự hữu ích.",
-        steps: ["Chọn một việc", "Lặn theo timer mặc định", "Ghi lại một tiến triển"],
-        estimatedTime: "25 phút mỗi vòng",
+        description:
+          "Một nhịp ổn định để mỗi ngày có một phiên thật sự hữu ích.",
+        steps: [
+          "Chọn một việc",
+          "Lặn theo timer mặc định",
+          "Ghi lại một tiến triển"
+        ],
+        estimatedTime: "25 phút mỗi vòng"
       },
       deep_work: {
         id: "deep_work" as const,
@@ -89,29 +94,33 @@ export const vi = {
         description: "Block chú ý dài hơn cho việc giá trị nhất.",
         steps: ["Dọn nhiễu", "Lặn 45 phút", "Hồi phục 5 phút"],
         estimatedTime: "45 phút mỗi vòng",
-        isPremium: true,
+        isPremium: true
       },
       recovery: {
         id: "recovery" as const,
         title: "Workflow hồi phục",
         description: "Phiên lặn mềm hơn khi căng thẳng là vật cản chính.",
         steps: ["Thở chậm", "Lặn 15 phút", "Nổi lên từ tốn"],
-        estimatedTime: "15 phút mỗi vòng",
+        estimatedTime: "15 phút mỗi vòng"
       },
       learning: {
         id: "learning" as const,
         title: "Workflow học sâu",
         description: "Học, nhớ lại, rồi giữ phần ghi chú mạnh nhất.",
         steps: ["Chọn một bài", "Lặn 25 phút", "Viết lại ba dòng nhớ được"],
-        estimatedTime: "25 phút mỗi vòng",
+        estimatedTime: "25 phút mỗi vòng"
       },
       habit_building: {
         id: "habit_building" as const,
         title: "Workflow xây thói quen",
         description: "Làm nghi thức bắt đầu nhỏ hơn lực cản của bạn.",
-        steps: ["Dùng một tín hiệu hằng ngày", "Lặn 15 phút", "Lặp lại ngày mai"],
-        estimatedTime: "15 phút mỗi vòng",
-      },
+        steps: [
+          "Dùng một tín hiệu hằng ngày",
+          "Lặn 15 phút",
+          "Lặp lại ngày mai"
+        ],
+        estimatedTime: "15 phút mỗi vòng"
+      }
     },
     completeEyebrow: "SẴN SÀNG",
     completeTitle: "Hệ thống lặn của bạn đã xong",
@@ -119,17 +128,17 @@ export const vi = {
       "DeepOcean sẽ nhớ mục tiêu, gợi ý và workflow để phiên sau mở ra đúng ngữ cảnh hơn.",
     summaryTitle: "THIẾT LẬP ĐÃ LƯU",
     defaultWorkflowTitle: "Workflow tập trung hằng ngày",
-    startPersonalized: "VÀO DEEPOCEAN",
+    startPersonalized: "VÀO DEEPOCEAN"
   },
   guidance: {
     ai: {
       title: "Người hướng dẫn sẽ hiểu bạn hơn sau mỗi lần lặn",
-      body: "Hoàn thành phiên tập trung đầu tiên để gợi ý dựa trên nhịp lặn, tâm trạng và chuyến gần nhất thay vì chỉ nói chung chung.",
+      body: "Hoàn thành phiên tập trung đầu tiên để gợi ý dựa trên nhịp lặn, tâm trạng và chuyến gần nhất thay vì chỉ nói chung chung."
     },
     collection: {
       title: "Nhật ký trống là có chủ ý",
-      body: "Hoàn thành các chuyến lặn để mở sinh vật và cổ vật. Mục bị khóa vẫn hiện để bạn biết ngoài kia còn gì đang chờ.",
-    },
+      body: "Hoàn thành các chuyến lặn để mở sinh vật và cổ vật. Mục bị khóa vẫn hiện để bạn biết ngoài kia còn gì đang chờ."
+    }
   },
   profile: {
     title: "Hồ sơ thợ lặn",
@@ -147,7 +156,7 @@ export const vi = {
     languageDesc: "Chọn ngôn ngữ hiển thị trong app",
     languageNames: {
       en: "Tiếng Anh",
-      vi: "Tiếng Việt",
+      vi: "Tiếng Việt"
     },
     theme: "Chủ đề giao diện",
     themeDesc: "Màu, font chữ, particle — đổi sạch luôn",
@@ -187,7 +196,6 @@ export const vi = {
       "Xem trước: Pro mở streak, tỉ lệ hoàn thành và pattern tâm trạng.",
     changeGoals: "Đổi mục tiêu & workflow",
     changeGoalsDesc: "Dựng lại kế hoạch lặn cá nhân",
-    replayOnboarding: "Xem lại phần giới thiệu",
     confirm: "Xác nhận",
     cancel: "Huỷ",
     editNameTitle: "TÊN CỦA BẠN",
@@ -212,7 +220,7 @@ export const vi = {
     about: "VỀ ỨNG DỤNG",
     appVersion: "Phiên bản",
     appVersionValue: "#Ynot",
-    builtWith: "Làm ra bởi tình yêu với biển sâu",
+    builtWith: "Làm ra bởi tình yêu với biển sâu"
   },
   notifications: {
     reminderTitle: "Biển sâu đang gọi",
@@ -255,15 +263,15 @@ export const vi = {
       now: "Vừa xong",
       minutesAgo: (count: number) => `${count}ph`,
       hoursAgo: (count: number) => `${count}g`,
-      daysAgo: (count: number) => `${count}n`,
-    },
+      daysAgo: (count: number) => `${count}n`
+    }
   },
   home: {
     greeting: {
       awake: "Đêm hôm vẫn chưa ngủ à?",
       morning: "Sáng rồi, tỉnh chưa?",
       afternoon: "Chiều rồi đó,",
-      evening: "Tối rồi, lặn chút thôi,",
+      evening: "Tối rồi, lặn chút thôi,"
     },
     ready: "Sẵn sàng thì nhảy xuống thôi.",
     beginDive: "BẮT ĐẦU LẶN",
@@ -295,7 +303,7 @@ export const vi = {
       `Bạn đang giữ streak ${days} ngày. Chạm mốc ${target} ngày để mở milestone tiếp theo.`,
     streakMilestoneReached: (days: number) =>
       `Quá đỉnh. Bạn đã chạm streak ${days} ngày liên tiếp.`,
-    streakMilestoneCta: "GIỮ STREAK",
+    streakMilestoneCta: "GIỮ STREAK"
   },
   ai: {
     title: "La Bàn Biển Cả",
@@ -304,7 +312,9 @@ export const vi = {
     listening: "Đang hỏi cá biển xem thế nào\u2026",
     askAgain: "HỎI LẠI",
     askAgainRetriesLeft: (count: number) =>
-      count === 1 ? "Còn 1 lượt hỏi lại miễn phí" : `Còn ${count} lượt hỏi lại miễn phí`,
+      count === 1
+        ? "Còn 1 lượt hỏi lại miễn phí"
+        : `Còn ${count} lượt hỏi lại miễn phí`,
     refreshError: "Làm mới chưa thành công. Thử lại giúp mình nhé.",
     nudge: "LỜI ĐỘNG VIÊN CHO BẠN",
     lastExpedition: "CHUYẾN LẶN GẦN NHẤT",
@@ -325,7 +335,7 @@ export const vi = {
       sleepy: "Buồn ngủ",
       bored: "Chán nản",
       sluggish: "Uể oải",
-      overwhelmed: "Quá tải",
+      overwhelmed: "Quá tải"
     },
     proHeader: "PHÂN TÍCH SÂU · PRO",
     proLocked:
@@ -339,7 +349,7 @@ export const vi = {
       "Những hôm bạn thấy tò mò lại là những hôm lặn sâu nhất. Mai cứ lặn trong tinh thần đó.",
     proRitualTitle: "NGHI THỨC HÍT THỞ",
     proRitualBody:
-      "Hít 4 · giữ 7 · thở 8. Ba vòng trước khi lặn là tốc độ xuống ên như lụa.",
+      "Hít 4 · giữ 7 · thở 8. Ba vòng trước khi lặn là tốc độ xuống ên như lụa."
   },
   stats: {
     title: "Thống kê chiến tích",
@@ -354,7 +364,7 @@ export const vi = {
     noDives:
       "Bắt đầu một phiên tập trung và khu vực này sẽ thành nhịp tuần, lịch sử lặn và độ sâu của bạn.",
     less: "ít",
-    more: "nhiều",
+    more: "nhiều"
   },
   sessionDetail: {
     title: "Báo cáo chuyến lặn",
@@ -379,9 +389,9 @@ export const vi = {
       minutes: number,
       depth: string,
       xp: number,
-      discoveries: number,
+      discoveries: number
     ) =>
-      `Mình vừa lặn với DeepOcean: tập trung ${minutes} phút, xuống ${depth} m, +${xp} XP, khám phá ${discoveries} mục.`,
+      `Mình vừa lặn với DeepOcean: tập trung ${minutes} phút, xuống ${depth} m, +${xp} XP, khám phá ${discoveries} mục.`
   },
   collection: {
     title: "Nhật ký thám hiểm",
@@ -399,7 +409,7 @@ export const vi = {
       mythic: "Thần thoại",
       proDetailsLabel: "Chi tiết Pro",
       noResults:
-        "Bộ lọc này chưa có mục nào. Xóa bộ lọc hoặc tiếp tục lặn để mở thêm nhật ký.",
+        "Bộ lọc này chưa có mục nào. Xóa bộ lọc hoặc tiếp tục lặn để mở thêm nhật ký."
     },
     story: {
       whisperLabel: "TIẾNG THÌ THẦM TỪ ĐÁY BIỂN",
@@ -417,8 +427,8 @@ export const vi = {
         "Thứ này chưa từng lộ diện với bạn. Cứ lặn tiếp đi — mỗi phút dưới biển là một cơ hội mới.",
       close: "Nổi lên",
       creature: "SINH VẬT",
-      artifact: "CỔ VẬT",
-    },
+      artifact: "CỔ VẬT"
+    }
   },
   dive: {
     diveTime: "THỜI GIAN LẶN",
@@ -436,7 +446,7 @@ export const vi = {
     keepDiving: "Chưa, lặn thêm chút",
     abortTitle: "BỎ CUỘC RỒI À?",
     abortMsg: "Chuyến này sẽ không được lưu lại đâu nhé.",
-    continue: "Không, lặn tiếp",
+    continue: "Không, lặn tiếp"
   },
   paywall: {
     title: "Lặn sâu hơn với Pro",
@@ -460,23 +470,23 @@ export const vi = {
       {
         icon: "water",
         title: "Giữ trải nghiệm lặn miễn phí",
-        body: "Timer, XP, streak và lịch sử cơ bản vẫn mở; Pro thêm chiều sâu cho người dùng gắn bó.",
+        body: "Timer, XP, streak và lịch sử cơ bản vẫn mở; Pro thêm chiều sâu cho người dùng gắn bó."
       },
       {
         icon: "diamond",
         title: "8 Theme Premium",
-        body: "Giao diện riêng cho toàn app: bảng màu, font chữ, hạt lơ lửng và sương sâu.",
+        body: "Giao diện riêng cho toàn app: bảng màu, font chữ, hạt lơ lửng và sương sâu."
       },
       {
         icon: "sparkles",
         title: "Phân tích AI sâu",
-        body: "Nhịp tập trung, kế hoạch theo tâm trạng và bài thở cá nhân hoá theo thói quen lặn.",
+        body: "Nhịp tập trung, kế hoạch theo tâm trạng và bài thở cá nhân hoá theo thói quen lặn."
       },
       {
         icon: "telescope",
         title: "Nhật ký thám hiểm đầy đủ",
-        body: "Đọc truyền thuyết, giả thuyết và ghi chú mật phía sau từng sinh vật/cổ vật đã khám phá.",
-      },
+        body: "Đọc truyền thuyết, giả thuyết và ghi chú mật phía sau từng sinh vật/cổ vật đã khám phá."
+      }
     ] as const,
     planLifetime: "MÃI MÃI",
     planAnnual: "1 NĂM",
@@ -505,20 +515,20 @@ export const vi = {
     errorTitle: "Mua hàng thất bại",
     errorBody: "Đã có lỗi xảy ra. Bạn chưa bị trừ tiền — vui lòng thử lại.",
     disclaimer:
-      "Thanh toán qua App Store / Google Play. Gói đăng ký tự gia hạn. Hủy bất kỳ lúc nào.",
+      "Thanh toán qua App Store / Google Play. Gói đăng ký tự gia hạn. Hủy bất kỳ lúc nào."
   },
   achievement: {
     zoneUnlocked: "VÙNG MỚI MỞ KHOÁ",
-    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục",
+    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
   },
   levelUp: {
     badge: "LÊN CẤP",
     multiLevel: (n: number) => `LÊN CẤP ×${n}`,
     from: (prev: number, next: number) => `Cấp ${prev} → Cấp ${next}`,
-    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục",
+    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
   },
   titleAchievement: {
     badge: "THÀNH TỰU MỚI",
-    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục",
-  },
+    tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
+  }
 } as const;

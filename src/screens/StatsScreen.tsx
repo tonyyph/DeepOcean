@@ -126,35 +126,50 @@ export default function StatsScreen() {
                 />
               </View>
             ) : (
-              sessions.slice(0, 6).map((s: DiveSession) => (
-                <Pressable
-                  key={s.id}
-                  onPress={() => router.push(`/session/${s.id}`)}
-                  style={styles.sessionRow}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${tr.sessionDetail.title}: ${Math.round(
-                    s.elapsedSeconds / 60
-                  )}m, ${Math.round(s.depthMeters)}m`}
-                >
-                  <Text style={styles.sessionDate}>
-                    {new Date(s.startedAt).toLocaleDateString()}
-                  </Text>
-                  <Text style={styles.sessionMeta}>
-                    {Math.round(s.elapsedSeconds / 60)}m ·{" "}
-                    {Math.round(s.depthMeters)}m
-                  </Text>
-                  <Text
-                    style={[styles.sessionMeta, { color: t.colors.accentSoft }]}
+              sessions.map((s, index) => {
+                const isLast = index === sessions.length - 1;
+
+                return (
+                  <Pressable
+                    key={s.id}
+                    onPress={() => router.push(`/session/${s.id}`)}
+                    style={[
+                      styles.sessionRow,
+                      isLast && {
+                        borderBottomWidth: 0
+                      }
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${tr.sessionDetail.title}: ${Math.round(
+                      s.elapsedSeconds / 60
+                    )}m, ${Math.round(s.depthMeters)}m`}
                   >
-                    ✦ {s.discoveries.length}
-                  </Text>
-                  <Ionicons
-                    name="chevron-forward"
-                    size={16}
-                    color={t.colors.textMuted}
-                  />
-                </Pressable>
-              ))
+                    <Text style={styles.sessionDate}>
+                      {new Date(s.startedAt).toLocaleDateString()}
+                    </Text>
+
+                    <Text style={styles.sessionMeta}>
+                      {Math.round(s.elapsedSeconds / 60)}m ·{" "}
+                      {Math.round(s.depthMeters)} meters
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.sessionMeta,
+                        { color: t.colors.accentSoft }
+                      ]}
+                    >
+                      ✦ {s.discoveries.length}
+                    </Text>
+
+                    <Ionicons
+                      name="chevron-forward"
+                      size={16}
+                      color={t.colors.textMuted}
+                    />
+                  </Pressable>
+                );
+              })
             )}
           </GlassCard>
         </ScreenScrollView>
@@ -356,6 +371,9 @@ const makeStyles = (t: AppTheme) =>
       paddingVertical: t.spacing[2.5],
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: t.colors.border
+    },
+    sessionRowLast: {
+      borderBottomWidth: 0
     },
     sessionDate: {
       color: t.colors.text,

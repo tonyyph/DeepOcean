@@ -407,26 +407,11 @@ export default function ProfileScreen() {
                   color={t.colors.textSecondary}
                 />
               }
-              onPress={() => {
-                resetOnboarding();
-                router.replace("/onboarding");
-              }}
-            />
-            <SettingRow
-              type="nav"
-              title={tr.profile.replayOnboarding}
-              icon={
-                <Ionicons
-                  name="refresh-circle-outline"
-                  size={22}
-                  color={t.colors.textSecondary}
-                />
-              }
-              onPress={() => {
-                resetOnboarding();
-                router.replace("/onboarding");
-              }}
               divider={false}
+              onPress={() => {
+                resetOnboarding();
+                router.replace("/onboarding");
+              }}
             />
           </GlassCard>
           {process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
