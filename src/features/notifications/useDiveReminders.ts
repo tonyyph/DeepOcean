@@ -4,7 +4,7 @@ import { useSettings } from "@/stores";
 import {
   cancelDiveReminder,
   scheduleDiveReminder,
-  type ReminderCopy
+  type ReminderCopy,
 } from "./reminderScheduler";
 import { useNotificationPermission } from "./useNotificationPermission";
 
@@ -40,9 +40,10 @@ export function useDiveReminders(): {
   const copy = useMemo<ReminderCopy>(
     () => ({
       title: tr.notifications.reminderTitle,
-      body: tr.notifications.reminderBody
+      body: tr.notifications.reminderBody,
+      channelName: tr.notifications.reminderChannel,
     }),
-    [tr]
+    [tr],
   );
 
   const setEnabled = useCallback(
@@ -66,7 +67,7 @@ export function useDiveReminders(): {
         setBusy(false);
       }
     },
-    [request, hour, minute, copy, update]
+    [request, hour, minute, copy, update],
   );
 
   const setTime = useCallback(
@@ -80,7 +81,7 @@ export function useDiveReminders(): {
         setBusy(false);
       }
     },
-    [enabled, copy, update]
+    [enabled, copy, update],
   );
 
   return {
@@ -90,6 +91,6 @@ export function useDiveReminders(): {
     timeLabel: formatReminderTime(hour, minute),
     busy,
     setEnabled,
-    setTime
+    setTime,
   };
 }

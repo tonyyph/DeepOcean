@@ -6,10 +6,11 @@ import type {
   EntitlementSnapshot,
   Language,
   MoodRecord,
+  NotificationMessage,
   NotificationSchedule,
   PromoCodeResult,
   PurchaseOffering,
-  TrialState
+  TrialState,
 } from "@/domain/entities";
 
 /**
@@ -42,7 +43,7 @@ export type AIRequestOptions = {
 export interface IAICompanionGateway {
   dailyRecommendation(
     context: AIContext,
-    options?: AIRequestOptions
+    options?: AIRequestOptions,
   ): Promise<string>;
   motivation(context: AIContext, options?: AIRequestOptions): Promise<string>;
   sessionSummary(session: DiveSession, language?: Language): Promise<string>;
@@ -52,6 +53,10 @@ export interface INotificationRepository {
   getSchedule(): Promise<NotificationSchedule | null>;
   saveSchedule(schedule: NotificationSchedule): Promise<void>;
   clearSchedule(): Promise<void>;
+  listMessages(): Promise<NotificationMessage[]>;
+  saveMessage(message: NotificationMessage): Promise<void>;
+  markMessageRead(id: string): Promise<void>;
+  markAllMessagesRead(): Promise<void>;
 }
 
 export interface IMoodRepository {

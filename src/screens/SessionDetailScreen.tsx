@@ -191,13 +191,13 @@ const makeStyles = (t: AppTheme) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: t.spacing[5],
+      paddingHorizontal: t.spacing[3],
       paddingTop: t.spacing[2],
       paddingBottom: t.spacing[3]
     },
     backBtn: {
-      width: 44,
-      minHeight: 44,
+      width: 36,
+      minHeight: 36,
       alignItems: "flex-start",
       justifyContent: "center"
     },

@@ -4,5 +4,11 @@ export {
   scheduleDiveReminder,
   cancelDiveReminder,
   reconcileDiveReminder,
-  type ReminderCopy
+  type ReminderCopy,
 } from "./reminderScheduler";
+export {
+  selectUnreadNotificationCount,
+  useNotificationCenter,
+  type NotificationMessageInput,
+} from "./notificationCenter";
+export { NotificationToastHost } from "./NotificationToastHost";

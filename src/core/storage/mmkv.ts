@@ -39,10 +39,11 @@ export const StorageKeys = {
   premium: "app.premium",
   achievements: "app.achievements",
   notifications: "app.notifications.schedule",
+  notificationMessages: "app.notifications.messages",
   mood: "app.mood",
   aiCache: "app.ai.cache",
   premiumSnapshot: "app.premium.snapshot",
   trialState: "app.premium.trial",
   usedPromoCodes: "app.premium.promo_codes",
-  widgetSnapshot: "app.widget.snapshot"
+  widgetSnapshot: "app.widget.snapshot",
 } as const;

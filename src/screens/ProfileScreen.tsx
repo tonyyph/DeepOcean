@@ -21,14 +21,14 @@ import {
   useTheme,
   useThemedStyles,
   ZoneBackground,
-  type ThemeId
+  type ThemeId,
 } from "@/design-system";
 import {
   checkNewAchievements,
   computeLevelUp,
   useDiverProfile,
   useUpdateDiver,
-  xpForNextLevel
+  xpForNextLevel,
 } from "@/features/diver";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { useDiveReminders } from "@/features/notifications";
@@ -36,7 +36,7 @@ import {
   useAchievements,
   usePremium,
   useSettings,
-  useThemeStore
+  useThemeStore,
 } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import * as Application from "expo-application";
@@ -50,14 +50,14 @@ import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
-  withTiming
+  withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "moti";
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
 const SOUND_LEVELS = [
   { key: "off", value: 0 },
   { key: "low", value: 0.35 },
-  { key: "full", value: 0.65 }
+  { key: "full", value: 0.65 },
 ] as const;
 type SoundLevelKey = (typeof SOUND_LEVELS)[number]["key"];
 function volumeToKey(v: number): SoundLevelKey {
@@ -79,7 +79,7 @@ export default function ProfileScreen() {
   const setDebugPremiumEnabled = usePremium((s) => s.setDebugPremiumEnabled);
   const alreadyUnlocked = useAchievements((s) => s.unlockedTitleAchievements);
   const persistTitleAchievements = useAchievements(
-    (s) => s.persistTitleAchievements
+    (s) => s.persistTitleAchievements,
   );
   const reminders = useDiveReminders();
   const [langOpen, setLangOpen] = useState(false);
@@ -87,7 +87,7 @@ export default function ProfileScreen() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [reminderTimeOpen, setReminderTimeOpen] = useState(false);
   const [intentTheme, setIntentTheme] = useState<ThemeId | undefined>(
-    undefined
+    undefined,
   );
   const [isEditingName, setIsEditingName] = useState(false);
   const [draftName, setDraftName] = useState("");
@@ -125,7 +125,7 @@ export default function ProfileScreen() {
       const {
         level: newLevel,
         xp: newXp,
-        levelsGained
+        levelsGained,
       } = computeLevelUp(profile.level, profile.xp, 0);
       updateDiver({ level: newLevel, xp: newXp });
       const updatedProfile = { ...profile, level: newLevel, xp: newXp };
@@ -134,7 +134,7 @@ export default function ProfileScreen() {
       const newAchievements = checkNewAchievements(
         updatedProfile,
         { collectionCount: collectionItems.length },
-        alreadyUnlocked
+        alreadyUnlocked,
       );
       if (newAchievements.length > 0) {
         persistTitleAchievements(newAchievements);
@@ -144,7 +144,7 @@ export default function ProfileScreen() {
         queue.push({ type: "levelUp", from: profile.level, to: newLevel });
       }
       newAchievements.forEach((a) =>
-        queue.push({ type: "achievement", achievement: a })
+        queue.push({ type: "achievement", achievement: a }),
       );
       if (queue.length > 0) {
         setTimeout(() => {
@@ -162,8 +162,7 @@ export default function ProfileScreen() {
   }, []);
   const nextLevelXp = xpForNextLevel(profile?.level ?? 1);
   const progress = profile ? Math.min(1, profile.xp / nextLevelXp) : 0;
-  const currentLangLabel =
-    settings.language === "vi" ? "Tiếng Việt" : "English";
+  const currentLangLabel = tr.profile.languageNames[settings.language];
   const activeTheme = THEMES[themeId];
   const openPaywall = useCallback((target?: ThemeId) => {
     setIntentTheme(target);
@@ -174,11 +173,11 @@ export default function ProfileScreen() {
   useEffect(() => {
     xpWidth.value = withTiming(progress, {
       duration: 900,
-      easing: Easing.bezier(0.16, 1, 0.3, 1)
+      easing: Easing.bezier(0.16, 1, 0.3, 1),
     });
   }, [progress, xpWidth]);
   const xpStyle = useAnimatedStyle(() => ({
-    width: `${xpWidth.value * 100}%`
+    width: `${xpWidth.value * 100}%`,
   }));
   return (
     <ZoneBackground zone="trench">

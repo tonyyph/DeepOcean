@@ -13,22 +13,26 @@ import {
   UnderwaterCanvas,
   useTheme,
   useThemedStyles,
-  ZoneBackground
+  ZoneBackground,
 } from "@/design-system";
 import type { AppSettings } from "@/domain/entities";
 import {
   getLevelTitle,
   useDailyRecommendation,
   useDiverProfile,
-  useSessions
+  useSessions,
 } from "@/features/diver";
 import { QUICK_DURATIONS, ZONE_TABLE } from "@/features/ocean";
 import type { OceanZone } from "@/features/ocean/zones";
+import {
+  selectUnreadNotificationCount,
+  useNotificationCenter,
+} from "@/features/notifications";
 import { useAchievements, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { makeStyles } from "./HomeScreen.styles";
 import {
   DailyCompanionSkeleton,
@@ -37,12 +41,12 @@ import {
   NoLastDiveCard,
   StatCard,
   StreakMilestoneCard,
-  ZoneProgressStrip
+  ZoneProgressStrip,
 } from "./HomeScreen.components";
 import { SafeAreaView } from "moti";
 import {
   resolveLastDiveSession,
-  shouldShowLastDiveSkeleton
+  shouldShowLastDiveSkeleton,
 } from "./homeLastDiveResolver";
 
 type HomeSession = {
@@ -60,14 +64,17 @@ export default function HomeScreen() {
     useDailyRecommendation();
   const { data: sessions = [], isLoading: sessionsLoading } = useSessions();
   const language = useSettings((s) => s.language);
+  const unreadNotifications = useNotificationCenter(
+    selectUnreadNotificationCount,
+  );
 
   const preferredMinutes = useSettings(
     (
       s: AppSettings & {
         update: (patch: Partial<AppSettings>) => void;
         reset: () => void;
-      }
-    ) => s.preferredSessionMinutes
+      },
+    ) => s.preferredSessionMinutes,
   );
   const unlockedZones = useAchievements((s) => s.unlockedZones);
   const tr = useTranslations();
@@ -93,7 +100,7 @@ export default function HomeScreen() {
     if (liveLastSession != null) {
       const fallbackTimer = setTimeout(
         () => setFallbackLastSession(liveLastSession),
-        0
+        0,
       );
       return () => clearTimeout(fallbackTimer);
     }
@@ -125,51 +132,55 @@ export default function HomeScreen() {
   const lastSession = resolveLastDiveSession(
     liveLastSession,
     fallbackLastSession,
-    null
+    null,
   );
   const showLastDiveSkeleton = shouldShowLastDiveSkeleton(
     sessionsLoading,
-    lastSession
+    lastSession,
   );
   const showHeaderSkeleton = profileLoading;
   useScreenTransitionLoading(
     showHeaderSkeleton || showLastDiveSkeleton || dailyRecLoading,
-    "home"
+    "home",
   );
 
   const startDive = useCallback(
     (minutes: number | null) => {
       router.push({
         pathname: "/dive",
-        params: minutes ? { minutes: String(minutes) } : {}
+        params: minutes ? { minutes: String(minutes) } : {},
       });
     },
-    [router]
+    [router],
   );
 
   const preferredZoneLabel = useMemo(
     () => ZONE_TABLE[zoneForMinutes(preferredMinutes)].label,
-    [preferredMinutes]
+    [preferredMinutes],
   );
 
   const openFreeDiveModal = useCallback(
     () => setIsFreeDiveModalVisible(true),
-    []
+    [],
   );
+
+  const openNotifications = useCallback(() => {
+    router.push("/notifications" as never);
+  }, [router]);
 
   const closeFreeDiveModal = useCallback(
     () => setIsFreeDiveModalVisible(false),
-    []
+    [],
   );
 
   const handleStartPreferredDive = useCallback(
     () => startDive(preferredMinutes),
-    [startDive, preferredMinutes]
+    [startDive, preferredMinutes],
   );
 
   const handleStartUnlimitedDive = useCallback(
     () => startDive(null),
-    [startDive]
+    [startDive],
   );
 
   const handleStartCustomDive = useCallback(() => {
@@ -180,7 +191,7 @@ export default function HomeScreen() {
   const streakDays = profile?.currentStreakDays ?? 0;
   const nextStreakTarget = useMemo(
     () => getNextStreakMilestone(streakDays),
-    [streakDays]
+    [streakDays],
   );
 
   return (
@@ -190,7 +201,32 @@ export default function HomeScreen() {
         <ScreenScrollView>
           {/* ── Header ── */}
           <View style={styles.header}>
-            <Text style={styles.greeting}>{greeting}</Text>
+            <View style={styles.headerTopRow}>
+              <Text style={styles.greeting}>{greeting}</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={tr.notifications.center.openAccessibility}
+                hitSlop={10}
+                onPress={openNotifications}
+                style={({ pressed }) => [
+                  styles.bellButton,
+                  pressed && styles.bellButtonPressed,
+                ]}
+              >
+                <Ionicons
+                  name="notifications-outline"
+                  size={20}
+                  color={t.colors.text}
+                />
+                {unreadNotifications > 0 ? (
+                  <View style={styles.bellBadge}>
+                    <Text style={styles.bellBadgeText}>
+                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                    </Text>
+                  </View>
+                ) : null}
+              </Pressable>
+            </View>
             <View style={styles.row}>
               {showHeaderSkeleton ? (
                 <Skeleton style={styles.nameSkeleton} radius={t.radii.s} />

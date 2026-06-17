@@ -18,6 +18,7 @@ export type DailyReminderInput = {
   minute: number;
   title: string;
   body: string;
+  channelName: string;
 };
 
 export type DiveCompletionInput = {
@@ -25,11 +26,13 @@ export type DiveCompletionInput = {
   title: string;
   body: string;
   sound: string | true;
+  channelName: string;
 };
 
 export type ActiveDiveInput = {
   title: string;
   body: string;
+  channelName: string;
 };
 
 export type PermissionState = "granted" | "denied" | "undetermined";
@@ -43,12 +46,12 @@ function ensureHandler(): void {
   if (handlerConfigured) return;
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldShowBanner: true,
-      shouldShowList: true,
+      shouldShowAlert: false,
+      shouldShowBanner: false,
+      shouldShowList: false,
       shouldPlaySound: true,
-      shouldSetBadge: false
-    })
+      shouldSetBadge: false,
+    }),
   });
   handlerConfigured = true;
 }
@@ -63,43 +66,43 @@ function completionChannelId(sound: string | true): string {
   return `${DIVE_COMPLETION_CHANNEL_PREFIX}-${safe || "custom"}`;
 }
 
-async function ensureReminderChannel(): Promise<void> {
+async function ensureReminderChannel(name: string): Promise<void> {
   if (Platform.OS !== "android") return;
-  if (configuredChannels.has(DIVE_REMINDER_CHANNEL)) return;
   await Notifications.setNotificationChannelAsync(DIVE_REMINDER_CHANNEL, {
-    name: "Dive reminders",
+    name,
     importance: Notifications.AndroidImportance.DEFAULT,
     lightColor: "#22E4FF",
-    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
   });
   configuredChannels.add(DIVE_REMINDER_CHANNEL);
 }
 
-async function ensureCompletionChannel(sound: string | true): Promise<string> {
+async function ensureCompletionChannel(
+  sound: string | true,
+  name: string,
+): Promise<string> {
   const channelId = completionChannelId(sound);
   if (Platform.OS !== "android") return channelId;
-  if (configuredChannels.has(channelId)) return channelId;
   await Notifications.setNotificationChannelAsync(channelId, {
-    name: "Dive completion",
+    name,
     importance: Notifications.AndroidImportance.HIGH,
     lightColor: "#22E4FF",
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     sound: sound === true ? "default" : sound,
-    vibrationPattern: [0, 240, 120, 240]
+    vibrationPattern: [0, 240, 120, 240],
   });
   configuredChannels.add(channelId);
   return channelId;
 }
 
-async function ensureActiveDiveChannel(): Promise<void> {
+async function ensureActiveDiveChannel(name: string): Promise<void> {
   if (Platform.OS !== "android") return;
-  if (configuredChannels.has(ACTIVE_DIVE_CHANNEL)) return;
   await Notifications.setNotificationChannelAsync(ACTIVE_DIVE_CHANNEL, {
-    name: "Active dive",
+    name,
     importance: Notifications.AndroidImportance.LOW,
     lightColor: "#22E4FF",
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-    sound: null
+    sound: null,
   });
   configuredChannels.add(ACTIVE_DIVE_CHANNEL);
 }
@@ -109,7 +112,6 @@ export const NotificationService = {
   async configure(): Promise<void> {
     if (Platform.OS === "web") return;
     ensureHandler();
-    await Promise.all([ensureReminderChannel(), ensureActiveDiveChannel()]);
   },
 
   async getPermissionState(): Promise<PermissionState> {
@@ -136,8 +138,8 @@ export const NotificationService = {
       ios: {
         allowAlert: true,
         allowBadge: false,
-        allowSound: true
-      }
+        allowSound: true,
+      },
     });
     return status === "granted";
   },
@@ -148,24 +150,29 @@ export const NotificationService = {
    */
   async scheduleDailyReminder(input: DailyReminderInput): Promise<string> {
     await this.configure();
+    await ensureReminderChannel(input.channelName);
     return Notifications.scheduleNotificationAsync({
       content: {
         title: input.title,
         body: input.body,
-        sound: true
+        sound: true,
+        data: { kind: "dive-reminder", deepLink: "/dive" },
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
         hour: input.hour,
         minute: input.minute,
-        channelId: DIVE_REMINDER_CHANNEL
-      }
+        channelId: DIVE_REMINDER_CHANNEL,
+      },
     });
   },
 
   async scheduleDiveCompletion(input: DiveCompletionInput): Promise<string> {
     await this.configure();
-    const channelId = await ensureCompletionChannel(input.sound);
+    const channelId = await ensureCompletionChannel(
+      input.sound,
+      input.channelName,
+    );
     return Notifications.scheduleNotificationAsync({
       content: {
         title: input.title,
@@ -174,19 +181,22 @@ export const NotificationService = {
         priority: Notifications.AndroidNotificationPriority.HIGH,
         color: "#22E4FF",
         data: { kind: "dive-complete" },
-        interruptionLevel: "timeSensitive"
+        interruptionLevel: "timeSensitive",
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: new Date(input.fireAt),
-        channelId
-      }
+        channelId,
+      },
     });
   },
 
   async notifyDiveCompletionNow(input: Omit<DiveCompletionInput, "fireAt">) {
     await this.configure();
-    const channelId = await ensureCompletionChannel(input.sound);
+    const channelId = await ensureCompletionChannel(
+      input.sound,
+      input.channelName,
+    );
     return Notifications.scheduleNotificationAsync({
       content: {
         title: input.title,
@@ -195,17 +205,18 @@ export const NotificationService = {
         priority: Notifications.AndroidNotificationPriority.HIGH,
         color: "#22E4FF",
         data: { kind: "dive-complete" },
-        interruptionLevel: "timeSensitive"
+        interruptionLevel: "timeSensitive",
       },
       trigger: {
-        channelId
-      }
+        channelId,
+      },
     });
   },
 
   async showActiveDive(input: ActiveDiveInput): Promise<string | null> {
     if (Platform.OS !== "android") return null;
     await this.configure();
+    await ensureActiveDiveChannel(input.channelName);
     return Notifications.scheduleNotificationAsync({
       content: {
         title: input.title,
@@ -215,11 +226,11 @@ export const NotificationService = {
         autoDismiss: false,
         priority: Notifications.AndroidNotificationPriority.DEFAULT,
         color: "#22E4FF",
-        data: { kind: "active-dive" }
+        data: { kind: "active-dive" },
       },
       trigger: {
-        channelId: ACTIVE_DIVE_CHANNEL
-      }
+        channelId: ACTIVE_DIVE_CHANNEL,
+      },
     });
   },
 
@@ -248,5 +259,21 @@ export const NotificationService = {
     } catch {
       // Some platforms only support dismissing delivered notifications.
     }
-  }
+  },
+
+  addReceivedListener(
+    listener: (notification: Notifications.Notification) => void,
+  ): Notifications.Subscription | null {
+    if (Platform.OS === "web") return null;
+    ensureHandler();
+    return Notifications.addNotificationReceivedListener(listener);
+  },
+
+  addResponseListener(
+    listener: (response: Notifications.NotificationResponse) => void,
+  ): Notifications.Subscription | null {
+    if (Platform.OS === "web") return null;
+    ensureHandler();
+    return Notifications.addNotificationResponseReceivedListener(listener);
+  },
 } as const;

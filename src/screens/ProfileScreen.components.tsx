@@ -4,7 +4,7 @@ import {
   PremiumBadge,
   PressableCard,
   useTheme,
-  useThemedStyles
+  useThemedStyles,
 } from "@/design-system";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -13,7 +13,7 @@ import { makeStyles } from "./ProfileScreen.styles";
 
 export function PremiumSection({
   isPremium,
-  onOpenPaywall
+  onOpenPaywall,
 }: {
   isPremium: boolean;
   onOpenPaywall: () => void;
@@ -27,10 +27,7 @@ export function PremiumSection({
       <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
         <View style={styles.premiumActiveRow}>
           <View
-            style={[
-              styles.premiumCrest,
-              { backgroundColor: t.colors.glass }
-            ]}
+            style={[styles.premiumCrest, { backgroundColor: t.colors.glass }]}
           >
             <Ionicons name="diamond" size={20} color={t.colors.premium} />
           </View>
@@ -38,7 +35,7 @@ export function PremiumSection({
             <Text style={styles.premiumTitle}>{tr.profile.premium}</Text>
             <Text style={styles.premiumSub}>{tr.profile.premiumActive}</Text>
           </View>
-          <PremiumBadge label="ACTIVE" size="md" />
+          <PremiumBadge label={tr.profile.premiumActiveBadge} size="md" />
         </View>
       </GlassCard>
     );
@@ -54,12 +51,7 @@ export function PremiumSection({
       accessibilityLabel={tr.profile.premium}
     >
       <View style={styles.premiumActiveRow}>
-        <View
-          style={[
-            styles.premiumCrest,
-            styles.premiumCrestLocked
-          ]}
-        >
+        <View style={[styles.premiumCrest, styles.premiumCrestLocked]}>
           <Ionicons name="diamond" size={20} color={t.colors.premium} />
         </View>
         <View style={styles.premiumText}>

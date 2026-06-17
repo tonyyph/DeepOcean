@@ -87,7 +87,7 @@ export const MOODS: readonly Mood[] = [
   "distracted",
   "sluggish",
   "bored",
-  "overwhelmed"
+  "overwhelmed",
 ] as const;
 
 /** Persisted mood selection. `null` mood = user has never chosen one. */
@@ -210,4 +210,17 @@ export type NotificationSchedule = {
   minute: number;
   /** epoch ms when the schedule was created. */
   scheduledAt: number;
+};
+
+export type NotificationMessageType = "success" | "error" | "warning" | "info";
+
+export type NotificationMessage = {
+  id: string;
+  title: string;
+  body: string;
+  type: NotificationMessageType;
+  createdAt: number;
+  readAt: number | null;
+  deepLink: string | null;
+  source: "local" | "system" | "mock";
 };

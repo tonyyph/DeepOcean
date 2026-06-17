@@ -93,6 +93,7 @@ Notifications:
 
 - Use `src/design-system/theme.ts`, `useTheme`, `useThemedStyles`, and design-system atoms/scenes.
 - Do not hardcode colors, spacing, or typography unless matching an existing local exception.
+- For any user-visible content, always check and update the corresponding i18n translations for every supported language before finishing. Do not leave new screen copy, button labels, empty states, errors, notification/toast text, or accessibility labels hardcoded in one language unless the surrounding file already has a deliberate local exception.
 - The app is dark, cinematic, oceanic, and premium; keep UI dense enough for a tool but still atmospheric.
 - Tabs are in `app/(tabs)/_layout.tsx`; premium users get `ProTabBar`.
 - Root bootstraps fonts, splash, audio, updates, notifications, premium hydration, and widget sync in `app/_layout.tsx`.
@@ -126,4 +127,3 @@ Notifications:
 - Do not introduce business logic directly into route files.
 - Keep edits scoped; do not reformat unrelated generated/native files.
 - The repo may have user changes. Never revert unrelated work.
-

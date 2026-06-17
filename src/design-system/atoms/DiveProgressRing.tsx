@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useTranslations } from "@/core/i18n";
 import Animated, {
   Easing,
   interpolateColor,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
-  withTiming
+  withTiming,
 } from "react-native-reanimated";
 import Svg, { Circle, G } from "react-native-svg";
 import type { AppTheme } from "../themes";
@@ -25,9 +26,10 @@ type Props = {
 export const DiveProgressRing = React.memo(function DiveProgressRing({
   progress,
   elapsedSeconds,
-  size = 240
+  size = 240,
 }: Props) {
   const t = useTheme();
+  const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
   const p = useSharedValue(0);
   const strokeWidth = 6;
@@ -38,21 +40,21 @@ export const DiveProgressRing = React.memo(function DiveProgressRing({
   useEffect(() => {
     p.value = withTiming(Math.max(0, Math.min(1, progress)), {
       duration: t.motion.durations.slow,
-      easing: Easing.bezier(...t.motion.easings.standard)
+      easing: Easing.bezier(...t.motion.easings.standard),
     });
   }, [progress, p, t.motion]);
 
   const ringStyle = useAnimatedStyle(() => ({
-    shadowOpacity: 0.45 + 0.5 * p.value
+    shadowOpacity: 0.45 + 0.5 * p.value,
   }));
 
   const ringAnimatedProps = useAnimatedProps(() => ({
     stroke: interpolateColor(
       p.value,
       [0, 0.5, 1],
-      [t.colors.accent, t.colors.accentSoft, t.colors.success]
+      [t.colors.accent, t.colors.accentSoft, t.colors.success],
     ),
-    strokeDashoffset: circumference * (1 - p.value)
+    strokeDashoffset: circumference * (1 - p.value),
   }));
 
   return (
@@ -85,14 +87,14 @@ export const DiveProgressRing = React.memo(function DiveProgressRing({
           {
             width: size,
             height: size,
-            borderRadius: size / 2
+            borderRadius: size / 2,
           },
-          ringStyle
+          ringStyle,
         ]}
       />
       <View style={styles.center}>
         <Text style={styles.time}>{formatTime(elapsedSeconds)}</Text>
-        <Text style={styles.label}>DIVE TIME</Text>
+        <Text style={styles.label}>{tr.dive.diveTime}</Text>
       </View>
     </View>
   );
@@ -111,26 +113,26 @@ const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     wrap: { alignItems: "center", justifyContent: "center" },
     trackRing: {
-      position: "absolute"
+      position: "absolute",
     },
     activeRing: {
       position: "absolute",
       shadowRadius: 10,
       shadowOffset: { width: 0, height: 0 },
-      pointerEvents: "none"
+      pointerEvents: "none",
     },
     center: { alignItems: "center" },
     time: {
       color: t.colors.text,
       fontSize: 48,
       fontFamily: t.fonts.mono,
-      letterSpacing: 0
+      letterSpacing: 0,
     },
     label: {
       color: t.colors.textMuted,
       fontSize: 11,
       letterSpacing: 1,
       marginTop: 4,
-      fontFamily: t.fonts.label
-    }
+      fontFamily: t.fonts.label,
+    },
   });

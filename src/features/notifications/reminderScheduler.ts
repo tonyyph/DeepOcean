@@ -2,7 +2,7 @@ import { NotificationService } from "@/core/notifications/NotificationService";
 import { container } from "@/data/container";
 import type { NotificationSchedule } from "@/domain/entities";
 
-export type ReminderCopy = { title: string; body: string };
+export type ReminderCopy = { title: string; body: string; channelName: string };
 
 /**
  * Cancels any previously persisted schedule then creates a fresh daily
@@ -13,7 +13,7 @@ export type ReminderCopy = { title: string; body: string };
 export async function scheduleDiveReminder(
   hour: number,
   minute: number,
-  copy: ReminderCopy
+  copy: ReminderCopy,
 ): Promise<NotificationSchedule | null> {
   const existing = await container.notifications.getSchedule();
   if (existing) {
@@ -24,14 +24,15 @@ export async function scheduleDiveReminder(
     hour,
     minute,
     title: copy.title,
-    body: copy.body
+    body: copy.body,
+    channelName: copy.channelName,
   });
 
   const schedule: NotificationSchedule = {
     identifier,
     hour,
     minute,
-    scheduledAt: Date.now()
+    scheduledAt: Date.now(),
   };
   await container.notifications.saveSchedule(schedule);
   return schedule;
@@ -57,7 +58,7 @@ export async function reconcileDiveReminder(
   enabled: boolean,
   hour: number,
   minute: number,
-  copy: ReminderCopy
+  copy: ReminderCopy,
 ): Promise<void> {
   if (!enabled) {
     await cancelDiveReminder();

@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslations } from "@/core/i18n";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
@@ -18,9 +19,10 @@ type Props = {
  */
 export const PremiumBadge = React.memo(function PremiumBadge({
   variant = "star",
-  label = "PRO",
-  size = "sm"
+  label,
+  size = "sm",
 }: Props) {
+  const tr = useTranslations();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const iconName = variant === "lock" ? "lock-closed" : "star";
@@ -33,7 +35,7 @@ export const PremiumBadge = React.memo(function PremiumBadge({
       style={[styles.badge, { paddingVertical: padV, paddingHorizontal: padH }]}
     >
       <Ionicons name={iconName} size={iconSize} color={t.colors.premium} />
-      <Text style={styles.text}>{label}</Text>
+      <Text style={styles.text}>{label ?? tr.profile.proOnly}</Text>
     </View>
   );
 });
@@ -47,12 +49,12 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.premium,
-      backgroundColor: t.colors.glass
+      backgroundColor: t.colors.glass,
     },
     text: {
       color: t.colors.premium,
       fontSize: 9,
       letterSpacing: 1,
-      fontFamily: t.fonts.label
-    }
+      fontFamily: t.fonts.label,
+    },
   });
