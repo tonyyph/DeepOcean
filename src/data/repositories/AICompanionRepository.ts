@@ -47,7 +47,6 @@ const TELEMETRY_COUNTS: Record<AIResponseSource, number> = {
   offline: 0
 };
 
-
 /**
  * AICompanionRepository — orchestrates a real {@link AIProvider} with a durable
  * MMKV cache. Strategy:
@@ -203,20 +202,20 @@ export class AICompanionRepository implements IAICompanionGateway {
     if (!isTelemetryEnabled()) return;
 
     TELEMETRY_COUNTS[event.source] += 1;
-    console.info(
-      "[AICompanion][telemetry]",
-      JSON.stringify(
-        {
-          kind,
-          source: event.source,
-          attemptedProviders: event.attemptedProviders,
-          durationMs: event.durationMs,
-          totals: TELEMETRY_COUNTS
-        },
-        null,
-        2
-      )
-    );
+    // console.info(
+    //   "[AICompanion][telemetry]",
+    //   JSON.stringify(
+    //     {
+    //       kind,
+    //       source: event.source,
+    //       attemptedProviders: event.attemptedProviders,
+    //       durationMs: event.durationMs,
+    //       totals: TELEMETRY_COUNTS
+    //     },
+    //     null,
+    //     2
+    //   )
+    // );
   }
 
   private readCache(): AICachePayload {

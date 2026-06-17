@@ -34,7 +34,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { ProInsights } from "./ai/ProInsights";
 import { SafeAreaView } from "moti";
 
-const ASK_AGAIN_COOLDOWN_MS = 20_000;
+const ASK_AGAIN_COOL_DOWN_MS = 20_000;
 const REFRESH_ERROR_RETRY_MS = 3_000;
 
 function stableMoodRank(mood: string): number {
@@ -67,7 +67,7 @@ export default function AIScreen() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [manualRefreshReady, setManualRefreshReady] = useState(true);
   const [refreshError, setRefreshError] = useState<string | null>(null);
-  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const coolDownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tr = useTranslations();
   const isPremium = usePremium((s) => s.isPremium);
   const language = useSettings((s) => s.language);
@@ -89,27 +89,27 @@ export default function AIScreen() {
 
   const canAskAgain = !isFetching && !motivationFetching && manualRefreshReady;
 
-  const startManualRefreshCooldown = useCallback((duration: number) => {
-    if (cooldownTimerRef.current) {
-      clearTimeout(cooldownTimerRef.current);
+  const startManualRefreshCoolDown = useCallback((duration: number) => {
+    if (coolDownTimerRef.current) {
+      clearTimeout(coolDownTimerRef.current);
     }
     setManualRefreshReady(false);
-    cooldownTimerRef.current = setTimeout(() => {
-      cooldownTimerRef.current = null;
+    coolDownTimerRef.current = setTimeout(() => {
+      coolDownTimerRef.current = null;
       setManualRefreshReady(true);
     }, duration);
   }, []);
 
   useEffect(() => {
     return () => {
-      if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+      if (coolDownTimerRef.current) clearTimeout(coolDownTimerRef.current);
     };
   }, []);
 
   const handleOpenPaywall = useCallback(() => setPaywallOpen(true), []);
   const handleRefreshAI = useCallback(() => {
     if (!canAskAgain) return;
-    startManualRefreshCooldown(ASK_AGAIN_COOLDOWN_MS);
+    startManualRefreshCoolDown(ASK_AGAIN_COOL_DOWN_MS);
     setRefreshError(null);
 
     void (async () => {
@@ -128,7 +128,7 @@ export default function AIScreen() {
         queryClient.setQueryData(["diver", "motivation", lang], nextMotivation);
       } catch {
         // Keep UI resilient while throttling repeated error retries.
-        startManualRefreshCooldown(REFRESH_ERROR_RETRY_MS);
+        startManualRefreshCoolDown(REFRESH_ERROR_RETRY_MS);
         setRefreshError(tr.ai.refreshError);
       }
     })();
@@ -136,7 +136,7 @@ export default function AIScreen() {
     canAskAgain,
     language,
     queryClient,
-    startManualRefreshCooldown,
+    startManualRefreshCoolDown,
     tr.ai.refreshError
   ]);
 
