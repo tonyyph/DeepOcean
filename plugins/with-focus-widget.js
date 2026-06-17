@@ -6,6 +6,7 @@ const {
   withDangerousMod,
   withEntitlementsPlist,
   withInfoPlist,
+  withPodfile,
   withStringsXml
 } = require("expo/config-plugins");
 
@@ -43,6 +44,63 @@ function runIosWidgetPatcher(projectRoot) {
       `iOS widget patcher failed with exit code ${result.status ?? "unknown"}`
     );
   }
+}
+
+const PODS_RESOURCE_BUNDLE_SIGNING_PATCH_MARKER =
+  "DEEP_OCEAN_DISABLE_PODS_RESOURCE_BUNDLE_SIGNING";
+
+const PODS_RESOURCE_BUNDLE_SIGNING_PATCH = `  # ${PODS_RESOURCE_BUNDLE_SIGNING_PATCH_MARKER}
+  # Xcode 14+ signs CocoaPods resource bundles by default. EAS production
+  # builds should only sign the app and extension targets, not Pods bundles.
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
+      config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+      config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+    end
+  end
+
+  installer.generated_projects.each do |project|
+    project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
+        config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+        config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+      end
+    end
+  end
+
+  installer.target_installation_results.pod_target_installation_results.each do |_pod_name, target_installation_result|
+    next unless target_installation_result.respond_to?(:resource_bundle_targets)
+
+    target_installation_result.resource_bundle_targets.each do |resource_bundle_target|
+      resource_bundle_target.build_configurations.each do |config|
+        config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
+        config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+        config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+      end
+    end
+  end
+`;
+
+function ensurePodsResourceBundleSigningPatch(contents) {
+  if (contents.includes(PODS_RESOURCE_BUNDLE_SIGNING_PATCH_MARKER)) {
+    return contents;
+  }
+
+  if (contents.includes("post_install do |installer|\n")) {
+    return contents.replace(
+      "post_install do |installer|\n",
+      `post_install do |installer|\n${PODS_RESOURCE_BUNDLE_SIGNING_PATCH}\n`
+    );
+  }
+
+  return `${contents.trimEnd()}
+
+post_install do |installer|
+${PODS_RESOURCE_BUNDLE_SIGNING_PATCH}
+end
+`;
 }
 
 function addOrUpdateString(resources, name, value) {
@@ -844,12 +902,22 @@ struct DeepOceanFocusWidget: Widget {
   ]);
 }
 
+function withPodsResourceBundleSigningFix(config) {
+  return withPodfile(config, (modConfig) => {
+    modConfig.modResults.contents = ensurePodsResourceBundleSigningPatch(
+      modConfig.modResults.contents
+    );
+    return modConfig;
+  });
+}
+
 const withFocusWidget = (config, props = {}) => {
   config = withFocusWidgetAndroidFiles(config);
   config = withFocusWidgetAndroidManifest(config);
   config = withFocusWidgetAndroidStrings(config);
   config = withFocusWidgetAppGroup(config, props);
   config = withFocusWidgetIosScheme(config);
+  config = withPodsResourceBundleSigningFix(config);
   config = withFocusWidgetIosFiles(config, props);
   return config;
 };
