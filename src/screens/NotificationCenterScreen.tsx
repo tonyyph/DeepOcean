@@ -418,22 +418,22 @@ const makeStyles = (t: AppTheme) =>
       paddingBottom: t.spacing[3]
     },
     backBtn: {
-      width: 44,
-      minHeight: 44,
+      width: 40,
+      minHeight: 40,
       borderRadius: t.radii.lg,
       backgroundColor: t.colors.panelStrong,
       alignItems: "center",
       justifyContent: "center",
-      marginLeft: t.spacing[4]
+      marginLeft: t.spacing[3]
     },
     backBtnNoColor: {
-      width: 44,
-      minHeight: 44,
+      width: 40,
+      minHeight: 40,
       borderRadius: t.radii.lg,
       backgroundColor: "transparent",
       alignItems: "center",
       justifyContent: "center",
-      marginRight: t.spacing[4]
+      marginRight: t.spacing[3]
     },
     heroShell: {
       overflow: "hidden",
@@ -661,5 +661,5 @@ const makeStyles = (t: AppTheme) =>
       height: 13,
       borderRadius: t.radii.xs,
       marginTop: t.spacing[2]
-    },
+    }
   });

@@ -223,11 +223,7 @@ export default function HomeScreen() {
                   color={t.colors.text}
                 />
                 {unreadNotifications > 0 ? (
-                  <View style={styles.bellBadge}>
-                    <Text style={styles.bellBadgeText}>
-                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
-                    </Text>
-                  </View>
+                  <View style={styles.bellBadge} />
                 ) : null}
               </Pressable>
             </View>

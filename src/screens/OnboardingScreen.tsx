@@ -187,7 +187,7 @@ export default function OnboardingScreen() {
             accessibilityLabel={tr.sessionDetail.back}
             style={styles.backBtn}
           >
-            <Ionicons name="chevron-back" size={24} color={t.colors.text} />
+            <Ionicons name="chevron-back" size={20} color={t.colors.text} />
           </Pressable>
         )}
         <ScreenScrollView>
@@ -548,13 +548,13 @@ const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
     backBtn: {
-      width: 44,
-      minHeight: 44,
+      width: 40,
+      minHeight: 40,
       borderRadius: t.radii.lg,
       backgroundColor: t.colors.panelStrong,
       alignItems: "center",
       justifyContent: "center",
-      marginLeft: t.spacing[4]
+      marginLeft: t.spacing[3]
     },
     container: {
       flex: 1,

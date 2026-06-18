@@ -22,6 +22,7 @@ import { useDiveEventEngine } from "@/features/discovery";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useDiveSession } from "@/stores";
+import { decideDiveLaunch } from "./diveLaunchPolicy";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BackHandler, StyleSheet, Switch, Text, View } from "react-native";
@@ -65,6 +66,7 @@ export default function DiveScreen() {
   const [rewardQueue, setRewardQueue] = useState<RewardItem[]>([]);
 
   const prevZoneRef = useRef<OceanZone | null>(null);
+  const launchCheckedRef = useRef(false);
   const queueBuiltRef = useRef(false);
   const rewardQueuePresentedRef = useRef(false);
   const navigateAfterQueueRef = useRef(false);
@@ -83,13 +85,13 @@ export default function DiveScreen() {
   const liveDiscovery = useDiveEventEngine();
 
   useEffect(() => {
-    const shouldStartNewSession =
-      !session ||
-      session.status === "idle" ||
-      session.status === "surfaced" ||
-      session.status === "cancelled";
+    const decision = decideDiveLaunch(
+      launchCheckedRef.current,
+      session?.status
+    );
+    launchCheckedRef.current = decision.hasChecked;
 
-    if (shouldStartNewSession) {
+    if (decision.shouldStart) {
       const target = minutes ? parseInt(minutes, 10) : null;
       start(Number.isFinite(target) ? (target as number) : null);
     }
