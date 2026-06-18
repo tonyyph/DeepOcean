@@ -442,7 +442,10 @@ export const en = {
     keepDiving: "Keep diving",
     abortTitle: "ABORT DIVE?",
     abortMsg: "This dive will be discarded.",
-    continue: "Continue"
+    continue: "Continue",
+    completeTitle: "DIVE COMPLETE",
+    completeMsg: "Your focus session is complete. Take a breath and surface.",
+    completeCta: "Surface"
   },
   paywall: {
     title: "Dive Deeper with Pro",

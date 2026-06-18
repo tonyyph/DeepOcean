@@ -40,6 +40,8 @@ import { DeepOceanLiveActivity } from "@/core/live-activity/DeepOceanLiveActivit
 
 type State = {
   session: DiveSession | null;
+  lastEndReason: "natural" | "manual" | null;
+  _endingSessionId: string | null;
   // engine internals
   _intervalHandle: ReturnType<typeof setInterval> | null;
   _lastRollMinute: number;
@@ -57,7 +59,7 @@ type Actions = {
   start: (targetMinutes: number | null) => void;
   pause: () => void;
   resume: () => void;
-  end: (options?: { notifyCompletion?: boolean }) => Promise<void>;
+  end: (options?: { reason?: "natural" | "manual" }) => Promise<void>;
   cancel: () => void;
   /** Clear pending rewards after the UI has consumed them. */
   clearPendingRewards: () => void;
@@ -201,23 +203,11 @@ async function clearDiveNotifications(
   ]);
 }
 
-async function notifyDiveCompletionNow(): Promise<void> {
-  const granted = await NotificationService.requestPermission();
-  if (!granted) return;
-  const language = (useSettings.getState().language ?? "en") as Language;
-  const copy = translations[language].notifications;
-  const config = getDiveNotificationConfig();
-  await NotificationService.notifyDiveCompletionNow({
-    title: copy.diveCompleteTitle,
-    body: copy.diveCompleteBody,
-    sound: config.completionSound,
-    channelName: copy.completionChannel,
-  });
-}
-
 export const useDiveSession = create<State & Actions>()(
   subscribeWithSelector((set, get) => ({
     session: null,
+    lastEndReason: null,
+    _endingSessionId: null,
     _intervalHandle: null,
     _lastRollMinute: 0,
     _pausedStartedAt: null,
@@ -228,8 +218,16 @@ export const useDiveSession = create<State & Actions>()(
     pendingAchievements: [],
 
     start: (targetMinutes) => {
-      // Guard: if a dive is already active, do nothing.
-      if (get().session && get().session?.status === "diving") return;
+      // Never overwrite a live or resumable session. Terminal sessions are
+      // replaced with a fresh id so DiveScreen cannot reuse stale UI/audio.
+      const currentSession = get().session;
+      if (
+        currentSession?.status === "diving" ||
+        currentSession?.status === "paused" ||
+        get()._endingSessionId === currentSession?.id
+      ) {
+        return;
+      }
       const seed = Math.floor(Math.random() * 0xffffffff);
       const session: DiveSession = {
         id: `dive_${Date.now()}`,
@@ -250,12 +248,16 @@ export const useDiveSession = create<State & Actions>()(
       const handle = setInterval(() => get().tick(), TICK_MS);
       set({
         session,
+        lastEndReason: null,
+        _endingSessionId: null,
         _intervalHandle: handle,
         _lastRollMinute: 0,
         _pausedStartedAt: null,
         _pausedAccumulatedMs: 0,
         _completionNotificationId: null,
         _activeNotificationId: null,
+        pendingLevelUp: null,
+        pendingAchievements: [],
       });
       void DeepOceanLiveActivity.start(session);
       void armDiveNotifications(session, 0).then(
@@ -357,6 +359,8 @@ export const useDiveSession = create<State & Actions>()(
       void DeepOceanLiveActivity.end(get().session?.id);
       set({
         session: null,
+        lastEndReason: null,
+        _endingSessionId: null,
         _intervalHandle: null,
         _lastRollMinute: 0,
         _pausedStartedAt: null,
@@ -379,9 +383,13 @@ export const useDiveSession = create<State & Actions>()(
         _pausedStartedAt,
         _completionNotificationId,
         _activeNotificationId,
+        _endingSessionId,
       } = get();
-      if (!session) return;
+      if (!session || _endingSessionId === session.id) return;
       if (_intervalHandle) clearInterval(_intervalHandle);
+      // Claim this session synchronously before any async persistence work.
+      // This prevents timer/manual actions from running end() twice.
+      set({ _endingSessionId: session.id, _intervalHandle: null });
       const advanced = advanceSession(
         session,
         _lastRollMinute,
@@ -396,9 +404,6 @@ export const useDiveSession = create<State & Actions>()(
         _activeNotificationId,
       );
       void DeepOceanLiveActivity.end(finalSession.id);
-      if (options?.notifyCompletion) {
-        void notifyDiveCompletionNow();
-      }
       hapticDiveSurface();
       await AmbientAudio.stopAll();
 
@@ -467,6 +472,8 @@ export const useDiveSession = create<State & Actions>()(
 
       set({
         session: ended,
+        lastEndReason: options?.reason ?? "manual",
+        _endingSessionId: null,
         _intervalHandle: null,
         _lastRollMinute: advanced.lastRollMinute,
         _pausedStartedAt: null,
@@ -502,13 +509,7 @@ export const useDiveSession = create<State & Actions>()(
       if (reachedTarget) {
         set({ session: updated, _lastRollMinute: advanced.lastRollMinute });
         void DeepOceanLiveActivity.update(updated);
-        const completionAt = diveCompletionAt(
-          updated,
-          state._pausedAccumulatedMs,
-        );
-        const shouldNotifyNow =
-          completionAt === null || Date.now() - completionAt < 2000;
-        get().end({ notifyCompletion: shouldNotifyNow });
+        get().end({ reason: "natural" });
         return;
       }
       set({ session: updated, _lastRollMinute: advanced.lastRollMinute });

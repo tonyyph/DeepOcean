@@ -45,13 +45,19 @@ const configuredChannels = new Set<string>();
 function ensureHandler(): void {
   if (handlerConfigured) return;
   Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: false,
-      shouldShowBanner: false,
-      shouldShowList: false,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
+    handleNotification: async (notification) => {
+      const isDiveCompletion =
+        notification.request.content.data?.kind === "dive-complete";
+      return {
+        shouldShowAlert: false,
+        shouldShowBanner: false,
+        shouldShowList: false,
+        // DiveScreen owns the foreground completion cue. The scheduled
+        // notification remains audible only when the app is backgrounded.
+        shouldPlaySound: !isDiveCompletion,
+        shouldSetBadge: false,
+      };
+    },
   });
   handlerConfigured = true;
 }

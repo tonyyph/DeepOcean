@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useRef
 } from "react";
-import { View, Text, StyleSheet, BackHandler } from "react-native";
+import { View, Text, StyleSheet, BackHandler, Switch } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useDiveSession, useAchievements } from "@/stores";
@@ -33,6 +33,7 @@ import type { OceanZone } from "@/features/ocean/zones";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { Pressable } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDiveAudio } from "@/features/audio/useDiveAudio";
 
 type DialogConfig = {
   title: string;
@@ -43,6 +44,7 @@ type DialogConfig = {
 };
 
 type RewardItem =
+  | { type: "completion" }
   | { type: "levelUp"; from: number; to: number }
   | { type: "achievement"; achievement: TitleAchievement };
 
@@ -56,6 +58,7 @@ export default function DiveScreen() {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const session = useDiveSession((s) => s.session);
+  const lastEndReason = useDiveSession((s) => s.lastEndReason);
   const start = useDiveSession((s) => s.start);
   const pause = useDiveSession((s) => s.pause);
   const resume = useDiveSession((s) => s.resume);
@@ -69,21 +72,34 @@ export default function DiveScreen() {
 
   const prevZoneRef = useRef<OceanZone | null>(null);
   const queueBuiltRef = useRef(false);
+  const rewardQueuePresentedRef = useRef(false);
   const navigateAfterQueueRef = useRef(false);
   const unlockZone = useAchievements((s) => s.unlockZone);
   const pendingLevelUp = useDiveSession((s) => s.pendingLevelUp);
   const pendingAchievements = useDiveSession((s) => s.pendingAchievements);
   const clearPendingRewards = useDiveSession((s) => s.clearPendingRewards);
   const tr = useTranslations();
+  const {
+    musicEnabled,
+    setMusicEnabled,
+    naturalCompletion,
+    completionSoundFinished
+  } = useDiveAudio(session, lastEndReason);
 
   const liveDiscovery = useDiveEventEngine();
 
   useEffect(() => {
-    if (!session) {
+    const shouldStartNewSession =
+      !session ||
+      session.status === "idle" ||
+      session.status === "surfaced" ||
+      session.status === "cancelled";
+
+    if (shouldStartNewSession) {
       const target = minutes ? parseInt(minutes, 10) : null;
       start(Number.isFinite(target) ? (target as number) : null);
     }
-  }, []);
+  }, [minutes, session, start]);
 
   const confirmSurface = useCallback(() => {
     setDialog({
@@ -135,6 +151,9 @@ export default function DiveScreen() {
     if (session?.status === "surfaced" && !queueBuiltRef.current) {
       queueBuiltRef.current = true;
       const queue: RewardItem[] = [];
+      if (naturalCompletion) {
+        queue.push({ type: "completion" });
+      }
       if (pendingLevelUp) {
         queue.push({
           type: "levelUp",
@@ -148,8 +167,11 @@ export default function DiveScreen() {
       clearPendingRewards();
       if (queue.length > 0) {
         navigateAfterQueueRef.current = true;
-        setTimeout(() => setRewardQueue(queue), 0);
-      } else {
+        setTimeout(() => {
+          rewardQueuePresentedRef.current = true;
+          setRewardQueue(queue);
+        }, 0);
+      } else if (!naturalCompletion || completionSoundFinished) {
         router.replace("/(tabs)");
       }
     }
@@ -158,15 +180,41 @@ export default function DiveScreen() {
     pendingLevelUp,
     pendingAchievements,
     clearPendingRewards,
+    completionSoundFinished,
+    naturalCompletion,
     router
   ]);
 
   useEffect(() => {
-    if (navigateAfterQueueRef.current && rewardQueue.length === 0) {
+    if (
+      session?.status === "surfaced" &&
+      queueBuiltRef.current &&
+      rewardQueue.length === 0 &&
+      !navigateAfterQueueRef.current &&
+      naturalCompletion &&
+      completionSoundFinished
+    ) {
+      router.replace("/(tabs)");
+    }
+  }, [
+    completionSoundFinished,
+    naturalCompletion,
+    rewardQueue.length,
+    router,
+    session?.status
+  ]);
+
+  useEffect(() => {
+    if (
+      navigateAfterQueueRef.current &&
+      rewardQueuePresentedRef.current &&
+      rewardQueue.length === 0 &&
+      (!naturalCompletion || completionSoundFinished)
+    ) {
       navigateAfterQueueRef.current = false;
       router.replace("/(tabs)");
     }
-  }, [rewardQueue.length, router]);
+  }, [completionSoundFinished, naturalCompletion, rewardQueue.length, router]);
 
   const progress = useMemo(() => {
     if (!session) return 0;
@@ -178,6 +226,10 @@ export default function DiveScreen() {
   const handleCancel = () => {
     setAbortOpen(true);
   };
+
+  const dismissReward = useCallback(() => {
+    setRewardQueue((queue) => queue.slice(1));
+  }, []);
 
   if (!session) {
     return <ZoneBackground zone="surface" />;
@@ -194,11 +246,26 @@ export default function DiveScreen() {
       <UnderwaterCanvas zone={"midnight"} particleCount={12} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.topBlock}>
-          <DepthIndicator
-            depthMeters={session.depthMeters}
-            zone={session.zone}
-            progress={progress}
-          />
+          <View style={styles.zoneRow}>
+            <DepthIndicator
+              depthMeters={session.depthMeters}
+              zone={session.zone}
+              progress={progress}
+            />
+            <View style={styles.musicToggle}>
+              <Switch
+                value={musicEnabled}
+                onValueChange={setMusicEnabled}
+                trackColor={{
+                  false: t.colors.glass,
+                  true: t.colors.accent
+                }}
+                thumbColor={t.colors.text}
+                ios_backgroundColor={t.colors.glass}
+                style={styles.musicSwitch}
+              />
+            </View>
+          </View>
           {session.discoveries.length > 0 && (
             <Animated.View entering={FadeIn} exiting={FadeOut}>
               <GlowText size={13} shadow={false} color={t.colors.accentSoft}>
@@ -294,6 +361,19 @@ export default function DiveScreen() {
       </Sheet>
 
       <ConfirmModal
+        visible={rewardQueue[0]?.type === "completion"}
+        onDismiss={dismissReward}
+        title={tr.dive.completeTitle}
+        message={tr.dive.completeMsg}
+        cancelLabel={tr.dive.completeCta}
+        confirmLabel={tr.dive.completeCta}
+        tone="default"
+        icon="checkmark-circle"
+        showCancel={false}
+        onConfirm={dismissReward}
+      />
+
+      <ConfirmModal
         visible={abortOpen}
         onDismiss={() => setAbortOpen(false)}
         title={tr.dive.abortTitle}
@@ -320,7 +400,7 @@ export default function DiveScreen() {
         visible={rewardQueue[0]?.type === "levelUp"}
         prevLevel={rewardQueue[0]?.type === "levelUp" ? rewardQueue[0].from : 1}
         newLevel={rewardQueue[0]?.type === "levelUp" ? rewardQueue[0].to : 2}
-        onDismiss={() => setRewardQueue((q) => q.slice(1))}
+        onDismiss={dismissReward}
       />
       <TitleAchievementModal
         visible={rewardQueue[0]?.type === "achievement"}
@@ -329,7 +409,7 @@ export default function DiveScreen() {
             ? rewardQueue[0].achievement
             : null
         }
-        onDismiss={() => setRewardQueue((q) => q.slice(1))}
+        onDismiss={dismissReward}
       />
     </ZoneBackground>
   );
@@ -343,7 +423,33 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "space-between",
       padding: t.spacing[4]
     },
-    topBlock: { alignItems: "center", gap: t.spacing[4] + 2 },
+    topBlock: { alignItems: "center", gap: t.spacing[3] },
+    zoneRow: {
+      position: "relative",
+      width: "100%",
+      alignItems: "center",
+      justifyContent: "center"
+    },
+    musicToggle: {
+      position: "absolute",
+      right: 0,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: t.spacing[1.5],
+      minHeight: 30,
+      paddingLeft: t.spacing[3],
+      paddingRight: t.spacing[1]
+    },
+    musicToggleLabel: {
+      color: t.colors.textSecondary,
+      fontFamily: t.fonts.label,
+      fontSize: 11,
+      letterSpacing: 0.4
+    },
+    musicSwitch: {
+      transform: [{ scale: 0.8 }],
+      marginHorizontal: -7
+    },
     ringWrap: { alignItems: "center" },
     actions: { gap: t.spacing[3] + 2 },
     row: { flexDirection: "row", gap: t.spacing[3] },

@@ -29,7 +29,7 @@ import {
 } from "@/features/notifications";
 import { QUICK_DURATIONS, ZONE_TABLE } from "@/features/ocean";
 import type { OceanZone } from "@/features/ocean/zones";
-import { useAchievements, useSettings } from "@/stores";
+import { useAchievements, useDiveSession, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -68,6 +68,7 @@ export default function HomeScreen() {
   const unreadNotifications = useNotificationCenter(
     selectUnreadNotificationCount
   );
+  const beginDiveSession = useDiveSession((s) => s.start);
 
   const preferredMinutes = useSettings(
     (
@@ -148,12 +149,13 @@ export default function HomeScreen() {
 
   const startDive = useCallback(
     (minutes: number | null) => {
+      beginDiveSession(minutes);
       router.push({
         pathname: "/dive",
         params: minutes ? { minutes: String(minutes) } : {}
       });
     },
-    [router]
+    [beginDiveSession, router]
   );
 
   const preferredZoneLabel = useMemo(

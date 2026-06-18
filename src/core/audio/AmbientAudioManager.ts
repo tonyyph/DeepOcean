@@ -1,11 +1,9 @@
 import {
   createAudioPlayer,
-  preload,
   setAudioModeAsync,
   type AudioPlayer,
   type AudioSource
 } from "expo-audio";
-import { Asset } from "expo-asset";
 import type { OceanZone } from "@/features/ocean/zones";
 
 /**
@@ -31,15 +29,15 @@ type LayerSlot = {
 const CROSSFADE_MS = 1600;
 const PRELOAD_BUFFER_SECONDS = 12;
 const DEFAULT_AMBIENT_VOLUME = 0.65;
-const BUNDLED_AMBIENT_LOOP = require("@assets/audio/luffy.wav") as number;
 
 const ZONE_SOURCES: Record<OceanZone, AudioSource | null> = {
-  // Use the bundled loop for every zone until zone-specific stems are added.
-  surface: BUNDLED_AMBIENT_LOOP,
-  twilight: BUNDLED_AMBIENT_LOOP,
-  midnight: BUNDLED_AMBIENT_LOOP,
-  abyss: BUNDLED_AMBIENT_LOOP,
-  trench: BUNDLED_AMBIENT_LOOP
+  // luffy.wav is a completion cue, never an ambient loop. Add licensed,
+  // loop-safe zone stems here when they are available.
+  surface: null,
+  twilight: null,
+  midnight: null,
+  abyss: null,
+  trench: null
 };
 
 class AmbientAudioManagerImpl {
@@ -130,16 +128,6 @@ class AmbientAudioManagerImpl {
       console.warn("[AmbientAudioManager] audio mode unavailable", err);
     }
 
-    try {
-      await Asset.loadAsync([BUNDLED_AMBIENT_LOOP]);
-      await preload(BUNDLED_AMBIENT_LOOP, {
-        preferredForwardBufferDuration: PRELOAD_BUFFER_SECONDS
-      });
-    } catch (err) {
-      // Player creation still has its own fallback path; preload is only a
-      // release-build warmup and must never block the app from booting.
-      console.warn("[AmbientAudioManager] preload failed", err);
-    }
   }
 
   private async swapLayer(

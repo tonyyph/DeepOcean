@@ -446,7 +446,10 @@ export const vi = {
     keepDiving: "Chưa, lặn thêm chút",
     abortTitle: "BỎ CUỘC RỒI À?",
     abortMsg: "Chuyến này sẽ không được lưu lại đâu nhé.",
-    continue: "Không, lặn tiếp"
+    continue: "Không, lặn tiếp",
+    completeTitle: "CHUYẾN LẶN HOÀN TẤT",
+    completeMsg: "Phiên tập trung đã hoàn thành. Hít một hơi và nổi lên nhé.",
+    completeCta: "Nổi lên"
   },
   paywall: {
     title: "Lặn sâu hơn với Pro",

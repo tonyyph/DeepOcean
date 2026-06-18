@@ -13,6 +13,13 @@ const audioManagerPath = path.join(
   "audio",
   "AmbientAudioManager.ts"
 );
+const diveAudioHookPath = path.join(
+  root,
+  "src",
+  "features",
+  "audio",
+  "useDiveAudio.ts"
+);
 
 const failures = [];
 
@@ -71,8 +78,16 @@ if (completionSound !== "luffy.wav") {
 }
 
 const audioManager = readText(audioManagerPath);
-if (!audioManager.includes('require("@assets/audio/luffy.wav")')) {
-  fail("AmbientAudioManager must statically require @assets/audio/luffy.wav.");
+if (audioManager.includes('require("@assets/audio/luffy.wav")')) {
+  fail("AmbientAudioManager must not use luffy.wav as an ambient loop.");
+}
+
+const diveAudioHook = readText(diveAudioHookPath);
+if (!diveAudioHook.includes('require("@assets/audio/luffy.wav")')) {
+  fail("useDiveAudio must statically require the luffy.wav completion cue.");
+}
+if (!diveAudioHook.includes("player.loop = false")) {
+  fail("The luffy.wav completion player must explicitly disable looping.");
 }
 
 if (failures.length > 0) {

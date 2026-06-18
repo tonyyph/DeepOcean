@@ -8,20 +8,20 @@ export const makeStyles = (t: AppTheme) =>
       color: t.colors.accent,
       fontSize: 36,
       fontFamily: t.fonts.display,
-      letterSpacing: t.fonts.displayLetterSpacing,
+      letterSpacing: t.fonts.displayLetterSpacing
     },
     header: { paddingBottom: t.spacing[3], gap: t.spacing[1] },
     headerTopRow: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      minHeight: 44,
+      minHeight: 44
     },
     greeting: {
       color: t.colors.textSecondary,
       fontSize: 13,
       letterSpacing: 1,
-      fontFamily: t.fonts.label,
+      fontFamily: t.fonts.label
     },
     bellButton: {
       width: 44,
@@ -31,60 +31,58 @@ export const makeStyles = (t: AppTheme) =>
       justifyContent: "center",
       backgroundColor: t.colors.glass,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.panelEdge,
+      borderColor: t.colors.panelEdge
     },
     bellButtonPressed: {
       opacity: 0.72,
-      transform: [{ scale: 0.98 }],
+      transform: [{ scale: 0.98 }]
     },
     bellBadge: {
       position: "absolute",
-      top: 7,
-      right: 7,
+      top: 4,
+      right: 4,
       minWidth: 17,
       height: 17,
       paddingHorizontal: 4,
       borderRadius: t.radii.pill,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: t.colors.danger,
-      borderWidth: 1,
-      borderColor: t.colors.background,
+      backgroundColor: t.colors.danger
     },
     bellBadgeText: {
       color: t.colors.text,
       fontSize: 10,
       lineHeight: 12,
-      fontFamily: t.fonts.label,
+      fontFamily: t.fonts.label
     },
     rankRow: {
       flexDirection: "row",
       alignItems: "center",
       gap: t.spacing[1],
-      marginTop: t.spacing[1],
+      marginTop: t.spacing[1]
     },
     rankLabel: {
       color: t.colors.accent,
       fontSize: 12,
       fontFamily: t.fonts.label,
-      letterSpacing: 0.6,
+      letterSpacing: 0.6
     },
     sub: {
       color: t.colors.textSecondary,
       marginTop: t.spacing[1],
       fontSize: 14,
-      fontFamily: t.fonts.body,
+      fontFamily: t.fonts.body
     },
     nameSkeleton: {
       width: 190,
       height: 42,
-      borderRadius: t.radii.s,
+      borderRadius: t.radii.s
     },
     subSkeleton: {
       width: 150,
       height: 14,
       marginTop: t.spacing[1],
-      borderRadius: t.radii.xs,
+      borderRadius: t.radii.xs
     },
     heroCard: { marginTop: t.spacing[0] },
     heroContent: { alignItems: "center", paddingVertical: t.spacing[5] },
@@ -92,52 +90,52 @@ export const makeStyles = (t: AppTheme) =>
       color: t.colors.accent,
       letterSpacing: 1,
       fontSize: 12,
-      fontFamily: t.fonts.label,
+      fontFamily: t.fonts.label
     },
     heroDuration: {
       color: t.colors.text,
       fontSize: 56,
       fontFamily: t.fonts.display,
       marginTop: t.spacing[1.5],
-      lineHeight: 60,
+      lineHeight: 60
     },
     heroDurationSub: {
       color: t.colors.textSecondary,
       fontSize: 13,
       fontFamily: t.fonts.body,
-      marginTop: -2,
+      marginTop: -2
     },
     heroHint: {
       color: t.colors.textSecondary,
       marginTop: t.spacing[2],
       fontSize: 12,
-      fontFamily: t.fonts.body,
+      fontFamily: t.fonts.body
     },
     quickRow: { flexDirection: "row", gap: t.spacing[2.5] },
     quickItem: { flex: 1 },
     row: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
+      justifyContent: "space-between"
     },
     companionBody: {
       color: t.colors.text,
       fontSize: 15,
       lineHeight: 22,
-      fontFamily: t.fonts.body,
+      fontFamily: t.fonts.body
     },
     personalPlanCard: {
-      overflow: "hidden",
+      overflow: "hidden"
     },
     personalPlanHeader: {
       alignItems: "flex-start",
-      gap: t.spacing[2],
+      gap: t.spacing[2]
     },
     personalPlanTitleRow: {
       flexDirection: "row",
       alignItems: "center",
       gap: t.spacing[2],
-      alignSelf: "stretch",
+      alignSelf: "stretch"
     },
     personalPlanLock: {
       flexDirection: "row",
@@ -150,12 +148,12 @@ export const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       backgroundColor: t.colors.glass,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.borderStrong,
+      borderColor: t.colors.borderStrong
     },
     personalPlanLockText: {
       color: t.colors.premium,
       fontSize: 10,
-      fontFamily: t.fonts.label,
+      fontFamily: t.fonts.label
     },
     personalPlanName: {
       color: t.colors.text,
@@ -163,16 +161,16 @@ export const makeStyles = (t: AppTheme) =>
       lineHeight: 23,
       fontFamily: t.fonts.display,
       letterSpacing: t.fonts.displayLetterSpacing,
-      marginTop: t.spacing[3],
+      marginTop: t.spacing[3]
     },
     personalPlanSteps: {
       gap: t.spacing[2],
-      marginTop: t.spacing[3],
+      marginTop: t.spacing[3]
     },
     personalPlanStep: {
       flexDirection: "row",
       alignItems: "flex-start",
-      gap: t.spacing[2],
+      gap: t.spacing[2]
     },
     personalPlanStepIndex: {
       width: 22,
@@ -184,43 +182,43 @@ export const makeStyles = (t: AppTheme) =>
       color: t.colors.background,
       backgroundColor: t.colors.accent,
       fontFamily: t.fonts.mono,
-      fontSize: 11,
+      fontSize: 11
     },
     personalPlanStepText: {
       color: t.colors.textSecondary,
       fontSize: 13,
       lineHeight: 18,
       fontFamily: t.fonts.body,
-      flex: 1,
+      flex: 1
     },
     personalPlanItems: {
       gap: t.spacing[1],
       marginTop: t.spacing[3],
-      opacity: 0.82,
+      opacity: 0.82
     },
     personalPlanItem: {
       color: t.colors.textMuted,
       fontSize: 12,
       lineHeight: 17,
-      fontFamily: t.fonts.body,
+      fontFamily: t.fonts.body
     },
     personalPlanFade: {
       height: StyleSheet.hairlineWidth,
       backgroundColor: t.colors.panelEdge,
-      marginTop: t.spacing[3],
+      marginTop: t.spacing[3]
     },
     personalPlanCta: {
-      marginTop: t.spacing[3],
+      marginTop: t.spacing[3]
     },
     companionSectionSkeleton: {
-      marginTop: t.spacing[2],
+      marginTop: t.spacing[2]
     },
     // Last dive card
     lastDiveRow: {
       flexDirection: "row",
       alignItems: "center",
       gap: t.spacing[3],
-      marginTop: t.spacing[2],
+      marginTop: t.spacing[2]
     },
     lastDiveZoneBadge: {
       width: 44,
@@ -229,39 +227,39 @@ export const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
-      backgroundColor: t.colors.glass,
+      backgroundColor: t.colors.glass
     },
     lastDiveIconSkeleton: {
       width: 44,
       height: 44,
-      borderRadius: t.radii.sm,
+      borderRadius: t.radii.sm
     },
     lastDiveMetaSkeleton: {
       width: 120,
       height: 12,
-      borderRadius: t.radii.xs,
+      borderRadius: t.radii.xs
     },
     lastDiveMetaSkeletonShort: {
       width: 86,
       height: 14,
       borderRadius: t.radii.xs,
-      marginTop: t.spacing[1.5],
+      marginTop: t.spacing[1.5]
     },
     lastDiveXpSkeleton: {
       width: 58,
       height: 24,
-      borderRadius: t.radii.pill,
+      borderRadius: t.radii.pill
     },
     lastDiveZoneLabel: {
       fontSize: 11,
       fontFamily: t.fonts.label,
-      letterSpacing: 0.8,
+      letterSpacing: 0.8
     },
     lastDiveDuration: {
       color: t.colors.text,
       fontSize: 15,
       fontFamily: t.fonts.body,
-      marginTop: 2,
+      marginTop: 2
     },
     lastDiveXpBadge: {
       paddingHorizontal: t.spacing[3],
@@ -269,28 +267,28 @@ export const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       backgroundColor: t.colors.glass,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.panelEdge,
+      borderColor: t.colors.panelEdge
     },
     lastDiveXpText: {
       color: t.colors.accent,
       fontSize: 13,
-      fontFamily: t.fonts.mono,
+      fontFamily: t.fonts.mono
     },
     emptyLastDiveText: {
       color: t.colors.textSecondary,
       fontSize: 14,
       lineHeight: 20,
       fontFamily: t.fonts.body,
-      marginTop: t.spacing[2],
+      marginTop: t.spacing[2]
     },
     emptyLastDiveCtaWrap: {
-      marginTop: t.spacing[3],
+      marginTop: t.spacing[3]
     },
     // Zone progress
     zoneStrip: {
       flexDirection: "row",
       gap: t.spacing[2],
-      marginTop: t.spacing[2],
+      marginTop: t.spacing[2]
     },
     zoneChip: {
       flex: 1,
@@ -302,17 +300,17 @@ export const makeStyles = (t: AppTheme) =>
       overflow: "hidden",
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.border,
-      backgroundColor: t.colors.panelStrong,
+      backgroundColor: t.colors.panelStrong
     },
     zoneChipUnlocked: {
-      borderColor: t.colors.borderStrong,
+      borderColor: t.colors.borderStrong
     },
     zoneChipLocked: {
       borderColor: t.colors.border,
-      opacity: 1,
+      opacity: 1
     },
     zoneChipDeepest: {
-      borderWidth: 1,
+      borderWidth: 1
     },
     zoneChipLabel: {
       fontSize: 10,
@@ -321,12 +319,12 @@ export const makeStyles = (t: AppTheme) =>
       textAlign: "center",
       textShadowColor: "rgba(0,0,0,0.42)",
       textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 2,
+      textShadowRadius: 2
     },
     zoneDeepestDot: {
       width: 4,
       height: 4,
-      borderRadius: 2,
+      borderRadius: 2
     },
     // Stats
     statsRow: { flexDirection: "row", gap: t.spacing[2.5] },
@@ -334,43 +332,43 @@ export const makeStyles = (t: AppTheme) =>
       flexDirection: "row",
       alignItems: "baseline",
       gap: 2,
-      marginTop: t.spacing[1],
+      marginTop: t.spacing[1]
     },
     statValue: {
       color: t.colors.text,
       fontSize: 22,
-      fontFamily: t.fonts.mono,
+      fontFamily: t.fonts.mono
     },
     statUnit: {
       color: t.colors.textSecondary,
       fontSize: 13,
-      fontFamily: t.fonts.label,
+      fontFamily: t.fonts.label
     },
     statLabel: {
       color: t.colors.textSecondary,
       fontSize: 10,
       letterSpacing: 0.8,
       fontFamily: t.fonts.label,
-      marginTop: t.spacing[1],
+      marginTop: t.spacing[1]
     },
     skeletonLabel: {
       width: 110,
       height: 11,
-      borderRadius: t.radii.xs,
+      borderRadius: t.radii.xs
     },
     streakMilestoneHeader: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[2],
+      gap: t.spacing[2]
     },
     streakMilestoneBody: {
       color: t.colors.textSecondary,
       fontSize: 14,
       lineHeight: 20,
       fontFamily: t.fonts.body,
-      marginTop: t.spacing[2],
+      marginTop: t.spacing[2]
     },
     streakMilestoneCtaWrap: {
-      marginTop: t.spacing[3],
-    },
+      marginTop: t.spacing[3]
+    }
   });

@@ -33,6 +33,8 @@ type Props = {
   tone?: Tone;
   /** Optional Ionicon name shown above the title. */
   icon?: keyof typeof Ionicons.glyphMap;
+  /** Hide the secondary action for acknowledgement-only messages. */
+  showCancel?: boolean;
 };
 
 /**
@@ -50,7 +52,8 @@ export const ConfirmModal = React.memo(function ConfirmModal({
   confirmLabel,
   onConfirm,
   tone = "default",
-  icon
+  icon,
+  showCancel = true
 }: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
@@ -121,19 +124,21 @@ export const ConfirmModal = React.memo(function ConfirmModal({
             <Text style={styles.message}>{message}</Text>
 
             <View style={styles.actions}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.btn,
-                  styles.cancelBtn,
-                  pressed && { opacity: 0.7 }
-                ]}
-                onPress={() => {
-                  tap(Haptics.ImpactFeedbackStyle.Light);
-                  onDismiss();
-                }}
-              >
-                <Text style={styles.cancelText}>{cancelLabel}</Text>
-              </Pressable>
+              {showCancel && (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.btn,
+                    styles.cancelBtn,
+                    pressed && { opacity: 0.7 }
+                  ]}
+                  onPress={() => {
+                    tap(Haptics.ImpactFeedbackStyle.Light);
+                    onDismiss();
+                  }}
+                >
+                  <Text style={styles.cancelText}>{cancelLabel}</Text>
+                </Pressable>
+              )}
               <Pressable
                 style={({ pressed }) => [
                   styles.btn,

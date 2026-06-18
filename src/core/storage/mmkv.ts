@@ -47,4 +47,5 @@ export const StorageKeys = {
   trialState: "app.premium.trial",
   usedPromoCodes: "app.premium.promo_codes",
   widgetSnapshot: "app.widget.snapshot",
+  diveYoutubeMusicEnabled: "dive.youtubeMusicEnabled",
 } as const;
