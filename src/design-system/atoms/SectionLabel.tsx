@@ -1,8 +1,7 @@
 import React from "react";
-import { Text, StyleSheet, View, TextProps } from "react-native";
-import { useTheme } from "../useTheme";
-import { useThemedStyles } from "../useThemedStyles";
+import { StyleSheet, Text, TextProps, View } from "react-native";
 import type { AppTheme } from "../themes";
+import { useThemedStyles } from "../useThemedStyles";
 
 type Props = TextProps & {
   children: React.ReactNode;
@@ -23,7 +22,6 @@ export const SectionLabel = React.memo(function SectionLabel({
   style,
   ...rest
 }: Props) {
-  const t = useTheme();
   const styles = useThemedStyles(makeStyles);
 
   const wrapperStyle =

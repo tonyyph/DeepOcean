@@ -1,4 +1,3 @@
-import { create, StoreApi, UseBoundStore } from "zustand";
 import { storage, StorageKeys, TypedStore } from "@/core/storage/mmkv";
 import type {
   AIRecommendation,
@@ -6,6 +5,7 @@ import type {
   OnboardingPersonalization,
   RecommendedWorkflow
 } from "@/domain/entities";
+import { create, StoreApi, UseBoundStore } from "zustand";
 
 export const ONBOARDING_VERSION = 2;
 
@@ -60,95 +60,94 @@ type PersonalizationState = OnboardingPersonalization & {
   resetOnboarding: () => void;
 };
 
-export const usePersonalization: UseBoundStore<
-  StoreApi<PersonalizationState>
-> = create<PersonalizationState>((set, get) => ({
-  ...hydratePersonalization(),
+export const usePersonalization: UseBoundStore<StoreApi<PersonalizationState>> =
+  create<PersonalizationState>((set, get) => ({
+    ...hydratePersonalization(),
 
-  setGoals: (selectedGoals) =>
-    set((state) => {
-      const next = { ...state, selectedGoals };
-      persist(stripActions(next));
-      return next;
-    }),
+    setGoals: (selectedGoals) =>
+      set((state) => {
+        const next = { ...state, selectedGoals };
+        persist(stripActions(next));
+        return next;
+      }),
 
-  setRecommendation: (lastAIRecommendation) =>
-    set((state) => {
-      const next = { ...state, lastAIRecommendation };
-      persist(stripActions(next));
-      return next;
-    }),
+    setRecommendation: (lastAIRecommendation) =>
+      set((state) => {
+        const next = { ...state, lastAIRecommendation };
+        persist(stripActions(next));
+        return next;
+      }),
 
-  setSelectedRecommendedItems: (selectedRecommendedItems) =>
-    set((state) => {
-      const next = { ...state, selectedRecommendedItems };
-      persist(stripActions(next));
-      return next;
-    }),
+    setSelectedRecommendedItems: (selectedRecommendedItems) =>
+      set((state) => {
+        const next = { ...state, selectedRecommendedItems };
+        persist(stripActions(next));
+        return next;
+      }),
 
-  setWorkflow: (workflowId) =>
-    set((state) => {
-      const next = {
-        ...state,
-        selectedWorkflow: workflowId,
-        lastActiveWorkflow: workflowId
-      };
-      persist(stripActions(next));
-      return next;
-    }),
+    setWorkflow: (workflowId) =>
+      set((state) => {
+        const next = {
+          ...state,
+          selectedWorkflow: workflowId,
+          lastActiveWorkflow: workflowId
+        };
+        persist(stripActions(next));
+        return next;
+      }),
 
-  setLastActiveWorkflow: (workflowId) =>
-    set((state) => {
-      const next = { ...state, lastActiveWorkflow: workflowId };
-      persist(stripActions(next));
-      return next;
-    }),
+    setLastActiveWorkflow: (workflowId) =>
+      set((state) => {
+        const next = { ...state, lastActiveWorkflow: workflowId };
+        persist(stripActions(next));
+        return next;
+      }),
 
-  setPremiumPreference: (premiumPreference) =>
-    set((state) => {
-      const next = { ...state, premiumPreference };
-      persist(stripActions(next));
-      return next;
-    }),
+    setPremiumPreference: (premiumPreference) =>
+      set((state) => {
+        const next = { ...state, premiumPreference };
+        persist(stripActions(next));
+        return next;
+      }),
 
-  completeOnboarding: () =>
-    set((state) => {
-      const workflow =
-        state.selectedWorkflow ??
-        state.lastAIRecommendation?.recommendedWorkflow.id ??
-        "daily_focus";
-      const next = {
-        ...state,
-        onboardingCompleted: true,
-        onboardingVersion: ONBOARDING_VERSION,
-        selectedWorkflow: workflow,
-        lastActiveWorkflow: workflow
-      };
-      persist(stripActions(next));
-      return next;
-    }),
+    completeOnboarding: () =>
+      set((state) => {
+        const workflow =
+          state.selectedWorkflow ??
+          state.lastAIRecommendation?.recommendedWorkflow.id ??
+          "daily_focus";
+        const next = {
+          ...state,
+          onboardingCompleted: true,
+          onboardingVersion: ONBOARDING_VERSION,
+          selectedWorkflow: workflow,
+          lastActiveWorkflow: workflow
+        };
+        persist(stripActions(next));
+        return next;
+      }),
 
-  resetOnboarding: () =>
-    set(() => {
-      const next = {
-        ...DEFAULT_PERSONALIZATION,
-        onboardingCompleted: false,
-        onboardingVersion: ONBOARDING_VERSION
-      };
-      persist(next);
-      return {
-        ...next,
-        setGoals: get().setGoals,
-        setRecommendation: get().setRecommendation,
-        setSelectedRecommendedItems: get().setSelectedRecommendedItems,
-        setWorkflow: get().setWorkflow,
-        setLastActiveWorkflow: get().setLastActiveWorkflow,
-        setPremiumPreference: get().setPremiumPreference,
-        completeOnboarding: get().completeOnboarding,
-        resetOnboarding: get().resetOnboarding
-      };
-    })
-}));
+    resetOnboarding: () =>
+      set(() => {
+        const next = {
+          ...DEFAULT_PERSONALIZATION,
+          onboardingCompleted: false,
+          onboardingVersion: ONBOARDING_VERSION
+        };
+        persist(next);
+        return {
+          ...next,
+          setGoals: get().setGoals,
+          setRecommendation: get().setRecommendation,
+          setSelectedRecommendedItems: get().setSelectedRecommendedItems,
+          setWorkflow: get().setWorkflow,
+          setLastActiveWorkflow: get().setLastActiveWorkflow,
+          setPremiumPreference: get().setPremiumPreference,
+          completeOnboarding: get().completeOnboarding,
+          resetOnboarding: get().resetOnboarding
+        };
+      })
+  }));
 
 function stripActions(state: PersonalizationState): OnboardingPersonalization {
   const {

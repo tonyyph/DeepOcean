@@ -1,7 +1,11 @@
+import { useTranslations } from "@/core/i18n";
+import { NotificationService } from "@/core/notifications/NotificationService";
+import { GlassCard, useTheme } from "@/design-system";
+import type { NotificationMessage } from "@/domain/entities";
 import { Ionicons } from "@expo/vector-icons";
 import type * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
-import React, {
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -9,14 +13,10 @@ import React, {
   useState
 } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTranslations } from "@/core/i18n";
-import { NotificationService } from "@/core/notifications/NotificationService";
-import { GlassCard, useTheme } from "@/design-system";
-import type { NotificationMessage } from "@/domain/entities";
 import { useNotificationCenter } from "./notificationCenter";
-import { Pressable } from "react-native-gesture-handler";
 
 const TOAST_MS = 4200;
 

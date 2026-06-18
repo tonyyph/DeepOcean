@@ -1,5 +1,4 @@
 import { type Translations } from "@/core/i18n";
-import { MOODS, type Mood } from "@/domain/entities";
 import {
   ActionButton,
   GlassCard,
@@ -9,6 +8,7 @@ import {
   type AppTheme,
   type MoodMapEntry
 } from "@/design-system";
+import type { Mood } from "@/domain/entities";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { MotiView } from "moti";

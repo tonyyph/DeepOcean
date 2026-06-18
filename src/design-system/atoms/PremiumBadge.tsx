@@ -1,10 +1,10 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useTranslations } from "@/core/i18n";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
 
 type Props = {
   /** "lock" shows a padlock; "star" shows a premium star. */
@@ -20,7 +20,7 @@ type Props = {
 export const PremiumBadge = React.memo(function PremiumBadge({
   variant = "star",
   label,
-  size = "sm",
+  size = "sm"
 }: Props) {
   const tr = useTranslations();
   const t = useTheme();
@@ -49,12 +49,12 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.premium,
-      backgroundColor: t.colors.glass,
+      backgroundColor: t.colors.glass
     },
     text: {
       color: t.colors.premium,
       fontSize: 9,
       letterSpacing: 1,
-      fontFamily: t.fonts.label,
-    },
+      fontFamily: t.fonts.label
+    }
   });

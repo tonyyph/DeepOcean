@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useTranslations, type Language } from "@/core/i18n";
+import { useCallback, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
+import { GlowText } from "../atoms/GlowText";
+import { PressableCard } from "../atoms/PressableCard";
+import { Sheet } from "../atoms/Sheet";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
-import { GlowText } from "../atoms/GlowText";
-import { Sheet } from "../atoms/Sheet";
-import { PressableCard } from "../atoms/PressableCard";
-import { useTranslations, type Language } from "@/core/i18n";
-import { Pressable } from "react-native-gesture-handler";
 
 const LANGUAGES: { code: Language; native: string }[] = [
   { code: "en", native: "EN" },

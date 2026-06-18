@@ -1,12 +1,11 @@
 import { StorageKeys, TypedStore } from "@/core/storage/mmkv";
-import type { AIProvider } from "@/features/ai/AIProvider";
 import type { AIContext, DiveSession, Language } from "@/domain/entities";
 import type {
   AIRequestOptions,
   IAICompanionGateway
 } from "@/domain/repositories";
+import type { AIProvider } from "@/features/ai/AIProvider";
 import { shouldFallbackToNextProvider } from "../gateways/aiHttp";
-import { composeOfflineCompanion } from "./offlineCompanion";
 import {
   composeOfflineReflection,
   ensureMotivationQuality,
@@ -16,6 +15,7 @@ import {
   shouldServeCachedFirst,
   toReflectionInput
 } from "./AICompanionRepository.helpers";
+import { composeOfflineCompanion } from "./offlineCompanion";
 
 type CacheEntry = { text: string; at: number };
 type AIRequestKind = "recommendation" | "motivation" | "reflection";
@@ -192,7 +192,7 @@ export class AICompanionRepository implements IAICompanionGateway {
   }
 
   private logTelemetry(
-    kind: AIRequestKind,
+    _kind: AIRequestKind,
     event: {
       source: AIResponseSource;
       attemptedProviders: string[];

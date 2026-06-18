@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
-import { Tabs } from "expo-router";
-import { Platform, StyleSheet, View } from "react-native";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
 import { ProTabBar, useTheme } from "@/design-system";
 import { usePremium } from "@/stores";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import { Tabs } from "expo-router";
+import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
+import { useMemo } from "react";
+import { Platform, StyleSheet, View } from "react-native";
 
 /**
  * Bottom tabs.

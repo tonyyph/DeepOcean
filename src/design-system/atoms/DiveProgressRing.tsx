@@ -1,6 +1,6 @@
+import { useTranslations } from "@/core/i18n";
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useTranslations } from "@/core/i18n";
 import Animated, {
   Easing,
   interpolateColor,
@@ -112,9 +112,6 @@ function formatTime(totalSeconds: number): string {
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     wrap: { alignItems: "center", justifyContent: "center" },
-    trackRing: {
-      position: "absolute",
-    },
     activeRing: {
       position: "absolute",
       shadowRadius: 10,

@@ -4,8 +4,8 @@ import { container } from "@/data/container";
 import {
   ActionButton,
   AppHeader,
-  GuidanceCard,
   GlassCard,
+  GuidanceCard,
   OptionPill,
   PaywallSheet,
   ScreenScrollView,
@@ -31,8 +31,8 @@ import { usePremium, useSettings } from "@/stores";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { ProInsights } from "./ai/ProInsights";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ProInsights } from "./ai/ProInsights";
 
 function stableMoodRank(mood: string): number {
   let hash = 0;

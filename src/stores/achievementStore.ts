@@ -1,7 +1,7 @@
-import { create } from "zustand";
 import { StorageKeys, TypedStore } from "@/core/storage/mmkv";
-import type { OceanZone } from "@/features/ocean/zones";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
+import type { OceanZone } from "@/features/ocean/zones";
+import { create } from "zustand";
 
 type AchievementsState = {
   unlockedZones: OceanZone[];

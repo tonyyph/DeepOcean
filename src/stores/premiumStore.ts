@@ -1,17 +1,17 @@
-import { create, StoreApi, UseBoundStore } from "zustand";
-import {
-  THEME_IDS,
-  normalizeThemeId,
-  type ThemeId
-} from "@/design-system/themes";
 import { container } from "@/data/container";
 import { PurchaseCancelledError } from "@/data/repositories/PremiumRepository";
+import {
+  normalizeThemeId,
+  THEME_IDS,
+  type ThemeId
+} from "@/design-system/themes";
 import type {
   EntitlementSnapshot,
   PlanId,
   PromoCodeResult,
   TrialState
 } from "@/domain/entities";
+import { create, StoreApi, UseBoundStore } from "zustand";
 
 /**
  * Premium store — reactive cache over the entitlement gateway (RevenueCat via

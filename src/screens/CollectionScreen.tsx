@@ -3,8 +3,8 @@ import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLo
 import {
   AppHeader,
   CreatureStorySheet,
-  GuidanceCard,
   GlassCard,
+  GuidanceCard,
   PaywallSheet,
   PremiumBadge,
   SectionSkeleton,
@@ -31,12 +31,12 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
-  View
+  View,
+  useWindowDimensions
 } from "react-native";
-import { makeStyles } from "./CollectionScreen.styles";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Pressable } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { makeStyles } from "./CollectionScreen.styles";
 
 type RarityFilter =
   | "all"

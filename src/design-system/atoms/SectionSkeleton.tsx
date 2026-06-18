@@ -1,7 +1,7 @@
 import React from "react";
-import { View, type ViewStyle, type StyleProp } from "react-native";
-import { Skeleton } from "./Skeleton";
+import { View, type StyleProp, type ViewStyle } from "react-native";
 import { useTheme } from "../useTheme";
+import { Skeleton } from "./Skeleton";
 
 type Props = {
   lines?: number;

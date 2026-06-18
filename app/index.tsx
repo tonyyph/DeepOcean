@@ -1,6 +1,5 @@
-import React from "react";
-import { Redirect } from "expo-router";
 import { storage, StorageKeys } from "@/core/storage/mmkv";
+import { Redirect } from "expo-router";
 
 /**
  * Root index — pure router. Routes to onboarding on first launch,

@@ -1,4 +1,6 @@
-import React, {
+import { ScreenTransitionOverlay } from "@/design-system";
+import { usePathname } from "expo-router";
+import {
   createContext,
   useCallback,
   useContext,
@@ -9,8 +11,6 @@ import React, {
   useState,
   type ReactNode
 } from "react";
-import { usePathname } from "expo-router";
-import { ScreenTransitionOverlay } from "@/design-system";
 
 type TransitionLoadingContextValue = {
   isVisible: boolean;

@@ -1,27 +1,27 @@
-import React, { useMemo } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useTranslations } from "@/core/i18n";
 import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLoading";
 import {
-  ZoneBackground,
-  GlassCard,
+  ActionButton,
   AppHeader,
+  GlassCard,
+  KpiCard,
+  ScreenScrollView,
   SectionLabel,
   Skeleton,
-  ScreenScrollView,
-  KpiCard,
-  ActionButton,
+  UnderwaterCanvas,
   useTheme,
   useThemedStyles,
-  type AppTheme,
-  UnderwaterCanvas
+  ZoneBackground,
+  type AppTheme
 } from "@/design-system";
-import { useSessions, useDiverProfile } from "@/features/diver";
 import type { DiveSession } from "@/domain/entities";
-import { useTranslations } from "@/core/i18n";
+import { useDiverProfile, useSessions } from "@/features/diver";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useMemo } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function StatsScreen() {
   const { data: sessions = [], isLoading: sessionsLoading } = useSessions();
@@ -371,9 +371,6 @@ const makeStyles = (t: AppTheme) =>
       paddingVertical: t.spacing[2.5],
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: t.colors.border
-    },
-    sessionRowLast: {
-      borderBottomWidth: 0
     },
     sessionDate: {
       color: t.colors.text,

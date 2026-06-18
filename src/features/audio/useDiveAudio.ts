@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Linking } from "react-native";
+import { StorageKeys, TypedStore } from "@/core/storage/mmkv";
+import type { DiveSession } from "@/domain/entities";
 import {
   createAudioPlayer,
   setAudioModeAsync,
   type AudioPlayer
 } from "expo-audio";
-import type { DiveSession } from "@/domain/entities";
-import { StorageKeys, TypedStore } from "@/core/storage/mmkv";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Linking } from "react-native";
 import { isDirectAudioUrl, isNaturalDiveCompletion } from "./diveAudioPolicy";
 
 const COMPLETION_SOUND = require("@assets/audio/luffy.wav") as number;

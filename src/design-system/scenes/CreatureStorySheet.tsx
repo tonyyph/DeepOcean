@@ -1,19 +1,19 @@
-import React, { useCallback } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useTranslations } from "@/core/i18n";
+import type { Rarity } from "@/features/ocean";
+import { getLore } from "@/features/ocean";
+import { usePremium } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { MotiView } from "moti";
+import { useCallback } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { GlowText } from "../atoms/GlowText";
+import { PremiumBadge } from "../atoms/PremiumBadge";
+import { PressableCard } from "../atoms/PressableCard";
+import { Sheet } from "../atoms/Sheet";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
-import { GlowText } from "../atoms/GlowText";
-import { Sheet } from "../atoms/Sheet";
-import { PressableCard } from "../atoms/PressableCard";
-import { PremiumBadge } from "../atoms/PremiumBadge";
-import { useTranslations } from "@/core/i18n";
-import { usePremium } from "@/stores";
-import { getLore } from "@/features/ocean";
-import type { Rarity } from "@/features/ocean";
 
 export type StoryRow = {
   id: string;

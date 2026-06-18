@@ -4,6 +4,7 @@ import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { MotiView } from "moti";
 import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
 import { GlowText } from "../atoms/GlowText";
 import { PremiumBadge } from "../atoms/PremiumBadge";
 import { PressableCard } from "../atoms/PressableCard";
@@ -11,9 +12,7 @@ import { Sheet } from "../atoms/Sheet";
 import { ThemeSwatch } from "../atoms/ThemeSwatch";
 import type { AppTheme, ThemeId } from "../themes";
 import { combineThemes, THEME_LIST, THEMES } from "../themes";
-import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import { Pressable } from "react-native-gesture-handler";
 
 const SWATCH_SIZE = 62;
 const SWATCH_ITEM_WIDTH = 92;
@@ -34,7 +33,6 @@ export function ThemePickerSheet({
   onDismiss,
   onRequestPaywall
 }: Props) {
-  const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
   const activeId = useThemeStore((s) => s.themeId);
@@ -440,15 +438,6 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 11,
       lineHeight: 16,
       fontFamily: t.fonts.body
-    },
-    effectPanel: {
-      borderRadius: t.radii.s,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.panelStrong,
-      paddingHorizontal: t.spacing[3],
-      paddingVertical: t.spacing[2],
-      gap: t.spacing[1]
     },
     comboTitle: {
       color: t.colors.accent,

@@ -1,39 +1,33 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef
-} from "react";
-import { View, Text, StyleSheet, BackHandler, Switch } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { useDiveSession, useAchievements } from "@/stores";
+import { useTranslations } from "@/core/i18n";
 import {
-  ZoneBackground,
-  UnderwaterCanvas,
-  DiveProgressRing,
+  AchievementModal,
+  ConfirmModal,
   DepthIndicator,
+  DiscoveryOverlay,
+  DiveProgressRing,
   GlassCard,
   GlowText,
-  Sheet,
-  PressableCard,
-  ConfirmModal,
-  AchievementModal,
   LevelUpModal,
+  PressableCard,
+  Sheet,
   TitleAchievementModal,
-  DiscoveryOverlay,
+  UnderwaterCanvas,
   useTheme,
   useThemedStyles,
+  ZoneBackground,
   type AppTheme
 } from "@/design-system";
-import { useTranslations } from "@/core/i18n";
-import { useDiveEventEngine } from "@/features/discovery";
-import type { OceanZone } from "@/features/ocean/zones";
-import type { TitleAchievement } from "@/features/diver/titleAchievements";
-import { Pressable } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useDiveAudio } from "@/features/audio/useDiveAudio";
+import { useDiveEventEngine } from "@/features/discovery";
+import type { TitleAchievement } from "@/features/diver/titleAchievements";
+import type { OceanZone } from "@/features/ocean/zones";
+import { useAchievements, useDiveSession } from "@/stores";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BackHandler, StyleSheet, Switch, Text, View } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogConfig = {
   title: string;
@@ -439,12 +433,6 @@ const makeStyles = (t: AppTheme) =>
       minHeight: 30,
       paddingLeft: t.spacing[3],
       paddingRight: t.spacing[1]
-    },
-    musicToggleLabel: {
-      color: t.colors.textSecondary,
-      fontFamily: t.fonts.label,
-      fontSize: 11,
-      letterSpacing: 0.4
     },
     musicSwitch: {
       transform: [{ scale: 0.8 }],

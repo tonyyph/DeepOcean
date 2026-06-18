@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useThemeStore } from "@/stores/themeStore";
 import { THEMES, type AppTheme } from "./themes";
 

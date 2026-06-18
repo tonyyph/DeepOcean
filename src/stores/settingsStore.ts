@@ -1,6 +1,6 @@
-import { create, StoreApi, UseBoundStore } from "zustand";
 import { StorageKeys, TypedStore } from "@/core/storage/mmkv";
 import type { AppSettings } from "@/domain/entities";
+import { create, StoreApi, UseBoundStore } from "zustand";
 
 const store = new TypedStore<AppSettings>(StorageKeys.settings);
 const DEFAULT: AppSettings = {

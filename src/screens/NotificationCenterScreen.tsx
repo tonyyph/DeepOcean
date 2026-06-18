@@ -1,9 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useTranslations, type Translations } from "@/core/i18n";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
+import type { AppTheme } from "@/design-system";
 import {
   ActionButton,
   GlassCard,
@@ -16,14 +12,18 @@ import {
   useThemedStyles,
   ZoneBackground
 } from "@/design-system";
-import type { AppTheme } from "@/design-system";
 import type { NotificationMessage } from "@/domain/entities";
 import {
   selectUnreadNotificationCount,
   useNotificationCenter
 } from "@/features/notifications";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type FilterMode = "all" | "unread";
 
@@ -409,9 +409,6 @@ function formatRelativeTime(
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    headerRow: {
-      gap: t.spacing[2]
-    },
     topBar: {
       flexDirection: "row",
       alignItems: "center",
@@ -437,9 +434,6 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       marginRight: t.spacing[4]
-    },
-    markAllButton: {
-      alignSelf: "flex-start"
     },
     heroShell: {
       overflow: "hidden",
@@ -668,38 +662,4 @@ const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.xs,
       marginTop: t.spacing[2]
     },
-    emptyStateContainer: {
-      alignItems: "center",
-      justifyContent: "center",
-      gap: t.spacing[4]
-    },
-    emptyIcon: {
-      width: 100,
-      height: 100,
-      borderRadius: t.radii.lg,
-      alignItems: "center",
-      alignSelf: "center",
-      justifyContent: "center",
-      backgroundColor: t.colors.glass,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.panelEdge
-    },
-    emptyIconSoft: {
-      backgroundColor: t.colors.panelStrong
-    },
-    emptyTitle: {
-      color: t.colors.text,
-      fontFamily: t.fonts.label,
-      fontSize: 20,
-      marginTop: t.spacing[4],
-      textAlign: "center"
-    },
-    emptyBody: {
-      color: t.colors.textSecondary,
-      fontFamily: t.fonts.body,
-      fontSize: 14,
-      lineHeight: 20,
-      marginTop: t.spacing[1],
-      textAlign: "center"
-    }
   });

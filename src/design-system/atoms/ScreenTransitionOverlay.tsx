@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { BlurView } from "expo-blur";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -6,7 +7,6 @@ import {
   View,
   type ViewStyle
 } from "react-native";
-import { BlurView } from "expo-blur";
 import Animated, {
   Easing,
   useAnimatedStyle,

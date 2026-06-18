@@ -8,6 +8,10 @@ import {
   useTheme,
   useThemedStyles
 } from "@/design-system";
+import type {
+  AIRecommendation,
+  RecommendedWorkflow
+} from "@/domain/entities";
 import {
   OCEAN_ZONES,
   ZONE_COLORS,
@@ -15,13 +19,8 @@ import {
   ZONE_TABLE
 } from "@/features/ocean";
 import type { OceanZone } from "@/features/ocean/zones";
-import type {
-  AIRecommendation,
-  RecommendedWorkflow
-} from "@/domain/entities";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,

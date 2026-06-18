@@ -1,29 +1,29 @@
-import React, { useMemo } from "react";
-import { View, Text, StyleSheet, Share } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useTranslations } from "@/core/i18n";
 import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLoading";
 import {
-  ZoneBackground,
+  ActionButton,
+  DiscoveryTimeline,
   GlassCard,
   GlowText,
+  KpiCard,
+  ScreenScrollView,
   SectionLabel,
   SessionTimeline,
-  ScreenScrollView,
-  DiscoveryTimeline,
-  KpiCard,
-  ActionButton,
   useTheme,
   useThemedStyles,
+  ZoneBackground,
   type AppTheme
 } from "@/design-system";
+import type { DiveSession } from "@/domain/entities";
 import { useSession } from "@/features/diver";
 import { xpForSession } from "@/features/diver/levelSystem";
-import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
-import type { DiveSession } from "@/domain/entities";
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useMemo } from "react";
+import { Share, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function formatDuration(seconds: number): string {
   const totalMin = Math.round(seconds / 60);
@@ -204,15 +204,6 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       marginLeft: t.spacing[4]
-    },
-    backBtnNoColor: {
-      width: 44,
-      minHeight: 44,
-      borderRadius: t.radii.lg,
-      backgroundColor: "transparent",
-      alignItems: "center",
-      justifyContent: "center",
-      marginRight: t.spacing[4]
     },
     center: { flex: 1, alignItems: "center", justifyContent: "center" },
     empty: {
