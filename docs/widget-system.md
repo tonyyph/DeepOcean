@@ -21,7 +21,8 @@ Status:
 - Snapshot sync for widget state: implemented
 - Android AppWidget provider with Small/Medium/Large layouts: implemented
 - iOS WidgetKit scaffold files: implemented
-- iOS WidgetKit extension target wiring in Xcode project: pending
+- iOS WidgetKit extension target wiring in Xcode project: implemented by the patcher
+- Native snapshot publishing bridge for App Group/SharedPreferences: implemented
 
 Phase 3 (CLI-only):
 - `yarn patch:ios-widget-target` adds a Widget Extension target by patching pbxproj (experimental).
@@ -69,14 +70,18 @@ Snapshot persistence for native widget rendering:
 - src/features/widget/snapshot.ts
 - Storage key: app.widget.snapshot
 
-Snapshot contains:
-- premium status
-- preferred minutes
-- session status/elapsed/target
-- computed primary action
-- capture timestamp
+Snapshot schema v2 contains:
+- premium status and locale
+- preferred duration and live session status/elapsed/target
+- streak, today/weekly focus, and deterministic targets
+- current/last zone and depth
+- discovery and dive counts
+- computed primary action and capture timestamp
 
-This is enough for native widgets to render action-first UI without waiting for React boot.
+React Native publishes the serialized snapshot to MMKV and a small native
+bridge. The bridge writes to iOS App Group `UserDefaults` or Android
+`SharedPreferences`, then requests a widget refresh. Native widgets render
+without duplicating session or progression rules.
 
 ## Size-by-Size Widget UX Spec
 

@@ -1,105 +1,75 @@
-# Widget UI/UX Redesign
+# Deep Ocean Widget Concepts
 
-## Audit
+Deep Ocean exposes three independent widget families in the system widget
+gallery. All three read the same schema-v2 snapshot and emit the same
+deterministic dive actions; only their visual storytelling differs.
 
-Current widgets are action-first but visually flat. The Android RemoteViews layouts use hardcoded blocks, square color fills, static metrics, and a primary action that always starts focus. The iOS WidgetKit view reads only a tiny string heuristic from the snapshot and uses a single stretched layout for all families.
+Each concept supports Small, Medium, and Large.
 
-UX issues:
-- Primary action does not reflect `pause_session` or `resume_current` in native UI.
-- Premium status exists in the snapshot but barely changes the experience.
-- Medium and large sizes add more text, not stronger hierarchy.
-- Empty/loading fallbacks are not clearly designed; stale snapshot falls back to "Start Focus."
-- Secondary actions are present but visually compete poorly with the CTA.
+## Concept 1 — Ocean Portal
 
-UI issues:
-- Colors are close to the brand palette but lack the app's glass, premium, and depth language.
-- Touch targets are acceptable but not consistently shaped as native widget controls.
-- Contrast is mostly readable, yet muted support text can become weak on small widgets.
-- Typography does not reflect the app hierarchy: CTA, status, then context.
-- Android lacks rounded native drawable treatments, making widgets feel generic.
+Ocean Portal turns the widget into a window through a submerged cave.
 
-## Version A: Ocean Glass Premium
+- Small: centered logo, current zone, and depth inside the light shaft.
+- Medium: cinematic cave scene with today’s focus, depth, and streak.
+- Large: whale portal, daily target, zone, three progress metrics, and a dive CTA.
 
-Purpose: luxurious, emotional, cinematic.
+Assets:
 
-Palette:
-- Abyss background: `#06111F`, `#0A2941`, `#020611`
-- CTA glow: `#FFE9A6`, `#5FF7E0`, `#22E4FF`
-- Glass panel: translucent cyan/white overlays
-- Premium accent: `#FFD27A`
-- Text: `#EAF6FF`, `#B8D6E8`
+- `assets/widget-concepts/ocean-portal-square.png`
+- `assets/widget-concepts/ocean-portal-wide.png`
 
-Typography:
-- CTA: heavy rounded/system bold, 16-18sp/pt.
-- Status: semibold caption/subheadline.
-- Chips: micro bold uppercase-style labels.
+## Concept 2 — Diving Instrument
 
-CTA hierarchy:
-- Primary: start/resume/pause, largest surface.
-- Secondary: AI and Stats; large widget also exposes Resume/Pause/Skip.
-- Informational: next duration, progress percent, goal, insight.
+Diving Instrument is code-native and data-led. A segmented cyan-to-violet
+depth gauge is the visual anchor.
 
-Size layouts:
-- Small: premium badge, full-width CTA, compact context + progress chip.
-- Medium: large left CTA, right utility stack, bottom glass context strip.
-- Large: CTA + goal panel, five quick controls, bottom insight panel.
+- Small: depth gauge and current zone.
+- Medium: gauge, today’s focus target, streak, and discoveries.
+- Large: larger instrument, focus progress, supporting metrics, and the dive CTA.
 
-Premium enhancements:
-- Visible premium pill.
-- Warmer ambient highlight.
-- Large-widget premium detail row.
-- More advanced copy: smart window and AI plan cue.
+The iOS gauge stays sharp at every widget scale. Android uses the native dark
+instrument surface and the same depth-first hierarchy.
 
-Accessibility:
-- Primary action has dynamic content descriptions on Android.
-- Text uses high-contrast foregrounds and short labels.
-- Large tap targets are kept at or above 44pt/48dp.
-- State is represented through text and hierarchy, not color alone.
+## Concept 3 — Living Ocean
 
-Performance:
-- Uses native shapes/gradients and SwiftUI primitives only.
-- No bitmap assets.
-- Snapshot parsing is lightweight and fallback-safe.
+Living Ocean makes progress feel like an ecosystem waking up.
 
-## Version B: Bold Action Dashboard
+- Small: a bioluminescent jellyfish with ocean level and today’s minutes.
+- Medium: a living-creature hero with zone, daily progress, depth, and streak.
+- Large: a luminous whale, three progress metrics, and an ocean message.
 
-Purpose: powerful, productive, efficient.
+Assets:
 
-Palette:
-- Background: near black `#05070F`
-- CTA: solid high-contrast cyan or amber action blocks
-- Panels: flat slate `#10263A`, `#143149`
-- Text: white/cyan with minimal glow
+- `assets/widget-concepts/living-jellyfish-square.png`
+- `assets/widget-concepts/living-whale-wide.png`
 
-Typography:
-- Larger numeric/status labels.
-- Dense micro labels for metrics.
-- Flat dashboard action buttons.
+## Widget Gallery
 
-CTA hierarchy:
-- Primary action dominates as a rectangular command block.
-- Secondary actions are equal-width dashboard cells.
-- Informational content becomes a metric strip.
+iOS registers:
 
-Size layouts:
-- Small: one command block plus one metric chip.
-- Medium: command block + two utility blocks + daily metric row.
-- Large: command header, dense command grid, metric/insight rows.
+- `DeepOceanFocusWidget` — Ocean Portal (stable legacy identifier)
+- `DeepOceanInstrumentWidget`
+- `DeepOceanLivingWidget`
 
-Premium enhancements:
-- Extra metric row and smart-focus prediction.
-- Exclusive large command-center layout.
-- Higher-density insight content instead of decorative treatment.
+Android registers:
 
-Accessibility:
-- Maximum contrast and minimal transparency.
-- No reliance on hue-only status.
-- Short labels scale better at large font settings.
+- `FocusWidgetProvider` — Ocean Portal
+- `DivingInstrumentWidgetProvider`
+- `LivingOceanWidgetProvider`
 
-Performance:
-- Simplest Android RemoteViews path.
-- Minimal SwiftUI effects.
+Users can place multiple concepts at once.
 
-## Selected Implementation
+## Shared UX Rules
 
-Ocean Glass Premium is implemented because it best matches DeepOcean's dark, cinematic, premium product identity. Bold Action Dashboard remains the alternative direction for a future productivity-focused theme.
+- One primary dive action.
+- Maximum three supporting metrics.
+- High-contrast pearl/cyan typography.
+- English and Vietnamese labels from the snapshot.
+- Start, Pause, and Resume remain deterministic.
+- Native widgets remain presentation layers; Zustand remains the dive engine.
+
+The four raster assets were generated with the built-in image generation tool.
+iOS-bundled copies stay at or below 1000px per dimension because WidgetKit
+rejects oversized images while archiving timelines, which leaves widgets stuck
+in the redacted placeholder state.

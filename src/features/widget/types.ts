@@ -30,10 +30,20 @@ export type WidgetPrimaryAction =
   | "skip_break";
 
 export type WidgetSnapshot = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   capturedAt: number;
   isPremium: boolean;
+  language: "en" | "vi";
   preferredMinutes: number;
+  streakDays: number;
+  todayFocusMinutes: number;
+  dailyTargetMinutes: number;
+  weeklyFocusMinutes: number;
+  weeklyTargetMinutes: number;
+  currentZone: string;
+  currentDepthMeters: number;
+  discoveryCount: number;
+  totalDives: number;
   session: {
     status: "idle" | "diving" | "paused" | "surfaced" | "cancelled";
     elapsedSeconds: number;

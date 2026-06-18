@@ -53,6 +53,8 @@ attributes_swift_path = File.join(widget_dir, "DeepOceanDiveAttributes.swift")
 dive_live_activity_swift_path = File.join(widget_dir, "DeepOceanDiveLiveActivity.swift")
 live_activity_swift_path = File.join(app_dir, "DeepOceanLiveActivity.swift")
 live_activity_bridge_path = File.join(app_dir, "DeepOceanLiveActivityBridge.m")
+widget_snapshot_swift_path = File.join(app_dir, "DeepOceanWidgetSnapshot.swift")
+widget_snapshot_bridge_path = File.join(app_dir, "DeepOceanWidgetSnapshotBridge.m")
 
 ensure_file(
   info_plist_path,
@@ -114,7 +116,9 @@ ensure_file(
     @main
     struct DeepOceanWidgetBundle: WidgetBundle {
       var body: some Widget {
-        DeepOceanFocusWidget()
+        DeepOceanPortalWidget()
+        DeepOceanInstrumentWidget()
+        DeepOceanLivingWidget()
         if #available(iOS 16.1, *) {
           DeepOceanDiveLiveActivity()
         }
@@ -143,6 +147,41 @@ ensure_file(
       var title: String
     }
   SWIFT
+)
+
+ensure_file(
+  widget_snapshot_swift_path,
+  <<~SWIFT
+    import Foundation
+    import WidgetKit
+
+    @objc(DeepOceanWidgetSnapshot)
+    final class DeepOceanWidgetSnapshot: NSObject {
+      @objc
+      func setSnapshot(_ snapshot: String) {
+        let defaults = UserDefaults(suiteName: "#{app_group}")
+        defaults?.set(snapshot, forKey: "app.widget.snapshot")
+        defaults?.synchronize()
+        WidgetCenter.shared.reloadAllTimelines()
+      }
+
+      @objc
+      static func requiresMainQueueSetup() -> Bool {
+        false
+      }
+    }
+  SWIFT
+)
+
+ensure_file(
+  widget_snapshot_bridge_path,
+  <<~OBJC
+    #import <React/RCTBridgeModule.h>
+
+    @interface RCT_EXTERN_MODULE(DeepOceanWidgetSnapshot, NSObject)
+    RCT_EXTERN_METHOD(setSnapshot:(NSString *)snapshot)
+    @end
+  OBJC
 )
 
 ensure_file(
@@ -561,13 +600,20 @@ widget_filenames = [
   "DeepOceanWidgetBundle.swift",
   "DeepOceanDiveAttributes.swift",
   "DeepOceanDiveLiveActivity.swift",
+  "DeepOceanLogo.png",
+  "OceanPortalSquare.png",
+  "OceanPortalWide.png",
+  "LivingJellyfishSquare.png",
+  "LivingWhaleWide.png",
   "Info.plist",
   "DeepOceanWidgets.entitlements"
 ]
 
 app_filenames = [
   "DeepOceanLiveActivity.swift",
-  "DeepOceanLiveActivityBridge.m"
+  "DeepOceanLiveActivityBridge.m",
+  "DeepOceanWidgetSnapshot.swift",
+  "DeepOceanWidgetSnapshotBridge.m"
 ]
 
 # Remove all old widget refs/build files first, then recreate cleanly.
@@ -580,6 +626,9 @@ all_widget_refs.each do |ref|
     build_file.remove_from_project if build_file.file_ref == ref
   end
   app_target.source_build_phase.files.each do |build_file|
+    build_file.remove_from_project if build_file.file_ref == ref
+  end
+  widget_target.resources_build_phase.files.each do |build_file|
     build_file.remove_from_project if build_file.file_ref == ref
   end
   ref.remove_from_project
@@ -595,6 +644,11 @@ widget_target.source_build_phase.add_file_reference(fresh_refs["DeepOceanWidgetI
 widget_target.source_build_phase.add_file_reference(fresh_refs["DeepOceanWidgetBundle.swift"], true)
 widget_target.source_build_phase.add_file_reference(fresh_refs["DeepOceanDiveAttributes.swift"], true)
 widget_target.source_build_phase.add_file_reference(fresh_refs["DeepOceanDiveLiveActivity.swift"], true)
+widget_target.resources_build_phase.add_file_reference(fresh_refs["DeepOceanLogo.png"], true)
+widget_target.resources_build_phase.add_file_reference(fresh_refs["OceanPortalSquare.png"], true)
+widget_target.resources_build_phase.add_file_reference(fresh_refs["OceanPortalWide.png"], true)
+widget_target.resources_build_phase.add_file_reference(fresh_refs["LivingJellyfishSquare.png"], true)
+widget_target.resources_build_phase.add_file_reference(fresh_refs["LivingWhaleWide.png"], true)
 
 # Remove and recreate the app-side native module refs so repeated runs stay clean.
 all_app_refs = app_group.files.select do |ref|
@@ -615,6 +669,8 @@ end
 
 app_target.source_build_phase.add_file_reference(fresh_app_refs["DeepOceanLiveActivity.swift"], true)
 app_target.source_build_phase.add_file_reference(fresh_app_refs["DeepOceanLiveActivityBridge.m"], true)
+app_target.source_build_phase.add_file_reference(fresh_app_refs["DeepOceanWidgetSnapshot.swift"], true)
+app_target.source_build_phase.add_file_reference(fresh_app_refs["DeepOceanWidgetSnapshotBridge.m"], true)
 app_target.source_build_phase.add_file_reference(fresh_refs["DeepOceanDiveAttributes.swift"], true)
 
 [app_target, widget_target].each do |target|

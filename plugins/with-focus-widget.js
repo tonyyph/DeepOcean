@@ -20,6 +20,12 @@ function writeFile(projectRoot, relativePath, content) {
   fs.writeFileSync(absPath, content, "utf8");
 }
 
+function copyFile(projectRoot, sourcePath, relativePath) {
+  const absPath = path.join(projectRoot, relativePath);
+  ensureDir(path.dirname(absPath));
+  fs.copyFileSync(path.join(projectRoot, sourcePath), absPath);
+}
+
 function writeTemplate(projectRoot, templatePath, outputPath, replacements = {}) {
   const absTemplate = path.join(__dirname, "focus-widget", templatePath);
   let content = fs.readFileSync(absTemplate, "utf8");
@@ -143,6 +149,17 @@ function withFocusWidgetAndroidFiles(config) {
         `android/app/src/main/java/${androidPackagePath}/widget/FocusWidgetProvider.kt`,
         { __ANDROID_PACKAGE__: androidPackage }
       );
+      [
+        "DeepOceanWidgetSnapshotModule.kt",
+        "DeepOceanWidgetSnapshotPackage.kt"
+      ].forEach((fileName) => {
+        writeTemplate(
+          modConfig.modRequest.projectRoot,
+          `native/android-widget/java/${fileName}`,
+          `android/app/src/main/java/${androidPackagePath}/widget/${fileName}`,
+          { __ANDROID_PACKAGE__: androidPackage }
+        );
+      });
 
       [
         "widget_focus_small.xml",
@@ -159,8 +176,10 @@ function withFocusWidgetAndroidFiles(config) {
       [
         "widget_glass_panel.xml",
         "widget_ocean_background.xml",
+        "widget_ocean_background_premium.xml",
         "widget_premium_pill.xml",
         "widget_primary_cta.xml",
+        "widget_primary_cta_premium.xml",
         "widget_progress_chip.xml",
         "widget_secondary_action.xml"
       ].forEach((fileName) => {
@@ -170,6 +189,34 @@ function withFocusWidgetAndroidFiles(config) {
           `android/app/src/main/res/drawable/${fileName}`
         );
       });
+
+      copyFile(
+        modConfig.modRequest.projectRoot,
+        "assets/images/logo.png",
+        "android/app/src/main/res/drawable-nodpi/deep_ocean_logo.png"
+      );
+
+      const mainApplicationPath = path.join(
+        modConfig.modRequest.projectRoot,
+        `android/app/src/main/java/${androidPackagePath}/MainApplication.kt`
+      );
+      if (fs.existsSync(mainApplicationPath)) {
+        let mainApplication = fs.readFileSync(mainApplicationPath, "utf8");
+        const importLine = `import ${androidPackage}.widget.DeepOceanWidgetSnapshotPackage`;
+        if (!mainApplication.includes(importLine)) {
+          mainApplication = mainApplication.replace(
+            "import com.facebook.soloader.SoLoader",
+            `import com.facebook.soloader.SoLoader\n${importLine}`
+          );
+        }
+        if (!mainApplication.includes("packages.add(DeepOceanWidgetSnapshotPackage())")) {
+          mainApplication = mainApplication.replace(
+            "// packages.add(MyReactNativePackage())",
+            "// packages.add(MyReactNativePackage())\n            packages.add(DeepOceanWidgetSnapshotPackage())"
+          );
+        }
+        fs.writeFileSync(mainApplicationPath, mainApplication, "utf8");
+      }
 
       writeFile(
         modConfig.modRequest.projectRoot,
@@ -618,8 +665,10 @@ class FocusWidgetProvider : AppWidgetProvider() {
       [
         "widget_glass_panel.xml",
         "widget_ocean_background.xml",
+        "widget_ocean_background_premium.xml",
         "widget_premium_pill.xml",
         "widget_primary_cta.xml",
+        "widget_primary_cta_premium.xml",
         "widget_progress_chip.xml",
         "widget_secondary_action.xml"
       ].forEach((fileName) => {
@@ -628,6 +677,15 @@ class FocusWidgetProvider : AppWidgetProvider() {
           `native/android-widget/drawable/${fileName}`,
           `android/app/src/main/res/drawable/${fileName}`
         );
+      });
+
+      [
+        ["assets/widget-concepts/ocean-portal-square.png", "android/app/src/main/res/drawable-nodpi/ocean_portal_square.png"],
+        ["assets/widget-concepts/ocean-portal-wide.png", "android/app/src/main/res/drawable-nodpi/ocean_portal_wide.png"],
+        ["assets/widget-concepts/living-jellyfish-square.png", "android/app/src/main/res/drawable-nodpi/living_jellyfish_square.png"],
+        ["assets/widget-concepts/living-whale-wide.png", "android/app/src/main/res/drawable-nodpi/living_whale_wide.png"]
+      ].forEach(([source, destination]) => {
+        copyFile(modConfig.modRequest.projectRoot, source, destination);
       });
 
       return modConfig;
@@ -641,16 +699,20 @@ function withFocusWidgetAndroidManifest(config) {
     if (!app) return modConfig;
 
     const receivers = app.receiver || [];
-    const existing = receivers.find(
-      (receiver) => receiver.$["android:name"] === ".widget.FocusWidgetProvider"
-    );
-
-    if (!existing) {
+    [
+      [".widget.FocusWidgetProvider", "@string/widget_portal_label"],
+      [".widget.DivingInstrumentWidgetProvider", "@string/widget_instrument_label"],
+      [".widget.LivingOceanWidgetProvider", "@string/widget_living_label"]
+    ].forEach(([name, label]) => {
+      const existing = receivers.find(
+        (receiver) => receiver.$["android:name"] === name
+      );
+      if (existing) return;
       receivers.push({
         $: {
-          "android:name": ".widget.FocusWidgetProvider",
+          "android:name": name,
           "android:exported": "false",
-          "android:label": "@string/widget_focus_label"
+          "android:label": label
         },
         "intent-filter": [
           {
@@ -672,8 +734,8 @@ function withFocusWidgetAndroidManifest(config) {
           }
         ]
       });
-      app.receiver = receivers;
-    }
+    });
+    app.receiver = receivers;
 
     return modConfig;
   });
@@ -687,6 +749,9 @@ function withFocusWidgetAndroidStrings(config) {
       "widget_focus_label",
       "DeepOcean Focus Widget"
     );
+    addOrUpdateString(resources, "widget_portal_label", "Deep Ocean · Ocean Portal");
+    addOrUpdateString(resources, "widget_instrument_label", "Deep Ocean · Diving Instrument");
+    addOrUpdateString(resources, "widget_living_label", "Deep Ocean · Living Ocean");
     addOrUpdateString(
       resources,
       "widget_focus_description",
@@ -744,6 +809,20 @@ function withFocusWidgetIosFiles(config, props = {}) {
         "Widgets/DeepOceanFocusWidget.swift",
         { __APP_GROUP__: appGroup }
       );
+
+      copyFile(
+        modConfig.modRequest.projectRoot,
+        "assets/images/logo.png",
+        "ios/Widgets/DeepOceanLogo.png"
+      );
+      [
+        ["assets/widget-concepts/ocean-portal-square.png", "ios/Widgets/OceanPortalSquare.png"],
+        ["assets/widget-concepts/ocean-portal-wide.png", "ios/Widgets/OceanPortalWide.png"],
+        ["assets/widget-concepts/living-jellyfish-square.png", "ios/Widgets/LivingJellyfishSquare.png"],
+        ["assets/widget-concepts/living-whale-wide.png", "ios/Widgets/LivingWhaleWide.png"]
+      ].forEach(([source, destination]) => {
+        copyFile(modConfig.modRequest.projectRoot, source, destination);
+      });
 
       writeFile(
         iosRoot,

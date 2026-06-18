@@ -349,7 +349,7 @@ export default function OnboardingScreen() {
           ) : (
             <ActionButton
               label={tr.onboarding.next}
-              tone="premium"
+              tone="primary"
               size="md"
               disabled={currentStep === "goals" && selectedGoals.length === 0}
               onPress={goNext}

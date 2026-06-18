@@ -119,7 +119,7 @@ export default function RootLayout() {
       const result = dispatchWidgetCommand(command, {
         navigate: navigateFromWidget,
       });
-      writeWidgetSnapshot();
+      void writeWidgetSnapshot();
       console.log("[WidgetCommand]", {
         action: command.action,
         status: result.status,
@@ -155,7 +155,7 @@ export default function RootLayout() {
       // Resolve premium entitlements from the store (offline-safe; no-op when
       // RevenueCat is not configured).
       await usePremium.getState().hydrate();
-      writeWidgetSnapshot();
+      void writeWidgetSnapshot();
     })();
   }, [fontsLoaded]);
 

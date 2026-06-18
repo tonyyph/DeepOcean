@@ -10,20 +10,49 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
+import org.json.JSONObject
 import __ANDROID_PACKAGE__.MainActivity
 import __ANDROID_PACKAGE__.R
 
-class FocusWidgetProvider : AppWidgetProvider() {
+enum class WidgetConcept {
+  PORTAL,
+  INSTRUMENT,
+  LIVING
+}
+
+open class FocusWidgetProvider(
+  private val concept: WidgetConcept = WidgetConcept.PORTAL
+) : AppWidgetProvider() {
+
+  companion object {
+    fun refreshAll(context: Context) {
+      val manager = AppWidgetManager.getInstance(context)
+      listOf(
+        FocusWidgetProvider::class.java,
+        DivingInstrumentWidgetProvider::class.java,
+        LivingOceanWidgetProvider::class.java
+      ).forEach { provider ->
+        val ids = manager.getAppWidgetIds(ComponentName(context, provider))
+        if (ids.isNotEmpty()) {
+          context.sendBroadcast(Intent(context, provider).apply {
+            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+          })
+        }
+      }
+    }
+  }
 
   override fun onUpdate(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetIds: IntArray
   ) {
-    appWidgetIds.forEach { appWidgetId ->
-      val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-      val views = buildViews(context, options)
-      appWidgetManager.updateAppWidget(appWidgetId, views)
+    appWidgetIds.forEach { id ->
+      appWidgetManager.updateAppWidget(
+        id,
+        buildViews(context, appWidgetManager.getAppWidgetOptions(id))
+      )
     }
   }
 
@@ -33,236 +62,199 @@ class FocusWidgetProvider : AppWidgetProvider() {
     appWidgetId: Int,
     newOptions: Bundle
   ) {
-    val views = buildViews(context, newOptions)
-    appWidgetManager.updateAppWidget(appWidgetId, views)
-  }
-
-  override fun onEnabled(context: Context) {
-    super.onEnabled(context)
-    forceRefresh(context)
-  }
-
-  override fun onReceive(context: Context, intent: Intent) {
-    super.onReceive(context, intent)
-    if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
-      forceRefresh(context)
-    }
-  }
-
-  private fun forceRefresh(context: Context) {
-    val manager = AppWidgetManager.getInstance(context)
-    val ids = manager.getAppWidgetIds(
-      ComponentName(context, FocusWidgetProvider::class.java)
-    )
-    onUpdate(context, manager, ids)
+    appWidgetManager.updateAppWidget(appWidgetId, buildViews(context, newOptions))
   }
 
   private fun buildViews(context: Context, options: Bundle): RemoteViews {
     val minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0)
     val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
-
     val layout = when {
       minWidth >= 250 && minHeight >= 180 -> R.layout.widget_focus_large
       minWidth >= 180 -> R.layout.widget_focus_medium
       else -> R.layout.widget_focus_small
     }
-
     val snapshot = WidgetSnapshot.read(context)
     val views = RemoteViews(context.packageName, layout)
-    bindSnapshot(views, layout, snapshot)
 
+    views.setInt(R.id.widget_root, "setBackgroundResource", backgroundFor(layout, snapshot.isPremium))
+    views.setTextViewText(R.id.widget_primary_action, snapshot.actionTitle)
+    views.setContentDescription(R.id.widget_primary_action, snapshot.actionDescription)
     views.setOnClickPendingIntent(
       R.id.widget_primary_action,
-      deepLinkPendingIntent(context, "deepocean://widget?action=${snapshot.primaryAction}&minutes=${snapshot.preferredMinutes}")
+      deepLinkPendingIntent(
+        context,
+        "deepocean://widget?action=${snapshot.primaryAction}&minutes=${snapshot.preferredMinutes}"
+      )
     )
+    views.setViewVisibility(R.id.widget_premium_badge, if (snapshot.isPremium) View.VISIBLE else View.GONE)
 
     when (layout) {
-      R.layout.widget_focus_medium -> {
-        views.setOnClickPendingIntent(
-          R.id.widget_secondary_ai,
-          deepLinkPendingIntent(context, "deepocean://widget?action=open_ai_companion")
-        )
-        views.setOnClickPendingIntent(
-          R.id.widget_secondary_progress,
-          deepLinkPendingIntent(context, "deepocean://widget?action=view_daily_progress")
-        )
-      }
-
-      R.layout.widget_focus_large -> {
-        views.setOnClickPendingIntent(
-          R.id.widget_action_resume,
-          deepLinkPendingIntent(context, "deepocean://widget?action=resume_current")
-        )
-        views.setOnClickPendingIntent(
-          R.id.widget_action_pause,
-          deepLinkPendingIntent(context, "deepocean://widget?action=pause_session")
-        )
-        views.setOnClickPendingIntent(
-          R.id.widget_action_skip,
-          deepLinkPendingIntent(context, "deepocean://widget?action=skip_break")
-        )
-        views.setOnClickPendingIntent(
-          R.id.widget_action_ai,
-          deepLinkPendingIntent(context, "deepocean://widget?action=open_ai_companion")
-        )
-        views.setOnClickPendingIntent(
-          R.id.widget_action_stats,
-          deepLinkPendingIntent(context, "deepocean://widget?action=view_daily_progress")
-        )
-      }
+      R.layout.widget_focus_small -> bindSmall(views, snapshot)
+      R.layout.widget_focus_medium -> bindMedium(views, snapshot)
+      R.layout.widget_focus_large -> bindLarge(views, snapshot)
     }
-
     return views
   }
 
-  private fun bindSnapshot(views: RemoteViews, layout: Int, snapshot: WidgetSnapshot) {
-    views.setTextViewText(R.id.widget_primary_action, snapshot.primaryLabel)
-    views.setContentDescription(R.id.widget_primary_action, snapshot.primaryA11y)
-
-    when (layout) {
-      R.layout.widget_focus_small -> {
-        views.setTextViewText(R.id.widget_context_primary, snapshot.shortContext)
-        views.setTextViewText(R.id.widget_context_secondary, snapshot.progressLabel)
-        views.setViewVisibility(R.id.widget_premium_badge, if (snapshot.isPremium) View.VISIBLE else View.GONE)
+  private fun bindSmall(views: RemoteViews, snapshot: WidgetSnapshot) {
+    views.setTextViewText(
+      R.id.widget_zone_value,
+      when (concept) {
+        WidgetConcept.PORTAL -> "${snapshot.zoneLabel} · ${snapshot.currentDepthMeters}m"
+        WidgetConcept.INSTRUMENT -> "${snapshot.currentDepthMeters}m · ${snapshot.zoneLabel}"
+        WidgetConcept.LIVING -> "Ocean Level ${snapshot.oceanLevel} · ${snapshot.todayFocusMinutes} min"
       }
+    )
+  }
 
-      R.layout.widget_focus_medium -> {
-        views.setTextViewText(R.id.widget_context_primary, snapshot.mediumContext)
-        views.setTextViewText(R.id.widget_context_secondary, snapshot.progressLabel)
-        views.setViewVisibility(R.id.widget_premium_badge, if (snapshot.isPremium) View.VISIBLE else View.GONE)
-      }
+  private fun bindMedium(views: RemoteViews, snapshot: WidgetSnapshot) {
+    views.setTextViewText(R.id.widget_zone_value, snapshot.zoneLabel)
+    views.setTextViewText(
+      R.id.widget_today_value,
+      if (concept == WidgetConcept.INSTRUMENT) "${snapshot.currentDepthMeters}m" else "${snapshot.todayFocusMinutes} min"
+    )
+    views.setTextViewText(
+      R.id.widget_context_value,
+      "${snapshot.currentDepthMeters}m · ${snapshot.streakDays} ${snapshot.t("day streak", "ngày liên tiếp")}"
+    )
+    views.setProgressBar(R.id.widget_today_progress, 100, snapshot.todayProgress, false)
+  }
 
-      R.layout.widget_focus_large -> {
-        views.setTextViewText(R.id.widget_goal_status, snapshot.goalLabel)
-        views.setTextViewText(R.id.widget_context_primary, snapshot.largeMetric)
-        views.setTextViewText(R.id.widget_context_secondary, snapshot.insightLabel)
-        views.setTextViewText(R.id.widget_premium_badge, if (snapshot.isPremium) "PRO TIDE" else "FOCUS")
-        views.setViewVisibility(R.id.widget_premium_detail, if (snapshot.isPremium) View.VISIBLE else View.GONE)
-      }
+  private fun bindLarge(views: RemoteViews, snapshot: WidgetSnapshot) {
+    views.setTextViewText(R.id.widget_today_value, "${snapshot.todayFocusMinutes} min")
+    views.setProgressBar(R.id.widget_today_progress, 100, snapshot.todayProgress, false)
+    views.setTextViewText(R.id.widget_zone_value, snapshot.zoneLabel)
+    views.setTextViewText(R.id.widget_depth_value, "${snapshot.currentDepthMeters}m")
+    views.setTextViewText(R.id.widget_streak_value, "${snapshot.streakDays} ${snapshot.t("days", "ngày")}")
+    views.setTextViewText(R.id.widget_message, snapshot.message)
+  }
+
+  private fun backgroundFor(layout: Int, premium: Boolean): Int {
+    return when (concept) {
+      WidgetConcept.PORTAL ->
+        if (layout == R.layout.widget_focus_small) R.drawable.ocean_portal_square else R.drawable.ocean_portal_wide
+      WidgetConcept.LIVING ->
+        if (layout == R.layout.widget_focus_small) R.drawable.living_jellyfish_square else R.drawable.living_whale_wide
+      WidgetConcept.INSTRUMENT ->
+        if (premium) R.drawable.widget_ocean_background_premium else R.drawable.widget_ocean_background
     }
   }
 
   private fun deepLinkPendingIntent(context: Context, url: String): PendingIntent {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url), context, MainActivity::class.java)
       .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-
-    val requestCode = url.hashCode()
-    val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    return PendingIntent.getActivity(context, requestCode, intent, flags)
+    return PendingIntent.getActivity(
+      context,
+      url.hashCode(),
+      intent,
+      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
   }
 }
 
+class DivingInstrumentWidgetProvider :
+  FocusWidgetProvider(WidgetConcept.INSTRUMENT)
+
+class LivingOceanWidgetProvider :
+  FocusWidgetProvider(WidgetConcept.LIVING)
+
 private data class WidgetSnapshot(
+  val capturedAt: Long,
   val isPremium: Boolean,
+  val language: String,
   val preferredMinutes: Int,
-  val primaryAction: String,
-  val elapsedSeconds: Int,
-  val targetSeconds: Int?
+  val streakDays: Int,
+  val todayFocusMinutes: Int,
+  val dailyTargetMinutes: Int,
+  val weeklyFocusMinutes: Int,
+  val weeklyTargetMinutes: Int,
+  val currentZone: String,
+  val currentDepthMeters: Int,
+  val discoveryCount: Int,
+  val totalDives: Int,
+  val sessionStatus: String?,
+  val primaryAction: String
 ) {
-  val primaryLabel: String
+  val isVietnamese get() = language == "vi"
+  fun t(en: String, vi: String) = if (isVietnamese) vi else en
+
+  val actionTitle: String
     get() = when (primaryAction) {
-      "pause_session" -> "Pause Dive"
-      "resume_current" -> "Resume Dive"
-      "skip_break" -> "Skip Break"
-      else -> "Start Focus"
+      "pause_session" -> t("Pause Dive", "Tạm dừng")
+      "resume_current" -> t("Resume Dive", "Tiếp tục lặn")
+      else -> t("Start Dive", "Bắt đầu lặn")
     }
 
-  val primaryA11y: String
-    get() = when (primaryAction) {
-      "pause_session" -> "Pause current focus session"
-      "resume_current" -> "Resume current focus session"
-      "skip_break" -> "Skip break"
-      else -> "Start a ${preferredMinutes} minute focus session"
+  val actionDescription: String
+    get() = t(
+      "$actionTitle, $preferredMinutes minute ocean focus dive",
+      "$actionTitle, chuyến lặn tập trung $preferredMinutes phút"
+    )
+
+  val statusLabel: String
+    get() = when (sessionStatus) {
+      "diving" -> t("DIVING", "ĐANG LẶN")
+      "paused" -> t("PAUSED", "TẠM DỪNG")
+      else -> t("READY", "SẴN SÀNG")
     }
 
-  val shortContext: String
-    get() = if (targetSeconds != null && primaryAction == "pause_session") {
-      "${minutesRemaining()}m left"
+  val zoneLabel: String
+    get() {
+      if (!isVietnamese) return currentZone
+      return when (currentZone) {
+        "Twilight Zone" -> "Vùng Chạng Vạng"
+        "Midnight Zone" -> "Vùng Nửa Đêm"
+        "Abyssal Zone" -> "Vùng Vực Thẳm"
+        "Hadal Trench" -> "Rãnh Hadal"
+        else -> "Vùng Ánh Sáng"
+      }
+    }
+
+  val todayProgress: Int
+    get() = ((todayFocusMinutes * 100) / dailyTargetMinutes.coerceAtLeast(1)).coerceIn(0, 100)
+
+  val weeklyProgress: Int
+    get() = ((weeklyFocusMinutes * 100) / weeklyTargetMinutes.coerceAtLeast(1)).coerceIn(0, 100)
+
+  val oceanLevel: Int
+    get() = when (currentZone) {
+      "Twilight Zone" -> 2
+      "Midnight Zone" -> 3
+      "Abyssal Zone" -> 4
+      "Hadal Trench" -> 5
+      else -> 1
+    }
+
+  val message: String
+    get() = if (sessionStatus == "diving") {
+      t("The ocean is awakening…", "Biển đang thức giấc…")
     } else {
-      "Next: ${preferredMinutes}m"
+      t("Tap to begin your dive.", "Chạm để bắt đầu chuyến lặn.")
     }
-
-  val mediumContext: String
-    get() = if (primaryAction == "pause_session") {
-      "In dive · ${minutesRemaining()}m remaining"
-    } else {
-      "Ready for a ${preferredMinutes}m dive"
-    }
-
-  val progressLabel: String
-    get() = if (targetSeconds != null && targetSeconds > 0) {
-      "${progressPercent()}%"
-    } else if (isPremium) {
-      "Prime"
-    } else {
-      "Today"
-    }
-
-  val goalLabel: String
-    get() = if (targetSeconds != null && targetSeconds > 0) {
-      "Goal ${progressPercent()}%"
-    } else {
-      "Goal ${preferredMinutes}m"
-    }
-
-  val largeMetric: String
-    get() = if (targetSeconds != null && targetSeconds > 0) {
-      "${formatTime(elapsedSeconds)} elapsed · ${minutesRemaining()}m left"
-    } else {
-      "One tap starts your next deep-work block"
-    }
-
-  val insightLabel: String
-    get() = if (isPremium) {
-      "Smart window ready · AI plan unlocked"
-    } else {
-      "AI and progress are one tap away"
-    }
-
-  private fun progressPercent(): Int {
-    val target = targetSeconds ?: return 0
-    if (target <= 0) return 0
-    return ((elapsedSeconds.coerceAtLeast(0) * 100) / target).coerceIn(0, 100)
-  }
-
-  private fun minutesRemaining(): Int {
-    val target = targetSeconds ?: return preferredMinutes
-    return ((target - elapsedSeconds).coerceAtLeast(0) + 59) / 60
-  }
-
-  private fun formatTime(totalSeconds: Int): String {
-    val mins = (totalSeconds.coerceAtLeast(0) / 60).coerceAtMost(999)
-    val secs = totalSeconds.coerceAtLeast(0) % 60
-    return "%d:%02d".format(mins, secs)
-  }
 
   companion object {
     fun read(context: Context): WidgetSnapshot {
       val raw = context.getSharedPreferences("deep-ocean-widget", Context.MODE_PRIVATE)
         .getString("app.widget.snapshot", null)
-
+      val json = runCatching { JSONObject(raw ?: "") }.getOrNull()
+      val session = json?.optJSONObject("session")
       return WidgetSnapshot(
-        isPremium = raw?.contains("\"isPremium\":true") == true,
-        preferredMinutes = raw?.extractInt("preferredMinutes") ?: 25,
-        primaryAction = raw?.extractString("primaryAction") ?: "start_focus",
-        elapsedSeconds = raw?.extractInt("elapsedSeconds") ?: 0,
-        targetSeconds = raw?.extractNullableInt("targetSeconds")
+        capturedAt = json?.optLong("capturedAt", 0) ?: 0,
+        isPremium = json?.optBoolean("isPremium", false) ?: false,
+        language = json?.optString("language", "en") ?: "en",
+        preferredMinutes = json?.optInt("preferredMinutes", 25) ?: 25,
+        streakDays = json?.optInt("streakDays", 0) ?: 0,
+        todayFocusMinutes = json?.optInt("todayFocusMinutes", 0) ?: 0,
+        dailyTargetMinutes = json?.optInt("dailyTargetMinutes", 25) ?: 25,
+        weeklyFocusMinutes = json?.optInt("weeklyFocusMinutes", 0) ?: 0,
+        weeklyTargetMinutes = json?.optInt("weeklyTargetMinutes", 125) ?: 125,
+        currentZone = json?.optString("currentZone", "Sunlight Zone") ?: "Sunlight Zone",
+        currentDepthMeters = json?.optInt("currentDepthMeters", 0) ?: 0,
+        discoveryCount = json?.optInt("discoveryCount", 0) ?: 0,
+        totalDives = json?.optInt("totalDives", 0) ?: 0,
+        sessionStatus = session?.optString("status")?.takeIf { it.isNotBlank() },
+        primaryAction = json?.optString("primaryAction", "start_focus") ?: "start_focus"
       )
     }
   }
-}
-
-private fun String.extractString(key: String): String? {
-  val match = Regex("\"$key\"\\s*:\\s*\"([^\"]+)\"").find(this)
-  return match?.groupValues?.getOrNull(1)
-}
-
-private fun String.extractInt(key: String): Int? {
-  val match = Regex("\"$key\"\\s*:\\s*(\\d+)").find(this)
-  return match?.groupValues?.getOrNull(1)?.toIntOrNull()
-}
-
-private fun String.extractNullableInt(key: String): Int? {
-  if (Regex("\"$key\"\\s*:\\s*null").containsMatchIn(this)) return null
-  return extractInt(key)
 }
