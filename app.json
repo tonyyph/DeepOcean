@@ -89,7 +89,24 @@
         "origin": false
       },
       "eas": {
-        "projectId": "9f7f0961-08c2-4d84-9d99-bd1a55a06e42"
+        "projectId": "9f7f0961-08c2-4d84-9d99-bd1a55a06e42",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "DeepOceanWidgets",
+                  "bundleIdentifier": "co.deepocean.app.widgets",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.co.deepocean.app"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
       },
       "revenuecat": {
         "iosKey": "",
