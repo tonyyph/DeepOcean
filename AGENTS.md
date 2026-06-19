@@ -67,7 +67,21 @@ Widget system:
 - Snapshot writer: `src/features/widget/snapshot.ts`.
 - Primary action policy: `src/features/widget/policy.ts`.
 - Root bootstrap integration is in `app/_layout.tsx`.
+- Native source-of-truth lives under `plugins/focus-widget/native/`; `ios/` and
+  `android/` are generated copies and are ignored by Git.
+- The four required raster backgrounds live in `assets/widget-concepts/`.
+  Avoid adding exported size variants unless code or the config plugin uses
+  them; binary assets noticeably increase the EAS project archive.
 - Keep widget action handling idempotent and deterministic. Do not duplicate the dive session engine in native widget code.
+
+Dive screen lifecycle:
+
+- `HomeScreen` normally starts the session before navigating to `/dive`.
+- `DiveScreen` has a direct-route fallback governed by
+  `src/screens/diveLaunchPolicy.ts`.
+- That fallback must run at most once per screen mount. Never restart a dive in
+  reaction to `session` becoming `null`, `surfaced`, or `cancelled`; abort and
+  surface intentionally produce terminal state transitions.
 
 AI companion:
 
@@ -105,6 +119,8 @@ Notifications:
   - `src/features/diver/streakEngine.test.ts`
   - `src/features/widget/urlAction.test.ts`
   - `src/features/widget/policy.test.ts`
+  - `src/features/audio/diveAudioPolicy.test.ts`
+  - `src/screens/diveLaunchPolicy.test.ts`
   - `src/screens/homeLastDiveResolver.test.ts`
   - `src/stores/premiumStore.test.ts`
 - For narrow pure logic changes, add or update focused unit tests.
@@ -116,7 +132,20 @@ Notifications:
 - `app.json` enables the New Architecture, dev client, splash, notifications, background audio, and the custom focus widget plugin.
 - `ios/Podfile` has an Xcode 26 `fmt` C++17 workaround and disables bundle code signing in `post_install`; preserve these unless intentionally changing native build behavior.
 - iOS widget target wiring may be experimental and script-managed. Read `docs/widget-system.md` before changing widget native files.
-- Android widget files live under `android/app/src/main/.../widget` and associated resources/manifest entries.
+- Generated Android widget files land under `android/app/src/main/`; their
+  tracked templates live under `plugins/focus-widget/native/android-widget/`.
+- Do not hand-edit generated native widget files as the durable fix. Update
+  `plugins/focus-widget/native/`, `plugins/with-focus-widget.js`, or the patch
+  scripts, then regenerate and run `yarn check:widget-native`.
+
+## Agent Memory And Handoff
+
+- Durable repository rules belong in this file or the relevant `docs/` page.
+- Current work state, recent fixes, verification, and next checks belong in
+  `summary.md`; refresh it when handing work to another agent.
+- Do not put secrets or `.env.local` values in either file.
+- Before trusting old handoff notes, compare them with `git status`, recent
+  commits, and the current implementation.
 
 ## Coding Style
 

@@ -20,18 +20,21 @@ Status:
 - App-layer command pipeline: implemented
 - Snapshot sync for widget state: implemented
 - Android AppWidget provider with Small/Medium/Large layouts: implemented
-- iOS WidgetKit scaffold files: implemented
+- iOS WidgetKit source templates: implemented
 - iOS WidgetKit extension target wiring in Xcode project: implemented by the patcher
 - Native snapshot publishing bridge for App Group/SharedPreferences: implemented
 
-Phase 3 (CLI-only):
-- `yarn patch:ios-widget-target` adds a Widget Extension target by patching pbxproj (experimental).
-- `yarn check:widget-native` now fail-fast checks for widget target markers in pbxproj.
+Native tooling:
+
+- `yarn patch:ios-widget-target` adds or repairs the Widget Extension target by
+  patching pbxproj (experimental).
+- `yarn check:widget-native` fail-fast checks generated native wiring.
 
 ### 1. Command URL Contract
 
 Widget emits:
 - deepocean://widget?action=start_focus&minutes=25
+- deepocean-widget://widget?action=start_focus&minutes=25
 - deepocean://widget?action=resume_current
 - deepocean://widget?action=pause_session
 - deepocean://widget?action=skip_break
@@ -40,6 +43,10 @@ Widget emits:
 
 Parser:
 - src/features/widget/urlAction.ts
+
+The dedicated `deepocean-widget` scheme is injected into the generated iOS
+Info.plist by `plugins/with-focus-widget.js`. It avoids dev-client URL chooser
+behavior when a widget opens the app.
 
 ### 2. Command Dispatcher
 
@@ -190,18 +197,21 @@ Recommended:
 
 Minimal app group payload should mirror WidgetSnapshot.
 
-Scaffold added in repo:
-- ios/Widgets/DeepOceanFocusWidget.swift
-- ios/Widgets/DeepOceanWidgetIntents.swift
-- ios/DeepOcean/DeepOcean.entitlements app-group entry
+Tracked source-of-truth:
 
-Important:
-- The widget extension target is not auto-wired by these files alone.
-- Add a real Widget Extension target in Xcode, include the scaffold files, and attach the same app group.
+- `plugins/focus-widget/native/ios-widget/DeepOceanFocusWidget.swift`
+- `plugins/with-focus-widget.js`
+- `scripts/patch-ios-widget-target.rb`
 
-CLI-only alternative (experimental):
-- Run `yarn patch:ios-widget-target` to inject the extension target and embed phase into `project.pbxproj`.
-- Then run `yarn check:widget-native` to verify target markers.
+Generated local output:
+
+- `ios/Widgets/*`
+- `ios/DeepOcean/DeepOcean.entitlements`
+- `ios/DeepOcean.xcodeproj/project.pbxproj`
+
+Run `yarn widget` after prebuild or native regeneration. It patches the Widget
+Extension target and verifies expected markers, assets, URL scheme, and target
+membership.
 
 ## Android AppWidget
 
@@ -211,13 +221,35 @@ Recommended:
 - BroadcastReceiver/Activity handoff to deepocean://widget URLs
 - Read snapshot from shared storage equivalent
 
-Implemented in this repo:
-- android/app/src/main/java/com/cuongphan2/OtherSide/widget/FocusWidgetProvider.kt
-- android/app/src/main/res/layout/widget_focus_small.xml
-- android/app/src/main/res/layout/widget_focus_medium.xml
-- android/app/src/main/res/layout/widget_focus_large.xml
-- android/app/src/main/res/xml/focus_widget_info.xml
-- android/app/src/main/AndroidManifest.xml receiver registration
+Tracked source-of-truth:
+
+- `plugins/focus-widget/native/android-widget/java/FocusWidgetProvider.kt`
+- `plugins/focus-widget/native/android-widget/layout/`
+- `plugins/focus-widget/native/android-widget/drawable/`
+- `plugins/with-focus-widget.js`
+
+The config plugin copies and registers these files during prebuild. Generated
+files under `android/` are local build output, not the durable implementation.
+
+## Widget Concepts And Binary Assets
+
+The gallery exposes Ocean Portal, Diving Instrument, and Living Ocean. The
+instrument concept is code-native. Only four raster concept assets are required:
+
+- `assets/widget-concepts/ocean-portal-square.png`
+- `assets/widget-concepts/ocean-portal-wide.png`
+- `assets/widget-concepts/living-jellyfish-square.png`
+- `assets/widget-concepts/living-whale-wide.png`
+
+The config plugin copies these into each generated native project. Do not commit
+duplicate small/medium/large exports unless they are actually referenced.
+Compressed PNGs contribute almost their full byte size to the EAS archive and
+again to Git pack history. Use this command to inspect the exact upload tree:
+
+```sh
+npx eas-cli build:inspect --platform ios --stage archive \
+  --output /tmp/deepocean-eas-archive --force
+```
 
 ## React Native Considerations
 
@@ -250,9 +282,13 @@ Implemented in this repo:
 4. Premium flag reflects in snapshot.
 5. Preferred session minutes reflect in snapshot.
 6. Primary action mapping remains correct for idle/diving/paused.
+7. `yarn check:widget-native` passes after prebuild/plugin changes.
+8. Generated iOS widgets render without redacted placeholders; bundled raster
+   images must stay within WidgetKit-safe dimensions.
 
-## Next Native Steps (Required for true on-widget no-app-open execution)
+## Future Native Steps (For true no-app-open execution)
 
-1. iOS: add Widget Extension target + AppIntent actions bound to app group state.
+1. iOS: extend the generated Widget Extension with AppIntent actions bound to
+   app group state.
 2. Introduce native-side short command executor only for operations that can be safely done outside JS runtime.
 3. Keep command schema compatible with current deep link contract.
