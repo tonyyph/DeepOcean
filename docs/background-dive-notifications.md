@@ -34,10 +34,10 @@ id includes the sound name. If the sound changes during development, reinstall
 the app or clear app notification channels to avoid stale Android channel
 settings.
 
-## iPhone Live Activity Note
+## iPhone Live Activity
 
-The current Expo implementation can schedule completion alerts, but it does not
-provide a real-time iPhone Lock Screen / Dynamic Island Live Activity. That
-requires an ActivityKit native module and an iOS widget extension. The dive
-engine is now timestamp-based, so a future ActivityKit bridge can read the same
-start time, target time, and pause offsets without duplicating timer logic.
+The generated iOS project includes an ActivityKit bridge and Live Activity
+widget. It reads the same session entity and pause-adjusted start time as the
+in-app engine. Start/update is upserted by session id, so foreground recovery
+does not create duplicate activities. The primary Live Activity tap action uses
+the same `deepocean-widget://widget` command contract as Home Screen widgets.

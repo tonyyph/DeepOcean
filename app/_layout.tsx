@@ -10,13 +10,10 @@ import {
   reconcileDiveReminder,
 } from "@/features/notifications";
 import {
-  dispatchWidgetCommand,
   installWidgetSnapshotSync,
-  parseWidgetActionUrl,
-  writeWidgetSnapshot,
-  type WidgetNavigateTarget,
+  writeWidgetSnapshot
 } from "@/features/widget";
-import { usePremium, useSettings } from "@/stores";
+import { useDiveSession, usePremium, useSettings } from "@/stores";
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -41,13 +38,13 @@ import {
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import * as Updates from "expo-updates";
 import { useCallback, useEffect } from "react";
-import { Linking } from "react-native";
+import { AppState } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
@@ -81,7 +78,6 @@ async function syncDiveReminders(): Promise<void> {
 }
 
 export default function RootLayout() {
-  const router = useRouter();
   const ambientVolume = useSettings((s) => s.ambientVolume);
   const [fontsLoaded] = useFonts({
     Sora_400Regular,
@@ -98,34 +94,6 @@ export default function RootLayout() {
     Manrope_600SemiBold,
     Manrope_700Bold,
   });
-
-  const navigateFromWidget = useCallback(
-    (target: WidgetNavigateTarget) => {
-      if (target === "ai") {
-        router.replace("/(tabs)/ai");
-        return;
-      }
-      router.replace("/(tabs)/stats");
-    },
-    [router],
-  );
-
-  const handleWidgetUrl = useCallback(
-    (url: string) => {
-      const command = parseWidgetActionUrl(url);
-      if (!command) return;
-      const result = dispatchWidgetCommand(command, {
-        navigate: navigateFromWidget,
-      });
-      void writeWidgetSnapshot();
-      console.log("[WidgetCommand]", {
-        action: command.action,
-        status: result.status,
-        reason: result.reason,
-      });
-    },
-    [navigateFromWidget],
-  );
 
   const checkAndForceUpdates = useCallback(async () => {
     if (__DEV__) {
@@ -146,6 +114,7 @@ export default function RootLayout() {
     if (!fontsLoaded) return;
     (async () => {
       await SystemUI.setBackgroundColorAsync(palette.abyss[600]);
+      await useDiveSession.getState().initialize();
       void AmbientAudio.init();
       await SplashScreen.hideAsync();
       await checkAndForceUpdates();
@@ -163,30 +132,23 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!fontsLoaded) return;
-
-    let isMounted = true;
-    Linking.getInitialURL()
-      .then((url) => {
-        if (!isMounted || !url) return;
-        handleWidgetUrl(url);
-      })
-      .catch(() => {
-        // Ignore malformed startup URL and continue app boot.
-      });
-
-    const sub = Linking.addEventListener("url", ({ url }) => {
-      handleWidgetUrl(url);
-    });
-
-    return () => {
-      isMounted = false;
-      sub.remove();
-    };
-  }, [fontsLoaded, handleWidgetUrl]);
+    return installWidgetSnapshotSync();
+  }, [fontsLoaded]);
 
   useEffect(() => {
     if (!fontsLoaded) return;
-    return installWidgetSnapshotSync();
+    const sub = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active") {
+        void useDiveSession.getState().reconcile().then(writeWidgetSnapshot);
+        return;
+      }
+      const state = useDiveSession.getState();
+      if (state.session?.status === "diving") {
+        state.tick();
+      }
+      void writeWidgetSnapshot();
+    });
+    return () => sub.remove();
   }, [fontsLoaded]);
 
   if (!fontsLoaded) return null;

@@ -13,6 +13,7 @@ Recent work stabilized three areas:
 1. Dive abort/surface lifecycle.
 2. Dive completion audio ownership.
 3. Multi-concept native widgets and their project archive footprint.
+4. Widget/Live Activity deep links and cold-start session reconciliation.
 
 ## Recent Fixes
 
@@ -71,6 +72,38 @@ The widget gallery includes Ocean Portal, Diving Instrument, and Living Ocean.
 The dedicated `deepocean-widget://` URL scheme is supported in addition to
 `deepocean://`.
 
+### Widget actions and active sessions are cold-start safe
+
+Current design:
+
+- `app/widget.tsx` is the only widget/Live Activity command execution route.
+- `src/features/widget/DeepLinkActionRouter.ts` waits for session hydration,
+  deduplicates repeated taps for 1.5 seconds, dispatches, and returns one
+  centralized navigation target.
+- `src/features/widget/actionContract.ts` documents the typed action/target/
+  params/fallback contract.
+- `diveSessionStore` remains the single source of truth. Its compact
+  `dive.active_session` runtime snapshot stores only the data needed to restore
+  or clean up the engine safely.
+- Timed running sessions whose expected end is still in the future restore from
+  wall clock. Recent paused sessions restore paused. Expired, malformed,
+  open-ended-running, clock-skewed, and stale paused snapshots are cleared.
+- Cleanup removes active storage, dive notifications, widget running state, and
+  Live Activity state idempotently.
+- `DiveScreen` waits for lifecycle readiness before applying its direct-route
+  fallback, preventing cold-start restore races.
+- Live Activity start/update is upserted by session id, uses pause-adjusted
+  timing, and taps through the same `deepocean-widget://widget` route.
+- Widget snapshot schema is v3 and writes are single-flight/debounced to avoid
+  overlapping repository reads.
+
+Regression coverage:
+
+```sh
+yarn test src/features/session/sessionLifecyclePolicy.test.ts \
+  src/features/widget/DeepLinkActionRouter.test.ts --runInBand
+```
+
 Required raster assets:
 
 - `assets/widget-concepts/ocean-portal-square.png`
@@ -113,6 +146,17 @@ yarn check:audio-assets
 
 For native widget changes, also prebuild/regenerate and inspect the actual
 widget in a development build. Expo Go cannot validate this project.
+
+Latest verification (2026-06-19):
+
+- `yarn test --runInBand`: 10 suites, 49 tests passed.
+- `yarn lint`: passed, including `tsc --noEmit`.
+- `yarn widget`: passed all native marker and asset checks.
+- `xcodebuild -project ios/DeepOcean.xcodeproj -target DeepOceanWidgets ...`:
+  succeeded for the simulator.
+- A full workspace simulator build was started to compile all Pods but stopped
+  manually after the changed widget target had already built; use `yarn ios` or
+  the normal Xcode workspace for final device-level interaction QA.
 
 ## Handoff Rules
 

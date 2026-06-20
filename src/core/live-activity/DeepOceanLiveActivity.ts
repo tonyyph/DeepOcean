@@ -4,6 +4,7 @@ import type { DiveSession } from "@/domain/entities";
 type NativeLiveActivity = {
   start(
     sessionId: string,
+    status: string,
     targetSeconds: number | null,
     startedAtMs: number,
     elapsedSeconds: number,
@@ -20,6 +21,7 @@ type NativeLiveActivity = {
     zone: string
   ): Promise<boolean>;
   end(sessionId: string): Promise<boolean>;
+  endAll(): Promise<boolean>;
 };
 
 const nativeModule = NativeModules.DeepOceanLiveActivity as
@@ -34,37 +36,67 @@ function roundedDepth(session: DiveSession): number {
   return Math.max(0, Math.round(session.depthMeters));
 }
 
+function effectiveStartedAt(
+  session: DiveSession,
+  pausedAccumulatedMs: number
+): number {
+  return session.startedAt + Math.max(0, pausedAccumulatedMs);
+}
+
 export const DeepOceanLiveActivity = {
-  async start(session: DiveSession): Promise<void> {
-    if (!canUseLiveActivity()) return;
+  async start(
+    session: DiveSession,
+    pausedAccumulatedMs = 0
+  ): Promise<boolean> {
+    if (!canUseLiveActivity()) return false;
     try {
-      await nativeModule!.start(
-        session.id,
-        session.targetSeconds,
-        session.startedAt,
-        session.elapsedSeconds,
-        roundedDepth(session),
-        session.zone
+      return Boolean(
+        await nativeModule!.start(
+          session.id,
+          session.status,
+          session.targetSeconds,
+          effectiveStartedAt(session, pausedAccumulatedMs),
+          session.elapsedSeconds,
+          roundedDepth(session),
+          session.zone
+        )
       );
     } catch (error) {
       console.log("[LiveActivity] start failed", error);
+      return false;
     }
   },
 
-  async update(session: DiveSession): Promise<void> {
-    if (!canUseLiveActivity()) return;
+  async update(
+    session: DiveSession,
+    pausedAccumulatedMs = 0
+  ): Promise<boolean> {
+    if (!canUseLiveActivity()) return false;
     try {
-      await nativeModule!.update(
-        session.id,
-        session.status,
-        session.startedAt,
-        session.targetSeconds,
-        session.elapsedSeconds,
-        roundedDepth(session),
-        session.zone
+      return Boolean(
+        await nativeModule!.update(
+          session.id,
+          session.status,
+          effectiveStartedAt(session, pausedAccumulatedMs),
+          session.targetSeconds,
+          session.elapsedSeconds,
+          roundedDepth(session),
+          session.zone
+        )
       );
     } catch (error) {
       console.log("[LiveActivity] update failed", error);
+      return false;
+    }
+  },
+
+  async sync(
+    session: DiveSession,
+    pausedAccumulatedMs = 0
+  ): Promise<void> {
+    const updated = await this.update(session, pausedAccumulatedMs);
+    if (!updated) {
+      await this.start(session, pausedAccumulatedMs);
     }
   },
 
@@ -74,6 +106,15 @@ export const DeepOceanLiveActivity = {
       await nativeModule!.end(sessionId);
     } catch (error) {
       console.log("[LiveActivity] end failed", error);
+    }
+  },
+
+  async endAll(): Promise<void> {
+    if (!canUseLiveActivity()) return;
+    try {
+      await nativeModule!.endAll();
+    } catch (error) {
+      console.log("[LiveActivity] end all failed", error);
     }
   }
 } as const;

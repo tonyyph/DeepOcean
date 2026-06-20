@@ -267,6 +267,41 @@ export const NotificationService = {
     }
   },
 
+  async clearDiveSessionNotifications(): Promise<void> {
+    if (Platform.OS === "web") return;
+    try {
+      const [scheduled, presented] = await Promise.all([
+        Notifications.getAllScheduledNotificationsAsync(),
+        Notifications.getPresentedNotificationsAsync(),
+      ]);
+      const isDiveNotification = (
+        notification: Notifications.NotificationRequest,
+      ) => {
+        const kind = notification.content.data?.kind;
+        return kind === "dive-complete" || kind === "active-dive";
+      };
+      await Promise.all([
+        ...scheduled
+          .filter(isDiveNotification)
+          .map((notification) =>
+            Notifications.cancelScheduledNotificationAsync(
+              notification.identifier,
+            ),
+          ),
+        ...presented
+          .filter((notification) => isDiveNotification(notification.request))
+          .map((notification) =>
+            Notifications.dismissNotificationAsync(
+              notification.request.identifier,
+            ),
+          ),
+      ]);
+    } catch {
+      // Cleanup is idempotent and best-effort; unsupported OS calls must not
+      // block session hydration.
+    }
+  },
+
   addReceivedListener(
     listener: (notification: Notifications.Notification) => void,
   ): Notifications.Subscription | null {
@@ -281,5 +316,14 @@ export const NotificationService = {
     if (Platform.OS === "web") return null;
     ensureHandler();
     return Notifications.addNotificationResponseReceivedListener(listener);
+  },
+
+  async consumeLastResponse(): Promise<Notifications.NotificationResponse | null> {
+    if (Platform.OS === "web") return null;
+    const response = await Notifications.getLastNotificationResponseAsync();
+    if (response) {
+      await Notifications.clearLastNotificationResponseAsync();
+    }
+    return response;
   },
 } as const;

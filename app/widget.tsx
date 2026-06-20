@@ -1,10 +1,8 @@
 import { useEffect } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  dispatchWidgetCommand,
-  parseWidgetActionUrl,
-  writeWidgetSnapshot,
-  type WidgetNavigateTarget
+  routeWidgetActionUrl,
+  WIDGET_TARGET_ROUTES
 } from "@/features/widget";
 
 function firstParam(value: string | string[] | undefined): string | undefined {
@@ -19,33 +17,26 @@ export default function WidgetRoute() {
   }>();
 
   useEffect(() => {
-    const navigate = (target: WidgetNavigateTarget) => {
-      router.replace(target === "ai" ? "/(tabs)/ai" : "/(tabs)/stats");
-    };
+    let active = true;
     const search = new URLSearchParams();
     const action = firstParam(params.action);
     const minutes = firstParam(params.minutes);
     if (action) search.set("action", action);
     if (minutes) search.set("minutes", minutes);
 
-    const command = parseWidgetActionUrl(`deepocean://widget?${search}`);
-    if (command) {
-      const result = dispatchWidgetCommand(command, { navigate });
-      writeWidgetSnapshot();
+    void routeWidgetActionUrl(`deepocean://widget?${search}`).then((result) => {
+      if (!active) return;
       console.log("[WidgetCommand]", {
-        action: command.action,
+        action: result.action,
         status: result.status,
-        reason: result.reason
+        reason: result.reason,
+        duplicate: result.duplicate
       });
-      if (
-        command.action === "open_ai_companion" ||
-        command.action === "view_daily_progress"
-      ) {
-        return;
-      }
-    }
-
-    router.replace("/(tabs)");
+      router.replace(WIDGET_TARGET_ROUTES[result.target] as never);
+    });
+    return () => {
+      active = false;
+    };
   }, [params.action, params.minutes, router]);
 
   return null;

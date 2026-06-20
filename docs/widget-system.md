@@ -43,6 +43,16 @@ Widget emits:
 
 Parser:
 - src/features/widget/urlAction.ts
+- src/features/widget/actionContract.ts
+
+| Action | URL | Target | Params | Invalid-state fallback |
+| --- | --- | --- | --- | --- |
+| `start_focus` | `deepocean-widget://widget?action=start_focus&minutes=25` | `/dive` | optional `minutes` (clamped to 5–180) | preferred duration, then `/dive` |
+| `resume_current` | `deepocean-widget://widget?action=resume_current` | `/dive` | none | Home when no paused/running session exists |
+| `pause_session` | `deepocean-widget://widget?action=pause_session` | `/dive` | none | Home when no active/paused session exists |
+| `skip_break` | `deepocean-widget://widget?action=skip_break` | `/dive` | none | Home; break state is not modeled yet |
+| `open_ai_companion` | `deepocean-widget://widget?action=open_ai_companion` | `/(tabs)/ai` | none | Home |
+| `view_daily_progress` | `deepocean-widget://widget?action=view_daily_progress` | `/(tabs)/stats` | none | Home |
 
 The dedicated `deepocean-widget` scheme is injected into the generated iOS
 Info.plist by `plugins/with-focus-widget.js`. It avoids dev-client URL chooser
@@ -65,21 +75,42 @@ Session actions:
 
 ### 3. App Bootstrap Integration
 
-Root integration in app/_layout.tsx:
-- Handles initial URL on cold start
-- Subscribes to runtime URL events
-- Dispatches widget commands
-- Logs result for telemetry debugging
+Expo Router sends widget and Live Activity URLs to `app/widget.tsx`. That route
+is the only command execution entry point:
 
-### 4. Widget Snapshot Sync
+- waits for active-session hydration/reconciliation
+- parses and dispatches the command
+- suppresses repeated command execution inside a 1.5 second window
+- replaces `/widget` with the contract target or safe fallback
+
+`app/_layout.tsx` initializes session lifecycle before hiding the splash screen
+and reconciles timestamps, notifications, widget data, and Live Activity state
+when `AppState` returns to `active`.
+
+### 4. Active Session Lifecycle
+
+`diveSessionStore` remains the single source of truth. A compact runtime
+snapshot is persisted under `dive.active_session`; it is not a second engine.
+It contains the active entity plus pause offsets, discovery roll cursor, and
+notification identifiers needed to restore or clean up safely.
+
+Cold-start rules:
+
+- future-ending timed dive: restore, catch up from wall clock, restart one timer
+- recent paused dive: restore paused state
+- expired timed dive: clear local active state, widget, notifications, and Live Activity
+- open-ended running dive after process death: clear because it has no trustworthy expected end
+- paused snapshot older than 24 hours, malformed data, clock skew, or terminal status: clear
+
+### 5. Widget Snapshot Sync
 
 Snapshot persistence for native widget rendering:
 - src/features/widget/snapshot.ts
 - Storage key: app.widget.snapshot
 
-Snapshot schema v2 contains:
+Snapshot schema v3 contains:
 - premium status and locale
-- preferred duration and live session status/elapsed/target
+- preferred duration and active session id/status/start/elapsed/target/expected end
 - streak, today/weekly focus, and deterministic targets
 - current/last zone and depth
 - discovery and dive counts
@@ -276,14 +307,21 @@ npx eas-cli build:inspect --platform ios --stage archive \
 
 ## QA Checklist
 
-1. Cold start from widget URL dispatches correct action.
-2. Runtime URL dispatch works while app already open.
-3. Snapshot updates on session state changes.
-4. Premium flag reflects in snapshot.
-5. Preferred session minutes reflect in snapshot.
-6. Primary action mapping remains correct for idle/diving/paused.
-7. `yarn check:widget-native` passes after prebuild/plugin changes.
-8. Generated iOS widgets render without redacted placeholders; bundled raster
+1. Start session -> Widget and Live Activity show running state.
+2. Widget main action in foreground/background/cold start opens `/dive`.
+3. Live Activity main action in foreground/background/cold start opens `/dive`.
+4. Cold-start expired/open-ended session clears local state, notifications,
+   widget running state, and Live Activity.
+5. Cold-start valid timed or recent paused session restores accurate progress.
+6. Pause/resume updates Widget and Live Activity from the same store state.
+7. Complete/cancel removes the active widget state and ends Live Activity.
+8. Missing/invalid action params fall back safely without crashing.
+9. Repeated taps inside 1.5 seconds execute the command only once.
+10. Slow hydration queues action dispatch until session reconciliation finishes.
+11. Notification response cold start opens its stored deep link once.
+12. Premium flag and preferred duration reflect in snapshot.
+13. `yarn check:widget-native` passes after prebuild/plugin changes.
+14. Generated iOS widgets render without redacted placeholders; bundled raster
    images must stay within WidgetKit-safe dimensions.
 
 ## Future Native Steps (For true no-app-open execution)

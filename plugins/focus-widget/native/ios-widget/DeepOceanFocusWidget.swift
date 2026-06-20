@@ -83,7 +83,7 @@ struct WidgetSnapshot: Decodable {
     }
   }
   var actionURL: URL {
-    URL(string: "deepocean://widget?action=\(primaryAction)&minutes=\(preferredMinutes)")!
+    URL(string: "deepocean-widget://widget?action=\(primaryAction)&minutes=\(preferredMinutes)")!
   }
   var zoneLabel: String {
     guard isVietnamese else { return currentZone }

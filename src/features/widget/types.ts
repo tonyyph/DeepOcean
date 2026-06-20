@@ -21,7 +21,10 @@ export type WidgetDispatchResult = {
   status: WidgetDispatchStatus;
   action: WidgetActionType;
   reason?: string;
+  target: WidgetNavigateTarget;
 };
+
+export type WidgetNavigateTarget = "dive" | "ai" | "stats" | "home";
 
 export type WidgetPrimaryAction =
   | "start_focus"
@@ -30,7 +33,7 @@ export type WidgetPrimaryAction =
   | "skip_break";
 
 export type WidgetSnapshot = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   capturedAt: number;
   isPremium: boolean;
   language: "en" | "vi";
@@ -45,9 +48,12 @@ export type WidgetSnapshot = {
   discoveryCount: number;
   totalDives: number;
   session: {
-    status: "idle" | "diving" | "paused" | "surfaced" | "cancelled";
+    id: string;
+    status: "diving" | "paused";
+    startedAt: number;
     elapsedSeconds: number;
     targetSeconds: number | null;
+    expectedEndAt: number | null;
   } | null;
   primaryAction: WidgetPrimaryAction;
 };

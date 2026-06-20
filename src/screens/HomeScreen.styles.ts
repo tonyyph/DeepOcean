@@ -39,21 +39,15 @@ export const makeStyles = (t: AppTheme) =>
     },
     bellBadge: {
       position: "absolute",
-      top: 8,
-      right: 8,
-      minWidth: 14,
-      height: 14,
+      top: 12,
+      right: 12,
+      minWidth: 8,
+      height: 8,
       paddingHorizontal: 3,
       borderRadius: t.radii.pill,
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: "#FF0111"
-    },
-    bellBadgeText: {
-      color: t.colors.text,
-      fontSize: 8,
-      lineHeight: 10,
-      fontFamily: t.fonts.label
     },
     rankRow: {
       flexDirection: "row",

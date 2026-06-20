@@ -238,6 +238,7 @@ ensure_file(
           .padding(.vertical, 16)
           .activityBackgroundTint(sea)
           .activitySystemActionForegroundColor(glow)
+          .widgetURL(actionURL(context.state))
         } dynamicIsland: { context in
           DynamicIsland {
             DynamicIslandExpandedRegion(.leading) {
@@ -289,6 +290,7 @@ ensure_file(
             Image(systemName: context.state.status == "paused" ? "pause.fill" : "timer")
               .foregroundStyle(context.state.status == "paused" ? .yellow : glow)
           }
+          .widgetURL(actionURL(context.state))
         }
       }
 
@@ -363,6 +365,11 @@ ensure_file(
       }
       return Int(min(1, Double(state.elapsedSeconds) / Double(targetSeconds)) * 100)
     }
+
+    private func actionURL(_ state: DeepOceanDiveAttributes.ContentState) -> URL {
+      let action = state.status == "paused" ? "resume_current" : "pause_session"
+      return URL(string: "deepocean-widget://widget?action=\\(action)")!
+    }
   SWIFT
 )
 
@@ -387,9 +394,10 @@ ensure_file(
         }
       }
 
-      @objc(start:targetSeconds:startedAtMs:elapsedSeconds:depthMeters:zone:resolver:rejecter:)
+      @objc(start:status:targetSeconds:startedAtMs:elapsedSeconds:depthMeters:zone:resolver:rejecter:)
       func start(
         sessionId: NSString,
+        status: NSString,
         targetSeconds: NSNumber?,
         startedAtMs: NSNumber,
         elapsedSeconds: NSNumber,
@@ -414,13 +422,20 @@ ensure_file(
             await endExisting(except: id)
             let attributes = DeepOceanDiveAttributes(sessionId: id, title: "Deep Ocean")
             let state = DeepOceanDiveAttributes.ContentState(
-              status: "diving",
+              status: status as String,
               startedAt: Date(timeIntervalSince1970: startedAtMs.doubleValue / 1000.0),
               targetSeconds: targetSeconds?.intValue,
               elapsedSeconds: elapsedSeconds.intValue,
               depthMeters: depthMeters.intValue,
               zone: zone as String
             )
+            if let existing = Activity<DeepOceanDiveAttributes>.activities.first(where: {
+              $0.attributes.sessionId == id
+            }) {
+              await existing.update(ActivityContent(state: state, staleDate: nil))
+              resolve(existing.id)
+              return
+            }
             let activity = try Activity.request(
               attributes: attributes,
               content: ActivityContent(state: state, staleDate: nil),
@@ -529,6 +544,7 @@ ensure_file(
     @interface RCT_EXTERN_MODULE(DeepOceanLiveActivity, NSObject)
 
     RCT_EXTERN_METHOD(start:(NSString *)sessionId
+                      status:(NSString *)status
                       targetSeconds:(NSNumber *)targetSeconds
                       startedAtMs:(nonnull NSNumber *)startedAtMs
                       elapsedSeconds:(nonnull NSNumber *)elapsedSeconds

@@ -52,6 +52,7 @@ export default function DiveScreen() {
   const { minutes } = useLocalSearchParams<{ minutes?: string }>();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
+  const sessionReady = useDiveSession((s) => s.isReady);
   const session = useDiveSession((s) => s.session);
   const lastEndReason = useDiveSession((s) => s.lastEndReason);
   const start = useDiveSession((s) => s.start);
@@ -85,6 +86,7 @@ export default function DiveScreen() {
   const liveDiscovery = useDiveEventEngine();
 
   useEffect(() => {
+    if (!sessionReady) return;
     const decision = decideDiveLaunch(
       launchCheckedRef.current,
       session?.status
@@ -95,7 +97,7 @@ export default function DiveScreen() {
       const target = minutes ? parseInt(minutes, 10) : null;
       start(Number.isFinite(target) ? (target as number) : null);
     }
-  }, [minutes, session, start]);
+  }, [minutes, session, sessionReady, start]);
 
   const confirmSurface = useCallback(() => {
     setDialog({

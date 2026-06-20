@@ -90,6 +90,13 @@ export function NotificationToastHost() {
   );
 
   useEffect(() => {
+    let active = true;
+    void NotificationService.consumeLastResponse().then((event) => {
+      if (!active || !event) return;
+      void persistNotification(event.notification).then((message) => {
+        if (message) openMessage(message);
+      });
+    });
     const received = NotificationService.addReceivedListener((notification) => {
       void persistNotification(notification, { foregroundToast: true });
     });
@@ -100,6 +107,7 @@ export function NotificationToastHost() {
     });
 
     return () => {
+      active = false;
       received?.remove();
       response?.remove();
       if (clearTimer.current) clearTimeout(clearTimer.current);

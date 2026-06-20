@@ -9,6 +9,7 @@ import {
 import { translations, type Language } from "@/core/i18n/translations";
 import { DeepOceanLiveActivity } from "@/core/live-activity/DeepOceanLiveActivity";
 import { NotificationService } from "@/core/notifications/NotificationService";
+import { StorageKeys, storage } from "@/core/storage/mmkv";
 import { container } from "@/data/container";
 import type { DiveSession, DiveSessionStatus } from "@/domain/entities";
 import { computeLevelUp, xpForSession } from "@/features/diver/levelSystem";
@@ -24,6 +25,12 @@ import {
   minutesToDepth,
   type OceanZone
 } from "@/features/ocean/zones";
+import {
+  ACTIVE_DIVE_SCHEMA_VERSION,
+  decideActiveDiveRestore,
+  parsePersistedActiveDive,
+  type PersistedActiveDive
+} from "@/features/session/sessionLifecyclePolicy";
 import { Platform } from "react-native";
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
@@ -39,6 +46,7 @@ import { useSettings } from "./settingsStore";
  */
 
 type State = {
+  isReady: boolean;
   session: DiveSession | null;
   lastEndReason: "natural" | "manual" | null;
   _endingSessionId: string | null;
@@ -56,6 +64,8 @@ type State = {
 };
 
 type Actions = {
+  initialize: () => Promise<void>;
+  reconcile: () => Promise<void>;
   start: (targetMinutes: number | null) => void;
   pause: () => void;
   resume: () => void;
@@ -68,6 +78,7 @@ type Actions = {
 };
 
 const TICK_MS = 1000;
+let initializePromise: Promise<void> | null = null;
 
 type AdvancedSession = {
   session: DiveSession;
@@ -203,8 +214,30 @@ async function clearDiveNotifications(
   ]);
 }
 
+function persistActiveDive(state: State): void {
+  if (
+    !state.session ||
+    (state.session.status !== "diving" && state.session.status !== "paused")
+  ) {
+    storage.delete(StorageKeys.activeDiveSession);
+    return;
+  }
+  const snapshot: PersistedActiveDive = {
+    schemaVersion: ACTIVE_DIVE_SCHEMA_VERSION,
+    savedAt: Date.now(),
+    session: state.session,
+    lastRollMinute: state._lastRollMinute,
+    pausedStartedAt: state._pausedStartedAt,
+    pausedAccumulatedMs: state._pausedAccumulatedMs,
+    completionNotificationId: state._completionNotificationId,
+    activeNotificationId: state._activeNotificationId
+  };
+  storage.set(StorageKeys.activeDiveSession, JSON.stringify(snapshot));
+}
+
 export const useDiveSession = create<State & Actions>()(
   subscribeWithSelector((set, get) => ({
+    isReady: false,
     session: null,
     lastEndReason: null,
     _endingSessionId: null,
@@ -216,6 +249,118 @@ export const useDiveSession = create<State & Actions>()(
     _activeNotificationId: null,
     pendingLevelUp: null,
     pendingAchievements: [],
+
+    initialize: async () => {
+      if (get().isReady) return;
+      if (initializePromise) return initializePromise;
+      initializePromise = (async () => {
+        const parsed = parsePersistedActiveDive(
+          storage.getString(StorageKeys.activeDiveSession)
+        );
+        const decision =
+          parsed.kind === "restore"
+            ? decideActiveDiveRestore(parsed.snapshot, Date.now())
+            : parsed;
+
+        if (decision.kind !== "restore") {
+          storage.delete(StorageKeys.activeDiveSession);
+          await NotificationService.clearDiveSessionNotifications();
+          const stale = decision.kind === "clear" ? decision.snapshot : null;
+          if (stale) {
+            await clearDiveNotifications(
+              stale.completionNotificationId,
+              stale.activeNotificationId
+            );
+            await DeepOceanLiveActivity.end(stale.session.id);
+          } else {
+            await DeepOceanLiveActivity.endAll();
+          }
+          set({ isReady: true });
+          return;
+        }
+
+        const restored = decision.snapshot;
+        await NotificationService.clearDiveSessionNotifications();
+        const advanced = advanceSession(
+          restored.session,
+          restored.lastRollMinute,
+          restored.pausedAccumulatedMs,
+          restored.pausedStartedAt,
+          Date.now(),
+          false
+        );
+        const interval =
+          advanced.session.status === "diving"
+            ? setInterval(() => get().tick(), TICK_MS)
+            : null;
+        set({
+          isReady: true,
+          session: advanced.session,
+          lastEndReason: null,
+          _endingSessionId: null,
+          _intervalHandle: interval,
+          _lastRollMinute: advanced.lastRollMinute,
+          _pausedStartedAt: restored.pausedStartedAt,
+          _pausedAccumulatedMs: restored.pausedAccumulatedMs,
+          _completionNotificationId: null,
+          _activeNotificationId: null
+        });
+        persistActiveDive(get());
+        await DeepOceanLiveActivity.sync(
+          advanced.session,
+          restored.pausedAccumulatedMs
+        );
+        if (advanced.session.status === "diving") {
+          const notificationIds = await armDiveNotifications(
+            advanced.session,
+            restored.pausedAccumulatedMs
+          );
+          const current = get().session;
+          if (
+            current?.id === advanced.session.id &&
+            current.status === "diving"
+          ) {
+            set({
+              _completionNotificationId: notificationIds.completionId,
+              _activeNotificationId: notificationIds.activeId
+            });
+            persistActiveDive(get());
+          } else {
+            await clearDiveNotifications(
+              notificationIds.completionId,
+              notificationIds.activeId
+            );
+          }
+        }
+      })().finally(() => {
+        initializePromise = null;
+      });
+      return initializePromise;
+    },
+
+    reconcile: async () => {
+      await get().initialize();
+      const state = get();
+      if (state.session?.status === "diving") {
+        state.tick();
+        const current = get();
+        if (
+          current.session?.status === "diving" &&
+          !current._intervalHandle
+        ) {
+          set({ _intervalHandle: setInterval(() => get().tick(), TICK_MS) });
+          persistActiveDive(get());
+        }
+        return;
+      }
+      if (state.session?.status === "paused") {
+        persistActiveDive(state);
+        await DeepOceanLiveActivity.sync(
+          state.session,
+          state._pausedAccumulatedMs
+        );
+      }
+    },
 
     start: (targetMinutes) => {
       // Never overwrite a live or resumable session. Terminal sessions are
@@ -259,7 +404,8 @@ export const useDiveSession = create<State & Actions>()(
         pendingLevelUp: null,
         pendingAchievements: []
       });
-      void DeepOceanLiveActivity.start(session);
+      persistActiveDive(get());
+      void DeepOceanLiveActivity.sync(session);
       void armDiveNotifications(session, 0).then(
         ({ completionId, activeId }) => {
           const current = get().session;
@@ -271,6 +417,7 @@ export const useDiveSession = create<State & Actions>()(
             _completionNotificationId: completionId,
             _activeNotificationId: activeId
           });
+          persistActiveDive(get());
         }
       );
     },
@@ -298,10 +445,6 @@ export const useDiveSession = create<State & Actions>()(
         _completionNotificationId,
         _activeNotificationId
       );
-      void DeepOceanLiveActivity.update({
-        ...advanced.session,
-        status: "paused"
-      });
       set({
         _intervalHandle: null,
         _lastRollMinute: advanced.lastRollMinute,
@@ -310,11 +453,22 @@ export const useDiveSession = create<State & Actions>()(
         _activeNotificationId: null,
         session: { ...advanced.session, status: "paused" }
       });
+      persistActiveDive(get());
+      void DeepOceanLiveActivity.sync(
+        { ...advanced.session, status: "paused" },
+        _pausedAccumulatedMs
+      );
     },
 
     resume: () => {
-      const { session, _pausedStartedAt, _pausedAccumulatedMs } = get();
+      const {
+        session,
+        _intervalHandle,
+        _pausedStartedAt,
+        _pausedAccumulatedMs
+      } = get();
       if (!session || session.status !== "paused") return;
+      if (_intervalHandle) clearInterval(_intervalHandle);
       const now = Date.now();
       const pausedDelta = _pausedStartedAt ? now - _pausedStartedAt : 0;
       const nextPausedAccumulatedMs = _pausedAccumulatedMs + pausedDelta;
@@ -328,7 +482,8 @@ export const useDiveSession = create<State & Actions>()(
         _activeNotificationId: null,
         session: resumed
       });
-      void DeepOceanLiveActivity.update(resumed);
+      persistActiveDive(get());
+      void DeepOceanLiveActivity.sync(resumed, nextPausedAccumulatedMs);
       void armDiveNotifications(resumed, nextPausedAccumulatedMs).then(
         ({ completionId, activeId }) => {
           const current = get().session;
@@ -340,6 +495,7 @@ export const useDiveSession = create<State & Actions>()(
             _completionNotificationId: completionId,
             _activeNotificationId: activeId
           });
+          persistActiveDive(get());
         }
       );
     },
@@ -357,6 +513,7 @@ export const useDiveSession = create<State & Actions>()(
         _activeNotificationId
       );
       void DeepOceanLiveActivity.end(get().session?.id);
+      storage.delete(StorageKeys.activeDiveSession);
       set({
         session: null,
         lastEndReason: null,
@@ -484,6 +641,7 @@ export const useDiveSession = create<State & Actions>()(
           levelsGained > 0 ? { from: profile.level, to: newLevel } : null,
         pendingAchievements: newAchievements
       });
+      storage.delete(StorageKeys.activeDiveSession);
     },
 
     tick: () => {
@@ -508,12 +666,17 @@ export const useDiveSession = create<State & Actions>()(
 
       if (reachedTarget) {
         set({ session: updated, _lastRollMinute: advanced.lastRollMinute });
-        void DeepOceanLiveActivity.update(updated);
+        persistActiveDive(get());
+        void DeepOceanLiveActivity.sync(
+          updated,
+          state._pausedAccumulatedMs
+        );
         get().end({ reason: "natural" });
         return;
       }
       set({ session: updated, _lastRollMinute: advanced.lastRollMinute });
-      void DeepOceanLiveActivity.update(updated);
+      persistActiveDive(get());
+      void DeepOceanLiveActivity.sync(updated, state._pausedAccumulatedMs);
     }
   }))
 );
