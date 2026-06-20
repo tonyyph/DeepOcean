@@ -1,10 +1,11 @@
 import {
   useGlobalSearchParams,
   usePathname,
+  useRootNavigationState,
   useRouter,
   type Href
 } from "expo-router";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { WidgetNavigateTarget } from "./types";
 
 export type ExternalActionSource =
@@ -23,15 +24,18 @@ export type ExternalNavigationTarget = {
 
 export type ExternalNavigationDecision =
   | { kind: "skip"; reason: "same-route-and-params" | "duplicate-action" }
+  | { kind: "dismiss"; reason: "ingress-over-target" }
   | { kind: "replace"; target: ExternalNavigationTarget }
   | { kind: "push"; target: ExternalNavigationTarget };
 
-type CurrentRoute = {
+export type CurrentRoute = {
   pathname: string;
   params: Record<string, string | string[] | undefined>;
 };
 
 type RouterAdapter = {
+  back?: () => void;
+  canGoBack?: () => boolean;
   push: (href: Href) => void;
   replace: (href: Href) => void;
 };
@@ -56,6 +60,27 @@ function normalizePathname(pathname: string): string {
   return `/${withoutGroups.replace(/\/+$/, "")}`;
 }
 
+function routeNameToPathname(name: string): string {
+  return normalizePathname(name.startsWith("/") ? name : `/${name}`);
+}
+
+function routeParams(
+  params: object | undefined
+): Record<string, string | string[] | undefined> {
+  if (!params) return {};
+  const normalized: Record<string, string | string[] | undefined> = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (
+      typeof value === "string" ||
+      value === undefined ||
+      (Array.isArray(value) && value.every((item) => typeof item === "string"))
+    ) {
+      normalized[key] = value;
+    }
+  }
+  return normalized;
+}
+
 function normalizeParams(
   params: Record<string, string | string[] | undefined>
 ): Record<string, string> {
@@ -68,14 +93,12 @@ function normalizeParams(
   return normalized;
 }
 
-function paramsEqual(
+function paramsMatch(
   current: Record<string, string | string[] | undefined>,
   target: Record<string, string>
 ): boolean {
   const left = normalizeParams(current);
-  const leftKeys = Object.keys(left);
   const rightKeys = Object.keys(target).sort();
-  if (leftKeys.length !== rightKeys.length) return false;
   return rightKeys.every((key) => left[key] === target[key]);
 }
 
@@ -126,15 +149,32 @@ export function decideExternalNavigation(
       ? { kind: "replace", target }
       : { kind: "push", target };
   }
-  if (paramsEqual(current.params, target.params)) {
+  if (paramsMatch(current.params, target.params)) {
     return { kind: "skip", reason: "same-route-and-params" };
   }
   return { kind: "replace", target };
 }
 
+export function decideIngressNavigation(
+  previous: CurrentRoute | null,
+  target: ExternalNavigationTarget,
+  mode: ExternalNavigationMode
+): ExternalNavigationDecision {
+  if (previous) {
+    const previousDecision = decideExternalNavigation(previous, target, mode);
+    if (previousDecision.kind === "skip") {
+      return { kind: "dismiss", reason: "ingress-over-target" };
+    }
+  }
+  return mode === "replace"
+    ? { kind: "replace", target }
+    : { kind: "push", target };
+}
+
 export function handleExternalActionNavigation(input: {
   actionId: string;
   current: CurrentRoute;
+  ingressPrevious?: CurrentRoute | null;
   mode: ExternalNavigationMode;
   now?: number;
   router: RouterAdapter;
@@ -146,14 +186,32 @@ export function handleExternalActionNavigation(input: {
     lastHandledAt !== undefined &&
     now - lastHandledAt < NAVIGATION_DEDUPLICATION_MS
   ) {
+    if (normalizePathname(input.current.pathname) === "/widget") {
+      const ingressDecision = decideIngressNavigation(
+        input.ingressPrevious ?? null,
+        input.target,
+        input.mode
+      );
+      if (
+        ingressDecision.kind === "dismiss" &&
+        input.router.back &&
+        input.router.canGoBack?.()
+      ) {
+        input.router.back();
+        return ingressDecision;
+      }
+    }
     return { kind: "skip", reason: "duplicate-action" };
   }
 
-  const decision = decideExternalNavigation(
-    input.current,
-    input.target,
-    input.mode
-  );
+  const decision =
+    normalizePathname(input.current.pathname) === "/widget"
+      ? decideIngressNavigation(
+          input.ingressPrevious ?? null,
+          input.target,
+          input.mode
+        )
+      : decideExternalNavigation(input.current, input.target, input.mode);
   recentNavigationIds.set(input.actionId, now);
   for (const [actionId, handledAt] of recentNavigationIds) {
     if (now - handledAt >= NAVIGATION_DEDUPLICATION_MS) {
@@ -161,7 +219,13 @@ export function handleExternalActionNavigation(input: {
     }
   }
 
-  if (decision.kind === "replace") {
+  if (
+    decision.kind === "dismiss" &&
+    input.router.back &&
+    input.router.canGoBack?.()
+  ) {
+    input.router.back();
+  } else if (decision.kind === "replace") {
     input.router.replace(decision.target.href);
   } else if (decision.kind === "push") {
     input.router.push(decision.target.href);
@@ -173,8 +237,30 @@ export function useExternalActionNavigation() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useGlobalSearchParams();
+  const rootState = useRootNavigationState();
   const currentRouteRef = useRef<CurrentRoute>({ pathname, params });
-  currentRouteRef.current = { pathname, params };
+  const previousRoute = rootState.routes
+    .slice(0, rootState.index)
+    .reverse()
+    .find((route) => routeNameToPathname(route.name) !== "/widget");
+  const previousRouteRef = useRef<CurrentRoute | null>(
+    previousRoute
+      ? {
+          pathname: routeNameToPathname(previousRoute.name),
+          params: routeParams(previousRoute.params)
+        }
+      : null
+  );
+
+  useEffect(() => {
+    currentRouteRef.current = { pathname, params };
+    previousRouteRef.current = previousRoute
+      ? {
+          pathname: routeNameToPathname(previousRoute.name),
+          params: routeParams(previousRoute.params)
+        }
+      : null;
+  }, [params, pathname, previousRoute]);
 
   const navigateToTarget = useCallback(
     (input: {
@@ -185,6 +271,7 @@ export function useExternalActionNavigation() {
       handleExternalActionNavigation({
         actionId: input.actionId,
         current: currentRouteRef.current,
+        ingressPrevious: previousRouteRef.current,
         mode: input.mode ?? "push",
         router,
         target: input.target

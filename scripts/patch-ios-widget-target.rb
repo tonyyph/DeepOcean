@@ -373,7 +373,7 @@ ensure_file(
       let action = state.status == "paused" ? "resume_current" : "pause_session"
       let actionId = "\\(sessionId):\\(action)"
       return URL(
-        string: "deepocean-widget://widget?action=\\(action)&source=live_activity&actionId=\\(actionId)"
+        string: "deepocean-widget://widget?action=\\(action)&source=live_activity&sessionId=\\(sessionId)&actionId=\\(actionId)"
       )!
     }
   SWIFT

@@ -1,5 +1,6 @@
 import {
   decideExternalNavigation,
+  decideIngressNavigation,
   handleExternalActionNavigation,
   resetExternalNavigationForTests,
   resolveDeepLinkNavigationTarget,
@@ -37,6 +38,16 @@ describe("external action navigation", () => {
     ).toBe("replace");
   });
 
+  test("ignores unrelated existing params when the target does not change them", () => {
+    expect(
+      decideExternalNavigation(
+        { pathname: "/dive", params: { minutes: "25" } },
+        resolveWidgetNavigationTarget("dive"),
+        "replace"
+      )
+    ).toEqual({ kind: "skip", reason: "same-route-and-params" });
+  });
+
   test("recognizes tab route groups as the same public pathname", () => {
     expect(
       decideExternalNavigation(
@@ -45,6 +56,39 @@ describe("external action navigation", () => {
         "push"
       ).kind
     ).toBe("skip");
+  });
+
+  test("dismisses the widget ingress when it overlays the same dive", () => {
+    expect(
+      decideIngressNavigation(
+        { pathname: "/dive", params: {} },
+        resolveWidgetNavigationTarget("dive"),
+        "replace"
+      )
+    ).toEqual({ kind: "dismiss", reason: "ingress-over-target" });
+  });
+
+  test("dismisses ingress without replacing the existing dive instance", () => {
+    const router = {
+      back: jest.fn(),
+      canGoBack: jest.fn(() => true),
+      push: jest.fn(),
+      replace: jest.fn()
+    };
+    const decision = handleExternalActionNavigation({
+      actionId: "live-activity:session-1:pause",
+      current: { pathname: "/widget", params: {} },
+      ingressPrevious: { pathname: "/dive", params: {} },
+      mode: "replace",
+      router,
+      target: resolveWidgetNavigationTarget("dive"),
+      now: 1_000
+    });
+
+    expect(decision.kind).toBe("dismiss");
+    expect(router.back).toHaveBeenCalledTimes(1);
+    expect(router.push).not.toHaveBeenCalled();
+    expect(router.replace).not.toHaveBeenCalled();
   });
 
   test("deduplicates concurrent ingress using one action id", () => {
@@ -62,6 +106,29 @@ describe("external action navigation", () => {
       handleExternalActionNavigation({ ...input, now: 1_100 })
     ).toEqual({ kind: "skip", reason: "duplicate-action" });
     expect(router.push).toHaveBeenCalledTimes(1);
+  });
+
+  test("still dismisses a duplicate widget ingress instead of leaving it visible", () => {
+    const router = {
+      back: jest.fn(),
+      canGoBack: jest.fn(() => true),
+      push: jest.fn(),
+      replace: jest.fn()
+    };
+    const input = {
+      actionId: "liveActivity:session-1:pause",
+      current: { pathname: "/widget", params: {} },
+      ingressPrevious: { pathname: "/dive", params: { minutes: "25" } },
+      mode: "replace" as const,
+      router,
+      target: resolveWidgetNavigationTarget("dive"),
+      now: 1_000
+    };
+    handleExternalActionNavigation(input);
+    handleExternalActionNavigation({ ...input, now: 1_100 });
+
+    expect(router.back).toHaveBeenCalledTimes(2);
+    expect(router.replace).not.toHaveBeenCalled();
   });
 
   test("parses app-relative notification links and their params", () => {

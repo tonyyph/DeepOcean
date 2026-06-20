@@ -1,6 +1,15 @@
 import { StorageKeys, storage } from "@/core/storage/mmkv";
+import { DeepOceanLiveActivity } from "@/core/live-activity/DeepOceanLiveActivity";
 import { useDiveSession } from "@/stores";
 import { dispatchWidgetCommand } from "./dispatch";
+import { WIDGET_ACTION_CONTRACTS } from "./actionContract";
+import {
+  createSessionActionSignature,
+  resetSessionActionRouterForTests,
+  shouldIgnoreAction,
+  type ActionSource,
+  type SessionActionPayload
+} from "./SessionActionRouter";
 import { writeWidgetSnapshot } from "./snapshot";
 import type {
   WidgetActionType,
@@ -8,11 +17,9 @@ import type {
 } from "./types";
 import { parseWidgetActionUrl } from "./urlAction";
 
-const DUPLICATE_WINDOW_MS = 1_500;
 const PENDING_ACTION_MAX_AGE_MS = 30_000;
 const PROCESS_STARTED_AT = Date.now();
-let lastHandled: { key: string; at: number; result: WidgetRouteResult } | null =
-  null;
+const handledResults = new Map<string, WidgetRouteResult>();
 
 export type WidgetRouteResult = WidgetDispatchResult & {
   actionId: string;
@@ -28,29 +35,50 @@ type PendingExternalAction = {
 
 const INVALID_ACTION: WidgetActionType = "start_focus";
 
-function actionIdFromUrl(url: string, key: string, now: number): string {
+function actionIdFromUrl(
+  url: string,
+  signature: string,
+  source: ActionSource,
+  now: number
+): string {
   try {
     const parsed = new URL(url);
     const explicitId =
       parsed.searchParams.get("actionId") ??
       parsed.searchParams.get("action_id");
-    if (explicitId) return `widget:${explicitId}`;
+    if (explicitId) return `${source}:${explicitId}`;
   } catch {
     // Invalid URLs still need a stable short-lived id for safe fallback.
   }
-  return `widget:${key}:${Math.floor(now / DUPLICATE_WINDOW_MS)}`;
+  return `${source}:${signature}:${Math.floor(now / 1_500)}`;
 }
 
-function sourceFromUrl(url: string): PendingExternalAction["source"] {
+function sourceFromUrl(url: string): ActionSource {
   try {
     const source = new URL(url).searchParams.get("source");
     if (source === "live_activity" || source === "live-activity") {
-      return "live-activity";
+      return "liveActivity";
     }
   } catch {
     // Invalid URLs use the widget source for diagnostics only.
   }
   return "widget";
+}
+
+function sessionIdFromUrl(url: string): string | undefined {
+  try {
+    const parsed = new URL(url);
+    const explicitSessionId =
+      parsed.searchParams.get("sessionId") ??
+      parsed.searchParams.get("session_id");
+    if (explicitSessionId) return explicitSessionId;
+    const actionId =
+      parsed.searchParams.get("actionId") ??
+      parsed.searchParams.get("action_id");
+    return actionId?.split(":")[0] || undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function setPendingExternalAction(action: PendingExternalAction): void {
@@ -97,14 +125,39 @@ export async function routeWidgetActionUrl(
   now = Date.now()
 ): Promise<WidgetRouteResult> {
   const command = parseWidgetActionUrl(url);
-  const key = command ? JSON.stringify(command) : url;
-  const actionId = actionIdFromUrl(url, key, now);
+  const source = sourceFromUrl(url);
+  const activeSessionId = useDiveSession.getState().session?.id;
+  const sessionId = sessionIdFromUrl(url) ?? activeSessionId;
+  const payload: SessionActionPayload = {
+    source,
+    actionType: command?.action ?? "invalid",
+    sessionId,
+    targetRoute: command
+      ? `/${WIDGET_ACTION_CONTRACTS[command.action].target}`
+      : "/"
+  };
+  const signature = createSessionActionSignature(payload);
+  const actionId = actionIdFromUrl(url, signature, source, now);
   setPendingExternalAction({
     actionId,
     receivedAt: now,
-    source: sourceFromUrl(url),
+    source: source === "liveActivity" ? "live-activity" : "widget",
     url
   });
+
+  if (command && shouldIgnoreAction(payload, now)) {
+    clearPendingExternalAction(actionId);
+    const previous = handledResults.get(signature);
+    if (previous) return { ...previous, actionId, duplicate: true };
+    return {
+      status: "ignored",
+      action: command.action,
+      actionId,
+      target: WIDGET_ACTION_CONTRACTS[command.action].target,
+      reason: "duplicate-action-in-flight",
+      duplicate: true
+    };
+  }
 
   await useDiveSession.getState().initialize();
   if (!command) {
@@ -119,13 +172,26 @@ export async function routeWidgetActionUrl(
     };
   }
 
+  const hydratedSessionId = useDiveSession.getState().session?.id;
+  const requiresExistingSession =
+    command.action === "pause_session" ||
+    command.action === "resume_current" ||
+    command.action === "skip_break";
   if (
-    lastHandled &&
-    lastHandled.key === key &&
-    now - lastHandled.at < DUPLICATE_WINDOW_MS
+    requiresExistingSession &&
+    sessionId &&
+    hydratedSessionId !== sessionId
   ) {
+    await DeepOceanLiveActivity.end(sessionId);
     clearPendingExternalAction(actionId);
-    return { ...lastHandled.result, duplicate: true };
+    return {
+      status: "ignored",
+      action: command.action,
+      actionId,
+      target: "home",
+      reason: "session-mismatch",
+      duplicate: false
+    };
   }
 
   const result: WidgetRouteResult = {
@@ -133,7 +199,7 @@ export async function routeWidgetActionUrl(
     actionId,
     duplicate: false
   };
-  lastHandled = { key, at: now, result };
+  handledResults.set(signature, result);
   try {
     await writeWidgetSnapshot();
     return result;
@@ -143,6 +209,7 @@ export async function routeWidgetActionUrl(
 }
 
 export function resetWidgetActionRouterForTests(): void {
-  lastHandled = null;
+  handledResults.clear();
+  resetSessionActionRouterForTests();
   clearPendingExternalAction();
 }

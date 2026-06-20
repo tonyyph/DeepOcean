@@ -176,6 +176,14 @@ export default function RootLayout() {
                   <Stack.Screen name="index" />
                   <Stack.Screen name="onboarding" />
                   <Stack.Screen
+                    name="widget"
+                    options={{
+                      animation: "none",
+                      presentation: "transparentModal",
+                      contentStyle: { backgroundColor: "transparent" }
+                    }}
+                  />
+                  <Stack.Screen
                     name="dive"
                     options={{
                       animation: "fade_from_bottom",

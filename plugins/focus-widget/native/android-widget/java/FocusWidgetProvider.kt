@@ -83,7 +83,11 @@ open class FocusWidgetProvider(
       R.id.widget_primary_action,
       deepLinkPendingIntent(
         context,
-        "deepocean://widget?action=${snapshot.primaryAction}&minutes=${snapshot.preferredMinutes}"
+        buildString {
+          append("deepocean://widget?action=${snapshot.primaryAction}")
+          append("&minutes=${snapshot.preferredMinutes}")
+          snapshot.sessionId?.let { append("&sessionId=$it") }
+        }
       )
     )
     views.setViewVisibility(R.id.widget_premium_badge, if (snapshot.isPremium) View.VISIBLE else View.GONE)
@@ -172,6 +176,7 @@ private data class WidgetSnapshot(
   val currentDepthMeters: Int,
   val discoveryCount: Int,
   val totalDives: Int,
+  val sessionId: String?,
   val sessionStatus: String?,
   val primaryAction: String
 ) {
@@ -252,6 +257,7 @@ private data class WidgetSnapshot(
         currentDepthMeters = json?.optInt("currentDepthMeters", 0) ?: 0,
         discoveryCount = json?.optInt("discoveryCount", 0) ?: 0,
         totalDives = json?.optInt("totalDives", 0) ?: 0,
+        sessionId = session?.optString("id")?.takeIf { it.isNotBlank() },
         sessionStatus = session?.optString("status")?.takeIf { it.isNotBlank() },
         primaryAction = json?.optString("primaryAction", "start_focus") ?: "start_focus"
       )

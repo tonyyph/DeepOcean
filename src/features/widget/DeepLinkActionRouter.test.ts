@@ -4,18 +4,23 @@ import {
   routeWidgetActionUrl
 } from "./DeepLinkActionRouter";
 import { StorageKeys, storage } from "@/core/storage/mmkv";
+import { DeepOceanLiveActivity } from "@/core/live-activity/DeepOceanLiveActivity";
 import { writeWidgetSnapshot } from "./snapshot";
 
 const mockInitialize = jest.fn(async () => {});
 const mockStart = jest.fn();
 const mockPause = jest.fn();
 const mockResume = jest.fn();
+const mockEndLiveActivity = jest
+  .spyOn(DeepOceanLiveActivity, "end")
+  .mockResolvedValue();
+let mockSession: { id: string; status: "diving" | "paused" } | null = null;
 
 jest.mock("@/stores", () => ({
   useDiveSession: {
     getState: () => ({
       initialize: mockInitialize,
-      session: null,
+      session: mockSession,
       start: mockStart,
       pause: mockPause,
       resume: mockResume
@@ -36,6 +41,7 @@ const mockWriteSnapshot = writeWidgetSnapshot as jest.MockedFunction<
 describe("DeepLinkActionRouter", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSession = null;
     resetWidgetActionRouterForTests();
   });
 
@@ -92,6 +98,23 @@ describe("DeepLinkActionRouter", () => {
 
     expect(result.actionId).toBe("widget:session-1:start");
     expect(storage.getString(StorageKeys.pendingExternalAction)).toBeUndefined();
+  });
+
+  test("rejects a stale live activity action for a different session", async () => {
+    mockSession = { id: "dive_current", status: "diving" };
+
+    const result = await routeWidgetActionUrl(
+      "deepocean-widget://widget?action=pause_session&source=live_activity&sessionId=dive_stale&actionId=dive_stale:pause_session",
+      1_000
+    );
+
+    expect(result).toMatchObject({
+      status: "ignored",
+      target: "home",
+      reason: "session-mismatch"
+    });
+    expect(mockPause).not.toHaveBeenCalled();
+    expect(mockEndLiveActivity).toHaveBeenCalledWith("dive_stale");
   });
 
   test("clears a pending action left by an older app process", () => {

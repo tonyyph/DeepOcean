@@ -67,6 +67,7 @@ export default function DiveScreen() {
   const [rewardQueue, setRewardQueue] = useState<RewardItem[]>([]);
 
   const prevZoneRef = useRef<OceanZone | null>(null);
+  const uiSessionIdRef = useRef<string | null>(session?.id ?? null);
   const launchCheckedRef = useRef(false);
   const queueBuiltRef = useRef(false);
   const rewardQueuePresentedRef = useRef(false);
@@ -86,6 +87,20 @@ export default function DiveScreen() {
   const liveDiscovery = useDiveEventEngine();
 
   useEffect(() => {
+    const sessionId = session?.id ?? null;
+    if (uiSessionIdRef.current === sessionId) return;
+    uiSessionIdRef.current = sessionId;
+    prevZoneRef.current = null;
+    queueBuiltRef.current = false;
+    rewardQueuePresentedRef.current = false;
+    navigateAfterQueueRef.current = false;
+    setDialog(null);
+    setAbortOpen(false);
+    setAchievedZone(null);
+    setRewardQueue([]);
+  }, [session?.id]);
+
+  useEffect(() => {
     if (!sessionReady) return;
     const decision = decideDiveLaunch(
       launchCheckedRef.current,
@@ -97,7 +112,7 @@ export default function DiveScreen() {
       const target = minutes ? parseInt(minutes, 10) : null;
       start(Number.isFinite(target) ? (target as number) : null);
     }
-  }, [minutes, session, sessionReady, start]);
+  }, [minutes, session?.status, sessionReady, start]);
 
   const confirmSurface = useCallback(() => {
     setDialog({
@@ -219,7 +234,7 @@ export default function DiveScreen() {
     if (!session.targetSeconds)
       return Math.min(1, session.elapsedSeconds / (60 * 60));
     return Math.min(1, session.elapsedSeconds / session.targetSeconds);
-  }, [session]);
+  }, [session?.elapsedSeconds, session?.targetSeconds]);
 
   const handleCancel = () => {
     setAbortOpen(true);

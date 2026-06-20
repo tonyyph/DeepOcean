@@ -28,6 +28,7 @@ struct DeepOceanWidgetEntry: TimelineEntry {
 
 struct WidgetSnapshot: Decodable {
   struct Session: Decodable {
+    let id: String
     let status: String
     let elapsedSeconds: Int
     let targetSeconds: Int?
@@ -83,7 +84,18 @@ struct WidgetSnapshot: Decodable {
     }
   }
   var actionURL: URL {
-    URL(string: "deepocean-widget://widget?action=\(primaryAction)&minutes=\(preferredMinutes)")!
+    var components = URLComponents()
+    components.scheme = "deepocean-widget"
+    components.host = "widget"
+    var items = [
+      URLQueryItem(name: "action", value: primaryAction),
+      URLQueryItem(name: "minutes", value: String(preferredMinutes))
+    ]
+    if let sessionId = session?.id {
+      items.append(URLQueryItem(name: "sessionId", value: sessionId))
+    }
+    components.queryItems = items
+    return components.url!
   }
   var zoneLabel: String {
     guard isVietnamese else { return currentZone }

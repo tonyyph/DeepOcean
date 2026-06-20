@@ -221,13 +221,23 @@ expectContains(
   "ios template stable portal widget kind"
 );
 expectContains(
+  "plugins/focus-widget/native/ios-widget/DeepOceanFocusWidget.swift",
+  'URLQueryItem(name: "sessionId"',
+  "ios widget session identity"
+);
+expectContains(
+  "plugins/focus-widget/native/android-widget/java/FocusWidgetProvider.kt",
+  'append("&sessionId=$it")',
+  "android widget session identity"
+);
+expectContains(
   "scripts/patch-ios-widget-target.rb",
-  "source=live_activity&actionId=",
+  "source=live_activity&sessionId=",
   "ios Live Activity action identity template"
 );
 expectContains(
   "ios/Widgets/DeepOceanDiveLiveActivity.swift",
-  "source=live_activity&actionId=",
+  "source=live_activity&sessionId=",
   "generated ios Live Activity action identity"
 );
 

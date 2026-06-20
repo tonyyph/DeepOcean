@@ -16,6 +16,7 @@ export default function WidgetRoute() {
     action?: string | string[];
     actionId?: string | string[];
     minutes?: string | string[];
+    sessionId?: string | string[];
     source?: string | string[];
   }>();
 
@@ -25,10 +26,12 @@ export default function WidgetRoute() {
     const action = firstParam(params.action);
     const actionId = firstParam(params.actionId);
     const minutes = firstParam(params.minutes);
+    const sessionId = firstParam(params.sessionId);
     const source = firstParam(params.source);
     if (action) search.set("action", action);
     if (actionId) search.set("actionId", actionId);
     if (minutes) search.set("minutes", minutes);
+    if (sessionId) search.set("sessionId", sessionId);
     if (source) search.set("source", source);
 
     void routeWidgetActionUrl(`deepocean://widget?${search}`).then((result) => {
@@ -53,6 +56,7 @@ export default function WidgetRoute() {
     params.action,
     params.actionId,
     params.minutes,
+    params.sessionId,
     params.source
   ]);
 
