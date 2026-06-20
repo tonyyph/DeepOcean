@@ -17,6 +17,7 @@ import {
   selectUnreadNotificationCount,
   useNotificationCenter
 } from "@/features/notifications";
+import { useExternalActionNavigation } from "@/features/widget";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -29,6 +30,7 @@ type FilterMode = "all" | "unread";
 
 export default function NotificationCenterScreen() {
   const router = useRouter();
+  const { navigateToDeepLink } = useExternalActionNavigation();
   const tr = useTranslations();
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
@@ -56,10 +58,13 @@ export default function NotificationCenterScreen() {
     (message: NotificationMessage) => {
       void markRead(message.id);
       if (message.deepLink) {
-        router.push(message.deepLink as never);
+        navigateToDeepLink({
+          actionId: `notification-center:${message.id}`,
+          deepLink: message.deepLink
+        });
       }
     },
-    [markRead, router]
+    [markRead, navigateToDeepLink]
   );
 
   const contentContainerStyle = useMemo(

@@ -220,6 +220,16 @@ expectContains(
   'let kind = "DeepOceanFocusWidget"',
   "ios template stable portal widget kind"
 );
+expectContains(
+  "scripts/patch-ios-widget-target.rb",
+  "source=live_activity&actionId=",
+  "ios Live Activity action identity template"
+);
+expectContains(
+  "ios/Widgets/DeepOceanDiveLiveActivity.swift",
+  "source=live_activity&actionId=",
+  "generated ios Live Activity action identity"
+);
 
 if (process.exitCode && process.exitCode !== 0) {
   console.error(

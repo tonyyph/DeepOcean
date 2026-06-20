@@ -2,9 +2,9 @@ import { useTranslations } from "@/core/i18n";
 import { NotificationService } from "@/core/notifications/NotificationService";
 import { GlassCard, useTheme } from "@/design-system";
 import type { NotificationMessage } from "@/domain/entities";
+import { useExternalActionNavigation } from "@/features/widget";
 import { Ionicons } from "@expo/vector-icons";
 import type * as Notifications from "expo-notifications";
-import { useRouter } from "expo-router";
 import {
   useCallback,
   useEffect,
@@ -28,7 +28,7 @@ const iconByType = {
 } as const;
 
 export function NotificationToastHost() {
-  const router = useRouter();
+  const { navigateToDeepLink } = useExternalActionNavigation();
   const tr = useTranslations();
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -48,10 +48,26 @@ export function NotificationToastHost() {
       void markRead(message.id);
       setToast(null);
       if (message.deepLink) {
-        router.push(message.deepLink as never);
+        navigateToDeepLink({
+          actionId: `notification:${message.id}`,
+          deepLink: message.deepLink
+        });
       }
     },
-    [markRead, router]
+    [markRead, navigateToDeepLink]
+  );
+
+  const openNotificationDeepLink = useCallback(
+    (notification: Notifications.Notification) => {
+      const data = notification.request.content.data ?? {};
+      if (typeof data.deepLink !== "string") return;
+      const id = String(data.messageId ?? notification.request.identifier);
+      navigateToDeepLink({
+        actionId: `notification:${id}`,
+        deepLink: data.deepLink
+      });
+    },
+    [navigateToDeepLink]
   );
 
   const showToast = useCallback((message: NotificationMessage) => {
@@ -94,7 +110,11 @@ export function NotificationToastHost() {
     void NotificationService.consumeLastResponse().then((event) => {
       if (!active || !event) return;
       void persistNotification(event.notification).then((message) => {
-        if (message) openMessage(message);
+        if (message) {
+          openMessage(message);
+        } else {
+          openNotificationDeepLink(event.notification);
+        }
       });
     });
     const received = NotificationService.addReceivedListener((notification) => {
@@ -102,7 +122,11 @@ export function NotificationToastHost() {
     });
     const response = NotificationService.addResponseListener((event) => {
       void persistNotification(event.notification).then((message) => {
-        if (message) openMessage(message);
+        if (message) {
+          openMessage(message);
+        } else {
+          openNotificationDeepLink(event.notification);
+        }
       });
     });
 
@@ -112,7 +136,7 @@ export function NotificationToastHost() {
       response?.remove();
       if (clearTimer.current) clearTimeout(clearTimer.current);
     };
-  }, [openMessage, persistNotification]);
+  }, [openMessage, openNotificationDeepLink, persistNotification]);
 
   const toastStyle = useMemo(
     () => [styles.wrap, { top: insets.top + t.spacing[2] }],

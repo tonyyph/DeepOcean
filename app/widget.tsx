@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import {
+  resolveWidgetNavigationTarget,
   routeWidgetActionUrl,
-  WIDGET_TARGET_ROUTES
+  useExternalActionNavigation
 } from "@/features/widget";
 
 function firstParam(value: string | string[] | undefined): string | undefined {
@@ -10,19 +11,25 @@ function firstParam(value: string | string[] | undefined): string | undefined {
 }
 
 export default function WidgetRoute() {
-  const router = useRouter();
+  const { navigateToTarget } = useExternalActionNavigation();
   const params = useLocalSearchParams<{
     action?: string | string[];
+    actionId?: string | string[];
     minutes?: string | string[];
+    source?: string | string[];
   }>();
 
   useEffect(() => {
     let active = true;
     const search = new URLSearchParams();
     const action = firstParam(params.action);
+    const actionId = firstParam(params.actionId);
     const minutes = firstParam(params.minutes);
+    const source = firstParam(params.source);
     if (action) search.set("action", action);
+    if (actionId) search.set("actionId", actionId);
     if (minutes) search.set("minutes", minutes);
+    if (source) search.set("source", source);
 
     void routeWidgetActionUrl(`deepocean://widget?${search}`).then((result) => {
       if (!active) return;
@@ -32,12 +39,22 @@ export default function WidgetRoute() {
         reason: result.reason,
         duplicate: result.duplicate
       });
-      router.replace(WIDGET_TARGET_ROUTES[result.target] as never);
+      navigateToTarget({
+        actionId: result.actionId,
+        mode: "replace",
+        target: resolveWidgetNavigationTarget(result.target)
+      });
     });
     return () => {
       active = false;
     };
-  }, [params.action, params.minutes, router]);
+  }, [
+    navigateToTarget,
+    params.action,
+    params.actionId,
+    params.minutes,
+    params.source
+  ]);
 
   return null;
 }

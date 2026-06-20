@@ -1,7 +1,9 @@
 import {
+  discardStalePendingExternalAction,
   resetWidgetActionRouterForTests,
   routeWidgetActionUrl
 } from "./DeepLinkActionRouter";
+import { StorageKeys, storage } from "@/core/storage/mmkv";
 import { writeWidgetSnapshot } from "./snapshot";
 
 const mockInitialize = jest.fn(async () => {});
@@ -54,6 +56,7 @@ describe("DeepLinkActionRouter", () => {
     expect(order).toEqual(["hydrate", "dispatch"]);
     expect(result.target).toBe("dive");
     expect(mockWriteSnapshot).toHaveBeenCalledTimes(1);
+    expect(storage.getString(StorageKeys.pendingExternalAction)).toBeUndefined();
   });
 
   test("deduplicates repeated taps without executing the command twice", async () => {
@@ -78,5 +81,32 @@ describe("DeepLinkActionRouter", () => {
       reason: "invalid-widget-url"
     });
     expect(mockStart).not.toHaveBeenCalled();
+    expect(storage.getString(StorageKeys.pendingExternalAction)).toBeUndefined();
+  });
+
+  test("uses a native action id and clears it after successful handling", async () => {
+    const result = await routeWidgetActionUrl(
+      "deepocean-widget://widget?action=start_focus&actionId=session-1:start",
+      1_000
+    );
+
+    expect(result.actionId).toBe("widget:session-1:start");
+    expect(storage.getString(StorageKeys.pendingExternalAction)).toBeUndefined();
+  });
+
+  test("clears a pending action left by an older app process", () => {
+    storage.set(
+      StorageKeys.pendingExternalAction,
+      JSON.stringify({
+        actionId: "widget:stale",
+        receivedAt: 1,
+        source: "widget",
+        url: "deepocean://widget?action=start_focus"
+      })
+    );
+
+    discardStalePendingExternalAction(Date.now());
+
+    expect(storage.getString(StorageKeys.pendingExternalAction)).toBeUndefined();
   });
 });

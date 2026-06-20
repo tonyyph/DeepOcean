@@ -1,9 +1,15 @@
 export { parseWidgetActionUrl } from "./urlAction";
 export { dispatchWidgetCommand } from "./dispatch";
 export {
-  routeWidgetActionUrl,
-  WIDGET_TARGET_ROUTES
+  discardStalePendingExternalAction,
+  routeWidgetActionUrl
 } from "./DeepLinkActionRouter";
+export {
+  handleExternalActionNavigation,
+  resolveDeepLinkNavigationTarget,
+  resolveWidgetNavigationTarget,
+  useExternalActionNavigation
+} from "./externalActionNavigation";
 export { installWidgetSnapshotSync, writeWidgetSnapshot } from "./snapshot";
 export { getWidgetPrimaryAction } from "./policy";
 export {

@@ -78,14 +78,26 @@ Session actions:
 Expo Router sends widget and Live Activity URLs to `app/widget.tsx`. That route
 is the only command execution entry point:
 
+- stores only the newest pending external action while it is being handled
 - waits for active-session hydration/reconciliation
 - parses and dispatches the command
 - suppresses repeated command execution inside a 1.5 second window
-- replaces `/widget` with the contract target or safe fallback
+- clears the matching pending action immediately after handling
+- delegates navigation to `externalActionNavigation.ts`
+
+Widget, Live Activity, notification responses, and notification-center links
+share the same navigation policy. It compares Expo Router's current public
+pathname and normalized search params with the target. Exact matches are
+skipped; same-route/different-param actions replace the route; other actions
+preserve their source's push/replace behavior. A short-lived action-id registry
+prevents concurrent listeners from navigating twice.
 
 `app/_layout.tsx` initializes session lifecycle before hiding the splash screen
-and reconciles timestamps, notifications, widget data, and Live Activity state
-when `AppState` returns to `active`.
+and discards malformed pending actions, records from an older app process, or
+abandoned in-process records older than 30 seconds.
+It reconciles timestamps, notifications, widget data, and Live Activity state
+when `AppState` returns to `active`. Notification cold starts consume and clear
+Expo's last response before routing it.
 
 ### 4. Active Session Lifecycle
 
@@ -319,9 +331,12 @@ npx eas-cli build:inspect --platform ios --stage archive \
 9. Repeated taps inside 1.5 seconds execute the command only once.
 10. Slow hydration queues action dispatch until session reconciliation finishes.
 11. Notification response cold start opens its stored deep link once.
-12. Premium flag and preferred duration reflect in snapshot.
-13. `yarn check:widget-native` passes after prebuild/plugin changes.
-14. Generated iOS widgets render without redacted placeholders; bundled raster
+12. Same route and params skip navigation; changed params replace without
+    stacking another copy.
+13. Successful or invalid handling leaves no pending external action in MMKV.
+14. Premium flag and preferred duration reflect in snapshot.
+15. `yarn check:widget-native` passes after prebuild/plugin changes.
+16. Generated iOS widgets render without redacted placeholders; bundled raster
    images must stay within WidgetKit-safe dimensions.
 
 ## Future Native Steps (For true no-app-open execution)

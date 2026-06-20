@@ -10,6 +10,7 @@ import {
   reconcileDiveReminder,
 } from "@/features/notifications";
 import {
+  discardStalePendingExternalAction,
   installWidgetSnapshotSync,
   writeWidgetSnapshot
 } from "@/features/widget";
@@ -114,6 +115,7 @@ export default function RootLayout() {
     if (!fontsLoaded) return;
     (async () => {
       await SystemUI.setBackgroundColorAsync(palette.abyss[600]);
+      discardStalePendingExternalAction();
       await useDiveSession.getState().initialize();
       void AmbientAudio.init();
       await SplashScreen.hideAsync();

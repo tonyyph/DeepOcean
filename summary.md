@@ -1,6 +1,6 @@
 # Deep Ocean Agent Handoff
 
-Last refreshed: 2026-06-19
+Last refreshed: 2026-06-20
 
 ## Current State
 
@@ -78,8 +78,13 @@ Current design:
 
 - `app/widget.tsx` is the only widget/Live Activity command execution route.
 - `src/features/widget/DeepLinkActionRouter.ts` waits for session hydration,
-  deduplicates repeated taps for 1.5 seconds, dispatches, and returns one
-  centralized navigation target.
+  persists only the in-flight action, deduplicates repeated taps for 1.5
+  seconds, dispatches, clears the pending record, and returns one centralized
+  navigation target.
+- `src/features/widget/externalActionNavigation.ts` is the shared navigation
+  policy for widget, Live Activity, notification response, notification-center,
+  and app-relative deep-link actions. It skips exact route/param matches,
+  replaces same-route param changes, and deduplicates concurrent action ids.
 - `src/features/widget/actionContract.ts` documents the typed action/target/
   params/fallback contract.
 - `diveSessionStore` remains the single source of truth. Its compact
@@ -93,7 +98,8 @@ Current design:
 - `DiveScreen` waits for lifecycle readiness before applying its direct-route
   fallback, preventing cold-start restore races.
 - Live Activity start/update is upserted by session id, uses pause-adjusted
-  timing, and taps through the same `deepocean-widget://widget` route.
+  timing, and taps through the same `deepocean-widget://widget` route with its
+  session/action id and `source=live_activity`.
 - Widget snapshot schema is v3 and writes are single-flight/debounced to avoid
   overlapping repository reads.
 
@@ -101,7 +107,8 @@ Regression coverage:
 
 ```sh
 yarn test src/features/session/sessionLifecyclePolicy.test.ts \
-  src/features/widget/DeepLinkActionRouter.test.ts --runInBand
+  src/features/widget/DeepLinkActionRouter.test.ts \
+  src/features/widget/externalActionNavigation.test.ts --runInBand
 ```
 
 Required raster assets:

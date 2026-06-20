@@ -238,7 +238,7 @@ ensure_file(
           .padding(.vertical, 16)
           .activityBackgroundTint(sea)
           .activitySystemActionForegroundColor(glow)
-          .widgetURL(actionURL(context.state))
+          .widgetURL(actionURL(context.state, sessionId: context.attributes.sessionId))
         } dynamicIsland: { context in
           DynamicIsland {
             DynamicIslandExpandedRegion(.leading) {
@@ -290,7 +290,7 @@ ensure_file(
             Image(systemName: context.state.status == "paused" ? "pause.fill" : "timer")
               .foregroundStyle(context.state.status == "paused" ? .yellow : glow)
           }
-          .widgetURL(actionURL(context.state))
+          .widgetURL(actionURL(context.state, sessionId: context.attributes.sessionId))
         }
       }
 
@@ -366,9 +366,15 @@ ensure_file(
       return Int(min(1, Double(state.elapsedSeconds) / Double(targetSeconds)) * 100)
     }
 
-    private func actionURL(_ state: DeepOceanDiveAttributes.ContentState) -> URL {
+    private func actionURL(
+      _ state: DeepOceanDiveAttributes.ContentState,
+      sessionId: String
+    ) -> URL {
       let action = state.status == "paused" ? "resume_current" : "pause_session"
-      return URL(string: "deepocean-widget://widget?action=\\(action)")!
+      let actionId = "\\(sessionId):\\(action)"
+      return URL(
+        string: "deepocean-widget://widget?action=\\(action)&source=live_activity&actionId=\\(actionId)"
+      )!
     }
   SWIFT
 )
