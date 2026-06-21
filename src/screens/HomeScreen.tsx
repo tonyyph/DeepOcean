@@ -32,10 +32,10 @@ import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useDiveSession, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   resolveLastDiveSession,
   shouldShowLastDiveSkeleton

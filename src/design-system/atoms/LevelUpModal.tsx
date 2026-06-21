@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import {
-  Modal,
   StyleSheet,
   Text,
   View,
@@ -13,7 +12,6 @@ import Animated, {
   withSpring,
   withTiming
 } from "react-native-reanimated";
-import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -25,7 +23,7 @@ import { getLevelTitle } from "@/features/diver/levelSystem";
 import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
 import { Colors, Gradients, Shadows } from "@/theme";
-import { Pressable } from "react-native-gesture-handler";
+import { ModalFrame } from "./ModalFrame";
 
 const AUTO_DISMISS_MS = 6000;
 
@@ -96,10 +94,6 @@ export const LevelUpModal = React.memo(function LevelUpModal({
     };
   }, [visible, progress, levelScale, countdown, onDismiss]);
 
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: progress.value
-  }));
-
   const cardStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
     transform: [
@@ -118,113 +112,76 @@ export const LevelUpModal = React.memo(function LevelUpModal({
   };
 
   return (
-    <Modal
-      transparent
+    <ModalFrame
       visible={visible}
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={handleDismiss}
+      onDismiss={handleDismiss}
+      progress={progress}
+      cardAnimatedStyle={cardStyle}
+      cardStyle={styles.card}
+      accentColor={t.colors.premium}
     >
-      <View style={StyleSheet.absoluteFill}>
-        <Animated.View style={[StyleSheet.absoluteFill, backdropStyle]}>
-          <BlurView
-            intensity={32}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
-          <Pressable
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: Colors.overlay.scrim60 }
-            ]}
-            onPress={handleDismiss}
-          />
-        </Animated.View>
+      <LinearGradient
+        colors={Gradients.premium.levelUpGlow}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.cardGlow}
+      />
 
-        <View style={styles.center} pointerEvents="box-none">
-          <Animated.View style={[styles.card, cardStyle]}>
-            {/* Gold gradient wash */}
-            <LinearGradient
-              colors={Gradients.premium.levelUpGlow}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-              style={styles.cardGlow}
-            />
-
-            {/* Label badge */}
-            <View style={styles.badge}>
-              <Ionicons
-                name="arrow-up-circle"
-                size={12}
-                color={t.colors.premium}
-              />
-              <Text style={styles.badgeText}>
-                {levelsGained > 1
-                  ? tr.levelUp.multiLevel(levelsGained)
-                  : tr.levelUp.badge}
-              </Text>
-            </View>
-
-            {/* Level number — spring-scaled for drama */}
-            <Animated.View style={[styles.levelWrap, levelStyle]}>
-              <LinearGradient
-                colors={Gradients.premium.crest}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.levelCircle}
-              >
-                <Text style={styles.levelNumber}>{newLevel}</Text>
-              </LinearGradient>
-            </Animated.View>
-
-            {/* New rank title */}
-            <GlowText size={22} style={styles.title}>
-              {newTitle}
-            </GlowText>
-
-            {/* Previous level hint */}
-            <Text style={styles.prevLabel}>
-              {tr.levelUp.from(prevLevel, newLevel)}
-            </Text>
-
-            {/* Countdown */}
-            <View style={styles.countdownTrack}>
-              <RNAnimated.View
-                style={[
-                  styles.countdownBar,
-                  {
-                    width: countdown.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ["0%", "100%"]
-                    })
-                  }
-                ]}
-              />
-            </View>
-
-            <Text style={styles.hint}>{tr.levelUp.tapToDismiss}</Text>
-          </Animated.View>
-        </View>
+      <View style={styles.badge}>
+        <Ionicons
+          name="arrow-up-circle"
+          size={12}
+          color={t.colors.premium}
+        />
+        <Text style={styles.badgeText}>
+          {levelsGained > 1
+            ? tr.levelUp.multiLevel(levelsGained)
+            : tr.levelUp.badge}
+        </Text>
       </View>
-    </Modal>
+
+      <Animated.View style={[styles.levelWrap, levelStyle]}>
+        <LinearGradient
+          colors={Gradients.premium.crest}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.levelCircle}
+        >
+          <Text style={styles.levelNumber}>{newLevel}</Text>
+        </LinearGradient>
+      </Animated.View>
+
+      <GlowText size={22} style={styles.title}>
+        {newTitle}
+      </GlowText>
+
+      <Text style={styles.prevLabel}>
+        {tr.levelUp.from(prevLevel, newLevel)}
+      </Text>
+
+      <View style={styles.countdownTrack}>
+        <RNAnimated.View
+          style={[
+            styles.countdownBar,
+            {
+              width: countdown.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "100%"]
+              })
+            }
+          ]}
+        />
+      </View>
+
+      <Text style={styles.hint}>{tr.levelUp.tapToDismiss}</Text>
+    </ModalFrame>
   );
 });
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
-    center: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: t.spacing[6]
-    },
     card: {
-      width: "100%",
       maxWidth: 340,
-      borderRadius: t.radii.xl,
-      backgroundColor: t.colors.surfaceElevated,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.premium,
       paddingVertical: t.spacing[6],
       paddingHorizontal: t.spacing[6],
       alignItems: "center",

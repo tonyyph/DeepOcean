@@ -1,12 +1,10 @@
 import { useTranslations } from "@/core/i18n";
 import { ZONE_TABLE, type OceanZone } from "@/features/ocean/zones";
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import {
-  Modal,
   Animated as RNAnimated,
   StyleSheet,
   Text,
@@ -23,7 +21,7 @@ import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { GlowText } from "./GlowText";
 import { Colors } from "@/theme";
-import { Pressable } from "react-native-gesture-handler";
+import { ModalFrame } from "./ModalFrame";
 
 const ZONE_ICONS: Record<OceanZone, keyof typeof Ionicons.glyphMap> = {
   surface: "sunny-outline",
@@ -100,10 +98,6 @@ export const AchievementModal = React.memo(function AchievementModal({
     ]
   }));
 
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: progress.value
-  }));
-
   const handleDismiss = () => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       (error: unknown) => {
@@ -128,119 +122,79 @@ export const AchievementModal = React.memo(function AchievementModal({
       : `${depthMin.toLocaleString()} – ${depthMax.toLocaleString()} m`;
 
   return (
-    <Modal
-      transparent
+    <ModalFrame
       visible={visible}
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={handleDismiss}
+      onDismiss={handleDismiss}
+      progress={progress}
+      cardAnimatedStyle={cardStyle}
+      cardStyle={styles.card}
+      accentColor={accent}
     >
-      <View style={StyleSheet.absoluteFill}>
-        <Animated.View style={[StyleSheet.absoluteFill, backdropStyle]}>
-          <BlurView
-            intensity={28}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
-          <Pressable
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: Colors.overlay.scrim50 }
-            ]}
-            onPress={handleDismiss}
-          />
-        </Animated.View>
+      <LinearGradient
+        colors={[accent + "28", "transparent"]}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.cardGlow}
+      />
 
-        <View style={styles.center} pointerEvents="box-none">
-          <Animated.View style={[styles.card, cardStyle]}>
-            {/* Glow gradient behind icon */}
-            <LinearGradient
-              colors={[accent + "28", "transparent"]}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-              style={styles.cardGlow}
-            />
-
-            {/* Badge label */}
-            <View style={[styles.badge, { borderColor: accent + "55" }]}>
-              <Ionicons name="ribbon-outline" size={11} color={accent} />
-              <Text style={[styles.badgeText, { color: accent }]}>
-                {tr.achievement.zoneUnlocked}
-              </Text>
-            </View>
-
-            {/* Icon crest */}
-            <View
-              style={[
-                styles.iconWrap,
-                {
-                  borderColor: accent + "55",
-                  shadowColor: accent
-                }
-              ]}
-            >
-              <Ionicons name={icon} size={32} color={accent} />
-            </View>
-
-            {/* Zone name */}
-            <GlowText size={26} style={styles.zoneName}>
-              {zoneInfo.label}
-            </GlowText>
-
-            {/* Depth range chip */}
-            <View style={[styles.depthChip, { borderColor: accent + "44" }]}>
-              <Ionicons
-                name="navigate-outline"
-                size={11}
-                color={t.colors.textMuted}
-              />
-              <Text style={styles.depthText}>{depthLabel}</Text>
-            </View>
-
-            {/* Description */}
-            <Text style={styles.description}>{zoneInfo.description}</Text>
-
-            {/* Auto-dismiss countdown bar */}
-            <View style={styles.countdownTrack}>
-              <RNAnimated.View
-                style={[
-                  styles.countdownBar,
-                  {
-                    backgroundColor: accent,
-                    width: countdown.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ["0%", "100%"]
-                    })
-                  }
-                ]}
-              />
-            </View>
-
-            <Text style={styles.dismissHint}>
-              {tr.achievement.tapToDismiss}
-            </Text>
-          </Animated.View>
-        </View>
+      <View style={[styles.badge, { borderColor: accent + "55" }]}>
+        <Ionicons name="ribbon-outline" size={11} color={accent} />
+        <Text style={[styles.badgeText, { color: accent }]}>
+          {tr.achievement.zoneUnlocked}
+        </Text>
       </View>
-    </Modal>
+
+      <View
+        style={[
+          styles.iconWrap,
+          {
+            borderColor: accent + "55",
+            shadowColor: accent
+          }
+        ]}
+      >
+        <Ionicons name={icon} size={32} color={accent} />
+      </View>
+
+      <GlowText size={26} style={styles.zoneName}>
+        {zoneInfo.label}
+      </GlowText>
+
+      <View style={[styles.depthChip, { borderColor: accent + "44" }]}>
+        <Ionicons
+          name="navigate-outline"
+          size={11}
+          color={t.colors.textMuted}
+        />
+        <Text style={styles.depthText}>{depthLabel}</Text>
+      </View>
+
+      <Text style={styles.description}>{zoneInfo.description}</Text>
+
+      <View style={styles.countdownTrack}>
+        <RNAnimated.View
+          style={[
+            styles.countdownBar,
+            {
+              backgroundColor: accent,
+              width: countdown.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "100%"]
+              })
+            }
+          ]}
+        />
+      </View>
+
+      <Text style={styles.dismissHint}>{tr.achievement.tapToDismiss}</Text>
+    </ModalFrame>
   );
 });
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
-    center: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: t.spacing[6]
-    },
     card: {
-      width: "100%",
       maxWidth: 340,
-      borderRadius: t.radii.xl,
-      backgroundColor: t.colors.surfaceElevated,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.borderStrong,
       paddingVertical: t.spacing[6],
       paddingHorizontal: t.spacing[6],
       alignItems: "center",

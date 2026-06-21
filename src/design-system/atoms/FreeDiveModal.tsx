@@ -1,9 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
-import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -15,7 +14,7 @@ import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { ActionButton } from "./ActionButton";
 import { GlowText } from "./GlowText";
-import { Pressable } from "react-native-gesture-handler";
+import { ModalFrame } from "./ModalFrame";
 
 type Props = {
   visible: boolean;
@@ -68,107 +67,71 @@ export const FreeDiveModal = React.memo(function FreeDiveModal({
     ]
   }));
 
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: progress.value
-  }));
-
   return (
-    <Modal
-      transparent
+    <ModalFrame
       visible={visible}
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={onDismiss}
+      onDismiss={onDismiss}
+      progress={progress}
+      cardAnimatedStyle={cardStyle}
+      cardStyle={styles.card}
     >
-      <View style={StyleSheet.absoluteFill}>
-        <Animated.View style={[StyleSheet.absoluteFill, backdropStyle]}>
-          <BlurView
-            intensity={32}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
-          <Pressable
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: t.surfaces.scrim }
-            ]}
-            onPress={onDismiss}
-          />
-        </Animated.View>
-
-        <View style={styles.center} pointerEvents="box-none">
-          <Animated.View style={[styles.card, cardStyle]}>
-            <View style={styles.headerRow}>
-              <View style={styles.flex}>
-                <GlowText size={18} style={styles.title}>
-                  {title}
-                </GlowText>
-                <Text style={styles.description}>{description}</Text>
-              </View>
-              <Ionicons name="infinite" size={24} color={t.colors.accent} />
-            </View>
-
-            <LinearGradient
-              colors={[t.colors.glass, t.colors.panelStrong]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.spotlight}
-            >
-              <View style={styles.hintRow}>
-                <Text style={styles.hintText}>
-                  {estimatedReachLabel} · {zoneLabel}
-                </Text>
-              </View>
-              <View style={styles.valueRow}>
-                <Text style={styles.value}>{minutes}</Text>
-                <Text style={styles.valueUnit}>{minutesLabel}</Text>
-              </View>
-            </LinearGradient>
-
-            <Slider
-              value={minutes}
-              onValueChange={onMinutesChange}
-              minimumValue={1}
-              maximumValue={120}
-              step={1}
-              minimumTrackTintColor={t.colors.glassEdge}
-              maximumTrackTintColor={t.colors.textMuted}
-              thumbTintColor={t.colors.accent}
-              style={styles.slider}
-            />
-
-            <ActionButton
-              label={startLabel}
-              icon="play"
-              tone="primary"
-              size="md"
-              fullWidth
-              onPress={onStart}
-              containerStyle={styles.action}
-            />
-          </Animated.View>
+      <View style={styles.headerRow}>
+        <View style={styles.flex}>
+          <GlowText size={18} style={styles.title}>
+            {title}
+          </GlowText>
+          <Text style={styles.description}>{description}</Text>
         </View>
+        <Ionicons name="infinite" size={24} color={t.colors.accent} />
       </View>
-    </Modal>
+
+      <LinearGradient
+        colors={[t.colors.glass, t.colors.panelStrong]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.spotlight}
+      >
+        <View style={styles.hintRow}>
+          <Text style={styles.hintText}>
+            {estimatedReachLabel} · {zoneLabel}
+          </Text>
+        </View>
+        <View style={styles.valueRow}>
+          <Text style={styles.value}>{minutes}</Text>
+          <Text style={styles.valueUnit}>{minutesLabel}</Text>
+        </View>
+      </LinearGradient>
+
+      <Slider
+        value={minutes}
+        onValueChange={onMinutesChange}
+        minimumValue={1}
+        maximumValue={120}
+        step={1}
+        minimumTrackTintColor={t.colors.glassEdge}
+        maximumTrackTintColor={t.colors.textMuted}
+        thumbTintColor={t.colors.accent}
+        style={styles.slider}
+      />
+
+      <ActionButton
+        label={startLabel}
+        icon="play"
+        tone="primary"
+        size="md"
+        fullWidth
+        onPress={onStart}
+        containerStyle={styles.action}
+      />
+    </ModalFrame>
   );
 });
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    center: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: t.spacing[5]
-    },
     card: {
-      width: "100%",
       maxWidth: 360,
-      borderRadius: t.radii.xl,
-      backgroundColor: t.colors.surfaceElevated,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.borderStrong,
       paddingVertical: t.spacing[5],
       paddingHorizontal: t.spacing[5],
       gap: t.spacing[3],

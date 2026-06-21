@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import {
-  Modal,
   StyleSheet,
   Text,
   View,
@@ -12,7 +11,6 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -22,8 +20,7 @@ import type { AppTheme } from "../themes";
 import { GlowText } from "./GlowText";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { useTranslations } from "@/core/i18n";
-import { Colors } from "@/theme";
-import { Pressable } from "react-native-gesture-handler";
+import { ModalFrame } from "./ModalFrame";
 
 const AUTO_DISMISS_MS = 5500;
 
@@ -87,10 +84,6 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
     };
   }, [visible, progress, countdown, onDismiss]);
 
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: progress.value
-  }));
-
   const cardStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
     transform: [
@@ -113,116 +106,80 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
   if (!achievement) return null;
 
   return (
-    <Modal
-      transparent
+    <ModalFrame
       visible={visible}
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={handleDismiss}
+      onDismiss={handleDismiss}
+      progress={progress}
+      cardAnimatedStyle={cardStyle}
+      cardStyle={styles.card}
+      accentColor={t.colors.accent}
     >
-      <View style={StyleSheet.absoluteFill}>
-        <Animated.View style={[StyleSheet.absoluteFill, backdropStyle]}>
-          <BlurView
-            intensity={28}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
-          <Pressable
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: Colors.overlay.scrim55 }
-            ]}
-            onPress={handleDismiss}
-          />
-        </Animated.View>
+      <LinearGradient
+        colors={[t.colors.accent + "18", "transparent"]}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.cardGlow}
+      />
 
-        <View style={styles.center} pointerEvents="box-none">
-          <Animated.View style={[styles.card, cardStyle]}>
-            <LinearGradient
-              colors={[t.colors.accent + "18", "transparent"]}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-              style={styles.cardGlow}
-            />
-
-            {/* Badge */}
-            <View
-              style={[styles.badge, { borderColor: t.colors.accent + "55" }]}
-            >
-              <Ionicons
-                name="ribbon-outline"
-                size={11}
-                color={t.colors.accent}
-              />
-              <Text style={[styles.badgeText, { color: t.colors.accent }]}>
-                {tr.titleAchievement.badge}
-              </Text>
-            </View>
-
-            {/* Icon */}
-            <View
-              style={[
-                styles.iconWrap,
-                {
-                  borderColor: t.colors.accent + "44",
-                  shadowColor: t.colors.accent
-                }
-              ]}
-            >
-              <Ionicons
-                name={achievement.icon as keyof typeof Ionicons.glyphMap}
-                size={30}
-                color={t.colors.accent}
-              />
-            </View>
-
-            {/* Title */}
-            <GlowText size={22} style={styles.title}>
-              {achievement.title}
-            </GlowText>
-
-            {/* Description */}
-            <Text style={styles.description}>{achievement.description}</Text>
-
-            {/* Countdown */}
-            <View style={styles.countdownTrack}>
-              <RNAnimated.View
-                style={[
-                  styles.countdownBar,
-                  {
-                    backgroundColor: t.colors.accent,
-                    width: countdown.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ["0%", "100%"]
-                    })
-                  }
-                ]}
-              />
-            </View>
-
-            <Text style={styles.hint}>{tr.titleAchievement.tapToDismiss}</Text>
-          </Animated.View>
-        </View>
+      <View
+        style={[styles.badge, { borderColor: t.colors.accent + "55" }]}
+      >
+        <Ionicons
+          name="ribbon-outline"
+          size={11}
+          color={t.colors.accent}
+        />
+        <Text style={[styles.badgeText, { color: t.colors.accent }]}>
+          {tr.titleAchievement.badge}
+        </Text>
       </View>
-    </Modal>
+
+      <View
+        style={[
+          styles.iconWrap,
+          {
+            borderColor: t.colors.accent + "44",
+            shadowColor: t.colors.accent
+          }
+        ]}
+      >
+        <Ionicons
+          name={achievement.icon as keyof typeof Ionicons.glyphMap}
+          size={30}
+          color={t.colors.accent}
+        />
+      </View>
+
+      <GlowText size={22} style={styles.title}>
+        {achievement.title}
+      </GlowText>
+
+      <Text style={styles.description}>{achievement.description}</Text>
+
+      <View style={styles.countdownTrack}>
+        <RNAnimated.View
+          style={[
+            styles.countdownBar,
+            {
+              backgroundColor: t.colors.accent,
+              width: countdown.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "100%"]
+              })
+            }
+          ]}
+        />
+      </View>
+
+      <Text style={styles.hint}>{tr.titleAchievement.tapToDismiss}</Text>
+    </ModalFrame>
   );
 });
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
-    center: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: t.spacing[6]
-    },
     card: {
-      width: "100%",
       maxWidth: 340,
-      borderRadius: t.radii.xl,
-      backgroundColor: t.colors.surfaceElevated,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.borderStrong,
       paddingVertical: t.spacing[8],
       paddingHorizontal: t.spacing[6],
       alignItems: "center",

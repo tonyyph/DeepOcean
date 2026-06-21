@@ -1,8 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import React, { useEffect } from "react";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -13,6 +12,7 @@ import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { GlowText } from "./GlowText";
+import { ModalFrame } from "./ModalFrame";
 import { Pressable } from "react-native-gesture-handler";
 
 const tap = (style: Haptics.ImpactFeedbackStyle): void => {
@@ -75,121 +75,85 @@ export const ConfirmModal = React.memo(function ConfirmModal({
     ]
   }));
 
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: progress.value
-  }));
-
   const accent = tone === "danger" ? t.colors.danger : t.colors.accent;
 
   return (
-    <Modal
-      transparent
+    <ModalFrame
       visible={visible}
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={onDismiss}
+      onDismiss={onDismiss}
+      progress={progress}
+      cardAnimatedStyle={cardStyle}
+      cardStyle={styles.card}
+      accentColor={accent}
     >
-      <View style={StyleSheet.absoluteFill}>
-        <Animated.View style={[StyleSheet.absoluteFill, backdropStyle]}>
-          <BlurView
-            intensity={32}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
-          <Pressable
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: t.surfaces.scrim }
-            ]}
-            onPress={onDismiss}
-          />
-        </Animated.View>
-
-        <View style={styles.center} pointerEvents="box-none">
-          <Animated.View style={[styles.card, cardStyle]}>
-            {icon && (
-              <View
-                style={[
-                  styles.iconWrap,
-                  { borderColor: accent, shadowColor: accent }
-                ]}
-              >
-                <Ionicons name={icon} size={32} color={accent} />
-              </View>
-            )}
-
-            <GlowText size={20} style={styles.title}>
-              {title}
-            </GlowText>
-            <Text style={styles.message}>{message}</Text>
-
-            <View style={styles.actions}>
-              {showCancel && (
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.btn,
-                    styles.cancelBtn,
-                    pressed && { opacity: 0.7 }
-                  ]}
-                  onPress={() => {
-                    tap(Haptics.ImpactFeedbackStyle.Light);
-                    onDismiss();
-                  }}
-                >
-                  <Text style={styles.cancelText}>{cancelLabel}</Text>
-                </Pressable>
-              )}
-              <Pressable
-                style={({ pressed }) => [
-                  styles.btn,
-                  styles.confirmBtn,
-                  { backgroundColor: accent },
-                  pressed && { opacity: 0.85 }
-                ]}
-                onPress={() => {
-                  tap(
-                    tone === "danger"
-                      ? Haptics.ImpactFeedbackStyle.Heavy
-                      : Haptics.ImpactFeedbackStyle.Medium
-                  );
-                  onConfirm();
-                }}
-              >
-                <Text
-                  style={[
-                    styles.confirmText,
-                    {
-                      color: t.colors.background
-                    }
-                  ]}
-                >
-                  {confirmLabel}
-                </Text>
-              </Pressable>
-            </View>
-          </Animated.View>
+      {icon && (
+        <View
+          style={[
+            styles.iconWrap,
+            { borderColor: accent, shadowColor: accent }
+          ]}
+        >
+          <Ionicons name={icon} size={32} color={accent} />
         </View>
+      )}
+
+      <GlowText size={20} style={styles.title}>
+        {title}
+      </GlowText>
+      <Text style={styles.message}>{message}</Text>
+
+      <View style={styles.actions}>
+        {showCancel && (
+          <Pressable
+            style={({ pressed }) => [
+              styles.btn,
+              styles.cancelBtn,
+              pressed && { opacity: 0.7 }
+            ]}
+            onPress={() => {
+              tap(Haptics.ImpactFeedbackStyle.Light);
+              onDismiss();
+            }}
+          >
+            <Text style={styles.cancelText}>{cancelLabel}</Text>
+          </Pressable>
+        )}
+        <Pressable
+          style={({ pressed }) => [
+            styles.btn,
+            styles.confirmBtn,
+            { backgroundColor: accent },
+            pressed && { opacity: 0.85 }
+          ]}
+          onPress={() => {
+            tap(
+              tone === "danger"
+                ? Haptics.ImpactFeedbackStyle.Heavy
+                : Haptics.ImpactFeedbackStyle.Medium
+            );
+            onConfirm();
+          }}
+        >
+          <Text
+            style={[
+              styles.confirmText,
+              {
+                color: t.colors.background
+              }
+            ]}
+          >
+            {confirmLabel}
+          </Text>
+        </Pressable>
       </View>
-    </Modal>
+    </ModalFrame>
   );
 });
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
-    center: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: t.spacing[6]
-    },
     card: {
-      overflow: "hidden",
-      width: "100%",
       maxWidth: 360,
-      borderRadius: t.radii.xl,
-      backgroundColor: t.colors.surfaceElevated,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.borderStrong,
       paddingVertical: t.spacing[6],
       paddingHorizontal: t.spacing[5],
       alignItems: "center",

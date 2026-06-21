@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useRef
 } from "react";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
+import { Platform, StyleSheet, View, useWindowDimensions } from "react-native";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -15,14 +15,16 @@ import {
 } from "@gorhom/bottom-sheet";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import type { AppTheme } from "../themes";
 
-const SHEET_BLUR_INTENSITY = 70;
-const SHEET_MAX_HEIGHT_RATIO = 0.92;
-const HANDLE_WIDTH = 42;
-const HANDLE_HEIGHT = 4;
+const SHEET_BLUR_INTENSITY = 82;
+const BACKDROP_BLUR_INTENSITY = 18;
+const SHEET_MAX_HEIGHT_RATIO = 0.94;
+const HANDLE_WIDTH = 48;
+const HANDLE_HEIGHT = 5;
 
 export type SheetHandle = {
   present: () => void;
@@ -40,6 +42,10 @@ type Props = {
   showHandle?: boolean;
   /** Disable internal padding (caller renders own). */
   noPadding?: boolean;
+  /** Let the sheet drag gesture start from its content. Disable for nested pickers. */
+  enableContentPanningGesture?: boolean;
+  /** Whether tapping the backdrop dismisses this sheet. */
+  dismissOnBackdropPress?: boolean;
   children: React.ReactNode;
 };
 
@@ -57,6 +63,8 @@ export const Sheet = forwardRef<SheetHandle, Props>(function Sheet(
     snapPoints,
     showHandle = true,
     noPadding = false,
+    enableContentPanningGesture = true,
+    dismissOnBackdropPress = true,
     children
   },
   ref
@@ -65,6 +73,7 @@ export const Sheet = forwardRef<SheetHandle, Props>(function Sheet(
   const styles = useThemedStyles(makeStyles);
   const modalRef = useRef<BottomSheetModal>(null);
   const { height: screenHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   // Track whether the sheet is currently "mounted/presented" from our side.
   // This lets us skip calling dismiss() when gorhom already dismissed it via
@@ -112,24 +121,43 @@ export const Sheet = forwardRef<SheetHandle, Props>(function Sheet(
 
   const renderBackdrop = useCallback(
     (p: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...p}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        opacity={0.65}
-        pressBehavior="close"
-      />
+      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+        {Platform.OS === "ios" && (
+          <BlurView
+            intensity={BACKDROP_BLUR_INTENSITY}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+        )}
+        <BottomSheetBackdrop
+          {...p}
+          appearsOnIndex={0}
+          disappearsOnIndex={-1}
+          opacity={0.78}
+          pressBehavior={dismissOnBackdropPress ? "close" : "none"}
+        />
+      </View>
     ),
-    []
+    [dismissOnBackdropPress]
   );
 
   return (
     <BottomSheetModal
       ref={modalRef}
+      style={styles.sheet}
       snapPoints={points}
       enableDynamicSizing={!points}
-      maxDynamicContentSize={screenHeight * SHEET_MAX_HEIGHT_RATIO}
+      maxDynamicContentSize={Math.min(
+        screenHeight * SHEET_MAX_HEIGHT_RATIO,
+        screenHeight - insets.top - t.spacing[3]
+      )}
+      topInset={insets.top}
       enablePanDownToClose
+      enableContentPanningGesture={enableContentPanningGesture}
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore"
+      android_keyboardInputMode="adjustResize"
       onDismiss={handleDismiss}
       backdropComponent={renderBackdrop}
       handleComponent={
@@ -142,21 +170,40 @@ export const Sheet = forwardRef<SheetHandle, Props>(function Sheet(
           : null
       }
       backgroundComponent={({ style }) => (
-        <View style={[style, styles.bg]}>
-          <BlurView
-            intensity={SHEET_BLUR_INTENSITY}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
-          <LinearGradient
-            colors={[t.colors.panelStrong, t.colors.panel]}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={styles.bgEdge} pointerEvents="none" />
+        <View style={[style, styles.backgroundFrame]}>
+          <View style={styles.bg}>
+            <BlurView
+              intensity={SHEET_BLUR_INTENSITY}
+              tint="dark"
+              style={StyleSheet.absoluteFill}
+            />
+            <LinearGradient
+              colors={[
+                t.colors.surfaceElevated,
+                t.colors.panelStrong,
+                t.colors.surface
+              ]}
+              locations={[0, 0.42, 1]}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={styles.bgTint} pointerEvents="none" />
+            <View style={styles.bgEdge} pointerEvents="none" />
+          </View>
         </View>
       )}
     >
-      <BottomSheetView style={noPadding ? undefined : styles.content}>
+      <BottomSheetView
+        style={
+          noPadding
+            ? undefined
+            : [
+                styles.content,
+                {
+                  paddingBottom: Math.max(insets.bottom, t.spacing[6])
+                }
+              ]
+        }
+      >
         {children}
       </BottomSheetView>
     </BottomSheetModal>
@@ -165,10 +212,41 @@ export const Sheet = forwardRef<SheetHandle, Props>(function Sheet(
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
-    bg: {
-      borderTopLeftRadius: t.radii["lg"],
-      borderTopRightRadius: t.radii["lg"],
+    sheet: {
+      borderTopLeftRadius: t.radii.xl,
+      borderTopRightRadius: t.radii.xl,
+      shadowColor: t.colors.accent,
+      shadowOpacity: t.shadows.glow.opacity,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: -4 },
+      elevation: 24
+    },
+    backgroundFrame: {
+      borderTopLeftRadius: t.radii.xl,
+      borderTopRightRadius: t.radii.xl,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderBottomWidth: 0,
+      borderColor: t.colors.borderStrong,
+      backgroundColor: t.colors.surfaceElevated,
       overflow: "hidden"
+    },
+    bg: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      borderTopLeftRadius: t.radii.xl,
+      borderTopRightRadius: t.radii.xl,
+      overflow: "hidden"
+    },
+    bgTint: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      backgroundColor: t.colors.panelTint
     },
     bgEdge: {
       position: "absolute",
@@ -180,17 +258,24 @@ const makeStyles = (t: AppTheme) =>
     },
     handleContainer: {
       alignItems: "center",
-      paddingTop: t.spacing[3]
+      paddingTop: t.spacing[3],
+      paddingBottom: t.spacing[1]
     },
     handle: {
       width: HANDLE_WIDTH,
       height: HANDLE_HEIGHT,
-      borderRadius: 2,
-      backgroundColor: t.colors.panelEdge
+      borderRadius: HANDLE_HEIGHT / 2,
+      backgroundColor: t.colors.textMuted,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.glassEdge,
+      shadowColor: t.colors.accent,
+      shadowOpacity: 0.24,
+      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 0 }
     },
     content: {
       paddingHorizontal: t.spacing[6],
       paddingTop: t.spacing[4],
-      paddingBottom: t.spacing[8]
+      paddingBottom: t.spacing[6]
     }
   });

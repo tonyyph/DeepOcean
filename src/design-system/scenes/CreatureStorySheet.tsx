@@ -3,10 +3,12 @@ import type { Rarity } from "@/features/ocean";
 import { getLore } from "@/features/ocean";
 import { usePremium } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { MotiView } from "moti";
 import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowText } from "../atoms/GlowText";
 import { PremiumBadge } from "../atoms/PremiumBadge";
 import { PressableCard } from "../atoms/PressableCard";
@@ -76,6 +78,7 @@ export function CreatureStorySheet({
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
+  const insets = useSafeAreaInsets();
   const isPremium = usePremium((s) => s.isPremium);
 
   const handlePaywall = useCallback(() => {
@@ -100,147 +103,161 @@ export function CreatureStorySheet({
   const sigil = row.kind === "creature" ? "✦" : "◆";
 
   return (
-    <Sheet visible={visible} onDismiss={onDismiss}>
-      <MotiView
-        from={{ opacity: 0, translateY: 10 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: "timing", duration: 320 }}
+    <Sheet visible={visible} onDismiss={onDismiss} noPadding>
+      <BottomSheetScrollView
+        contentContainerStyle={[
+          styles.container,
+          { paddingBottom: Math.max(insets.bottom, t.spacing[8]) }
+        ]}
+        keyboardShouldPersistTaps="handled"
+        overScrollMode="never"
+        showsVerticalScrollIndicator={false}
       >
-        {/* Crest / silhouette */}
-        <LinearGradient
-          colors={[
-            row.seen ? accent : t.colors.surfaceElevated,
-            t.colors.surface
-          ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.crest,
-            {
-              shadowColor: row.seen ? accent : "transparent",
-              opacity: row.seen ? 1 : 0.55
-            }
-          ]}
+        <MotiView
+          from={{ opacity: 0, translateY: 10 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: "timing", duration: 320 }}
         >
-          <Text
+          {/* Crest / silhouette */}
+          <LinearGradient
+            colors={[
+              row.seen ? accent : t.colors.surfaceElevated,
+              t.colors.surface
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={[
-              styles.sigil,
-              { color: row.seen ? t.colors.text : t.colors.textFaint }
+              styles.crest,
+              {
+                shadowColor: row.seen ? accent : "transparent",
+                opacity: row.seen ? 1 : 0.55
+              }
             ]}
           >
-            {row.seen ? sigil : "?"}
-          </Text>
-        </LinearGradient>
-
-        <Text style={styles.kindLabel}>{kindLabel}</Text>
-        <GlowText size={24} style={styles.title}>
-          {row.seen ? row.name : tr.collection.undiscovered}
-        </GlowText>
-
-        {/* Meta row */}
-        <View style={styles.metaRow}>
-          <View style={styles.metaChip}>
-            <Ionicons name="locate" size={11} color={t.colors.textMuted} />
-            <Text style={styles.metaText}>{row.zone}</Text>
-          </View>
-          <View style={[styles.metaChip, { borderColor: accent + "55" }]}>
-            <View style={[styles.rarityDot, { backgroundColor: accent }]} />
-            <Text style={[styles.metaText, { color: accent }]}>
-              {row.rarity.toUpperCase()}
+            <Text
+              style={[
+                styles.sigil,
+                { color: row.seen ? t.colors.text : t.colors.textFaint }
+              ]}
+            >
+              {row.seen ? sigil : "?"}
             </Text>
-          </View>
-          {row.seen && row.count > 0 && (
+          </LinearGradient>
+
+          <Text style={styles.kindLabel}>{kindLabel}</Text>
+          <GlowText size={24} style={styles.title}>
+            {row.seen ? row.name : tr.collection.undiscovered}
+          </GlowText>
+
+          {/* Meta row */}
+          <View style={styles.metaRow}>
             <View style={styles.metaChip}>
-              <Ionicons name="eye" size={11} color={t.colors.textMuted} />
-              <Text style={styles.metaText}>
-                {tr.collection.story.sightings(row.count)}
+              <Ionicons name="locate" size={11} color={t.colors.textMuted} />
+              <Text style={styles.metaText}>{row.zone}</Text>
+            </View>
+            <View style={[styles.metaChip, { borderColor: accent + "55" }]}>
+              <View style={[styles.rarityDot, { backgroundColor: accent }]} />
+              <Text style={[styles.metaText, { color: accent }]}>
+                {row.rarity.toUpperCase()}
               </Text>
             </View>
-          )}
-        </View>
+            {row.seen && row.count > 0 && (
+              <View style={styles.metaChip}>
+                <Ionicons name="eye" size={11} color={t.colors.textMuted} />
+                <Text style={styles.metaText}>
+                  {tr.collection.story.sightings(row.count)}
+                </Text>
+              </View>
+            )}
+          </View>
 
-        {row.seen ? (
-          <>
-            {/* Story */}
+          {row.seen ? (
+            <>
+              {/* Story */}
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>
+                  {tr.collection.story.storyTitle}
+                </Text>
+                <Text style={styles.body}>{lore.story}</Text>
+                {row.firstSeenAt && (
+                  <Text style={styles.metaFoot}>
+                    {tr.collection.story.firstSeen} ·{" "}
+                    {formatDate(row.firstSeenAt, "en-US")}
+                  </Text>
+                )}
+              </View>
+
+              {/* Pro section */}
+              <View style={[styles.section, styles.proSection]}>
+                <View style={styles.proHeader}>
+                  <Text
+                    style={[styles.sectionLabel, { color: t.colors.premium }]}
+                  >
+                    {tr.collection.story.proTitle}
+                  </Text>
+                  {!isPremium && <PremiumBadge variant="lock" />}
+                </View>
+                {isPremium ? (
+                  <Text style={styles.body}>{lore.proStory}</Text>
+                ) : (
+                  <>
+                    <Text style={styles.bodyMuted}>
+                      {tr.collection.story.proLocked}
+                    </Text>
+                    <PressableCard
+                      haptic="medium"
+                      onPress={handlePaywall}
+                      radius={t.radii.md}
+                      accessibilityRole="button"
+                      accessibilityLabel={tr.collection.story.proUnlockCta}
+                    >
+                      <Text style={styles.proCta}>
+                        {tr.collection.story.proUnlockCta}
+                      </Text>
+                    </PressableCard>
+                  </>
+                )}
+              </View>
+            </>
+          ) : (
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>
-                {tr.collection.story.storyTitle}
+                {tr.collection.story.whisperLabel}
               </Text>
-              <Text style={styles.body}>{lore.story}</Text>
-              {row.firstSeenAt && (
+              <Text style={[styles.body, styles.whisper]}>{lore.whisper}</Text>
+              <View style={styles.lockedFoot}>
+                <Ionicons
+                  name="lock-closed"
+                  size={12}
+                  color={t.colors.textMuted}
+                />
                 <Text style={styles.metaFoot}>
-                  {tr.collection.story.firstSeen} ·{" "}
-                  {formatDate(row.firstSeenAt, "en-US")}
+                  {tr.collection.story.lockedBody}
                 </Text>
-              )}
-            </View>
-
-            {/* Pro section */}
-            <View style={[styles.section, styles.proSection]}>
-              <View style={styles.proHeader}>
-                <Text
-                  style={[styles.sectionLabel, { color: t.colors.premium }]}
-                >
-                  {tr.collection.story.proTitle}
-                </Text>
-                {!isPremium && <PremiumBadge variant="lock" />}
               </View>
-              {isPremium ? (
-                <Text style={styles.body}>{lore.proStory}</Text>
-              ) : (
-                <>
-                  <Text style={styles.bodyMuted}>
-                    {tr.collection.story.proLocked}
-                  </Text>
-                  <PressableCard
-                    haptic="medium"
-                    onPress={handlePaywall}
-                    radius={t.radii.md}
-                    accessibilityRole="button"
-                    accessibilityLabel={tr.collection.story.proUnlockCta}
-                  >
-                    <Text style={styles.proCta}>
-                      {tr.collection.story.proUnlockCta}
-                    </Text>
-                  </PressableCard>
-                </>
-              )}
             </View>
-          </>
-        ) : (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>
-              {tr.collection.story.whisperLabel}
-            </Text>
-            <Text style={[styles.body, styles.whisper]}>{lore.whisper}</Text>
-            <View style={styles.lockedFoot}>
-              <Ionicons
-                name="lock-closed"
-                size={12}
-                color={t.colors.textMuted}
-              />
-              <Text style={styles.metaFoot}>
-                {tr.collection.story.lockedBody}
-              </Text>
-            </View>
-          </View>
-        )}
+          )}
 
-        <PressableCard
-          haptic="light"
-          onPress={onDismiss}
-          radius={t.radii.md}
-          style={styles.closeButton}
-        >
-          <Text style={styles.closeText}>{tr.collection.story.close}</Text>
-        </PressableCard>
-      </MotiView>
+          <PressableCard
+            haptic="light"
+            onPress={onDismiss}
+            radius={t.radii.md}
+            style={styles.closeButton}
+          >
+            <Text style={styles.closeText}>{tr.collection.story.close}</Text>
+          </PressableCard>
+        </MotiView>
+      </BottomSheetScrollView>
     </Sheet>
   );
 }
 
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
+    container: {
+      paddingHorizontal: t.spacing[6],
+      paddingTop: t.spacing[4]
+    },
     crest: {
       alignSelf: "center",
       width: 78,

@@ -5,6 +5,7 @@ import { MotiView } from "moti";
 import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowText } from "../atoms/GlowText";
 import { PremiumBadge } from "../atoms/PremiumBadge";
 import { PressableCard } from "../atoms/PressableCard";
@@ -12,6 +13,7 @@ import { Sheet } from "../atoms/Sheet";
 import { ThemeSwatch } from "../atoms/ThemeSwatch";
 import type { AppTheme, ThemeId } from "../themes";
 import { combineThemes, THEME_LIST, THEMES } from "../themes";
+import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 
 const SWATCH_SIZE = 62;
@@ -34,7 +36,9 @@ export function ThemePickerSheet({
   onRequestPaywall
 }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const t = useTheme();
   const tr = useTranslations();
+  const insets = useSafeAreaInsets();
   const activeId = useThemeStore((s) => s.themeId);
   const setTheme = useThemeStore((s) => s.setTheme);
   const isPremium = usePremium((s) => s.isPremium);
@@ -71,7 +75,10 @@ export function ThemePickerSheet({
   return (
     <Sheet visible={visible} onDismiss={dismiss} noPadding>
       <BottomSheetScrollView
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[
+          styles.container,
+          { paddingBottom: Math.max(insets.bottom, t.spacing[8]) }
+        ]}
         keyboardShouldPersistTaps="handled"
         overScrollMode="never"
         showsVerticalScrollIndicator={false}
