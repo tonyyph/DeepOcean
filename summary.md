@@ -8,12 +8,44 @@ The repository is an Expo/React Native focus app with a generated native widget
 system. The durable widget implementation lives in `plugins/` and `assets/`;
 `ios/` and `android/` are ignored generated projects.
 
-Recent work stabilized three areas:
+Recent work covers these areas:
 
 1. Dive abort/surface lifecycle.
 2. Dive completion audio ownership.
 3. Multi-concept native widgets and their project archive footprint.
 4. Widget/Live Activity deep links and cold-start session reconciliation.
+5. A production-ready marketing landing page in `webapp/`.
+
+## Marketing Landing Page
+
+`webapp/` now contains a detailed responsive landing page grounded in the
+current mobile product.
+
+Implemented:
+
+- Hero, problem/solution, core features, how-it-works, screen previews, Pro,
+  AI/personalization, widgets/Live Activities/notifications, stats/progress,
+  placeholder testimonials, FAQ, final CTA, and footer.
+- Content is centralized in `webapp/src/content/landingContent.ts`.
+- Landing tokens are centralized in `webapp/src/lib/landingTheme.ts`.
+- Mobile screens are represented by typed web mockups based on the current
+  Home, Dive, Collection, AI, and Stats screens.
+- Canonical app icon and widget concept artwork are copied into
+  `webapp/public/assets/`.
+- Store, contact, legal, pricing, and testimonial values are intentionally
+  marked as placeholders.
+- Obsolete Three.js particle dependencies and the old particle component were
+  removed from the web app.
+
+Verification on 2026-06-22:
+
+- `cd webapp && npm run typecheck`: passed.
+- `cd webapp && npm run lint`: passed.
+- `cd webapp && npm run build`: passed.
+- Local HTTP and public asset responses returned 200.
+- In-app browser visual QA could not run because no browser session was
+  available in the environment; perform one final device/browser pass before
+  publishing.
 
 ## Recent Fixes
 

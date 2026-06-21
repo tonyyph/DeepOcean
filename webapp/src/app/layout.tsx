@@ -24,9 +24,28 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Deep Ocean — Focus Dives for Mobile",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+  ),
+  title: "Deep Ocean — Turn Focus Into a Dive",
   description:
-    "Deep Ocean is a premium focus app that turns each session into an underwater dive with depth, discoveries, XP, streaks, AI insights, reminders, widgets, and premium themes."
+    "A cinematic focus app where minutes become depth, discoveries, XP, streaks, expedition history, and calm personal guidance.",
+  keywords: [
+    "focus app",
+    "focus timer",
+    "deep work",
+    "productivity",
+    "ocean",
+    "pomodoro",
+    "habit tracker",
+  ],
+  openGraph: {
+    title: "Deep Ocean — Turn Focus Into a Dive",
+    description:
+      "Focus deeper, surface calmer. A cinematic focus system with ocean progression, discoveries, AI guidance, widgets, and Live Activities.",
+    type: "website",
+    images: ["/assets/ocean-portal-wide.png"],
+  },
 };
 
 export default function RootLayout({
