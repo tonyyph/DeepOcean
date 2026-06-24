@@ -44,15 +44,13 @@ export function recommendFallback({
   usage
 }: RecommendationInput): AIRecommendation {
   const goals: GoalId[] =
-    selectedGoals.length > 0 ? [...selectedGoals] : ["improve_focus"];
+    selectedGoals.length > 0 ? uniqueGoals(selectedGoals) : ["improve_focus"];
   const workflowId = pickWorkflow(goals);
   const workflow = workflowCopy(language, workflowId, usage?.preferredMinutes);
-  const items = goals.slice(0, 4).map((goal, index) =>
-    itemCopy(language, goal, index)
+  const items = ensurePremiumItem(
+    goals.slice(0, 4).map((goal, index) => itemCopy(language, goal, index)),
+    language
   );
-  if (!items.some((item) => item.isPremium)) {
-    items.push(itemCopy(language, "track_progress", items.length, true));
-  }
 
   return {
     recommendedItems: items,
@@ -63,6 +61,20 @@ export function recommendFallback({
         : "I matched your goals into a calm starting rhythm: easy to repeat, useful today, and ready to deepen when you are.",
     generatedAt: Date.now(),
     source: "fallback"
+  };
+}
+
+export function normalizeRecommendation(
+  recommendation: AIRecommendation
+): AIRecommendation {
+  const seen = new Set<string>();
+  return {
+    ...recommendation,
+    recommendedItems: recommendation.recommendedItems.filter((item) => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    })
   };
 }
 
@@ -79,7 +91,40 @@ function pickWorkflow(goals: readonly GoalId[]): RecommendedWorkflow["id"] {
     const workflow = GOAL_TO_WORKFLOW[goal];
     scores.set(workflow, (scores.get(workflow) ?? 0) + 1);
   }
-  return [...scores.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "daily_focus";
+  return (
+    [...scores.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ??
+    "daily_focus"
+  );
+}
+
+function uniqueGoals(goals: readonly GoalId[]): GoalId[] {
+  const seen = new Set<GoalId>();
+  return goals.filter((goal) => {
+    if (seen.has(goal)) return false;
+    seen.add(goal);
+    return true;
+  });
+}
+
+function ensurePremiumItem(
+  items: readonly RecommendedItem[],
+  language: Language
+): RecommendedItem[] {
+  if (items.some((item) => item.isPremium)) return [...items];
+
+  const trackProgressIndex = items.findIndex(
+    (item) => item.id === "item.track_progress"
+  );
+  if (trackProgressIndex >= 0) {
+    return items.map((item, index) =>
+      index === trackProgressIndex ? { ...item, isPremium: true } : item
+    );
+  }
+
+  return [
+    ...items,
+    itemCopy(language, "track_progress", items.length, true)
+  ];
 }
 
 function itemCopy(

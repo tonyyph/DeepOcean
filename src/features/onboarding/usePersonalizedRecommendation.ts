@@ -4,6 +4,7 @@ import { useDiverProfile } from "@/features/diver";
 import { useCallback, useState } from "react";
 import type { AIRecommendation, GoalId } from "@/domain/entities";
 import {
+  normalizeRecommendation,
   recommendFallback,
   requestPersonalizedRecommendation
 } from "./recommendationEngine";
@@ -14,28 +15,33 @@ export function usePersonalizedRecommendation(selectedGoals: readonly GoalId[]) 
   const language = useSettings((s) => s.language);
   const preferredMinutes = useSettings((s) => s.preferredSessionMinutes);
   const cached = usePersonalization((s) => s.lastAIRecommendation);
+  const initialRecommendation = cached
+    ? normalizeRecommendation(cached)
+    : null;
   const setRecommendation = usePersonalization((s) => s.setRecommendation);
   const { data: profile } = useDiverProfile();
   const [status, setStatus] = useState<RecommendationStatus>(
-    cached ? "success" : "idle"
+    initialRecommendation ? "success" : "idle"
   );
   const [error, setError] = useState<string | null>(null);
   const [recommendation, setLocalRecommendation] =
-    useState<AIRecommendation | null>(cached);
+    useState<AIRecommendation | null>(initialRecommendation);
 
   const generate = useCallback(async (): Promise<AIRecommendation> => {
     setStatus("loading");
     setError(null);
     try {
-      const next = await requestPersonalizedRecommendation({
-        selectedGoals: [...selectedGoals],
-        language,
-        usage: {
-          preferredMinutes,
-          streakDays: profile?.currentStreakDays ?? 0,
-          totalDives: profile?.totalDives ?? 0
-        }
-      });
+      const next = normalizeRecommendation(
+        await requestPersonalizedRecommendation({
+          selectedGoals: [...selectedGoals],
+          language,
+          usage: {
+            preferredMinutes,
+            streakDays: profile?.currentStreakDays ?? 0,
+            totalDives: profile?.totalDives ?? 0
+          }
+        })
+      );
       setLocalRecommendation(next);
       setRecommendation(next);
       setStatus("success");
