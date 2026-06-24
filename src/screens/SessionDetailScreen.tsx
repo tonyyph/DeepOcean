@@ -6,6 +6,7 @@ import {
   GlassCard,
   GlowText,
   KpiCard,
+  ScreenSafeAreaView,
   ScreenScrollView,
   SectionLabel,
   SessionTimeline,
@@ -27,7 +28,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo } from "react";
 import { Share, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 function formatDuration(seconds: number): string {
   const totalMin = Math.round(seconds / 60);
@@ -50,7 +50,7 @@ export default function SessionDetailScreen() {
   return (
     <ZoneBackground zone={session?.zone ?? "abyss"}>
       <UnderwaterCanvas zone={session?.zone ?? "abyss"} />
-      <SafeAreaView style={styles.flex}>
+      <ScreenSafeAreaView style={styles.flex}>
         <View style={styles.topBar}>
           <Pressable
             onPress={() => router.back()}
@@ -95,7 +95,7 @@ export default function SessionDetailScreen() {
         ) : (
           <Body session={session} locale={locale} />
         )}
-      </SafeAreaView>
+      </ScreenSafeAreaView>
     </ZoneBackground>
   );
 }

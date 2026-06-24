@@ -8,6 +8,7 @@ import {
   OptionPill,
   PaywallSheet,
   PressableCard,
+  ScreenSafeAreaView,
   ScreenScrollView,
   SectionLabel,
   Skeleton,
@@ -35,7 +36,6 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 import {
   resolveLastDiveSession,
   shouldShowLastDiveSkeleton
@@ -201,7 +201,7 @@ export default function HomeScreen() {
   return (
     <ZoneBackground zone="midnight">
       <UnderwaterCanvas zone="midnight" />
-      <SafeAreaView style={styles.flex}>
+      <ScreenSafeAreaView style={styles.flex}>
         <ScreenScrollView>
           {/* ── Header ── */}
           <View style={styles.header}>
@@ -355,7 +355,7 @@ export default function HomeScreen() {
           visible={paywallOpen}
           onDismiss={() => setPaywallOpen(false)}
         />
-      </SafeAreaView>
+      </ScreenSafeAreaView>
     </ZoneBackground>
   );
 }

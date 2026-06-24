@@ -8,6 +8,7 @@ import {
   GuidanceCard,
   OptionPill,
   PaywallSheet,
+  ScreenSafeAreaView,
   ScreenScrollView,
   SectionLabel,
   SectionSkeleton,
@@ -31,7 +32,6 @@ import { usePremium, useSettings } from "@/stores";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ProInsights } from "./ai/ProInsights";
 
 function stableMoodRank(mood: string): number {
@@ -167,7 +167,7 @@ export default function AIScreen() {
         zone={lastSession?.zone ?? "midnight"}
         particleCount={32}
       />
-      <SafeAreaView style={styles.flex}>
+      <ScreenSafeAreaView style={styles.flex}>
         <ScreenScrollView>
           <AppHeader title={tr.ai.title} subtitle={tr.ai.subtitle} size={28} />
           {sessions.length === 0 && (
@@ -261,7 +261,7 @@ export default function AIScreen() {
             </View>
           </GlassCard>
         </ScreenScrollView>
-      </SafeAreaView>
+      </ScreenSafeAreaView>
 
       <PaywallSheet
         visible={paywallOpen}

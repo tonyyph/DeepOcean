@@ -7,6 +7,7 @@ import {
   GuidanceCard,
   PaywallSheet,
   PremiumBadge,
+  ScreenSafeAreaView,
   SectionSkeleton,
   Skeleton,
   type StoryRow,
@@ -35,7 +36,6 @@ import {
   useWindowDimensions
 } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { makeStyles } from "./CollectionScreen.styles";
 
 type RarityFilter =
@@ -235,7 +235,7 @@ export default function CollectionScreen() {
   return (
     <ZoneBackground zone="abyss">
       <UnderwaterCanvas zone="abyss" particleCount={20} />
-      <SafeAreaView style={styles.flex}>
+      <ScreenSafeAreaView style={styles.flex}>
         <View style={styles.headerWrap}>
           <AppHeader
             title={tr.collection.title}
@@ -273,7 +273,7 @@ export default function CollectionScreen() {
             </GlassCard>
           </View>
         )}
-      </SafeAreaView>
+      </ScreenSafeAreaView>
 
       <CreatureStorySheet
         visible={storyOpen}

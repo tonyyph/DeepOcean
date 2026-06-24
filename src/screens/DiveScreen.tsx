@@ -9,6 +9,7 @@ import {
   GlowText,
   LevelUpModal,
   PressableCard,
+  ScreenSafeAreaView,
   Sheet,
   TitleAchievementModal,
   UnderwaterCanvas,
@@ -28,7 +29,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BackHandler, StyleSheet, Switch, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogConfig = {
   title: string;
@@ -257,7 +257,7 @@ export default function DiveScreen() {
       }
     >
       <UnderwaterCanvas zone={"midnight"} particleCount={12} />
-      <SafeAreaView style={styles.safe}>
+      <ScreenSafeAreaView style={styles.safe}>
         <View style={styles.topBlock}>
           <View style={styles.zoneRow}>
             <DepthIndicator
@@ -341,7 +341,7 @@ export default function DiveScreen() {
             </Pressable>
           </View>
         </View>
-      </SafeAreaView>
+      </ScreenSafeAreaView>
 
       <Sheet visible={dialog !== null} onDismiss={() => setDialog(null)}>
         <View style={styles.dialogContent}>

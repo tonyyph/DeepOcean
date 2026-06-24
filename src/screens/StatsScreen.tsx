@@ -5,6 +5,7 @@ import {
   AppHeader,
   GlassCard,
   KpiCard,
+  ScreenSafeAreaView,
   ScreenScrollView,
   SectionLabel,
   Skeleton,
@@ -21,7 +22,6 @@ import { useRouter } from "expo-router";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function StatsScreen() {
   const { data: sessions = [], isLoading: sessionsLoading } = useSessions();
@@ -55,7 +55,7 @@ export default function StatsScreen() {
     <ZoneBackground zone="abyss">
       <UnderwaterCanvas zone="abyss" />
 
-      <SafeAreaView style={styles.flex}>
+      <ScreenSafeAreaView style={styles.flex}>
         <ScreenScrollView>
           <AppHeader
             title={tr.stats.title}
@@ -173,7 +173,7 @@ export default function StatsScreen() {
             )}
           </GlassCard>
         </ScreenScrollView>
-      </SafeAreaView>
+      </ScreenSafeAreaView>
     </ZoneBackground>
   );
 }

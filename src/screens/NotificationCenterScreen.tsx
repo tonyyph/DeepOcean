@@ -5,6 +5,7 @@ import {
   GlassCard,
   GlowText,
   PressableCard,
+  ScreenSafeAreaView,
   ScreenScrollView,
   Skeleton,
   UnderwaterCanvas,
@@ -24,7 +25,6 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 type FilterMode = "all" | "unread";
 
@@ -87,7 +87,7 @@ export default function NotificationCenterScreen() {
   return (
     <ZoneBackground zone="midnight">
       <UnderwaterCanvas zone="midnight" />
-      <SafeAreaView style={styles.flex}>
+      <ScreenSafeAreaView style={styles.flex}>
         <View style={styles.topBar}>
           <Pressable
             onPress={() => router.back()}
@@ -239,7 +239,7 @@ export default function NotificationCenterScreen() {
             />
           ) : null}
         </ScreenScrollView>
-      </SafeAreaView>
+      </ScreenSafeAreaView>
     </ZoneBackground>
   );
 }

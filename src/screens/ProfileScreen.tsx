@@ -10,6 +10,7 @@ import {
   PremiumBadge,
   PressableCard,
   ReminderTimePickerSheet,
+  ScreenSafeAreaView,
   ScreenScrollView,
   SectionLabel,
   SettingRow,
@@ -50,7 +51,6 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { PremiumSection } from "./ProfileScreen.components";
 import { makeStyles } from "./ProfileScreen.styles";
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
@@ -183,7 +183,7 @@ export default function ProfileScreen() {
   return (
     <ZoneBackground zone="trench">
       <UnderwaterCanvas zone="trench" />
-      <SafeAreaView style={styles.flex}>
+      <ScreenSafeAreaView style={styles.flex}>
         <ScreenScrollView>
           <View style={styles.profileHeader}>
             {!isEditingName && (
@@ -441,7 +441,7 @@ export default function ProfileScreen() {
             </View>
           </GlassCard>
         </ScreenScrollView>
-      </SafeAreaView>
+      </ScreenSafeAreaView>
       <ThemePickerSheet
         visible={themeOpen}
         onDismiss={() => setThemeOpen(false)}
