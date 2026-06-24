@@ -23,7 +23,7 @@ export const ScreenScrollView = React.forwardRef<ScrollView, Props>(
       children,
       contentContainerStyle,
       gap,
-      horizontalInset,
+      horizontalInset = 0,
       keyboardDismissMode,
       keyboardShouldPersistTaps,
       showsVerticalScrollIndicator,

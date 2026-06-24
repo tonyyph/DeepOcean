@@ -1,4 +1,3 @@
-import React from "react";
 import {
   StyleSheet,
   View,
@@ -15,7 +14,7 @@ type Props = ViewProps & {
   style?: StyleProp<ViewStyle>;
 };
 
-const DEFAULT_EDGES: readonly Edge[] = ["top", "right", "bottom", "left"];
+const DEFAULT_EDGES: readonly Edge[] = ["top", "bottom"];
 
 export function ScreenSafeAreaView({
   edges = DEFAULT_EDGES,
@@ -33,9 +32,9 @@ export function ScreenSafeAreaView({
         style,
         {
           paddingTop: edges.includes("top") ? insets.top : 0,
-          paddingRight: edges.includes("right") ? insets.right : 0,
+          paddingRight: edges.includes("right") ? insets.right : 20,
           paddingBottom: edges.includes("bottom") ? insets.bottom : 0,
-          paddingLeft: edges.includes("left") ? insets.left : 0
+          paddingLeft: edges.includes("left") ? insets.left : 20
         }
       ]}
     >

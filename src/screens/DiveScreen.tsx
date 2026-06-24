@@ -23,12 +23,12 @@ import { useDiveEventEngine } from "@/features/discovery";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useDiveSession } from "@/stores";
-import { decideDiveLaunch } from "./diveLaunchPolicy";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BackHandler, StyleSheet, Switch, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { decideDiveLaunch } from "./diveLaunchPolicy";
 
 type DialogConfig = {
   title: string;
@@ -433,8 +433,7 @@ const makeStyles = (t: AppTheme) =>
     flex: { flex: 1 },
     safe: {
       flex: 1,
-      justifyContent: "space-between",
-      padding: t.spacing[4]
+      justifyContent: "space-between"
     },
     topBlock: { alignItems: "center", gap: t.spacing[3] },
     zoneRow: {
