@@ -19,7 +19,7 @@ import type { DiveSession } from "@/domain/entities";
 import { useDiverProfile, useSessions } from "@/features/diver";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 
@@ -208,7 +208,7 @@ function RecentSessionsSkeleton() {
   );
 }
 
-function Heatmap({
+const Heatmap = React.memo(function Heatmap({
   data
 }: {
   data: { day: string; label: string; minutes: number }[];
@@ -245,7 +245,7 @@ function Heatmap({
       })}
     </View>
   );
-}
+});
 
 function buildLast7Days(
   sessions: { startedAt: number; elapsedSeconds: number }[]

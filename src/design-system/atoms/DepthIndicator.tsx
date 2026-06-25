@@ -86,10 +86,7 @@ const makeStyles = (t: AppTheme) =>
     dot: {
       width: 6,
       height: 6,
-      borderRadius: 3,
-      shadowColor: t.colors.accent,
-      shadowOpacity: 0,
-      shadowRadius: 0
+      borderRadius: 3
     },
     label: {
       color: t.colors.textSecondary,

@@ -30,7 +30,7 @@ import { diverKeys } from "@/features/diver/hooks";
 import { selectCurrentMood, useMoodRecord, useSetMood } from "@/features/mood";
 import { usePremium, useSettings } from "@/stores";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ProInsights } from "./ai/ProInsights";
 
@@ -41,6 +41,12 @@ function stableMoodRank(mood: string): number {
   }
   return hash;
 }
+
+// MOODS is static — sort once at module level so every component instance
+// shares the same stable array rather than recomputing inside useMemo([]).
+const STABLE_RANDOM_MOODS = [...MOODS]
+  .sort((a, b) => stableMoodRank(a) - stableMoodRank(b))
+  .slice(0, 6);
 
 export default function AIScreen() {
   const t = useTheme();
@@ -155,11 +161,7 @@ export default function AIScreen() {
     runAIRefresh(false);
   }, [runAIRefresh]);
 
-  const randomMoods = React.useMemo(() => {
-    return [...MOODS]
-      .sort((a, b) => stableMoodRank(a) - stableMoodRank(b))
-      .slice(0, 6);
-  }, []);
+  const randomMoods = STABLE_RANDOM_MOODS;
 
   return (
     <ZoneBackground zone="midnight">

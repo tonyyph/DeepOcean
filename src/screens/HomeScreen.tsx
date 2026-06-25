@@ -16,7 +16,6 @@ import {
   useThemedStyles,
   ZoneBackground
 } from "@/design-system";
-import type { AppSettings } from "@/domain/entities";
 import {
   getLevelTitle,
   useDailyRecommendation,
@@ -70,14 +69,7 @@ export default function HomeScreen() {
   );
   const beginDiveSession = useDiveSession((s) => s.start);
 
-  const preferredMinutes = useSettings(
-    (
-      s: AppSettings & {
-        update: (patch: Partial<AppSettings>) => void;
-        reset: () => void;
-      }
-    ) => s.preferredSessionMinutes
-  );
+  const preferredMinutes = useSettings((s) => s.preferredSessionMinutes);
   const unlockedZones = useAchievements((s) => s.unlockedZones);
   const tr = useTranslations();
   const [customMinutes, setCustomMinutes] = useState(preferredMinutes);
@@ -168,7 +160,7 @@ export default function HomeScreen() {
   );
 
   const openNotifications = useCallback(() => {
-    router.push("/notifications" as never);
+    router.push("/notifications");
   }, [router]);
 
   const closeFreeDiveModal = useCallback(

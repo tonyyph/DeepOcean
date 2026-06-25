@@ -41,6 +41,23 @@ import {
 import { Pressable } from "react-native-gesture-handler";
 import { makeStyles } from "./CollectionScreen.styles";
 
+// CREATURES and ARTIFACTS are static — precompute per-zone totals once so the
+// zoneSets memo only needs to count discovered entries, not filter static arrays.
+const ZONE_TOTALS: Partial<Record<OceanZone, number>> = (() => {
+  const map: Partial<Record<OceanZone, number>> = {};
+  for (const c of CREATURES) map[c.zone] = (map[c.zone] ?? 0) + 1;
+  for (const a of ARTIFACTS) map[a.zone] = (map[a.zone] ?? 0) + 1;
+  return map;
+})();
+
+// Precompute which ids belong to each zone (static).
+const ZONE_IDS: Partial<Record<OceanZone, readonly string[]>> = (() => {
+  const map: Partial<Record<OceanZone, string[]>> = {};
+  for (const c of CREATURES) (map[c.zone] ??= []).push(c.id);
+  for (const a of ARTIFACTS) (map[a.zone] ??= []).push(a.id);
+  return map;
+})();
+
 type RarityFilter =
   | "all"
   | "common"
@@ -120,12 +137,9 @@ export default function CollectionScreen() {
   const zoneSets = useMemo<ZoneSetStatus[]>(() => {
     const seenIds = new Set(entries.map((e: CollectionEntry) => e.id));
     return OCEAN_ZONES.map((zone) => {
-      const total =
-        CREATURES.filter((c) => c.zone === zone).length +
-        ARTIFACTS.filter((a) => a.zone === zone).length;
-      const found =
-        CREATURES.filter((c) => c.zone === zone && seenIds.has(c.id)).length +
-        ARTIFACTS.filter((a) => a.zone === zone && seenIds.has(a.id)).length;
+      const total = ZONE_TOTALS[zone] ?? 0;
+      const ids = ZONE_IDS[zone] ?? [];
+      const found = ids.filter((id) => seenIds.has(id)).length;
       return {
         zone,
         label: ZONE_TABLE[zone].label,

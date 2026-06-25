@@ -56,7 +56,7 @@ export function ZoneBackground({
           style={StyleSheet.absoluteFill}
         />
       </Animated.View>
-      {children && children}
+      {children}
     </View>
   );
 }
