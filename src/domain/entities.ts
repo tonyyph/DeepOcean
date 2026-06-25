@@ -36,6 +36,17 @@ export type DiveSessionSummary = {
   levelsGained: number;
 };
 
+export type ChestRarity = "driftwood" | "bronze" | "silver" | "gold" | "void";
+
+export type ChestReward = {
+  rarity: ChestRarity;
+  /** XP earned this session — already awarded, modal frames it as discovered treasure. */
+  xp: number;
+  /** Highest-rarity thing found this session, if any. */
+  featuredDiscovery: { name: string; rarity: string } | null;
+  isDepthRecord: boolean;
+};
+
 export type DiverProfile = {
   id: string;
   name: string;

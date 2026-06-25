@@ -10,6 +10,7 @@ import {
   ScreenSafeAreaView,
   SectionSkeleton,
   Skeleton,
+  ZoneSetCompleteModal,
   type StoryRow,
   UnderwaterCanvas,
   ZoneBackground,
@@ -21,13 +22,15 @@ import { useCollection } from "@/features/diver";
 import {
   ARTIFACTS,
   CREATURES,
+  OCEAN_ZONES,
   ZONE_TABLE,
-  rarityColor
+  rarityColor,
+  type OceanZone
 } from "@/features/ocean";
-import { usePremium } from "@/stores";
+import { useAchievements, usePremium } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -55,9 +58,13 @@ export default function CollectionScreen() {
   const isPremium = usePremium((s) => s.isPremium);
   useScreenTransitionLoading(isLoading, "collection");
 
+  const completedZoneSets = useAchievements((s) => s.completedZoneSets);
+  const markZoneSetComplete = useAchievements((s) => s.markZoneSetComplete);
+
   const [activeRow, setActiveRow] = useState<StoryRow | null>(null);
   const [storyOpen, setStoryOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [codexCompleteZone, setCodexCompleteZone] = useState<OceanZone | null>(null);
   const [rarityFilter, setRarityFilter] = useState<RarityFilter>("all");
 
   const rows = useMemo<StoryRow[]>(() => {
@@ -102,6 +109,49 @@ export default function CollectionScreen() {
     [rows]
   );
 
+  type ZoneSetStatus = {
+    zone: OceanZone;
+    label: string;
+    found: number;
+    total: number;
+    complete: boolean;
+  };
+
+  const zoneSets = useMemo<ZoneSetStatus[]>(() => {
+    const seenIds = new Set(entries.map((e: CollectionEntry) => e.id));
+    return OCEAN_ZONES.map((zone) => {
+      const total =
+        CREATURES.filter((c) => c.zone === zone).length +
+        ARTIFACTS.filter((a) => a.zone === zone).length;
+      const found =
+        CREATURES.filter((c) => c.zone === zone && seenIds.has(c.id)).length +
+        ARTIFACTS.filter((a) => a.zone === zone && seenIds.has(a.id)).length;
+      return {
+        zone,
+        label: ZONE_TABLE[zone].label,
+        found,
+        total,
+        complete: total > 0 && found >= total
+      };
+    });
+  }, [entries]);
+
+  // Detect newly completed zone sets and trigger the modal
+  const prevCompletedRef = useRef<Set<OceanZone>>(new Set(completedZoneSets));
+  useEffect(() => {
+    for (const s of zoneSets) {
+      if (s.complete && !prevCompletedRef.current.has(s.zone)) {
+        const isNew = markZoneSetComplete(s.zone);
+        if (isNew) {
+          prevCompletedRef.current = new Set([...prevCompletedRef.current, s.zone]);
+          // Defer to avoid synchronous setState-in-effect lint violation
+          setTimeout(() => setCodexCompleteZone(s.zone), 0);
+          break;
+        }
+      }
+    }
+  }, [zoneSets, markZoneSetComplete]);
+
   const filteredRows = useMemo(() => {
     return rows.filter((r) => {
       const passRarity = rarityFilter === "all" || r.rarity === rarityFilter;
@@ -138,6 +188,45 @@ export default function CollectionScreen() {
   const renderListHeader = useCallback(
     () => (
       <View style={styles.stickyFilterWrap}>
+        {/* Zone Codex strip */}
+        <View style={styles.codexBlock}>
+          <Text style={styles.codexTitle}>{tr.codex.setsTitle}</Text>
+          <ScrollView
+            horizontal
+            overScrollMode="never"
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.codexRow}
+          >
+            {zoneSets.map((s) => (
+              <View
+                key={s.zone}
+                style={[
+                  styles.codexCard,
+                  s.complete && { borderColor: t.colors.accent }
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.codexZoneLabel,
+                    s.complete && { color: t.colors.accent }
+                  ]}
+                  numberOfLines={1}
+                >
+                  {s.label}
+                </Text>
+                <Text style={styles.codexProgress}>
+                  {tr.codex.setProgress(s.found, s.total)}
+                </Text>
+                {s.complete && (
+                  <Text style={[styles.codexComplete, { color: t.colors.accent }]}>
+                    {tr.codex.setComplete}
+                  </Text>
+                )}
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
         <View style={styles.compactFilterBlock}>
           <Text style={styles.filterTitle}>{tr.collection.filters.rarity}</Text>
           <ScrollView
@@ -200,9 +289,14 @@ export default function CollectionScreen() {
       rarityFilter,
       rarityOptions,
       styles,
+      t.colors.accent,
       t.colors.textMuted,
+      tr.codex.setsTitle,
+      tr.codex.setProgress,
+      tr.codex.setComplete,
       tr.collection.filters.rarity,
-      tr.collection.story.proLocked
+      tr.collection.story.proLocked,
+      zoneSets
     ]
   );
 
@@ -285,6 +379,12 @@ export default function CollectionScreen() {
       <PaywallSheet
         visible={paywallOpen}
         onDismiss={() => setPaywallOpen(false)}
+      />
+
+      <ZoneSetCompleteModal
+        visible={codexCompleteZone !== null}
+        zone={codexCompleteZone}
+        onDismiss={() => setCodexCompleteZone(null)}
       />
     </ZoneBackground>
   );

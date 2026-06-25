@@ -7,6 +7,8 @@ type AchievementsState = {
   unlockedZones: OceanZone[];
   /** IDs of all title achievements the player has earned. */
   unlockedTitleAchievements: string[];
+  /** Zones whose full creature+artifact codex has been completed. */
+  completedZoneSets: OceanZone[];
   /**
    * Mark a zone as unlocked.
    * Returns `true` if this is the first time (new achievement), `false` if already known.
@@ -17,17 +19,24 @@ type AchievementsState = {
    * Safe to call with an empty array (no-op).
    */
   persistTitleAchievements: (achievements: TitleAchievement[]) => void;
+  /**
+   * Mark a zone's codex as complete.
+   * Returns `true` if newly completed, `false` if already recorded.
+   */
+  markZoneSetComplete: (zone: OceanZone) => boolean;
 };
 
 type PersistedData = {
   unlockedZones: OceanZone[];
   unlockedTitleAchievements: string[];
+  completedZoneSets: OceanZone[];
 };
 
 const store = new TypedStore<PersistedData>(StorageKeys.achievements);
 const DEFAULT: PersistedData = {
   unlockedZones: ["surface"],
-  unlockedTitleAchievements: []
+  unlockedTitleAchievements: [],
+  completedZoneSets: []
 };
 
 export const useAchievements = create<AchievementsState>((set, get) => ({
@@ -49,5 +58,14 @@ export const useAchievements = create<AchievementsState>((set, get) => ({
     const next = [...current, ...achievements.map((a) => a.id)];
     store.set({ ...store.get(DEFAULT), unlockedTitleAchievements: next });
     set({ unlockedTitleAchievements: next });
+  },
+
+  markZoneSetComplete: (zone) => {
+    const current = get().completedZoneSets;
+    if (current.includes(zone)) return false;
+    const next = [...current, zone];
+    store.set({ ...store.get(DEFAULT), completedZoneSets: next });
+    set({ completedZoneSets: next });
+    return true;
   }
 }));

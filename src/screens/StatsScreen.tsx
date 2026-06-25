@@ -150,7 +150,7 @@ export default function StatsScreen() {
 
                     <Text style={styles.sessionMeta}>
                       {Math.round(s.elapsedSeconds / 60)}m ·{" "}
-                      {Math.round(s.depthMeters)} meters
+                      {Math.round(s.depthMeters)}m
                     </Text>
 
                     <Text

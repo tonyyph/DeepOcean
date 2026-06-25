@@ -533,5 +533,29 @@ export const vi = {
   titleAchievement: {
     badge: "THÀNH TỰU MỚI",
     tapToDismiss: "Chạm vào bất kỳ đâu để tiếp tục"
+  },
+  codex: {
+    setsTitle: "BỘ CODEX VÙNG BIỂN",
+    setProgress: (found: number, total: number) => `${found}/${total}`,
+    setComplete: "HOÀN THÀNH",
+    completeTitle: "HOÀN THÀNH BỘ CODEX",
+    completeBody: (zone: string) =>
+      `Bạn đã ghi chép đầy đủ mọi loài sinh vật ở ${zone}. Đại dương sẽ nhớ sự tận tụy của bạn.`,
+    completeCta: "Đã hiểu"
+  },
+  chest: {
+    tapToOpen: "CHẠM ĐỂ MỞ",
+    opening: "ĐANG MỞ…",
+    rarityDriftwood: "RƯƠNG TRÔI DẠT",
+    rarityBronze: "RƯƠNG ĐỒNG",
+    raritySilver: "RƯƠNG BẠC",
+    rarityGold: "RƯƠNG VÀNG",
+    rarityVoid: "RƯƠNG HƯ KHÔNG",
+    xpReward: (n: number) => `+${n} XP`,
+    discoveryHighlight: "KHÁM PHÁ",
+    depthRecord: "KỶ LỤC ĐỘ SÂU CÁ NHÂN",
+    noDiscovery: "Đại dương giữ bí mật lần này.",
+    continueLabel: "Tiếp tục",
+    shortDive: "Mỗi chuyến lặn đều có giá trị."
   }
 } as const;

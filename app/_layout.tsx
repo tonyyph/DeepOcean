@@ -73,8 +73,8 @@ async function syncDiveReminders(): Promise<void> {
         channelName: copy.reminderChannel,
       },
     );
-  } catch (error) {
-    console.log("syncDiveReminders error", error);
+  } catch {
+    // non-fatal — reminders will reconcile on next launch
   }
 }
 
@@ -106,8 +106,8 @@ export default function RootLayout() {
         await Updates.fetchUpdateAsync();
         await Updates.reloadAsync();
       }
-    } catch (error) {
-      console.log("error", error);
+    } catch {
+      // non-fatal — OTA update check failed, app continues with current bundle
     }
   }, []);
 

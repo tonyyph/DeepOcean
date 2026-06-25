@@ -37,3 +37,19 @@ export const hapticZoneChange = async (zone: OceanZone): Promise<void> => {
 export const hapticTick = async (): Promise<void> => {
   await Haptics.selectionAsync();
 };
+
+/** Generic press feedback — use this in interactive cards and buttons. */
+export const hapticPress = async (
+  style: "light" | "medium" | "heavy" | "selection"
+): Promise<void> => {
+  if (style === "selection") {
+    await Haptics.selectionAsync();
+    return;
+  }
+  const map = {
+    light: Haptics.ImpactFeedbackStyle.Light,
+    medium: Haptics.ImpactFeedbackStyle.Medium,
+    heavy: Haptics.ImpactFeedbackStyle.Heavy
+  } as const;
+  await Haptics.impactAsync(map[style]);
+};

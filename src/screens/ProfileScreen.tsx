@@ -72,7 +72,13 @@ export default function ProfileScreen() {
   const tr = useTranslations();
   const { data: profile } = useDiverProfile();
   const { mutate: updateDiver } = useUpdateDiver();
-  const settings = useSettings();
+  const language = useSettings((s) => s.language);
+  const reducedMotion = useSettings((s) => s.reducedMotion);
+  const hapticsEnabled = useSettings((s) => s.hapticsEnabled);
+  const ambientVolume = useSettings((s) => s.ambientVolume);
+  const showDiscoveryAlerts = useSettings((s) => s.showDiscoveryAlerts);
+  const preferredSessionMinutes = useSettings((s) => s.preferredSessionMinutes);
+  const updateSettings = useSettings((s) => s.update);
   const themeId = useThemeStore((s) => s.themeId);
   const isPremium = usePremium((s) => s.isPremium);
   const debugPremiumEnabled = usePremium((s) => s.debugPremiumEnabled);
@@ -163,7 +169,7 @@ export default function ProfileScreen() {
   }, []);
   const nextLevelXp = xpForNextLevel(profile?.level ?? 1);
   const progress = profile ? Math.min(1, profile.xp / nextLevelXp) : 0;
-  const currentLangLabel = tr.profile.languageNames[settings.language];
+  const currentLangLabel = tr.profile.languageNames[language];
   const activeTheme = THEMES[themeId];
   const openPaywall = useCallback((target?: ThemeId) => {
     setIntentTheme(target);
@@ -306,8 +312,8 @@ export default function ProfileScreen() {
               type="switch"
               title={tr.profile.reducedMotion}
               subtitle={tr.profile.reducedMotionDesc}
-              value={settings.reducedMotion}
-              onChange={(v) => settings.update({ reducedMotion: v })}
+              value={reducedMotion}
+              onChange={(v) => updateSettings({ reducedMotion: v })}
               divider={false}
             />
           </GlassCard>
@@ -317,8 +323,8 @@ export default function ProfileScreen() {
               type="switch"
               title={tr.profile.haptics}
               subtitle={tr.profile.hapticsDesc}
-              value={settings.hapticsEnabled}
-              onChange={(v) => settings.update({ hapticsEnabled: v })}
+              value={hapticsEnabled}
+              onChange={(v) => updateSettings({ hapticsEnabled: v })}
             />
             <View style={styles.preferredBlock}>
               <Text style={styles.preferredTitle}>
@@ -338,8 +344,8 @@ export default function ProfileScreen() {
                           ? tr.profile.soundLow
                           : tr.profile.soundFull
                     }
-                    active={volumeToKey(settings.ambientVolume) === key}
-                    onPress={() => settings.update({ ambientVolume: value })}
+                    active={volumeToKey(ambientVolume) === key}
+                    onPress={() => updateSettings({ ambientVolume: value })}
                     containerStyle={styles.pillItem}
                   />
                 ))}
@@ -349,8 +355,8 @@ export default function ProfileScreen() {
               type="switch"
               title={tr.profile.showDiscoveries}
               subtitle={tr.profile.showDiscoveriesDesc}
-              value={settings.showDiscoveryAlerts}
-              onChange={(v) => settings.update({ showDiscoveryAlerts: v })}
+              value={showDiscoveryAlerts}
+              onChange={(v) => updateSettings({ showDiscoveryAlerts: v })}
             />
             <View style={styles.preferredBlock}>
               <Text style={styles.preferredTitle}>
@@ -361,9 +367,9 @@ export default function ProfileScreen() {
                   <OptionPill
                     key={m}
                     label={`${m}m`}
-                    active={settings.preferredSessionMinutes === m}
+                    active={preferredSessionMinutes === m}
                     onPress={() =>
-                      settings.update({ preferredSessionMinutes: m })
+                      updateSettings({ preferredSessionMinutes: m })
                     }
                     containerStyle={styles.pillItem}
                   />
@@ -449,9 +455,9 @@ export default function ProfileScreen() {
       />
       <LanguagePickerSheet
         visible={langOpen}
-        current={(settings.language ?? "en") as Language}
+        current={(language ?? "en") as Language}
         onConfirm={(lang) => {
-          settings.update({ language: lang });
+          updateSettings({ language: lang });
           setLangOpen(false);
         }}
         onDismiss={() => setLangOpen(false)}

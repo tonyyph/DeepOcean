@@ -61,8 +61,7 @@ export const DeepOceanLiveActivity = {
           session.zone
         )
       );
-    } catch (error) {
-      console.log("[LiveActivity] start failed", error);
+    } catch {
       return false;
     }
   },
@@ -84,8 +83,7 @@ export const DeepOceanLiveActivity = {
           session.zone
         )
       );
-    } catch (error) {
-      console.log("[LiveActivity] update failed", error);
+    } catch {
       return false;
     }
   },
@@ -104,8 +102,8 @@ export const DeepOceanLiveActivity = {
     if (!canUseLiveActivity() || !sessionId) return;
     try {
       await nativeModule!.end(sessionId);
-    } catch (error) {
-      console.log("[LiveActivity] end failed", error);
+    } catch {
+      // silent — native module absent or bridge error
     }
   },
 
@@ -113,8 +111,8 @@ export const DeepOceanLiveActivity = {
     if (!canUseLiveActivity()) return;
     try {
       await nativeModule!.endAll();
-    } catch (error) {
-      console.log("[LiveActivity] end all failed", error);
+    } catch {
+      // silent — native module absent or bridge error
     }
   }
 } as const;

@@ -8,6 +8,7 @@ import {
   GlassCard,
   GlowText,
   LevelUpModal,
+  MysteryChestModal,
   PressableCard,
   ScreenSafeAreaView,
   Sheet,
@@ -18,8 +19,11 @@ import {
   ZoneBackground,
   type AppTheme
 } from "@/design-system";
+import type { ChestReward } from "@/domain/entities";
 import { useDiveAudio } from "@/features/audio/useDiveAudio";
 import { useDiveEventEngine } from "@/features/discovery";
+import { useSessions } from "@/features/diver";
+import { buildChestReward } from "@/features/diver/chestReward";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useDiveSession } from "@/stores";
@@ -40,6 +44,7 @@ type DialogConfig = {
 
 type RewardItem =
   | { type: "completion" }
+  | { type: "mystery_chest"; reward: ChestReward }
   | { type: "levelUp"; from: number; to: number }
   | { type: "achievement"; achievement: TitleAchievement };
 
@@ -76,6 +81,7 @@ export default function DiveScreen() {
   const pendingLevelUp = useDiveSession((s) => s.pendingLevelUp);
   const pendingAchievements = useDiveSession((s) => s.pendingAchievements);
   const clearPendingRewards = useDiveSession((s) => s.clearPendingRewards);
+  const { data: pastSessions = [] } = useSessions();
   const tr = useTranslations();
   const {
     musicEnabled,
@@ -164,6 +170,18 @@ export default function DiveScreen() {
     if (session?.status === "surfaced" && !queueBuiltRef.current) {
       queueBuiltRef.current = true;
       const queue: RewardItem[] = [];
+
+      // Mystery chest is always first — frames the whole session as discovery
+      const prevBestDepth = pastSessions.reduce(
+        (best, s) =>
+          s.id !== session.id ? Math.max(best, s.depthMeters) : best,
+        0
+      );
+      const isDepthRecord =
+        session.depthMeters > prevBestDepth && prevBestDepth > 0;
+      const chestReward = buildChestReward(session, isDepthRecord);
+      queue.push({ type: "mystery_chest", reward: chestReward });
+
       if (naturalCompletion) {
         queue.push({ type: "completion" });
       }
@@ -190,6 +208,14 @@ export default function DiveScreen() {
     }
   }, [
     session?.status,
+    session?.id,
+    session?.depthMeters,
+    session?.discoveries,
+    session?.elapsedSeconds,
+    session?.targetSeconds,
+    session?.summary,
+    session?.zone,
+    pastSessions,
     pendingLevelUp,
     pendingAchievements,
     clearPendingRewards,
@@ -408,7 +434,16 @@ export default function DiveScreen() {
         onDismiss={() => setAchievedZone(null)}
       />
 
-      {/* Post-dive reward queue: level-up first, then title achievements */}
+      {/* Post-dive reward queue: mystery chest → level-up → title achievements */}
+      <MysteryChestModal
+        visible={rewardQueue[0]?.type === "mystery_chest"}
+        reward={
+          rewardQueue[0]?.type === "mystery_chest"
+            ? rewardQueue[0].reward
+            : null
+        }
+        onDismiss={dismissReward}
+      />
       <LevelUpModal
         visible={rewardQueue[0]?.type === "levelUp"}
         prevLevel={rewardQueue[0]?.type === "levelUp" ? rewardQueue[0].from : 1}

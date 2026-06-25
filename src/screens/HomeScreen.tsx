@@ -6,7 +6,6 @@ import {
   GlassCard,
   GlowText,
   OptionPill,
-  PaywallSheet,
   PressableCard,
   ScreenSafeAreaView,
   ScreenScrollView,
@@ -29,6 +28,7 @@ import {
   useNotificationCenter
 } from "@/features/notifications";
 import { QUICK_DURATIONS, ZONE_TABLE } from "@/features/ocean";
+import { minutesToZone } from "@/features/ocean/zones";
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useDiveSession, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
@@ -82,7 +82,6 @@ export default function HomeScreen() {
   const tr = useTranslations();
   const [customMinutes, setCustomMinutes] = useState(preferredMinutes);
   const [isFreeDiveModalVisible, setIsFreeDiveModalVisible] = useState(false);
-  const [paywallOpen, setPaywallOpen] = useState(false);
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
@@ -159,7 +158,7 @@ export default function HomeScreen() {
   );
 
   const preferredZoneLabel = useMemo(
-    () => ZONE_TABLE[zoneForMinutes(preferredMinutes)].label,
+    () => ZONE_TABLE[minutesToZone(preferredMinutes)].label,
     [preferredMinutes]
   );
 
@@ -341,7 +340,7 @@ export default function HomeScreen() {
         <FreeDiveModal
           visible={isFreeDiveModalVisible}
           minutes={customMinutes}
-          zoneLabel={ZONE_TABLE[zoneForMinutes(customMinutes)].label}
+          zoneLabel={ZONE_TABLE[minutesToZone(customMinutes)].label}
           title={tr.home.freeDive}
           description={tr.home.freeDiveDesc}
           minutesLabel={tr.home.min}
@@ -351,22 +350,10 @@ export default function HomeScreen() {
           onMinutesChange={setCustomMinutes}
           onStart={handleStartCustomDive}
         />
-        <PaywallSheet
-          visible={paywallOpen}
-          onDismiss={() => setPaywallOpen(false)}
-        />
       </ScreenSafeAreaView>
     </ZoneBackground>
   );
 }
-function zoneForMinutes(m: number): OceanZone {
-  if (m < 15) return "surface";
-  if (m < 30) return "twilight";
-  if (m < 50) return "midnight";
-  if (m < 75) return "abyss";
-  return "trench";
-}
-
 function getNextStreakMilestone(days: number): number | null {
   const milestones = [3, 7, 14, 21, 30, 45, 60, 90];
   return milestones.find((m) => m > days) ?? null;

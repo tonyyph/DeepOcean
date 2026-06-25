@@ -36,12 +36,6 @@ export default function WidgetRoute() {
 
     void routeWidgetActionUrl(`deepocean://widget?${search}`).then((result) => {
       if (!active) return;
-      console.log("[WidgetCommand]", {
-        action: result.action,
-        status: result.status,
-        reason: result.reason,
-        duplicate: result.duplicate
-      });
       navigateToTarget({
         actionId: result.actionId,
         mode: "replace",

@@ -531,5 +531,29 @@ export const en = {
   titleAchievement: {
     badge: "ACHIEVEMENT UNLOCKED",
     tapToDismiss: "Tap anywhere to continue"
+  },
+  codex: {
+    setsTitle: "ZONE CODEX",
+    setProgress: (found: number, total: number) => `${found}/${total}`,
+    setComplete: "COMPLETE",
+    completeTitle: "CODEX SET COMPLETE",
+    completeBody: (zone: string) =>
+      `You've catalogued every known species in the ${zone}. The ocean remembers your thoroughness.`,
+    completeCta: "Acknowledged"
+  },
+  chest: {
+    tapToOpen: "TAP TO OPEN",
+    opening: "OPENING…",
+    rarityDriftwood: "DRIFTWOOD CHEST",
+    rarityBronze: "BRONZE CHEST",
+    raritySilver: "SILVER CHEST",
+    rarityGold: "GOLD CHEST",
+    rarityVoid: "VOID CHEST",
+    xpReward: (n: number) => `+${n} XP`,
+    discoveryHighlight: "DISCOVERED",
+    depthRecord: "PERSONAL DEPTH RECORD",
+    noDiscovery: "The deep held its secrets this time.",
+    continueLabel: "Continue",
+    shortDive: "Every dive counts."
   }
 } as const;

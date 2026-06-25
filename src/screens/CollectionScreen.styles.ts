@@ -38,6 +38,48 @@ export const makeStyles = (t: AppTheme) =>
       marginBottom: t.spacing[2],
       gap: t.spacing[4]
     },
+    codexBlock: {
+      gap: t.spacing[1.5],
+      paddingHorizontal: t.spacing[2]
+    },
+    codexTitle: {
+      color: t.colors.textSecondary,
+      fontSize: 11,
+      letterSpacing: 1,
+      fontFamily: t.fonts.label,
+      marginTop: t.spacing[1]
+    },
+    codexRow: {
+      gap: t.spacing[2],
+      paddingRight: t.spacing[2]
+    },
+    codexCard: {
+      minWidth: 90,
+      paddingHorizontal: t.spacing[3],
+      paddingVertical: t.spacing[2.5],
+      borderRadius: t.radii.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.colors.border,
+      backgroundColor: t.colors.glass,
+      alignItems: "center",
+      gap: t.spacing[1]
+    },
+    codexZoneLabel: {
+      fontSize: 10,
+      fontFamily: t.fonts.label,
+      letterSpacing: 0.8,
+      color: t.colors.textSecondary
+    },
+    codexProgress: {
+      fontSize: 16,
+      fontFamily: t.fonts.display,
+      color: t.colors.text
+    },
+    codexComplete: {
+      fontSize: 9,
+      fontFamily: t.fonts.label,
+      letterSpacing: 1.2
+    },
     compactFilterBlock: {
       gap: t.spacing[1],
       paddingHorizontal: t.spacing[2]

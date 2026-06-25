@@ -23,6 +23,8 @@ export { FreeDiveModal } from "./atoms/FreeDiveModal";
 export { AchievementModal } from "./atoms/AchievementModal";
 export { LevelUpModal } from "./atoms/LevelUpModal";
 export { TitleAchievementModal } from "./atoms/TitleAchievementModal";
+export { MysteryChestModal } from "./atoms/MysteryChestModal";
+export { ZoneSetCompleteModal } from "./atoms/ZoneSetCompleteModal";
 export { MoodMapChart } from "./atoms/MoodMapChart";
 export type { MoodMapEntry } from "./atoms/MoodMapChart";
 export { Skeleton } from "./atoms/Skeleton";

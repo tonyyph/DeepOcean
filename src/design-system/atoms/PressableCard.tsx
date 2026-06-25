@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
   withTiming
 } from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
+import { hapticPress } from "@/core/haptics";
 import { useTheme } from "../useTheme";
 import { useSettings } from "@/stores";
 import { GlassCard } from "./GlassCard";
@@ -55,13 +55,7 @@ export const PressableCard = React.memo(function PressableCard({
         });
       }
       if (haptic && hapticsEnabled) {
-        const map = {
-          light: Haptics.ImpactFeedbackStyle.Light,
-          medium: Haptics.ImpactFeedbackStyle.Medium,
-          heavy: Haptics.ImpactFeedbackStyle.Heavy
-        } as const;
-        if (haptic === "selection") Haptics.selectionAsync();
-        else Haptics.impactAsync(map[haptic]);
+        void hapticPress(haptic);
       }
       onPressIn?.(e);
     },
