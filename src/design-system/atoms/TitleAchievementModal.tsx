@@ -1,10 +1,16 @@
+import { useTranslations } from "@/core/i18n";
+import type { TitleAchievement } from "@/features/diver/titleAchievements";
+import { useSettings } from "@/stores";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated as RNAnimated,
   StyleSheet,
   Text,
-  View,
-  Animated as RNAnimated,
-  useWindowDimensions
+  useWindowDimensions,
+  View
 } from "react-native";
 import Animated, {
   Easing,
@@ -14,18 +20,12 @@ import Animated, {
   withSpring,
   withTiming
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
+import { FloatingLabel } from "../";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
 import { GlowText } from "./GlowText";
-import type { TitleAchievement } from "@/features/diver/titleAchievements";
-import { useTranslations } from "@/core/i18n";
-import { useSettings } from "@/stores";
 import { ModalFrame } from "./ModalFrame";
-import { FloatingLabel } from "@/design-system";
 
 const AUTO_DISMISS_MS = 5500;
 
@@ -138,83 +138,77 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
 
   return (
     <>
-    <ModalFrame
-      visible={visible}
-      onDismiss={handleDismiss}
-      progress={progress}
-      cardAnimatedStyle={cardStyle}
-      cardStyle={styles.card}
-      accentColor={t.colors.accent}
-    >
-      <LinearGradient
-        colors={[t.colors.accent + "18", "transparent"]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.cardGlow}
-      />
-
-      <View
-        style={[styles.badge, { borderColor: t.colors.accent + "55" }]}
+      <ModalFrame
+        visible={visible}
+        onDismiss={handleDismiss}
+        progress={progress}
+        cardAnimatedStyle={cardStyle}
+        cardStyle={styles.card}
+        accentColor={t.colors.accent}
       >
-        <Ionicons
-          name="ribbon-outline"
-          size={11}
-          color={t.colors.accent}
+        <LinearGradient
+          colors={[t.colors.accent + "18", "transparent"]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.cardGlow}
         />
-        <Text style={[styles.badgeText, { color: t.colors.accent }]}>
-          {tr.titleAchievement.badge}
-        </Text>
-      </View>
 
-      <Animated.View style={iconBounceStyle}>
-        <View
-          style={[
-            styles.iconWrap,
-            {
-              borderColor: t.colors.accent + "44",
-              shadowColor: t.colors.accent
-            }
-          ]}
-        >
-          <Ionicons
-            name={achievement.icon as keyof typeof Ionicons.glyphMap}
-            size={30}
-            color={t.colors.accent}
+        <View style={[styles.badge, { borderColor: t.colors.accent + "55" }]}>
+          <Ionicons name="ribbon-outline" size={11} color={t.colors.accent} />
+          <Text style={[styles.badgeText, { color: t.colors.accent }]}>
+            {tr.titleAchievement.badge}
+          </Text>
+        </View>
+
+        <Animated.View style={iconBounceStyle}>
+          <View
+            style={[
+              styles.iconWrap,
+              {
+                borderColor: t.colors.accent + "44",
+                shadowColor: t.colors.accent
+              }
+            ]}
+          >
+            <Ionicons
+              name={achievement.icon as keyof typeof Ionicons.glyphMap}
+              size={30}
+              color={t.colors.accent}
+            />
+          </View>
+        </Animated.View>
+
+        <GlowText size={22} style={styles.title}>
+          {achievement.title}
+        </GlowText>
+
+        <Text style={styles.description}>{achievement.description}</Text>
+
+        <View style={styles.countdownTrack}>
+          <RNAnimated.View
+            style={[
+              styles.countdownBar,
+              {
+                backgroundColor: t.colors.accent,
+                width: countdown.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["0%", "100%"]
+                })
+              }
+            ]}
           />
         </View>
-      </Animated.View>
 
-      <GlowText size={22} style={styles.title}>
-        {achievement.title}
-      </GlowText>
-
-      <Text style={styles.description}>{achievement.description}</Text>
-
-      <View style={styles.countdownTrack}>
-        <RNAnimated.View
-          style={[
-            styles.countdownBar,
-            {
-              backgroundColor: t.colors.accent,
-              width: countdown.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "100%"]
-              })
-            }
-          ]}
+        <Text style={styles.hint}>{tr.titleAchievement.tapToDismiss}</Text>
+      </ModalFrame>
+      {showFloat && achievement && (
+        <FloatingLabel
+          label={achievement.title}
+          x={width / 2 - 40}
+          y={height * 0.48}
+          onDone={() => setShowFloat(false)}
         />
-      </View>
-
-      <Text style={styles.hint}>{tr.titleAchievement.tapToDismiss}</Text>
-    </ModalFrame>
-    {showFloat && achievement && (
-      <FloatingLabel
-        label={achievement.title}
-        x={width / 2 - 40}
-        y={height * 0.48}
-        onDone={() => setShowFloat(false)}
-      />
-    )}
+      )}
     </>
   );
 });

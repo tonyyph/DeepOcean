@@ -1,11 +1,17 @@
+import { useTranslations } from "@/core/i18n";
+import type { ChestRarity, ChestReward } from "@/domain/entities";
+import { useSettings } from "@/stores";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Pressable,
+  Animated as RNAnimated,
   StyleSheet,
   Text,
-  View,
-  Animated as RNAnimated,
-  Pressable,
-  useWindowDimensions
+  useWindowDimensions,
+  View
 } from "react-native";
 import Animated, {
   Easing,
@@ -15,18 +21,12 @@ import Animated, {
   withSpring,
   withTiming
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
+import { ParticleBurst } from "../";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
 import { GlowText } from "./GlowText";
 import { ModalFrame } from "./ModalFrame";
-import { useTranslations } from "@/core/i18n";
-import { useSettings } from "@/stores";
-import type { ChestRarity, ChestReward } from "@/domain/entities";
-import { ParticleBurst } from "@/design-system";
 
 const AUTO_DISMISS_MS = 7000;
 
@@ -91,12 +91,12 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
     rarity === "driftwood"
       ? tr.chest.rarityDriftwood
       : rarity === "bronze"
-      ? tr.chest.rarityBronze
-      : rarity === "silver"
-      ? tr.chest.raritySilver
-      : rarity === "gold"
-      ? tr.chest.rarityGold
-      : tr.chest.rarityVoid;
+        ? tr.chest.rarityBronze
+        : rarity === "silver"
+          ? tr.chest.raritySilver
+          : rarity === "gold"
+            ? tr.chest.rarityGold
+            : tr.chest.rarityVoid;
 
   useEffect(() => {
     if (visible) {
@@ -137,7 +137,15 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
         burstTimerRef.current = null;
       }
     };
-  }, [visible, progress, chestScale, chestRotation, opened, countdown, reducedMotion]);
+  }, [
+    visible,
+    progress,
+    chestScale,
+    chestRotation,
+    opened,
+    countdown,
+    reducedMotion
+  ]);
 
   const handleOpen = () => {
     if (isOpened) {
@@ -216,115 +224,115 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
 
   return (
     <>
-    <ModalFrame
-      visible={visible}
-      onDismiss={onDismiss}
-      progress={progress}
-      cardAnimatedStyle={cardStyle}
-      cardStyle={styles.card}
-      accentColor={glowColor}
-      dismissOnBackdropPress={isOpened}
-    >
-      <LinearGradient
-        colors={[`${gradStart}18`, `${gradEnd}06`]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.cardGlow}
-      />
-
-      <View style={styles.badgeRow}>
-        <View style={[styles.badge, { borderColor: glowColor }]}>
-          <Text style={[styles.badgeText, { color: glowColor }]}>
-            {rarityLabel}
-          </Text>
-        </View>
-      </View>
-
-      <Pressable
-        onPress={handleOpen}
-        style={styles.chestPressArea}
-        accessibilityRole="button"
-        accessibilityLabel={isOpened ? tr.chest.continueLabel : tr.chest.tapToOpen}
+      <ModalFrame
+        visible={visible}
+        onDismiss={onDismiss}
+        progress={progress}
+        cardAnimatedStyle={cardStyle}
+        cardStyle={styles.card}
+        accentColor={glowColor}
+        dismissOnBackdropPress={isOpened}
       >
-        <Animated.View style={[styles.chestWrap, chestStyle]}>
-          <LinearGradient
-            colors={[gradStart, gradEnd]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.chestCircle}
-          >
-            <Text style={styles.chestEmoji}>{CHEST_ICON[rarity]}</Text>
-          </LinearGradient>
-        </Animated.View>
+        <LinearGradient
+          colors={[`${gradStart}18`, `${gradEnd}06`]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.cardGlow}
+        />
 
-        <Animated.View style={tapHintStyle}>
-          <Text style={styles.tapHint}>
-            {tr.chest.tapToOpen}
-          </Text>
-        </Animated.View>
-      </Pressable>
-
-      <Animated.View style={[styles.rewardsBlock, rewardsStyle]}>
-        {reward && (
-          <>
-            <GlowText size={20} style={[styles.xpText, { color: glowColor }]}>
-              {tr.chest.xpReward(reward.xp)}
-            </GlowText>
-
-            {reward.featuredDiscovery ? (
-              <View style={styles.discoveryRow}>
-                <Ionicons
-                  name="sparkles"
-                  size={13}
-                  color={glowColor}
-                />
-                <Text style={styles.discoveryText}>
-                  <Text style={[styles.discoveryLabel, { color: glowColor }]}>
-                    {tr.chest.discoveryHighlight}{" "}
-                  </Text>
-                  {reward.featuredDiscovery.name}
-                </Text>
-              </View>
-            ) : (
-              <Text style={styles.noDiscovery}>{tr.chest.noDiscovery}</Text>
-            )}
-
-            {reward.isDepthRecord && (
-              <View style={styles.depthRecordRow}>
-                <Ionicons name="arrow-down-circle" size={13} color={glowColor} />
-                <Text style={[styles.depthRecordText, { color: glowColor }]}>
-                  {tr.chest.depthRecord}
-                </Text>
-              </View>
-            )}
-          </>
-        )}
-
-        <View style={styles.countdownTrack}>
-          <RNAnimated.View
-            style={[
-              styles.countdownBar,
-              {
-                backgroundColor: glowColor,
-                width: countdown.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["0%", "100%"]
-                })
-              }
-            ]}
-          />
+        <View style={styles.badgeRow}>
+          <View style={[styles.badge, { borderColor: glowColor }]}>
+            <Text style={[styles.badgeText, { color: glowColor }]}>
+              {rarityLabel}
+            </Text>
+          </View>
         </View>
-        <Text style={styles.hint}>{tr.chest.continueLabel}</Text>
-      </Animated.View>
-    </ModalFrame>
-    {showBurst && (
-      <ParticleBurst
-        x={width / 2}
-        y={height * 0.42}
-        color={glowColor}
-        onDone={() => setShowBurst(false)}
-      />
-    )}
+
+        <Pressable
+          onPress={handleOpen}
+          style={styles.chestPressArea}
+          accessibilityRole="button"
+          accessibilityLabel={
+            isOpened ? tr.chest.continueLabel : tr.chest.tapToOpen
+          }
+        >
+          <Animated.View style={[styles.chestWrap, chestStyle]}>
+            <LinearGradient
+              colors={[gradStart, gradEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.chestCircle}
+            >
+              <Text style={styles.chestEmoji}>{CHEST_ICON[rarity]}</Text>
+            </LinearGradient>
+          </Animated.View>
+
+          <Animated.View style={tapHintStyle}>
+            <Text style={styles.tapHint}>{tr.chest.tapToOpen}</Text>
+          </Animated.View>
+        </Pressable>
+
+        <Animated.View style={[styles.rewardsBlock, rewardsStyle]}>
+          {reward && (
+            <>
+              <GlowText size={20} style={[styles.xpText, { color: glowColor }]}>
+                {tr.chest.xpReward(reward.xp)}
+              </GlowText>
+
+              {reward.featuredDiscovery ? (
+                <View style={styles.discoveryRow}>
+                  <Ionicons name="sparkles" size={13} color={glowColor} />
+                  <Text style={styles.discoveryText}>
+                    <Text style={[styles.discoveryLabel, { color: glowColor }]}>
+                      {tr.chest.discoveryHighlight}{" "}
+                    </Text>
+                    {reward.featuredDiscovery.name}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.noDiscovery}>{tr.chest.noDiscovery}</Text>
+              )}
+
+              {reward.isDepthRecord && (
+                <View style={styles.depthRecordRow}>
+                  <Ionicons
+                    name="arrow-down-circle"
+                    size={13}
+                    color={glowColor}
+                  />
+                  <Text style={[styles.depthRecordText, { color: glowColor }]}>
+                    {tr.chest.depthRecord}
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
+
+          <View style={styles.countdownTrack}>
+            <RNAnimated.View
+              style={[
+                styles.countdownBar,
+                {
+                  backgroundColor: glowColor,
+                  width: countdown.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["0%", "100%"]
+                  })
+                }
+              ]}
+            />
+          </View>
+          <Text style={styles.hint}>{tr.chest.continueLabel}</Text>
+        </Animated.View>
+      </ModalFrame>
+      {showBurst && (
+        <ParticleBurst
+          x={width / 2}
+          y={height * 0.42}
+          color={glowColor}
+          onDone={() => setShowBurst(false)}
+        />
+      )}
     </>
   );
 });

@@ -8,6 +8,11 @@ import Animated, {
 
 const AnimatedInput = Animated.createAnimatedComponent(TextInput);
 
+function defaultFormat(n: number): string {
+  'worklet';
+  return String(Math.round(n));
+}
+
 type Props = {
   value: SharedValue<number>;
   format?: (n: number) => string;
@@ -16,7 +21,7 @@ type Props = {
 
 export function CountUpText({
   value,
-  format = (n) => String(Math.round(n)),
+  format = defaultFormat,
   style,
 }: Props) {
   const animatedProps = useAnimatedProps(() => ({

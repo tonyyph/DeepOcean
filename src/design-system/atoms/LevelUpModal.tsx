@@ -1,10 +1,17 @@
+import { useTranslations } from "@/core/i18n";
+import { getLevelTitle } from "@/features/diver/levelSystem";
+import { useSettings } from "@/stores";
+import { Colors, Gradients, Shadows } from "@/theme";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated as RNAnimated,
   StyleSheet,
   Text,
-  View,
-  Animated as RNAnimated,
-  useWindowDimensions
+  useWindowDimensions,
+  View
 } from "react-native";
 import Animated, {
   Easing,
@@ -13,19 +20,12 @@ import Animated, {
   withSpring,
   withTiming
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
+import { CountUpText, FloatingLabel, ParticleBurst, useCountUp } from "..";
+import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
-import type { AppTheme } from "../themes";
 import { GlowText } from "./GlowText";
-import { getLevelTitle } from "@/features/diver/levelSystem";
-import { useTranslations } from "@/core/i18n";
-import { useSettings } from "@/stores";
-import { Colors, Gradients, Shadows } from "@/theme";
 import { ModalFrame } from "./ModalFrame";
-import { ParticleBurst, FloatingLabel, CountUpText, useCountUp } from "@/design-system";
 
 const AUTO_DISMISS_MS = 6000;
 
@@ -65,7 +65,9 @@ export const LevelUpModal = React.memo(function LevelUpModal({
   const [showBurst, setShowBurst] = useState(false);
   const [showFloat, setShowFloat] = useState(false);
 
-  const levelValue = useCountUp(visible ? newLevel : prevLevel, { duration: 800 });
+  const levelValue = useCountUp(visible ? newLevel : prevLevel, {
+    duration: 800
+  });
 
   const levelsGained = newLevel - prevLevel;
   const newTitle = getLevelTitle(newLevel, settings.language === "en");
@@ -162,11 +164,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
         />
 
         <View style={styles.badge}>
-          <Ionicons
-            name="arrow-up-circle"
-            size={12}
-            color={t.colors.premium}
-          />
+          <Ionicons name="arrow-up-circle" size={12} color={t.colors.premium} />
           <Text style={styles.badgeText}>
             {levelsGained > 1
               ? tr.levelUp.multiLevel(levelsGained)
