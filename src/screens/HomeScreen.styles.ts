@@ -105,7 +105,7 @@ export const makeStyles = (t: AppTheme) =>
       fontSize: 12,
       fontFamily: t.fonts.body
     },
-    quickRow: { flexDirection: "row", gap: t.spacing[2.5] },
+    quickRow: { flexDirection: "row", gap: t.spacing[2] },
     quickItem: { flex: 1 },
     row: {
       flexDirection: "row",
@@ -321,7 +321,7 @@ export const makeStyles = (t: AppTheme) =>
       borderRadius: 2
     },
     // Stats
-    statsRow: { flexDirection: "row", gap: t.spacing[2.5] },
+    statsRow: { flexDirection: "row", gap: t.spacing[3] },
     statValueRow: {
       flexDirection: "row",
       alignItems: "baseline",

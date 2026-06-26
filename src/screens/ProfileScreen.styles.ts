@@ -29,7 +29,7 @@ export const makeStyles = (t: AppTheme) =>
     },
     headerSub: {
       color: t.colors.textSecondary,
-      marginTop: t.spacing[1.5],
+      marginTop: t.spacing[2],
       fontSize: 14,
       lineHeight: 20,
       fontFamily: t.fonts.mono
@@ -66,7 +66,7 @@ export const makeStyles = (t: AppTheme) =>
       color: t.colors.textSecondary,
       fontSize: 12,
       fontFamily: t.fonts.body,
-      marginTop: 2
+      marginTop: t.spacing[1]
     },
     // Name editing
     nameEditRow: {
@@ -146,7 +146,7 @@ export const makeStyles = (t: AppTheme) =>
     premiumSub: {
       color: t.colors.textSecondary,
       fontSize: 12,
-      marginTop: 2,
+      marginTop: t.spacing[1],
       fontFamily: t.fonts.body
     },
     premiumDashboardGrid: {
@@ -177,7 +177,7 @@ export const makeStyles = (t: AppTheme) =>
       marginTop: t.spacing[1]
     },
     premiumPreviewGrid: {
-      gap: t.spacing[1.5],
+      gap: t.spacing[2],
       marginTop: t.spacing[4],
       paddingTop: t.spacing[3],
       borderTopWidth: StyleSheet.hairlineWidth,

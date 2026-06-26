@@ -56,7 +56,7 @@ export const makeStyles = (t: AppTheme) =>
     codexCard: {
       minWidth: 90,
       paddingHorizontal: t.spacing[3],
-      paddingVertical: t.spacing[2.5],
+      paddingVertical: t.spacing[3],
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.border,
@@ -92,8 +92,8 @@ export const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.panelEdge,
-      paddingHorizontal: t.spacing[2.5],
-      paddingVertical: t.spacing[1.5],
+      paddingHorizontal: t.spacing[3],
+      paddingVertical: t.spacing[2],
       minHeight: 44,
       justifyContent: "center",
       backgroundColor: t.colors.panelStrong
@@ -112,7 +112,7 @@ export const makeStyles = (t: AppTheme) =>
       color: t.colors.accent
     },
     listContent: {
-      paddingHorizontal: t.spacing[4],
+      paddingHorizontal: t.spacing[5],
       paddingBottom: t.spacing[24]
     },
     emptyFilterWrap: {
@@ -129,7 +129,7 @@ export const makeStyles = (t: AppTheme) =>
     itemRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[3.5]
+      gap: t.spacing[4]
     },
     iconBubble: {
       width: 44,

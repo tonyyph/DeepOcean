@@ -292,7 +292,7 @@ function buildLast7Days(
 const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
+    kpiRow: { flexDirection: "row", gap: t.spacing[3] },
     dayLabel: {
       color: t.colors.textSecondary,
       fontSize: 11,
@@ -368,7 +368,7 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "space-between",
       minHeight: 44,
-      paddingVertical: t.spacing[2.5],
+      paddingVertical: t.spacing[3],
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: t.colors.border
     },

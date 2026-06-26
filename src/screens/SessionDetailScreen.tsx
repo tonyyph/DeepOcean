@@ -461,7 +461,7 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 10,
       letterSpacing: 0.35
     },
-    kpiRow: { flexDirection: "row", gap: t.spacing[2.5] },
+    kpiRow: { flexDirection: "row", gap: t.spacing[3] },
     levelRow: {
       flexDirection: "row",
       alignItems: "center",
