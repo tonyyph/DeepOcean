@@ -12,6 +12,9 @@ import {
   SectionLabel,
   Skeleton,
   UnderwaterCanvas,
+  usePulseGlow,
+  useScrollParallax,
+  useStaggerEntrance,
   useTheme,
   useThemedStyles,
   ZoneBackground
@@ -33,8 +36,13 @@ import { useAchievements, useDiveSession, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue
+} from "react-native-reanimated";
 import {
   resolveLastDiveSession,
   shouldShowLastDiveSkeleton
@@ -189,12 +197,57 @@ export default function HomeScreen() {
     [streakDays]
   );
 
+  // ── Animation setup ──────────────────────────────────────────────────────
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    "worklet";
+    scrollY.value = event.contentOffset.y;
+  });
+
+  // 7 stagger slots: header, statsRow, streakCard, lastDive, companion, plan, zones
+  const stagger = useStaggerEntrance(7, { staggerMs: 55 });
+
+  const staggerStyle0 = useAnimatedStyle(() => ({
+    opacity: stagger[0]!.value,
+    transform: [{ translateY: (1 - stagger[0]!.value) * 18 }],
+  }));
+  const staggerStyle1 = useAnimatedStyle(() => ({
+    opacity: stagger[1]!.value,
+    transform: [{ translateY: (1 - stagger[1]!.value) * 18 }],
+  }));
+  const staggerStyle2 = useAnimatedStyle(() => ({
+    opacity: stagger[2]!.value,
+    transform: [{ translateY: (1 - stagger[2]!.value) * 18 }],
+  }));
+  const staggerStyle3 = useAnimatedStyle(() => ({
+    opacity: stagger[3]!.value,
+    transform: [{ translateY: (1 - stagger[3]!.value) * 18 }],
+  }));
+  const staggerStyle4 = useAnimatedStyle(() => ({
+    opacity: stagger[4]!.value,
+    transform: [{ translateY: (1 - stagger[4]!.value) * 18 }],
+  }));
+  const staggerStyle5 = useAnimatedStyle(() => ({
+    opacity: stagger[5]!.value,
+    transform: [{ translateY: (1 - stagger[5]!.value) * 18 }],
+  }));
+  const staggerStyle6 = useAnimatedStyle(() => ({
+    opacity: stagger[6]!.value,
+    transform: [{ translateY: (1 - stagger[6]!.value) * 18 }],
+  }));
+
+  const parallaxStyle = useScrollParallax(scrollY, 0.3);
+  const ctaGlowStyle = usePulseGlow({ minOpacity: 0.18, maxOpacity: 0.55, duration: 1800 });
+
   return (
     <ZoneBackground zone="midnight">
-      <UnderwaterCanvas zone="midnight" />
+      <Animated.View style={[StyleSheet.absoluteFill, parallaxStyle]} pointerEvents="none">
+        <UnderwaterCanvas zone="midnight" />
+      </Animated.View>
       <ScreenSafeAreaView style={styles.flex}>
-        <ScreenScrollView>
+        <ScreenScrollView onScroll={scrollHandler} scrollEventThrottle={16}>
           {/* ── Header ── */}
+          <Animated.View style={staggerStyle0}>
           <View style={styles.header}>
             <View style={styles.headerTopRow}>
               <Text style={styles.greeting}>{greeting}</Text>
@@ -239,14 +292,28 @@ export default function HomeScreen() {
               <Text style={styles.sub}>{tr.home.ready}</Text>
             )}
           </View>
+          </Animated.View>
 
           {/* ── Last Dive Recap ── */}
+          <Animated.View style={staggerStyle3}>
           {showLastDiveSkeleton ? <LastDiveSkeleton /> : null}
           {!showLastDiveSkeleton && lastSession ? (
             <LastDiveCard session={lastSession} tr={tr} />
           ) : null}
+          </Animated.View>
 
           {/* ── Hero dive CTA ── */}
+          <Animated.View
+            style={[
+              ctaGlowStyle,
+              {
+                borderRadius: t.radii.md,
+                shadowColor: t.colors.accent,
+                shadowRadius: 14,
+                shadowOffset: { width: 0, height: 0 },
+              },
+            ]}
+          >
           <PressableCard
             glow
             haptic="light"
@@ -280,14 +347,18 @@ export default function HomeScreen() {
               />
             </View>
           </PressableCard>
+          </Animated.View>
 
           {/* ── Zone Progress ── */}
+          <Animated.View style={staggerStyle6}>
           <GlassCard radius={t.radii.md}>
             <SectionLabel>{tr.home.zoneProgressTitle}</SectionLabel>
             <ZoneProgressStrip unlockedZones={unlockedZones} />
           </GlassCard>
+          </Animated.View>
 
           {/* ── Daily companion ── */}
+          <Animated.View style={staggerStyle4}>
           {dailyRecLoading ? (
             <DailyCompanionSkeleton />
           ) : (
@@ -298,8 +369,10 @@ export default function HomeScreen() {
               </GlassCard>
             )
           )}
+          </Animated.View>
 
           {/* ── Stats ── */}
+          <Animated.View style={staggerStyle1}>
           <View style={styles.statsRow}>
             <StatCard
               icon="flame"
@@ -318,14 +391,17 @@ export default function HomeScreen() {
               value={`${profile?.level ?? 1}`}
             />
           </View>
+          </Animated.View>
 
           {streakDays > 0 && (
+            <Animated.View style={staggerStyle2}>
             <StreakMilestoneCard
               days={streakDays}
               nextTarget={nextStreakTarget}
               onPress={handleStartPreferredDive}
               tr={tr}
             />
+            </Animated.View>
           )}
         </ScreenScrollView>
 

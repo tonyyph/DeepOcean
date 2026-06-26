@@ -1,10 +1,13 @@
 import { useTranslations } from "@/core/i18n";
 import {
   ActionButton,
+  CountUpText,
   GlassCard,
   SectionLabel,
   SectionSkeleton,
+  ShimmerOverlay,
   Skeleton,
+  useCountUp,
   useTheme,
   useThemedStyles
 } from "@/design-system";
@@ -21,10 +24,13 @@ import {
 import type { OceanZone } from "@/features/ocean/zones";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Animated, {
   useAnimatedStyle,
-  useSharedValue
+  useSharedValue,
+  withSequence,
+  withSpring
 } from "react-native-reanimated";
 import { makeStyles } from "./HomeScreen.styles";
 
@@ -41,6 +47,18 @@ export function StreakMilestoneCard({
 }) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
+  const flameScale = useSharedValue(1);
+
+  React.useEffect(() => {
+    flameScale.value = withSequence(
+      withSpring(1.4, { damping: 10, stiffness: 260 }),
+      withSpring(1.0, { damping: 14, stiffness: 200 })
+    );
+  }, [days, flameScale]);
+
+  const flameStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: flameScale.value }],
+  }));
 
   const milestoneBody =
     nextTarget == null
@@ -50,7 +68,9 @@ export function StreakMilestoneCard({
   return (
     <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
       <View style={styles.streakMilestoneHeader}>
-        <Ionicons name="flame" size={14} color={t.colors.warning} />
+        <Animated.View style={flameStyle}>
+          <Ionicons name="flame" size={14} color={t.colors.warning} />
+        </Animated.View>
         <SectionLabel>{tr.home.streakMilestoneTitle}</SectionLabel>
       </View>
       <Text style={styles.streakMilestoneBody}>{milestoneBody}</Text>
@@ -70,9 +90,12 @@ export function StreakMilestoneCard({
 export function LastDiveSkeleton() {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
+  const { width } = useWindowDimensions();
+  const cardWidth = width - t.spacing[5] * 2;
 
   return (
     <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+      <ShimmerOverlay width={cardWidth} height={88} borderRadius={t.radii.md} />
       <Skeleton style={styles.skeletonLabel} />
       <View style={styles.lastDiveRow}>
         <Skeleton style={styles.lastDiveIconSkeleton} radius={t.radii.sm} />
@@ -89,9 +112,12 @@ export function LastDiveSkeleton() {
 export function DailyCompanionSkeleton() {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
+  const { width } = useWindowDimensions();
+  const cardWidth = width - t.spacing[5] * 2;
 
   return (
     <GlassCard radius={t.radii.md}>
+      <ShimmerOverlay width={cardWidth} height={72} borderRadius={t.radii.md} />
       <Skeleton style={styles.skeletonLabel} />
       <SectionSkeleton
         style={styles.companionSectionSkeleton}
@@ -366,11 +392,22 @@ export function StatCard({
 }) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
+  const numericValue = parseInt(value, 10);
+  const isNumeric = !isNaN(numericValue);
+  const animated = useCountUp(isNumeric ? numericValue : 0);
+
   return (
     <GlassCard radius={t.radii.md} style={styles.flex} padding={t.spacing[4]}>
       <Ionicons name={icon} size={14} color={t.colors.accentSoft} />
       <View style={styles.statValueRow}>
-        <Text style={styles.statValue}>{value}</Text>
+        {isNumeric ? (
+          <CountUpText
+            value={animated}
+            style={StyleSheet.flatten([styles.statValue, { color: t.colors.text }])}
+          />
+        ) : (
+          <Text style={styles.statValue}>{value}</Text>
+        )}
         {unit && <Text style={styles.statUnit}>{unit}</Text>}
       </View>
       <Text style={styles.statLabel}>{label.toUpperCase()}</Text>
