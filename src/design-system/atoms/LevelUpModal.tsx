@@ -52,6 +52,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
   const settings = useSettings();
+  const reducedMotion = useSettings((s) => s.reducedMotion);
   const { width, height } = useWindowDimensions();
 
   const progress = useSharedValue(0);
@@ -86,8 +87,10 @@ export const LevelUpModal = React.memo(function LevelUpModal({
         useNativeDriver: false
       }).start();
       timerRef.current = setTimeout(() => onDismiss(), AUTO_DISMISS_MS);
-      burstTimerRef.current = setTimeout(() => setShowBurst(true), 180);
-      floatTimerRef.current = setTimeout(() => setShowFloat(true), 320);
+      if (!reducedMotion) {
+        burstTimerRef.current = setTimeout(() => setShowBurst(true), 180);
+        floatTimerRef.current = setTimeout(() => setShowFloat(true), 320);
+      }
     } else {
       progress.value = withTiming(0, { duration: 200 });
       levelScale.value = 0.4;
@@ -122,7 +125,7 @@ export const LevelUpModal = React.memo(function LevelUpModal({
         floatTimerRef.current = null;
       }
     };
-  }, [visible, progress, levelScale, countdown, onDismiss]);
+  }, [visible, progress, levelScale, countdown, onDismiss, reducedMotion]);
 
   const cardStyle = useAnimatedStyle(() => ({
     opacity: progress.value,

@@ -23,6 +23,7 @@ import type { AppTheme } from "../themes";
 import { GlowText } from "./GlowText";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { useTranslations } from "@/core/i18n";
+import { useSettings } from "@/stores";
 import { ModalFrame } from "./ModalFrame";
 import { FloatingLabel } from "@/design-system";
 
@@ -46,6 +47,7 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
+  const reducedMotion = useSettings((s) => s.reducedMotion);
   const { width, height } = useWindowDimensions();
 
   const progress = useSharedValue(0);
@@ -79,7 +81,9 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
         useNativeDriver: false
       }).start();
       timerRef.current = setTimeout(() => onDismiss(), AUTO_DISMISS_MS);
-      floatTimerRef.current = setTimeout(() => setShowFloat(true), 300);
+      if (!reducedMotion) {
+        floatTimerRef.current = setTimeout(() => setShowFloat(true), 300);
+      }
     } else {
       progress.value = withTiming(0, { duration: 200 });
       iconScale.value = 0.5;
@@ -105,7 +109,7 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
         floatTimerRef.current = null;
       }
     };
-  }, [visible, progress, iconScale, countdown, onDismiss]);
+  }, [visible, progress, iconScale, countdown, onDismiss, reducedMotion]);
 
   const cardStyle = useAnimatedStyle(() => ({
     opacity: progress.value,

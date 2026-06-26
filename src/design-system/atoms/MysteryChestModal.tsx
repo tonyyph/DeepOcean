@@ -168,8 +168,7 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
     }
 
     // Step 3: after 220ms, burst + reveal
-    burstTimerRef.current = setTimeout(() => {
-      setShowBurst(true);
+    const revealFn = () => {
       opened.value = withTiming(1, {
         duration: reducedMotion ? 0 : 400,
         easing: Easing.bezier(0.16, 1, 0.3, 1)
@@ -180,7 +179,15 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
         duration: AUTO_DISMISS_MS,
         useNativeDriver: false
       }).start();
-    }, reducedMotion ? 0 : 220);
+    };
+    if (!reducedMotion) {
+      burstTimerRef.current = setTimeout(() => {
+        setShowBurst(true);
+        revealFn();
+      }, 220);
+    } else {
+      revealFn();
+    }
   };
 
   const cardStyle = useAnimatedStyle(() => ({
