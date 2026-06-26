@@ -103,13 +103,13 @@ const makeStyles = (t: AppTheme) =>
       marginBottom: t.spacing[5]
     },
     list: {
-      gap: t.spacing[2.5]
+      gap: t.spacing[3]
     },
     row: {
       flexDirection: "row",
       alignItems: "center",
-      gap: t.spacing[3.5],
-      paddingVertical: t.spacing[3.5],
+      gap: t.spacing[4],
+      paddingVertical: t.spacing[3],
       paddingHorizontal: t.spacing[4],
       borderRadius: t.radii.md,
       backgroundColor: t.colors.glass,
@@ -150,7 +150,7 @@ const makeStyles = (t: AppTheme) =>
     },
     actions: {
       marginTop: t.spacing[8],
-      gap: t.spacing[3.5]
+      gap: t.spacing[3]
     },
     confirmText: {
       color: t.colors.text,

@@ -63,7 +63,7 @@ export function makeStyles(t: AppTheme) {
       flexDirection: "row",
       alignItems: "center",
       alignSelf: "center",
-      gap: 6,
+      gap: t.spacing[1.5],
       backgroundColor: t.colors.panelStrong,
       borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[3],
@@ -113,7 +113,7 @@ export function makeStyles(t: AppTheme) {
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      gap: 6,
+      gap: t.spacing[1.5],
       marginTop: t.spacing[3]
     },
     dot: {
@@ -139,14 +139,14 @@ export function makeStyles(t: AppTheme) {
       flex: 1,
       borderWidth: 1.15,
       borderColor: t.colors.glassEdge,
-      borderRadius: 16
+      borderRadius: t.radii.md
     },
     planCardFeatured: {
       flex: 1.15,
-      borderRadius: 16
+      borderRadius: t.radii.md
     },
     planCardSelected: {
-      borderRadius: 16
+      borderRadius: t.radii.md
     },
     savingBadge: {
       backgroundColor: t.colors.panelStrong,
@@ -154,7 +154,7 @@ export function makeStyles(t: AppTheme) {
       borderColor: t.colors.borderStrong,
       borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[2],
-      paddingVertical: 3,
+      paddingVertical: t.spacing[1],
       alignSelf: "center",
       marginTop: t.spacing[2]
     },
@@ -184,7 +184,7 @@ export function makeStyles(t: AppTheme) {
       color: t.colors.text,
       textAlign: "center",
       letterSpacing: t.fonts.displayLetterSpacing,
-      marginBottom: 2
+      marginBottom: t.spacing[1]
     },
     planSub: {
       fontFamily: t.fonts.body,
@@ -195,20 +195,20 @@ export function makeStyles(t: AppTheme) {
     // ── Trial CTA ────────────────────────────────────────────────────────
     trialCard: {
       marginBottom: t.spacing[3],
-      borderRadius: 14,
+      borderRadius: t.radii.sm,
       overflow: "hidden"
     },
     trialGradient: {
       paddingVertical: t.spacing[4],
       paddingHorizontal: t.spacing[4],
       alignItems: "center",
-      borderRadius: 14
+      borderRadius: t.radii.sm
     },
     trialPill: {
       backgroundColor: t.surfaces.glassHighlight,
       borderRadius: t.radii.pill,
       paddingHorizontal: t.spacing[3],
-      paddingVertical: 3,
+      paddingVertical: t.spacing[1],
       marginBottom: t.spacing[2]
     },
     trialPillText: {
@@ -222,7 +222,7 @@ export function makeStyles(t: AppTheme) {
       fontSize: 18,
       color: t.colors.text,
       letterSpacing: t.fonts.displayLetterSpacing,
-      marginBottom: 4
+      marginBottom: t.spacing[1]
     },
     trialCtaSub: {
       fontFamily: t.fonts.body,
@@ -233,7 +233,7 @@ export function makeStyles(t: AppTheme) {
     // ── Purchase CTA ─────────────────────────────────────────────────────
     purchaseButton: {
       marginBottom: t.spacing[2],
-      borderRadius: 14
+      borderRadius: t.radii.sm
     },
     unavailableNote: {
       fontFamily: t.fonts.body,
@@ -251,7 +251,7 @@ export function makeStyles(t: AppTheme) {
     promoInput: {
       flex: 1,
       height: 44,
-      borderRadius: 10,
+      borderRadius: t.radii.sm,
       backgroundColor: t.colors.surfaceElevated,
       paddingHorizontal: t.spacing[3],
       fontFamily: t.fonts.body,
@@ -266,7 +266,7 @@ export function makeStyles(t: AppTheme) {
     promoApplyBtn: {
       height: 44,
       paddingHorizontal: t.spacing[3],
-      borderRadius: 10,
+      borderRadius: t.radii.sm,
       backgroundColor: t.colors.surfaceElevated,
       justifyContent: "center",
       alignItems: "center",

@@ -508,7 +508,7 @@ const makeStyles = (t: AppTheme) =>
       color: t.colors.textMuted,
       fontFamily: t.fonts.label,
       fontSize: 10,
-      marginTop: 2
+      marginTop: t.spacing[1]
     },
     controlsRow: {
       flexDirection: "row",
@@ -519,7 +519,7 @@ const makeStyles = (t: AppTheme) =>
     segment: {
       flexDirection: "row",
       flex: 1,
-      padding: 4,
+      padding: t.spacing[1],
       borderRadius: t.radii.pill,
       backgroundColor: t.colors.glass,
       borderWidth: StyleSheet.hairlineWidth,
@@ -599,11 +599,11 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "space-between",
       gap: t.spacing[2],
-      marginBottom: t.spacing[1.5]
+      marginBottom: t.spacing[2]
     },
     sourcePill: {
       paddingHorizontal: t.spacing[2],
-      paddingVertical: 3,
+      paddingVertical: t.spacing[1],
       borderRadius: t.radii.pill,
       backgroundColor: t.colors.glass
     },
@@ -627,7 +627,7 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.body,
       fontSize: 13,
       lineHeight: 19,
-      marginTop: t.spacing[1.5]
+      marginTop: t.spacing[2]
     },
     unreadBadge: {
       width: 8,
