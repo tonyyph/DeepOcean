@@ -19,6 +19,8 @@ import {
   ZoneBackground,
   type AppTheme
 } from "@/design-system";
+import { ZoneTransitionFlash, type ZoneTransitionFlashRef } from "@/design-system/atoms/ZoneTransitionFlash";
+import { Colors } from "@/theme";
 import type { ChestReward } from "@/domain/entities";
 import { useDiveAudio } from "@/features/audio/useDiveAudio";
 import { useDiveEventEngine } from "@/features/discovery";
@@ -72,6 +74,7 @@ export default function DiveScreen() {
   const [rewardQueue, setRewardQueue] = useState<RewardItem[]>([]);
 
   const prevZoneRef = useRef<OceanZone | null>(null);
+  const flashRef = useRef<ZoneTransitionFlashRef>(null);
   const uiSessionIdRef = useRef<string | null>(session?.id ?? null);
   const launchCheckedRef = useRef(false);
   const queueBuiltRef = useRef(false);
@@ -164,6 +167,18 @@ export default function DiveScreen() {
     }
     prevZoneRef.current = currentZone;
   }, [session?.zone, unlockZone]);
+
+  // Flash zone accent color on zone transition
+  useEffect(() => {
+    const currentZone = session?.zone ?? null;
+    if (
+      prevZoneRef.current !== null &&
+      currentZone !== null &&
+      prevZoneRef.current !== currentZone
+    ) {
+      flashRef.current?.flash(Colors.zoneAccent[currentZone]);
+    }
+  }, [session?.zone]);
 
   // Build reward queue once session surfaces, then navigate after it's drained
   useEffect(() => {
@@ -283,6 +298,7 @@ export default function DiveScreen() {
       }
     >
       <UnderwaterCanvas zone={"midnight"} particleCount={12} />
+      <ZoneTransitionFlash ref={flashRef} />
       <ScreenSafeAreaView style={styles.safe}>
         <View style={styles.topBlock}>
           <View style={styles.zoneRow}>

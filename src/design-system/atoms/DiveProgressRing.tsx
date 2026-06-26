@@ -45,7 +45,9 @@ export const DiveProgressRing = React.memo(function DiveProgressRing({
   }, [progress, p, t.motion]);
 
   const ringStyle = useAnimatedStyle(() => ({
-    shadowOpacity: 0.45 + 0.5 * p.value,
+    shadowOpacity: 0.2 + 0.8 * p.value,
+    shadowRadius: 8 + 16 * p.value,
+    shadowColor: t.colors.accent,
   }));
 
   const ringAnimatedProps = useAnimatedProps(() => ({
