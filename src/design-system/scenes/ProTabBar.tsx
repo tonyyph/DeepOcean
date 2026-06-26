@@ -8,13 +8,15 @@ import type {
   ParamListBase,
   Route
 } from "expo-router/build/react-navigation/native";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
+  withSpring,
   withTiming
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -138,6 +140,7 @@ export function ProTabBar(props: BottomTabBarProps) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const hapticsEnabled = useSettings((s) => s.hapticsEnabled);
+  const reducedMotion = useSettings((s) => s.reducedMotion);
   const { width } = useWindowDimensions();
 
   const hPad = t.spacing[4];
@@ -151,6 +154,10 @@ export function ProTabBar(props: BottomTabBarProps) {
     isEdge(state.index) ? NOTCH_DEPTH_OUTER : NOTCH_DEPTH_INNER
   );
 
+  // Icon bounce when active tab changes
+  const iconBounce = useSharedValue(1);
+  const prevIndexRef = useRef(state.index);
+
   useEffect(() => {
     notchX.value = withTiming(state.index * tabW + tabW / 2, {
       duration: DURATION,
@@ -161,6 +168,22 @@ export function ProTabBar(props: BottomTabBarProps) {
       { duration: DURATION, easing: EASE }
     );
   }, [state.index, tabW, notchX, notchDepth]);
+
+  useEffect(() => {
+    if (prevIndexRef.current !== state.index) {
+      prevIndexRef.current = state.index;
+      if (!reducedMotion) {
+        iconBounce.value = withSequence(
+          withSpring(1.32, { damping: 8, stiffness: 280 }),
+          withSpring(1.0, { damping: 14, stiffness: 200 })
+        );
+      }
+    }
+  }, [state.index, iconBounce, reducedMotion]);
+
+  const iconBounceStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: iconBounce.value }]
+  }));
 
   const animatedPathProps = useAnimatedProps(() => ({
     d: buildNotchPath(notchX.value, dockW, notchDepth.value)
@@ -286,11 +309,13 @@ export function ProTabBar(props: BottomTabBarProps) {
               end={{ x: 1, y: 1 }}
               style={styles.bubbleGrad}
             >
-              <Ionicons
-                name={activeIcons.active}
-                size={activeIcons.size + 2}
-                color={iconTint}
-              />
+              <Animated.View style={iconBounceStyle}>
+                <Ionicons
+                  name={activeIcons.active}
+                  size={activeIcons.size + 2}
+                  color={iconTint}
+                />
+              </Animated.View>
             </LinearGradient>
           </Pressable>
         </Animated.View>

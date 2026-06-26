@@ -148,8 +148,8 @@ export function NotificationToastHost() {
   return (
     <Animated.View
       pointerEvents="box-none"
-      entering={FadeInDown.duration(180)}
-      exiting={FadeOutUp.duration(160)}
+      entering={FadeInDown.springify().damping(18).stiffness(180).mass(0.8)}
+      exiting={FadeOutUp.duration(180)}
       style={toastStyle}
     >
       <Pressable

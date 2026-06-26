@@ -8,9 +8,11 @@ import {
   type ViewStyle,
   ActivityIndicator
 } from "react-native";
+import Animated from "react-native-reanimated";
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
+import { useSpringPress } from "../animations";
 import { Pressable, PressableProps } from "react-native-gesture-handler";
 
 type Tone = "primary" | "secondary" | "danger" | "premium";
@@ -51,77 +53,81 @@ export const ActionButton = React.memo(function ActionButton({
     ? readableOn(toneColor, t.colors.background, t.colors.text)
     : toneColor;
 
+  const { onPressIn, onPressOut, pressStyle } = useSpringPress();
+
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      disabled={disabled || loading}
-      style={({ pressed }) => [
-        styles.base,
-        styles[size],
-        fullWidth ? styles.fullWidth : styles.compact,
-        !isPrimary && styles.secondary,
-        (disabled || loading) && styles.disabled,
-        pressed && !disabled && !loading && styles.pressed,
-        {
-          borderRadius: radius,
-          borderColor: isPrimary ? "transparent" : toneColor,
-          shadowColor: toneColor
-        },
-        containerStyle
-      ]}
-      {...rest}
-    >
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.background,
-          { borderRadius: radius }
+    <Animated.View style={[pressStyle, containerStyle]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        disabled={disabled || loading}
+        onPressIn={(e) => { onPressIn(); rest.onPressIn?.(e); }}
+        onPressOut={(e) => { onPressOut(); rest.onPressOut?.(e); }}
+        style={() => [
+          styles.base,
+          styles[size],
+          fullWidth ? styles.fullWidth : styles.compact,
+          !isPrimary && styles.secondary,
+          (disabled || loading) && styles.disabled,
+          {
+            borderRadius: radius,
+            borderColor: isPrimary ? "transparent" : toneColor,
+            shadowColor: toneColor
+          }
         ]}
-        pointerEvents="none"
+        {...rest}
       >
-        {isPrimary ? (
-          <LinearGradient
-            colors={
-              tone === "premium"
-                ? [t.colors.premium, t.colors.warning]
-                : [t.colors.accent, t.colors.accent]
-            }
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-        ) : (
-          <View
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: t.colors.panelStrong }
-            ]}
-          />
-        )}
-      </View>
-      <View style={styles.content}>
-        {loading ? (
-          <ActivityIndicator size="small" color={foregroundColor} />
-        ) : icon ? (
-          <Ionicons
-            name={icon}
-            size={size === "sm" ? 14 : 16}
-            color={foregroundColor}
-          />
-        ) : null}
-        <Text
+        <View
           style={[
-            styles.label,
-            styles[`${size}Label`],
-            { color: foregroundColor }
+            StyleSheet.absoluteFill,
+            styles.background,
+            { borderRadius: radius }
           ]}
-          numberOfLines={1}
+          pointerEvents="none"
         >
-          {label}
-        </Text>
-      </View>
-    </Pressable>
+          {isPrimary ? (
+            <LinearGradient
+              colors={
+                tone === "premium"
+                  ? [t.colors.premium, t.colors.warning]
+                  : [t.colors.accent, t.colors.accent]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : (
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: t.colors.panelStrong }
+              ]}
+            />
+          )}
+        </View>
+        <View style={styles.content}>
+          {loading ? (
+            <ActivityIndicator size="small" color={foregroundColor} />
+          ) : icon ? (
+            <Ionicons
+              name={icon}
+              size={size === "sm" ? 14 : 16}
+              color={foregroundColor}
+            />
+          ) : null}
+          <Text
+            style={[
+              styles.label,
+              styles[`${size}Label`],
+              { color: foregroundColor }
+            ]}
+            numberOfLines={1}
+          >
+            {label}
+          </Text>
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 });
 
@@ -191,9 +197,6 @@ const makeStyles = (t: AppTheme) =>
     },
     disabled: {
       opacity: t.surfaces.pressDisabledOpacity
-    },
-    pressed: {
-      transform: [{ scale: 0.98 }]
     },
     label: {
       fontFamily: t.fonts.label,
