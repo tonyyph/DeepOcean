@@ -5,7 +5,6 @@ export const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
     headerWrap: {
-      paddingHorizontal: t.spacing[5],
       gap: t.spacing[3]
     },
     proCallout: {
@@ -39,8 +38,7 @@ export const makeStyles = (t: AppTheme) =>
       gap: t.spacing[4]
     },
     codexBlock: {
-      gap: t.spacing[1.5],
-      paddingHorizontal: t.spacing[2]
+      gap: t.spacing[1.5]
     },
     codexTitle: {
       color: t.colors.textSecondary,
@@ -81,8 +79,7 @@ export const makeStyles = (t: AppTheme) =>
       letterSpacing: 1.2
     },
     compactFilterBlock: {
-      gap: t.spacing[1],
-      paddingHorizontal: t.spacing[2]
+      gap: t.spacing[1]
     },
     compactRow: {
       gap: t.spacing[1.5],
@@ -92,15 +89,13 @@ export const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.panelEdge,
-      paddingHorizontal: t.spacing[3],
-      paddingVertical: t.spacing[2],
-      minHeight: 44,
+      padding: t.spacing[3],
       justifyContent: "center",
       backgroundColor: t.colors.panelStrong
     },
     compactChipActive: {
       borderColor: t.colors.accent,
-      backgroundColor: t.colors.glass
+      backgroundColor: t.colors.glassEdge
     },
     compactChipText: {
       color: t.colors.textSecondary,
@@ -112,7 +107,6 @@ export const makeStyles = (t: AppTheme) =>
       color: t.colors.accent
     },
     listContent: {
-      paddingHorizontal: t.spacing[5],
       paddingBottom: t.spacing[24]
     },
     emptyFilterWrap: {
