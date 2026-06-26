@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
-  Animated as RNAnimated
+  Animated as RNAnimated,
+  useWindowDimensions
 } from "react-native";
 import Animated, {
   Easing,
@@ -24,6 +25,7 @@ import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
 import { Colors, Gradients, Shadows } from "@/theme";
 import { ModalFrame } from "./ModalFrame";
+import { ParticleBurst, FloatingLabel, CountUpText, useCountUp } from "@/design-system";
 
 const AUTO_DISMISS_MS = 6000;
 
@@ -50,11 +52,19 @@ export const LevelUpModal = React.memo(function LevelUpModal({
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
   const settings = useSettings();
+  const { width, height } = useWindowDimensions();
 
   const progress = useSharedValue(0);
   const levelScale = useSharedValue(0.4);
   const countdown = useRef(new RNAnimated.Value(1)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const floatTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [showBurst, setShowBurst] = useState(false);
+  const [showFloat, setShowFloat] = useState(false);
+
+  const levelValue = useCountUp(visible ? newLevel : prevLevel, { duration: 800 });
 
   const levelsGained = newLevel - prevLevel;
   const newTitle = getLevelTitle(newLevel, settings.language === "en");
@@ -76,20 +86,40 @@ export const LevelUpModal = React.memo(function LevelUpModal({
         useNativeDriver: false
       }).start();
       timerRef.current = setTimeout(() => onDismiss(), AUTO_DISMISS_MS);
+      burstTimerRef.current = setTimeout(() => setShowBurst(true), 180);
+      floatTimerRef.current = setTimeout(() => setShowFloat(true), 320);
     } else {
       progress.value = withTiming(0, { duration: 200 });
       levelScale.value = 0.4;
+      setShowBurst(false);
+      setShowFloat(false);
       countdown.stopAnimation();
       countdown.setValue(1);
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
+      if (burstTimerRef.current) {
+        clearTimeout(burstTimerRef.current);
+        burstTimerRef.current = null;
+      }
+      if (floatTimerRef.current) {
+        clearTimeout(floatTimerRef.current);
+        floatTimerRef.current = null;
+      }
     }
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
+      }
+      if (burstTimerRef.current) {
+        clearTimeout(burstTimerRef.current);
+        burstTimerRef.current = null;
+      }
+      if (floatTimerRef.current) {
+        clearTimeout(floatTimerRef.current);
+        floatTimerRef.current = null;
       }
     };
   }, [visible, progress, levelScale, countdown, onDismiss]);
@@ -112,69 +142,87 @@ export const LevelUpModal = React.memo(function LevelUpModal({
   };
 
   return (
-    <ModalFrame
-      visible={visible}
-      onDismiss={handleDismiss}
-      progress={progress}
-      cardAnimatedStyle={cardStyle}
-      cardStyle={styles.card}
-      accentColor={t.colors.premium}
-    >
-      <LinearGradient
-        colors={Gradients.premium.levelUpGlow}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.cardGlow}
-      />
-
-      <View style={styles.badge}>
-        <Ionicons
-          name="arrow-up-circle"
-          size={12}
-          color={t.colors.premium}
-        />
-        <Text style={styles.badgeText}>
-          {levelsGained > 1
-            ? tr.levelUp.multiLevel(levelsGained)
-            : tr.levelUp.badge}
-        </Text>
-      </View>
-
-      <Animated.View style={[styles.levelWrap, levelStyle]}>
+    <>
+      <ModalFrame
+        visible={visible}
+        onDismiss={handleDismiss}
+        progress={progress}
+        cardAnimatedStyle={cardStyle}
+        cardStyle={styles.card}
+        accentColor={t.colors.premium}
+      >
         <LinearGradient
-          colors={Gradients.premium.crest}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.levelCircle}
-        >
-          <Text style={styles.levelNumber}>{newLevel}</Text>
-        </LinearGradient>
-      </Animated.View>
-
-      <GlowText size={22} style={styles.title}>
-        {newTitle}
-      </GlowText>
-
-      <Text style={styles.prevLabel}>
-        {tr.levelUp.from(prevLevel, newLevel)}
-      </Text>
-
-      <View style={styles.countdownTrack}>
-        <RNAnimated.View
-          style={[
-            styles.countdownBar,
-            {
-              width: countdown.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "100%"]
-              })
-            }
-          ]}
+          colors={Gradients.premium.levelUpGlow}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.cardGlow}
         />
-      </View>
 
-      <Text style={styles.hint}>{tr.levelUp.tapToDismiss}</Text>
-    </ModalFrame>
+        <View style={styles.badge}>
+          <Ionicons
+            name="arrow-up-circle"
+            size={12}
+            color={t.colors.premium}
+          />
+          <Text style={styles.badgeText}>
+            {levelsGained > 1
+              ? tr.levelUp.multiLevel(levelsGained)
+              : tr.levelUp.badge}
+          </Text>
+        </View>
+
+        <Animated.View style={[styles.levelWrap, levelStyle]}>
+          <LinearGradient
+            colors={Gradients.premium.crest}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.levelCircle}
+          >
+            <CountUpText value={levelValue} style={styles.levelNumber} />
+          </LinearGradient>
+        </Animated.View>
+
+        <GlowText size={22} style={styles.title}>
+          {newTitle}
+        </GlowText>
+
+        <Text style={styles.prevLabel}>
+          {tr.levelUp.from(prevLevel, newLevel)}
+        </Text>
+
+        <View style={styles.countdownTrack}>
+          <RNAnimated.View
+            style={[
+              styles.countdownBar,
+              {
+                width: countdown.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["0%", "100%"]
+                })
+              }
+            ]}
+          />
+        </View>
+
+        <Text style={styles.hint}>{tr.levelUp.tapToDismiss}</Text>
+      </ModalFrame>
+      {showBurst && (
+        <ParticleBurst
+          x={width / 2}
+          y={height * 0.38}
+          color={t.colors.premium}
+          onDone={() => setShowBurst(false)}
+        />
+      )}
+      {showFloat && (
+        <FloatingLabel
+          label="+XP"
+          x={width / 2 - 16}
+          y={height * 0.5}
+          onDone={() => setShowFloat(false)}
+        />
+      )}
+    </>
   );
 });
 

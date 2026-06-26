@@ -1,14 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
-  Animated as RNAnimated
+  Animated as RNAnimated,
+  useWindowDimensions
 } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
+  withSpring,
   withTiming
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,6 +24,7 @@ import { GlowText } from "./GlowText";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import { useTranslations } from "@/core/i18n";
 import { ModalFrame } from "./ModalFrame";
+import { FloatingLabel } from "@/design-system";
 
 const AUTO_DISMISS_MS = 5500;
 
@@ -42,10 +46,14 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
+  const { width, height } = useWindowDimensions();
 
   const progress = useSharedValue(0);
+  const iconScale = useSharedValue(0.5);
   const countdown = useRef(new RNAnimated.Value(1)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const floatTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showFloat, setShowFloat] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -60,6 +68,10 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
         duration: 280,
         easing: Easing.bezier(0.16, 1, 0.3, 1)
       });
+      iconScale.value = withSequence(
+        withSpring(1.2, { damping: 10, stiffness: 240 }),
+        withSpring(1.0, { damping: 16, stiffness: 200 })
+      );
       countdown.setValue(1);
       RNAnimated.timing(countdown, {
         toValue: 0,
@@ -67,13 +79,20 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
         useNativeDriver: false
       }).start();
       timerRef.current = setTimeout(() => onDismiss(), AUTO_DISMISS_MS);
+      floatTimerRef.current = setTimeout(() => setShowFloat(true), 300);
     } else {
       progress.value = withTiming(0, { duration: 200 });
+      iconScale.value = 0.5;
+      setShowFloat(false);
       countdown.stopAnimation();
       countdown.setValue(1);
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
+      }
+      if (floatTimerRef.current) {
+        clearTimeout(floatTimerRef.current);
+        floatTimerRef.current = null;
       }
     }
     return () => {
@@ -81,8 +100,12 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
+      if (floatTimerRef.current) {
+        clearTimeout(floatTimerRef.current);
+        floatTimerRef.current = null;
+      }
     };
-  }, [visible, progress, countdown, onDismiss]);
+  }, [visible, progress, iconScale, countdown, onDismiss]);
 
   const cardStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
@@ -90,6 +113,10 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
       { scale: 0.88 + progress.value * 0.12 },
       { translateY: (1 - progress.value) * 20 }
     ]
+  }));
+
+  const iconBounceStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale.value }]
   }));
 
   const handleDismiss = () => {
@@ -106,6 +133,7 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
   if (!achievement) return null;
 
   return (
+    <>
     <ModalFrame
       visible={visible}
       onDismiss={handleDismiss}
@@ -134,21 +162,23 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
         </Text>
       </View>
 
-      <View
-        style={[
-          styles.iconWrap,
-          {
-            borderColor: t.colors.accent + "44",
-            shadowColor: t.colors.accent
-          }
-        ]}
-      >
-        <Ionicons
-          name={achievement.icon as keyof typeof Ionicons.glyphMap}
-          size={30}
-          color={t.colors.accent}
-        />
-      </View>
+      <Animated.View style={iconBounceStyle}>
+        <View
+          style={[
+            styles.iconWrap,
+            {
+              borderColor: t.colors.accent + "44",
+              shadowColor: t.colors.accent
+            }
+          ]}
+        >
+          <Ionicons
+            name={achievement.icon as keyof typeof Ionicons.glyphMap}
+            size={30}
+            color={t.colors.accent}
+          />
+        </View>
+      </Animated.View>
 
       <GlowText size={22} style={styles.title}>
         {achievement.title}
@@ -173,6 +203,15 @@ export const TitleAchievementModal = React.memo(function TitleAchievementModal({
 
       <Text style={styles.hint}>{tr.titleAchievement.tapToDismiss}</Text>
     </ModalFrame>
+    {showFloat && achievement && (
+      <FloatingLabel
+        label={achievement.title}
+        x={width / 2 - 40}
+        y={height * 0.48}
+        onDone={() => setShowFloat(false)}
+      />
+    )}
+    </>
   );
 });
 

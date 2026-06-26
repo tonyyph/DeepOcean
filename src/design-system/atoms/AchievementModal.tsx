@@ -14,6 +14,8 @@ import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
+  withSpring,
   withTiming
 } from "react-native-reanimated";
 import type { AppTheme } from "../themes";
@@ -54,6 +56,8 @@ export const AchievementModal = React.memo(function AchievementModal({
   const tr = useTranslations();
 
   const progress = useSharedValue(0);
+  const iconScale = useSharedValue(0.4);
+  const glowRadius = useSharedValue(0);
   // Countdown bar (drives width % from 1→0 over AUTO_DISMISS_MS)
   const countdown = useRef(new RNAnimated.Value(1)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -64,6 +68,11 @@ export const AchievementModal = React.memo(function AchievementModal({
         duration: 260,
         easing: Easing.bezier(0.16, 1, 0.3, 1)
       });
+      iconScale.value = withSequence(
+        withSpring(1.18, { damping: 10, stiffness: 240 }),
+        withSpring(1.0, { damping: 16, stiffness: 200 })
+      );
+      glowRadius.value = withTiming(16, { duration: 400 });
       countdown.setValue(1);
       RNAnimated.timing(countdown, {
         toValue: 0,
@@ -75,6 +84,8 @@ export const AchievementModal = React.memo(function AchievementModal({
       }, AUTO_DISMISS_MS);
     } else {
       progress.value = withTiming(0, { duration: 200 });
+      iconScale.value = 0.4;
+      glowRadius.value = 0;
       countdown.stopAnimation();
       countdown.setValue(1);
       if (timerRef.current) {
@@ -88,7 +99,7 @@ export const AchievementModal = React.memo(function AchievementModal({
         timerRef.current = null;
       }
     };
-  }, [visible, progress, countdown, onDismiss]);
+  }, [visible, progress, iconScale, glowRadius, countdown, onDismiss]);
 
   const cardStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
@@ -96,6 +107,15 @@ export const AchievementModal = React.memo(function AchievementModal({
       { scale: 0.88 + progress.value * 0.12 },
       { translateY: (1 - progress.value) * 20 }
     ]
+  }));
+
+  const iconBounceStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale.value }]
+  }));
+
+  const glowRingStyle = useAnimatedStyle(() => ({
+    shadowRadius: glowRadius.value,
+    shadowOpacity: glowRadius.value > 0 ? 0.4 : 0
   }));
 
   const handleDismiss = () => {
@@ -144,17 +164,19 @@ export const AchievementModal = React.memo(function AchievementModal({
         </Text>
       </View>
 
-      <View
+      <Animated.View
         style={[
           styles.iconWrap,
           {
             borderColor: accent + "55",
             shadowColor: accent
-          }
+          },
+          iconBounceStyle,
+          glowRingStyle
         ]}
       >
         <Ionicons name={icon} size={32} color={accent} />
-      </View>
+      </Animated.View>
 
       <GlowText size={26} style={styles.zoneName}>
         {zoneInfo.label}

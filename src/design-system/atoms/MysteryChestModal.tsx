@@ -1,15 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   Animated as RNAnimated,
-  Pressable
+  Pressable,
+  useWindowDimensions
 } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
   withSpring,
   withTiming
 } from "react-native-reanimated";
@@ -24,6 +26,7 @@ import { ModalFrame } from "./ModalFrame";
 import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
 import type { ChestRarity, ChestReward } from "@/domain/entities";
+import { ParticleBurst } from "@/design-system";
 
 const AUTO_DISMISS_MS = 7000;
 
@@ -68,12 +71,17 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
   const reducedMotion = useSettings((s) => s.reducedMotion);
   const hapticsEnabled = useSettings((s) => s.hapticsEnabled);
 
+  const { width, height } = useWindowDimensions();
+
   const progress = useSharedValue(0);
   const chestScale = useSharedValue(0.5);
+  const chestRotation = useSharedValue(0);
   const opened = useSharedValue(0);
   const countdown = useRef(new RNAnimated.Value(1)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isOpened, setIsOpened] = React.useState(false);
+  const [showBurst, setShowBurst] = useState(false);
 
   const rarity = reward?.rarity ?? "driftwood";
   const glowColor = CHEST_GLOW[rarity];
@@ -105,12 +113,18 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
     } else {
       progress.value = withTiming(0, { duration: 200 });
       chestScale.value = 0.5;
+      chestRotation.value = 0;
       opened.value = 0;
+      setShowBurst(false);
       countdown.stopAnimation();
       countdown.setValue(1);
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
+      }
+      if (burstTimerRef.current) {
+        clearTimeout(burstTimerRef.current);
+        burstTimerRef.current = null;
       }
     }
     return () => {
@@ -118,8 +132,12 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
+      if (burstTimerRef.current) {
+        clearTimeout(burstTimerRef.current);
+        burstTimerRef.current = null;
+      }
     };
-  }, [visible, progress, chestScale, opened, countdown, reducedMotion]);
+  }, [visible, progress, chestScale, chestRotation, opened, countdown, reducedMotion]);
 
   const handleOpen = () => {
     if (isOpened) {
@@ -132,16 +150,37 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
         Haptics.NotificationFeedbackType.Success
       ).catch(() => {});
     }
-    opened.value = withTiming(1, {
-      duration: reducedMotion ? 0 : 400,
-      easing: Easing.bezier(0.16, 1, 0.3, 1)
-    });
-    timerRef.current = setTimeout(() => onDismiss(), AUTO_DISMISS_MS);
-    RNAnimated.timing(countdown, {
-      toValue: 0,
-      duration: AUTO_DISMISS_MS,
-      useNativeDriver: false
-    }).start();
+
+    if (!reducedMotion) {
+      // Step 1: shake
+      chestRotation.value = withSequence(
+        withTiming(-10, { duration: 60 }),
+        withTiming(10, { duration: 80 }),
+        withTiming(-7, { duration: 60 }),
+        withTiming(7, { duration: 60 }),
+        withTiming(0, { duration: 80 })
+      );
+      // Step 2: scale expand
+      chestScale.value = withSequence(
+        withSpring(1.35, { damping: 10, stiffness: 220 }),
+        withSpring(1.0, { damping: 16, stiffness: 200 })
+      );
+    }
+
+    // Step 3: after 220ms, burst + reveal
+    burstTimerRef.current = setTimeout(() => {
+      setShowBurst(true);
+      opened.value = withTiming(1, {
+        duration: reducedMotion ? 0 : 400,
+        easing: Easing.bezier(0.16, 1, 0.3, 1)
+      });
+      timerRef.current = setTimeout(() => onDismiss(), AUTO_DISMISS_MS);
+      RNAnimated.timing(countdown, {
+        toValue: 0,
+        duration: AUTO_DISMISS_MS,
+        useNativeDriver: false
+      }).start();
+    }, reducedMotion ? 0 : 220);
   };
 
   const cardStyle = useAnimatedStyle(() => ({
@@ -153,7 +192,10 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
   }));
 
   const chestStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: chestScale.value }]
+    transform: [
+      { scale: chestScale.value },
+      { rotate: `${chestRotation.value}deg` }
+    ]
   }));
 
   const rewardsStyle = useAnimatedStyle(() => ({
@@ -166,6 +208,7 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
   }));
 
   return (
+    <>
     <ModalFrame
       visible={visible}
       onDismiss={onDismiss}
@@ -267,6 +310,15 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
         <Text style={styles.hint}>{tr.chest.continueLabel}</Text>
       </Animated.View>
     </ModalFrame>
+    {showBurst && (
+      <ParticleBurst
+        x={width / 2}
+        y={height * 0.42}
+        color={glowColor}
+        onDone={() => setShowBurst(false)}
+      />
+    )}
+    </>
   );
 });
 
