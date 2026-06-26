@@ -19,7 +19,7 @@ export function useCountUp(
 ): SharedValue<number> {
   const reducedMotion = useSettings((s) => s.reducedMotion);
   const { duration = 600 } = opts;
-  const value = useSharedValue(target);
+  const value = useSharedValue(reducedMotion ? target : 0);
 
   useEffect(() => {
     if (reducedMotion) {
