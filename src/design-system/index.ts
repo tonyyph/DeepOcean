@@ -77,3 +77,16 @@ export {
   typography
 } from "./tokens";
 export * as tokens from "./tokens";
+
+export {
+  useStaggerEntrance,
+  useCountUp,
+  usePulseGlow,
+  useShimmer,
+  useSpringPress,
+  useScrollParallax,
+  CountUpText,
+  ShimmerOverlay,
+  FloatingLabel,
+  ParticleBurst,
+} from "./animations";

@@ -6,7 +6,10 @@ import {
   type StyleProp,
   type ViewStyle
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useTheme } from "../useTheme";
+
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 type Props = ScrollViewProps & {
   bottomInset?: number;
@@ -36,8 +39,8 @@ export const ScreenScrollView = React.forwardRef<ScrollView, Props>(
     const resolvedHorizontalInset = horizontalInset ?? t.spacing[5];
 
     return (
-      <ScrollView
-        ref={ref}
+      <AnimatedScrollView
+        ref={ref as React.Ref<ScrollView>}
         contentInsetAdjustmentBehavior="never"
         decelerationRate={Platform.OS === "ios" ? "normal" : undefined}
         keyboardDismissMode={keyboardDismissMode ?? "interactive"}
@@ -57,7 +60,7 @@ export const ScreenScrollView = React.forwardRef<ScrollView, Props>(
         {...rest}
       >
         {children}
-      </ScrollView>
+      </AnimatedScrollView>
     );
   }
 );
