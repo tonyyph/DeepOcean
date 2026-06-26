@@ -99,7 +99,7 @@ const makeStyles = (t: AppTheme) =>
       borderColor: t.colors.panelEdge,
       alignItems: "center",
       justifyContent: "center",
-      paddingHorizontal: t.spacing[2]
+      paddingHorizontal: t.spacing[3]
     },
     pillActive: {
       backgroundColor: t.colors.glass,

@@ -161,7 +161,7 @@ const makeStyles = (t: AppTheme) =>
     },
     sm: {
       minHeight: 36,
-      paddingHorizontal: t.spacing[3.5],
+      paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[1]
     },
     md: {
@@ -184,7 +184,7 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "row",
-      padding: t.spacing[3],
+      padding: t.spacing[2],
       gap: t.spacing[2],
       zIndex: 1
     },

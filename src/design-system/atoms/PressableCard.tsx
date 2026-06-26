@@ -39,7 +39,7 @@ export const PressableCard = React.memo(function PressableCard({
   ...rest
 }: Props) {
   const t = useTheme();
-  const r = radius ?? t.radii["2xl"];
+  const r = radius ?? t.radii.lg;
   const hapticsEnabled = useSettings((s) => s.hapticsEnabled);
   const reducedMotion = useSettings((s) => s.reducedMotion);
 

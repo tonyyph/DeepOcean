@@ -10,7 +10,7 @@ export type GlassCardProps = ViewProps & {
   blur?: boolean;
   glow?: boolean;
   radius?: number;
-  /** Inner padding override (defaults to spacing[5]). */
+  /** Inner padding override (defaults to spacing[4] = 16). */
   padding?: number;
 };
 
@@ -30,8 +30,8 @@ export const GlassCard = React.memo(function GlassCard({
   ...rest
 }: GlassCardProps) {
   const t = useTheme();
-  const r = radius ?? t.radii.xl;
-  const p = padding ?? t.spacing[3.5];
+  const r = radius ?? t.radii.md;
+  const p = padding ?? t.spacing[4];
 
   const content = (
     <>

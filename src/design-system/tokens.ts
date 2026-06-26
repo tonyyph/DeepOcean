@@ -46,13 +46,15 @@ export const radii = {
   xs: 4,
   s: 8,
   sm: 12,
-  md: 18,
+  md: 20,
   lg: 24,
   xl: 32,
   "2xl": 44,
   pill: 999
 } as const;
 
+// Structural layout: spacing[1]–spacing[24] (4pt grid: 4,8,12,16,20,24,32,40,48,64,80,96)
+// Micro only: spacing[1.5]=6, spacing[2.5]=10, spacing[3.5]=14 — badge strokes, icon gaps
 export const spacing = {
   px: 1,
   0: 0,

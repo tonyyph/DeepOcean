@@ -50,7 +50,7 @@ const makeStyles = (t: AppTheme) =>
     kpiValue: {
       color: t.colors.text,
       fontSize: 24,
-      marginTop: t.spacing[1.5],
+      marginTop: t.spacing[2],
       fontFamily: t.fonts.mono
     },
     kpiValueSkeletonRow: {

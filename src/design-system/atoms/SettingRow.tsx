@@ -108,7 +108,7 @@ const makeStyles = (t: AppTheme) =>
     row: {
       flexDirection: "row",
       alignItems: "center",
-      paddingVertical: t.spacing[3.5],
+      paddingVertical: t.spacing[3],
       gap: t.spacing[3]
     },
     rowDivider: {
@@ -135,7 +135,7 @@ const makeStyles = (t: AppTheme) =>
     sub: {
       color: t.colors.textMuted,
       fontSize: 12,
-      marginTop: 2,
+      marginTop: t.spacing[1],
       fontFamily: t.fonts.body
     },
     navTrailing: {

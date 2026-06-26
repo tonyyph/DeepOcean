@@ -197,7 +197,7 @@ const makeStyles = (t: AppTheme) =>
     },
     btn: {
       flex: 1,
-      paddingVertical: t.spacing[3.5],
+      paddingVertical: t.spacing[3],
       borderRadius: t.radii.md,
       alignItems: "center",
       justifyContent: "center"
