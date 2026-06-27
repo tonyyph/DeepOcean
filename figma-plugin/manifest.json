@@ -1,0 +1,8 @@
+{
+  "name": "Deep Ocean UI Generator",
+  "id": "com.deepocean.ui-generator",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"]
+}

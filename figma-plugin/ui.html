@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: Inter, sans-serif; padding: 16px; background: #05070F; color: #FFF8E7; margin: 0; }
+  h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: #FFE9A6; }
+  select { width: 100%; padding: 8px; margin-bottom: 12px; background: #171A27; color: #FFF8E7; border: 1px solid rgba(255,233,166,0.22); border-radius: 8px; font-size: 12px; }
+  button { width: 100%; padding: 10px; background: #FFE9A6; color: #05070F; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  button:hover { background: #FFF0C0; }
+  #status { margin-top: 10px; font-size: 11px; color: rgba(255,248,231,0.62); min-height: 16px; }
+</style>
+</head>
+<body>
+  <h3>Deep Ocean UI Generator</h3>
+  <select id="pageSelect">
+    <option value="all">All Pages</option>
+    <option value="Onboarding">Onboarding</option>
+    <option value="Core Screens">Core Screens</option>
+    <option value="Sheets &amp; Overlays">Sheets &amp; Overlays</option>
+  </select>
+  <button id="btn">Generate Screens</button>
+  <div id="status"></div>
+  <script>
+    document.getElementById('btn').addEventListener('click', () => {
+      const page = document.getElementById('pageSelect').value;
+      document.getElementById('status').textContent = 'Generating…';
+      parent.postMessage({ pluginMessage: { type: 'generate', page } }, '*');
+    });
+    window.onmessage = (e) => {
+      const msg = e.data.pluginMessage;
+      if (msg && msg.type === 'done') document.getElementById('status').textContent = msg.text;
+      if (msg && msg.type === 'error') document.getElementById('status').textContent = '⚠ ' + msg.text;
+    };
+  </script>
+</body>
+</html>
