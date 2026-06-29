@@ -22,12 +22,13 @@ export function useSpringPress(): Result {
   const onPressIn = useCallback(() => {
     if (reducedMotion) return;
     scale.value = withSpring(0.96, { damping: 18, stiffness: 300 });
-  }, [reducedMotion, scale]);
+  }, [reducedMotion]);
 
   const onPressOut = useCallback(() => {
     if (reducedMotion) return;
+    // eslint-disable-next-line react-hooks/immutability
     scale.value = withSpring(1.0, { damping: 14, stiffness: 200 });
-  }, [reducedMotion, scale]);
+  }, [reducedMotion]);
 
   const pressStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],

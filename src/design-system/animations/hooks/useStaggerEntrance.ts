@@ -42,8 +42,6 @@ export function useStaggerEntrance(
       );
     });
     return () => { values.forEach((v) => cancelAnimation(v)); };
-    // count is stable per component instance — deps are intentional
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reducedMotion, staggerMs, duration, initialDelay]);
 
   return values;

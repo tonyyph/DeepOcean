@@ -217,8 +217,10 @@ export const en = {
     developer: "DEVELOPER",
     about: "ABOUT",
     appVersion: "Version",
-    appVersionValue: "#Ynot",
-    builtWith: "Built with care for the deep"
+    appVersionValue: "1.0.0",
+    builtWith: "Built with care for the deep",
+    privacyPolicy: "Privacy Policy",
+    termsOfService: "Terms of Service"
   },
   notifications: {
     reminderTitle: "The deep is calling",

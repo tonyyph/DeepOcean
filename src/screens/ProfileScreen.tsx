@@ -44,7 +44,7 @@ import * as Application from "expo-application";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Keyboard, StyleSheet, Text, TextInput, View } from "react-native";
+import { Keyboard, Linking, StyleSheet, Text, TextInput, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -171,6 +171,12 @@ export default function ProfileScreen() {
   const progress = profile ? Math.min(1, profile.xp / nextLevelXp) : 0;
   const currentLangLabel = tr.profile.languageNames[language];
   const activeTheme = THEMES[themeId];
+  const openPrivacyPolicy = useCallback(() => {
+    void Linking.openURL("https://deepocean.co/privacy");
+  }, []);
+  const openTerms = useCallback(() => {
+    void Linking.openURL("https://deepocean.co/terms");
+  }, []);
   const openPaywall = useCallback((target?: ThemeId) => {
     setIntentTheme(target);
     setThemeOpen(false);
@@ -420,7 +426,7 @@ export default function ProfileScreen() {
               }}
             />
           </GlassCard>
-          {process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
+          {__DEV__ && process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
             <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
               <SectionLabel>{tr.profile.developer}</SectionLabel>
               <SettingRow
@@ -442,6 +448,17 @@ export default function ProfileScreen() {
                   tr.profile.appVersionValue}
               </Text>
             </View>
+            <SettingRow
+              type="nav"
+              title={tr.profile.privacyPolicy}
+              onPress={openPrivacyPolicy}
+            />
+            <SettingRow
+              type="nav"
+              title={tr.profile.termsOfService}
+              onPress={openTerms}
+              divider={false}
+            />
             <View style={[styles.aboutRow, { marginTop: t.spacing[2] }]}>
               <Text style={styles.aboutTagline}>{tr.profile.builtWith}</Text>
             </View>

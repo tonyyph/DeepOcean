@@ -1,5 +1,5 @@
 // src/design-system/animations/components/ParticleBurst.tsx
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { Canvas, Circle } from "@shopify/react-native-skia";
 import {
@@ -17,6 +17,14 @@ const HALF = SIZE / 2;
 
 type Particle = { angle: number; speed: number; radius: number };
 
+function generateParticles(): Particle[] {
+  return Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
+    angle: (i / PARTICLE_COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.4,
+    speed: 28 + Math.random() * 28,
+    radius: 2.5 + Math.random() * 3,
+  }));
+}
+
 type Props = {
   x: number;
   y: number;
@@ -27,12 +35,7 @@ type Props = {
 export function ParticleBurst({ x, y, color, onDone }: Props) {
   const t = useSharedValue(0);
 
-  const particles = useMemo<Particle[]>(() =>
-    Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
-      angle: (i / PARTICLE_COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.4,
-      speed: 28 + Math.random() * 28,
-      radius: 2.5 + Math.random() * 3,
-    })), []);
+  const [particles] = useState<Particle[]>(generateParticles);
 
   useEffect(() => {
     t.value = withTiming(1, { duration: 800, easing: Easing.out(Easing.cubic) });

@@ -219,8 +219,10 @@ export const vi = {
     developer: "NHÀ PHÁT TRIỂN",
     about: "VỀ ỨNG DỤNG",
     appVersion: "Phiên bản",
-    appVersionValue: "#Ynot",
-    builtWith: "Làm ra bởi tình yêu với biển sâu"
+    appVersionValue: "1.0.0",
+    builtWith: "Làm ra bởi tình yêu với biển sâu",
+    privacyPolicy: "Chính sách bảo mật",
+    termsOfService: "Điều khoản sử dụng"
   },
   notifications: {
     reminderTitle: "Biển sâu đang gọi",
