@@ -31,7 +31,7 @@ const PRELOAD_BUFFER_SECONDS = 12;
 const DEFAULT_AMBIENT_VOLUME = 0.65;
 
 const ZONE_SOURCES: Record<OceanZone, AudioSource | null> = {
-  // luffy.wav is a completion cue, never an ambient loop. Add licensed,
+  // completion.wav is a completion cue, never an ambient loop. Add licensed,
   // loop-safe zone stems here when they are available.
   surface: null,
   twilight: null,

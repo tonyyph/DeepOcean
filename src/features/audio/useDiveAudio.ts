@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Linking } from "react-native";
 import { isDirectAudioUrl, isNaturalDiveCompletion } from "./diveAudioPolicy";
 
-const COMPLETION_SOUND = require("@assets/audio/luffy.wav") as number;
+const COMPLETION_SOUND = require("@assets/audio/completion.wav") as number;
 const DEFAULT_YOUTUBE_URL = "https://www.youtube.com/watch?v=vkGxk4wpbXo";
 const musicPreference = new TypedStore<boolean>(
   StorageKeys.diveYoutubeMusicEnabled

@@ -68,7 +68,7 @@
         {
           "color": "#22E4FF",
           "sounds": [
-            "./assets/audio/luffy.wav"
+            "./assets/audio/completion.wav"
           ]
         }
       ],
@@ -116,7 +116,7 @@
         "lifetimePackageId": "lifetime"
       },
       "diveNotifications": {
-        "completionSound": "luffy.wav"
+        "completionSound": "completion.wav"
       }
     },
     "runtimeVersion": {
