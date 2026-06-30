@@ -18,8 +18,7 @@ import {
   UnderwaterCanvas,
   useTheme,
   useThemedStyles,
-  ZoneBackground,
-  type ThemeId
+  ZoneBackground
 } from "@/design-system";
 import {
   checkNewAchievements,
@@ -414,6 +413,12 @@ export default function ProfileScreen() {
                   tr.profile.appVersionValue}
               </Text>
             </View>
+            <View style={[styles.aboutRow, { marginTop: t.spacing[2] }]}>
+              <Text style={styles.aboutTagline}>{tr.profile.builtWith}</Text>
+            </View>
+          </GlassCard>
+          <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
+            <SectionLabel>{tr.profile.legal}</SectionLabel>
             <SettingRow
               type="nav"
               title={tr.profile.privacyPolicy}
@@ -425,9 +430,6 @@ export default function ProfileScreen() {
               onPress={openTerms}
               divider={false}
             />
-            <View style={[styles.aboutRow, { marginTop: t.spacing[2] }]}>
-              <Text style={styles.aboutTagline}>{tr.profile.builtWith}</Text>
-            </View>
           </GlassCard>
         </ScreenScrollView>
       </ScreenSafeAreaView>

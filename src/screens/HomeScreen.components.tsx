@@ -11,10 +11,6 @@ import {
   useTheme,
   useThemedStyles
 } from "@/design-system";
-import type {
-  AIRecommendation,
-  RecommendedWorkflow
-} from "@/domain/entities";
 import {
   OCEAN_ZONES,
   ZONE_COLORS,
@@ -128,63 +124,6 @@ export function DailyCompanionSkeleton() {
   );
 }
 
-export function PersonalizedPlanCard({
-  recommendation,
-  workflowId,
-  tr
-}: {
-  recommendation: AIRecommendation | null;
-  workflowId: RecommendedWorkflow["id"] | null;
-  tr: ReturnType<typeof useTranslations>;
-}) {
-  const t = useTheme();
-  const styles = useThemedStyles(makeStyles);
-  const workflow =
-    recommendation?.recommendedWorkflow ??
-    (workflowId ? tr.onboarding.workflowOptions[workflowId] : null);
-  if (!workflow) return null;
-  const previewItems = recommendation?.recommendedItems.slice(0, 3) ?? [];
-
-  return (
-    <GlassCard
-      radius={t.radii.md}
-      padding={t.spacing[4]}
-      style={styles.personalPlanCard}
-    >
-      <View style={styles.personalPlanHeader}>
-        <View style={styles.personalPlanTitleRow}>
-          <Ionicons
-            name="compass"
-            size={16}
-            color={t.colors.accent}
-          />
-          <SectionLabel>{tr.home.personalPlanTitle}</SectionLabel>
-        </View>
-      </View>
-      <Text style={styles.personalPlanName}>{workflow.title}</Text>
-      <Text style={styles.companionBody}>{workflow.description}</Text>
-      <View style={styles.personalPlanSteps}>
-        {workflow.steps.slice(0, 3).map((step, index) => (
-          <View key={`${workflow.id}.${step}`} style={styles.personalPlanStep}>
-            <Text style={styles.personalPlanStepIndex}>{index + 1}</Text>
-            <Text style={styles.personalPlanStepText}>{step}</Text>
-          </View>
-        ))}
-      </View>
-      {previewItems.length > 0 && (
-        <View style={styles.personalPlanItems}>
-          {previewItems.map((item) => (
-            <Text key={item.id} style={styles.personalPlanItem} numberOfLines={1}>
-              -{" "}
-              {item.title}
-            </Text>
-          ))}
-        </View>
-      )}
-    </GlassCard>
-  );
-}
-
 // ─── Last Dive Card ───────────────────────────────────────────────────────────
 
 export function LastDiveCard({
@@ -227,33 +166,6 @@ export function LastDiveCard({
   );
 }
 
-export function NoLastDiveCard({
-  onStart,
-  tr
-}: {
-  onStart: () => void;
-  tr: ReturnType<typeof useTranslations>;
-}) {
-  const t = useTheme();
-  const styles = useThemedStyles(makeStyles);
-
-  return (
-    <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
-      <SectionLabel>{tr.home.lastDiveTitle}</SectionLabel>
-      <Text style={styles.emptyLastDiveText}>{tr.home.noSessions}</Text>
-      <ActionButton
-        label={tr.home.beginDive}
-        icon="water"
-        size="sm"
-        tone="secondary"
-        fullWidth
-        onPress={onStart}
-        containerStyle={styles.emptyLastDiveCtaWrap}
-      />
-    </GlassCard>
-  );
-}
-
 // ─── Zone Progress Strip ──────────────────────────────────────────────────────
 
 export function ZoneProgressStrip({
@@ -286,7 +198,7 @@ export function ZoneProgressStrip({
   );
 }
 
-export function ZoneChip({
+function ZoneChip({
   zone,
   isUnlocked,
   isDeepest,

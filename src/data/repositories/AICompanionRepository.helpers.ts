@@ -5,7 +5,7 @@ import type { AIContext, DiveSession, Language } from "@/domain/entities";
 import type { AIRequestOptions } from "@/domain/repositories";
 
 type CacheEntry = { text: string; at: number };
-export type AIRequestKind = "recommendation" | "motivation" | "reflection";
+type AIRequestKind = "recommendation" | "motivation" | "reflection";
 
 const RARITY_RANK: Record<Rarity, number> = {
   mythic: 0,
@@ -69,7 +69,7 @@ export function ensureRecommendationQuality(text: string, ctx: AIContext): strin
   return `${trimmed} ${fallbackRecommendation(ctx)}`.trim();
 }
 
-export function fallbackRecommendation(ctx: AIContext): string {
+function fallbackRecommendation(ctx: AIContext): string {
   const zone = ZONE_TABLE[deepestUnlockedZone(ctx)].label;
   const mins = suggestedMinutes(ctx);
 
@@ -82,7 +82,7 @@ export function fallbackRecommendation(ctx: AIContext): string {
   return `Specific plan: a ${mins}-minute dive in ${zone} with the intention to ${intention}. Start now by setting a ${mins}-minute timer and closing one distraction.`;
 }
 
-export function deepestUnlockedZone(ctx: AIContext): keyof typeof ZONE_TABLE {
+function deepestUnlockedZone(ctx: AIContext): keyof typeof ZONE_TABLE {
   let deepest: keyof typeof ZONE_TABLE = "surface";
   for (const zone of OCEAN_ZONES) {
     if (ctx.unlockedZones.includes(zone)) deepest = zone;
@@ -90,7 +90,7 @@ export function deepestUnlockedZone(ctx: AIContext): keyof typeof ZONE_TABLE {
   return deepest;
 }
 
-export function suggestedMinutes(ctx: AIContext): number {
+function suggestedMinutes(ctx: AIContext): number {
   if (ctx.mood === "burned_out") return 12;
   if (ctx.mood === "tired") return 15;
   if (ctx.mood === "motivated") return 40;
@@ -98,7 +98,7 @@ export function suggestedMinutes(ctx: AIContext): number {
   return 25;
 }
 
-export function viIntention(ctx: AIContext): string {
+function viIntention(ctx: AIContext): string {
   switch (ctx.mood) {
     case "burned_out":
       return "hạ tải tinh thần, chỉ giữ nhịp thở đều";
@@ -113,7 +113,7 @@ export function viIntention(ctx: AIContext): string {
   }
 }
 
-export function enIntention(ctx: AIContext): string {
+function enIntention(ctx: AIContext): string {
   switch (ctx.mood) {
     case "burned_out":
       return "lower mental load and keep a steady breath";
@@ -140,7 +140,7 @@ export function ensureMotivationQuality(text: string, ctx: AIContext): string {
   return `${trimmed} ${fallbackMotivation(ctx)}`.trim();
 }
 
-export function fallbackMotivation(ctx: AIContext): string {
+function fallbackMotivation(ctx: AIContext): string {
   const zone = ZONE_TABLE[deepestUnlockedZone(ctx)].label;
   const last = ctx.recentSessions[0];
 
@@ -163,14 +163,14 @@ export function fallbackMotivation(ctx: AIContext): string {
   return `You already have ${ctx.totalDives} dives logged; start one short session in ${zone} to keep the rhythm alive.`;
 }
 
-export function motivationAnchorNumbers(ctx: AIContext): number[] {
+function motivationAnchorNumbers(ctx: AIContext): number[] {
   const values = [ctx.streakDays, ctx.longestStreakDays, ctx.totalDives];
   const last = ctx.recentSessions[0];
   if (last) values.push(last.minutes, last.discoveries);
   return values.filter((n) => Number.isFinite(n));
 }
 
-export function includesAnyNumber(text: string, numbers: number[]): boolean {
+function includesAnyNumber(text: string, numbers: number[]): boolean {
   return numbers.some((n) => {
     if (n < 0) return false;
     const token = String(Math.round(n));
@@ -178,7 +178,7 @@ export function includesAnyNumber(text: string, numbers: number[]): boolean {
   });
 }
 
-export function hasMoodSignal(text: string, language: Language): boolean {
+function hasMoodSignal(text: string, language: Language): boolean {
   const lower = text.toLowerCase();
   if (language === "vi") {
     return /(tập trung|mệt|kiệt sức|động lực|tò mò)/.test(lower);
@@ -201,7 +201,7 @@ export function polishEmotionalReply(text: string, language: Language): string {
   return out;
 }
 
-export function splitRunOnSentence(text: string, language: Language): string {
+function splitRunOnSentence(text: string, language: Language): string {
   if (/[.!?].+[.!?]/.test(text)) return text;
   if (text.length < 120) return text;
 
@@ -235,12 +235,12 @@ export function splitRunOnSentence(text: string, language: Language): string {
   return text;
 }
 
-export function ensureEndingPunctuation(text: string): string {
+function ensureEndingPunctuation(text: string): string {
   if (/[.!?]$/.test(text)) return text;
   return `${text}.`;
 }
 
-export function capitalizeFirst(text: string): string {
+function capitalizeFirst(text: string): string {
   if (!text) return text;
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -257,7 +257,7 @@ export function shouldServeCachedFirst(
   return Date.now() - cached.at <= maxAgeMs;
 }
 
-export function getAutoCooldownMs(kind: AIRequestKind): number {
+function getAutoCooldownMs(kind: AIRequestKind): number {
   const kindHours = parseCooldownHours(
     process.env[AUTO_COOLDOWN_ENV_BY_KIND[kind]]
   );
@@ -268,14 +268,14 @@ export function getAutoCooldownMs(kind: AIRequestKind): number {
   return Math.round(hours * 60 * 60 * 1000);
 }
 
-export function parseCooldownHours(raw: string | undefined): number | null {
+function parseCooldownHours(raw: string | undefined): number | null {
   if (!raw || raw.trim().length === 0) return null;
   const parsed = Number(raw.trim());
   if (!Number.isFinite(parsed) || parsed <= 0) return null;
   return clamp(parsed, MIN_AUTO_COOLDOWN_HOURS, MAX_AUTO_COOLDOWN_HOURS);
 }
 
-export function clamp(value: number, min: number, max: number): number {
+function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 

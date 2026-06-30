@@ -13,7 +13,6 @@ import {
   Skeleton,
   UnderwaterCanvas,
   usePulseGlow,
-  useScrollParallax,
   useStaggerEntrance,
   useTheme,
   useThemedStyles,
@@ -30,13 +29,13 @@ import {
   useNotificationCenter
 } from "@/features/notifications";
 import { QUICK_DURATIONS, ZONE_TABLE } from "@/features/ocean";
-import { minutesToZone } from "@/features/ocean/zones";
 import type { OceanZone } from "@/features/ocean/zones";
+import { minutesToZone } from "@/features/ocean/zones";
 import { useAchievements, useDiveSession, useSettings } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedScrollHandler,
@@ -209,97 +208,95 @@ export default function HomeScreen() {
 
   const staggerStyle0 = useAnimatedStyle(() => ({
     opacity: stagger[0]!.value,
-    transform: [{ translateY: (1 - stagger[0]!.value) * 18 }],
+    transform: [{ translateY: (1 - stagger[0]!.value) * 18 }]
   }));
   const staggerStyle1 = useAnimatedStyle(() => ({
     opacity: stagger[1]!.value,
-    transform: [{ translateY: (1 - stagger[1]!.value) * 18 }],
+    transform: [{ translateY: (1 - stagger[1]!.value) * 18 }]
   }));
   const staggerStyle2 = useAnimatedStyle(() => ({
     opacity: stagger[2]!.value,
-    transform: [{ translateY: (1 - stagger[2]!.value) * 18 }],
+    transform: [{ translateY: (1 - stagger[2]!.value) * 18 }]
   }));
   const staggerStyle3 = useAnimatedStyle(() => ({
     opacity: stagger[3]!.value,
-    transform: [{ translateY: (1 - stagger[3]!.value) * 18 }],
+    transform: [{ translateY: (1 - stagger[3]!.value) * 18 }]
   }));
   const staggerStyle4 = useAnimatedStyle(() => ({
     opacity: stagger[4]!.value,
-    transform: [{ translateY: (1 - stagger[4]!.value) * 18 }],
-  }));
-  const staggerStyle5 = useAnimatedStyle(() => ({
-    opacity: stagger[5]!.value,
-    transform: [{ translateY: (1 - stagger[5]!.value) * 18 }],
-  }));
-  const staggerStyle6 = useAnimatedStyle(() => ({
-    opacity: stagger[6]!.value,
-    transform: [{ translateY: (1 - stagger[6]!.value) * 18 }],
+    transform: [{ translateY: (1 - stagger[4]!.value) * 18 }]
   }));
 
-  const parallaxStyle = useScrollParallax(scrollY, 0.3);
-  const ctaGlowStyle = usePulseGlow({ minOpacity: 0.18, maxOpacity: 0.55, duration: 1800 });
+  const staggerStyle6 = useAnimatedStyle(() => ({
+    opacity: stagger[6]!.value,
+    transform: [{ translateY: (1 - stagger[6]!.value) * 18 }]
+  }));
+
+  const ctaGlowStyle = usePulseGlow({
+    minOpacity: 0.18,
+    maxOpacity: 0.55,
+    duration: 1800
+  });
 
   return (
     <ZoneBackground zone="midnight">
-      <Animated.View style={[StyleSheet.absoluteFill, parallaxStyle]} pointerEvents="none">
-        <UnderwaterCanvas zone="midnight" />
-      </Animated.View>
+      <UnderwaterCanvas zone="midnight" />
       <ScreenSafeAreaView style={styles.flex}>
         <ScreenScrollView onScroll={scrollHandler} scrollEventThrottle={16}>
           {/* ── Header ── */}
           <Animated.View style={staggerStyle0}>
-          <View style={styles.header}>
-            <View style={styles.headerTopRow}>
-              <Text style={styles.greeting}>{greeting}</Text>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={tr.notifications.center.openAccessibility}
-                hitSlop={10}
-                onPress={openNotifications}
-                style={({ pressed }) => [
-                  styles.bellButton,
-                  pressed && styles.bellButtonPressed
-                ]}
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={20}
-                  color={t.colors.text}
-                />
-                {unreadNotifications > 0 ? (
-                  <View style={styles.bellBadge} />
-                ) : null}
-              </Pressable>
-            </View>
-            <View style={styles.row}>
+            <View style={styles.header}>
+              <View style={styles.headerTopRow}>
+                <Text style={styles.greeting}>{greeting}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={tr.notifications.center.openAccessibility}
+                  hitSlop={10}
+                  onPress={openNotifications}
+                  style={({ pressed }) => [
+                    styles.bellButton,
+                    pressed && styles.bellButtonPressed
+                  ]}
+                >
+                  <Ionicons
+                    name="notifications-outline"
+                    size={20}
+                    color={t.colors.text}
+                  />
+                  {unreadNotifications > 0 ? (
+                    <View style={styles.bellBadge} />
+                  ) : null}
+                </Pressable>
+              </View>
+              <View style={styles.row}>
+                {showHeaderSkeleton ? (
+                  <Skeleton style={styles.nameSkeleton} radius={t.radii.s} />
+                ) : (
+                  <GlowText size={36} pulse style={styles.base}>
+                    {profile?.name ?? tr.home.diver}
+                  </GlowText>
+                )}
+                {!showHeaderSkeleton && levelTitle && (
+                  <View style={styles.rankRow}>
+                    <Ionicons name="star" size={11} color={t.colors.accent} />
+                    <Text style={styles.rankLabel}>{levelTitle}</Text>
+                  </View>
+                )}
+              </View>
               {showHeaderSkeleton ? (
-                <Skeleton style={styles.nameSkeleton} radius={t.radii.s} />
+                <Skeleton style={styles.subSkeleton} />
               ) : (
-                <GlowText size={36} pulse style={styles.base}>
-                  {profile?.name ?? tr.home.diver}
-                </GlowText>
-              )}
-              {!showHeaderSkeleton && levelTitle && (
-                <View style={styles.rankRow}>
-                  <Ionicons name="star" size={11} color={t.colors.accent} />
-                  <Text style={styles.rankLabel}>{levelTitle}</Text>
-                </View>
+                <Text style={styles.sub}>{tr.home.ready}</Text>
               )}
             </View>
-            {showHeaderSkeleton ? (
-              <Skeleton style={styles.subSkeleton} />
-            ) : (
-              <Text style={styles.sub}>{tr.home.ready}</Text>
-            )}
-          </View>
           </Animated.View>
 
           {/* ── Last Dive Recap ── */}
           <Animated.View style={staggerStyle3}>
-          {showLastDiveSkeleton ? <LastDiveSkeleton /> : null}
-          {!showLastDiveSkeleton && lastSession ? (
-            <LastDiveCard session={lastSession} tr={tr} />
-          ) : null}
+            {showLastDiveSkeleton ? <LastDiveSkeleton /> : null}
+            {!showLastDiveSkeleton && lastSession ? (
+              <LastDiveCard session={lastSession} tr={tr} />
+            ) : null}
           </Animated.View>
 
           {/* ── Hero dive CTA ── */}
@@ -310,97 +307,97 @@ export default function HomeScreen() {
                 borderRadius: t.radii.md,
                 shadowColor: t.colors.accent,
                 shadowRadius: 14,
-                shadowOffset: { width: 0, height: 0 },
-              },
+                shadowOffset: { width: 0, height: 0 }
+              }
             ]}
           >
-          <PressableCard
-            glow
-            haptic="light"
-            onPress={handleStartPreferredDive}
-            containerStyle={styles.heroCard}
-            radius={t.radii.md}
-          >
-            <View style={styles.heroContent}>
-              <Text style={styles.heroLabel}>{tr.home.beginDive}</Text>
-              <Text style={styles.heroDuration}>{preferredMinutes}</Text>
-              <Text style={styles.heroDurationSub}>{tr.home.min}</Text>
-              <Text style={styles.heroHint}>
-                {tr.home.estimatedReach} · {preferredZoneLabel}
-              </Text>
-            </View>
-            <View style={styles.quickRow}>
-              {QUICK_DURATIONS.map((m) => (
+            <PressableCard
+              glow
+              haptic="light"
+              onPress={handleStartPreferredDive}
+              containerStyle={styles.heroCard}
+              radius={t.radii.md}
+            >
+              <View style={styles.heroContent}>
+                <Text style={styles.heroLabel}>{tr.home.beginDive}</Text>
+                <Text style={styles.heroDuration}>{preferredMinutes}</Text>
+                <Text style={styles.heroDurationSub}>{tr.home.min}</Text>
+                <Text style={styles.heroHint}>
+                  {tr.home.estimatedReach} · {preferredZoneLabel}
+                </Text>
+              </View>
+              <View style={styles.quickRow}>
+                {QUICK_DURATIONS.map((m) => (
+                  <OptionPill
+                    key={m}
+                    label={`${m}${tr.home.minShort}`}
+                    onPress={() => startDive(m)}
+                    containerStyle={styles.quickItem}
+                  />
+                ))}
                 <OptionPill
-                  key={m}
-                  label={`${m}${tr.home.minShort}`}
-                  onPress={() => startDive(m)}
+                  key={"custom"}
+                  icon="infinite"
+                  onLongPress={openFreeDiveModal}
+                  onPress={handleStartUnlimitedDive}
                   containerStyle={styles.quickItem}
                 />
-              ))}
-              <OptionPill
-                key={"custom"}
-                icon="infinite"
-                onLongPress={openFreeDiveModal}
-                onPress={handleStartUnlimitedDive}
-                containerStyle={styles.quickItem}
-              />
-            </View>
-          </PressableCard>
+              </View>
+            </PressableCard>
           </Animated.View>
 
           {/* ── Zone Progress ── */}
           <Animated.View style={staggerStyle6}>
-          <GlassCard radius={t.radii.md}>
-            <SectionLabel>{tr.home.zoneProgressTitle}</SectionLabel>
-            <ZoneProgressStrip unlockedZones={unlockedZones} />
-          </GlassCard>
+            <GlassCard radius={t.radii.md}>
+              <SectionLabel>{tr.home.zoneProgressTitle}</SectionLabel>
+              <ZoneProgressStrip unlockedZones={unlockedZones} />
+            </GlassCard>
           </Animated.View>
 
           {/* ── Daily companion ── */}
           <Animated.View style={staggerStyle4}>
-          {dailyRecLoading ? (
-            <DailyCompanionSkeleton />
-          ) : (
-            dailyRec && (
-              <GlassCard radius={t.radii.md}>
-                <SectionLabel>{tr.home.guideTitle}</SectionLabel>
-                <Text style={styles.companionBody}>{dailyRec}</Text>
-              </GlassCard>
-            )
-          )}
+            {dailyRecLoading ? (
+              <DailyCompanionSkeleton />
+            ) : (
+              dailyRec && (
+                <GlassCard radius={t.radii.md}>
+                  <SectionLabel>{tr.home.guideTitle}</SectionLabel>
+                  <Text style={styles.companionBody}>{dailyRec}</Text>
+                </GlassCard>
+              )
+            )}
           </Animated.View>
 
           {/* ── Stats ── */}
           <Animated.View style={staggerStyle1}>
-          <View style={styles.statsRow}>
-            <StatCard
-              icon="flame"
-              label={tr.home.streak}
-              value={`${profile?.currentStreakDays ?? 0}`}
-              unit="d"
-            />
-            <StatCard
-              icon="water"
-              label={tr.home.dives}
-              value={`${profile?.totalDives ?? 0}`}
-            />
-            <StatCard
-              icon="trophy"
-              label={tr.home.level}
-              value={`${profile?.level ?? 1}`}
-            />
-          </View>
+            <View style={styles.statsRow}>
+              <StatCard
+                icon="flame"
+                label={tr.home.streak}
+                value={`${profile?.currentStreakDays ?? 0}`}
+                unit="d"
+              />
+              <StatCard
+                icon="water"
+                label={tr.home.dives}
+                value={`${profile?.totalDives ?? 0}`}
+              />
+              <StatCard
+                icon="trophy"
+                label={tr.home.level}
+                value={`${profile?.level ?? 1}`}
+              />
+            </View>
           </Animated.View>
 
           {streakDays > 0 && (
             <Animated.View style={staggerStyle2}>
-            <StreakMilestoneCard
-              days={streakDays}
-              nextTarget={nextStreakTarget}
-              onPress={handleStartPreferredDive}
-              tr={tr}
-            />
+              <StreakMilestoneCard
+                days={streakDays}
+                nextTarget={nextStreakTarget}
+                onPress={handleStartPreferredDive}
+                tr={tr}
+              />
             </Animated.View>
           )}
         </ScreenScrollView>
@@ -422,6 +419,7 @@ export default function HomeScreen() {
     </ZoneBackground>
   );
 }
+
 function getNextStreakMilestone(days: number): number | null {
   const milestones = [3, 7, 14, 21, 30, 45, 60, 90];
   return milestones.find((m) => m > days) ?? null;

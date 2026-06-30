@@ -20,7 +20,7 @@ import Animated, {
   withSpring,
   withTiming
 } from "react-native-reanimated";
-import { CountUpText, FloatingLabel, ParticleBurst, useCountUp } from "..";
+import { CountUpText, FloatingLabel, ParticleBurst, useCountUp } from "../animations";
 import type { AppTheme } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";

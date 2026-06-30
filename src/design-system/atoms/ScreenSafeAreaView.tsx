@@ -32,9 +32,7 @@ export function ScreenSafeAreaView({
         style,
         {
           paddingTop: edges.includes("top") ? insets.top : 0,
-          paddingRight: edges.includes("right") ? insets.right : 20,
-          paddingBottom: edges.includes("bottom") ? insets.bottom : 0,
-          paddingLeft: edges.includes("left") ? insets.left : 20
+          paddingBottom: edges.includes("bottom") ? insets.bottom : 0
         }
       ]}
     >

@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Animated, {
+import {
   Easing,
   useAnimatedStyle,
   useSharedValue,

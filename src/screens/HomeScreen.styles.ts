@@ -118,92 +118,6 @@ export const makeStyles = (t: AppTheme) =>
       lineHeight: 22,
       fontFamily: t.fonts.body
     },
-    personalPlanCard: {
-      overflow: "hidden"
-    },
-    personalPlanHeader: {
-      alignItems: "flex-start",
-      gap: t.spacing[2]
-    },
-    personalPlanTitleRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[2],
-      alignSelf: "stretch"
-    },
-    personalPlanLock: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[1],
-      alignSelf: "flex-start",
-      marginTop: t.spacing[2],
-      paddingHorizontal: t.spacing[2],
-      paddingVertical: t.spacing[1],
-      borderRadius: t.radii.pill,
-      backgroundColor: t.colors.glass,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.borderStrong
-    },
-    personalPlanLockText: {
-      color: t.colors.premium,
-      fontSize: 10,
-      fontFamily: t.fonts.label
-    },
-    personalPlanName: {
-      color: t.colors.text,
-      fontSize: 18,
-      lineHeight: 23,
-      fontFamily: t.fonts.display,
-      letterSpacing: t.fonts.displayLetterSpacing,
-      marginTop: t.spacing[3]
-    },
-    personalPlanSteps: {
-      gap: t.spacing[2],
-      marginTop: t.spacing[3]
-    },
-    personalPlanStep: {
-      flexDirection: "row",
-      alignItems: "flex-start",
-      gap: t.spacing[2]
-    },
-    personalPlanStepIndex: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      overflow: "hidden",
-      textAlign: "center",
-      lineHeight: 22,
-      color: t.colors.background,
-      backgroundColor: t.colors.accent,
-      fontFamily: t.fonts.mono,
-      fontSize: 11
-    },
-    personalPlanStepText: {
-      color: t.colors.textSecondary,
-      fontSize: 13,
-      lineHeight: 18,
-      fontFamily: t.fonts.body,
-      flex: 1
-    },
-    personalPlanItems: {
-      gap: t.spacing[1],
-      marginTop: t.spacing[3],
-      opacity: 0.82
-    },
-    personalPlanItem: {
-      color: t.colors.textMuted,
-      fontSize: 12,
-      lineHeight: 17,
-      fontFamily: t.fonts.body
-    },
-    personalPlanFade: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: t.colors.panelEdge,
-      marginTop: t.spacing[3]
-    },
-    personalPlanCta: {
-      marginTop: t.spacing[3]
-    },
     companionSectionSkeleton: {
       marginTop: t.spacing[2]
     },
@@ -267,16 +181,6 @@ export const makeStyles = (t: AppTheme) =>
       color: t.colors.accent,
       fontSize: 13,
       fontFamily: t.fonts.mono
-    },
-    emptyLastDiveText: {
-      color: t.colors.textSecondary,
-      fontSize: 14,
-      lineHeight: 20,
-      fontFamily: t.fonts.body,
-      marginTop: t.spacing[2]
-    },
-    emptyLastDiveCtaWrap: {
-      marginTop: t.spacing[3]
     },
     // Zone progress
     zoneStrip: {

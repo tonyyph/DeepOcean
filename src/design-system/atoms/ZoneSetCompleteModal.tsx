@@ -18,7 +18,6 @@ import { ModalFrame } from "./ModalFrame";
 import { useTranslations } from "@/core/i18n";
 import { useSettings } from "@/stores";
 import { ZONE_TABLE, type OceanZone } from "@/features/ocean/zones";
-import { Colors } from "@/theme";
 
 type Props = {
   visible: boolean;

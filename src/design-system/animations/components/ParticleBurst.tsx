@@ -1,5 +1,5 @@
 // src/design-system/animations/components/ParticleBurst.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { Canvas, Circle } from "@shopify/react-native-skia";
 import {

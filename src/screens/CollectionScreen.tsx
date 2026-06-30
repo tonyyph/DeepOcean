@@ -8,12 +8,12 @@ import {
   ScreenSafeAreaView,
   SectionSkeleton,
   Skeleton,
-  ZoneSetCompleteModal,
-  type StoryRow,
   UnderwaterCanvas,
   ZoneBackground,
+  ZoneSetCompleteModal,
   useTheme,
-  useThemedStyles
+  useThemedStyles,
+  type StoryRow
 } from "@/design-system";
 import type { CollectionEntry } from "@/domain/entities";
 import { useCollection } from "@/features/diver";
@@ -28,7 +28,13 @@ import {
 import { useAchievements } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -77,7 +83,9 @@ export default function CollectionScreen() {
 
   const [activeRow, setActiveRow] = useState<StoryRow | null>(null);
   const [storyOpen, setStoryOpen] = useState(false);
-  const [codexCompleteZone, setCodexCompleteZone] = useState<OceanZone | null>(null);
+  const [codexCompleteZone, setCodexCompleteZone] = useState<OceanZone | null>(
+    null
+  );
   const [rarityFilter, setRarityFilter] = useState<RarityFilter>("all");
 
   const rows = useMemo<StoryRow[]>(() => {
@@ -153,7 +161,10 @@ export default function CollectionScreen() {
       if (s.complete && !prevCompletedRef.current.has(s.zone)) {
         const isNew = markZoneSetComplete(s.zone);
         if (isNew) {
-          prevCompletedRef.current = new Set([...prevCompletedRef.current, s.zone]);
+          prevCompletedRef.current = new Set([
+            ...prevCompletedRef.current,
+            s.zone
+          ]);
           // Defer to avoid synchronous setState-in-effect lint violation
           setTimeout(() => setCodexCompleteZone(s.zone), 0);
           break;
@@ -194,45 +205,6 @@ export default function CollectionScreen() {
   const renderListHeader = useCallback(
     () => (
       <View style={styles.stickyFilterWrap}>
-        {/* Zone Codex strip */}
-        <View style={styles.codexBlock}>
-          <Text style={styles.codexTitle}>{tr.codex.setsTitle}</Text>
-          <ScrollView
-            horizontal
-            overScrollMode="never"
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.codexRow}
-          >
-            {zoneSets.map((s) => (
-              <View
-                key={s.zone}
-                style={[
-                  styles.codexCard,
-                  s.complete && { borderColor: t.colors.accent }
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.codexZoneLabel,
-                    s.complete && { color: t.colors.accent }
-                  ]}
-                  numberOfLines={1}
-                >
-                  {s.label}
-                </Text>
-                <Text style={styles.codexProgress}>
-                  {tr.codex.setProgress(s.found, s.total)}
-                </Text>
-                {s.complete && (
-                  <Text style={[styles.codexComplete, { color: t.colors.accent }]}>
-                    {tr.codex.setComplete}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-
         <View style={styles.compactFilterBlock}>
           <Text style={styles.filterTitle}>{tr.collection.filters.rarity}</Text>
           <ScrollView
@@ -295,10 +267,7 @@ export default function CollectionScreen() {
       typeof item === "number" ? (
         <CollectionRowSkeleton />
       ) : (
-        <CollectionRow
-          row={item}
-          onPress={handleRowPress}
-        />
+        <CollectionRow row={item} onPress={handleRowPress} />
       ),
     [handleRowPress]
   );
@@ -312,7 +281,7 @@ export default function CollectionScreen() {
   return (
     <ZoneBackground zone="abyss">
       <UnderwaterCanvas zone="abyss" particleCount={20} />
-      <ScreenSafeAreaView style={styles.flex}>
+      <ScreenSafeAreaView style={styles.container}>
         <View style={styles.headerWrap}>
           <AppHeader
             title={tr.collection.title}

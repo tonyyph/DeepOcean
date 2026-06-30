@@ -1,5 +1,4 @@
 // src/design-system/animations/components/ShimmerOverlay.tsx
-import React from "react";
 import { StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";

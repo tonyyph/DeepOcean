@@ -218,6 +218,7 @@ export const vi = {
       "Bật nhanh toàn quyền cục bộ để test feature gate",
     developer: "NHÀ PHÁT TRIỂN",
     about: "VỀ ỨNG DỤNG",
+    legal: "PHÁP LÝ",
     appVersion: "Phiên bản",
     appVersionValue: "1.0.0",
     builtWith: "Làm ra bởi tình yêu với biển sâu",

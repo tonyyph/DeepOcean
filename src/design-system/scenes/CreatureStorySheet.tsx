@@ -309,12 +309,6 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 14,
       lineHeight: 21
     },
-    bodyMuted: {
-      color: t.colors.textSecondary,
-      fontFamily: t.fonts.body,
-      fontSize: 13,
-      lineHeight: 19
-    },
     whisper: {
       fontStyle: "italic",
       color: t.colors.textSecondary

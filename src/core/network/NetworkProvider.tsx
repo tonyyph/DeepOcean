@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useMemo } from "react";
 
 // Connectivity stub. Wire up @react-native-community/netinfo later if needed;
 // keeping it abstracted means feature code never touches the library directly.
@@ -10,5 +10,3 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({ isOnline: true }), []);
   return <NetContext.Provider value={value}>{children}</NetContext.Provider>;
 }
-
-export const useNetwork = () => useContext(NetContext);

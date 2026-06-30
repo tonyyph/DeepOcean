@@ -1,5 +1,3 @@
-// src/design-system/animations/components/CountUpText.tsx
-import React from "react";
 import { TextInput, type TextStyle, StyleSheet } from "react-native";
 import Animated, {
   useAnimatedProps,

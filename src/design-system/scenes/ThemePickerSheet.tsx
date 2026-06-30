@@ -15,8 +15,8 @@ import { combineThemes, THEME_LIST, THEMES } from "../themes";
 import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 
-const SWATCH_SIZE = 62;
-const SWATCH_ITEM_WIDTH = 92;
+const SWATCH_SIZE = 48;
+const SWATCH_ITEM_WIDTH = 78;
 
 type Props = {
   visible: boolean;
@@ -27,10 +27,7 @@ type Props = {
  * ThemePickerSheet — a horizontal carousel of theme swatches with a live
  * preview + descriptions.
  */
-export function ThemePickerSheet({
-  visible,
-  onDismiss
-}: Props) {
+export function ThemePickerSheet({ visible, onDismiss }: Props) {
   const styles = useThemedStyles(makeStyles);
   const t = useTheme();
   const tr = useTranslations();
@@ -46,12 +43,9 @@ export function ThemePickerSheet({
     onDismiss();
   }, [onDismiss]);
 
-  const handlePick = useCallback(
-    (id: ThemeId) => {
-      setDraftTheme(id);
-    },
-    []
-  );
+  const handlePick = useCallback((id: ThemeId) => {
+    setDraftTheme(id);
+  }, []);
 
   const handleApply = useCallback(() => {
     setTheme(selected);
@@ -283,8 +277,8 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "space-between",
       gap: t.spacing[2],
       width: SWATCH_ITEM_WIDTH,
-      minHeight: 108,
-      paddingHorizontal: t.spacing[2],
+      minHeight: 80,
+      paddingHorizontal: t.spacing[3],
       paddingVertical: t.spacing[2],
       borderRadius: t.radii.md,
       borderWidth: StyleSheet.hairlineWidth,

@@ -5,7 +5,7 @@ import {
   REMINDER_MINUTES,
   snapReminderMinute
 } from "@/features/notifications/reminderTimePicker";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
   type NativeScrollEvent,
@@ -13,7 +13,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View
 } from "react-native";
 import { GlowText } from "../atoms/GlowText";
@@ -161,7 +160,6 @@ export function ReminderTimePickerSheet({
 }: Props) {
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
-  const { height: screenHeight } = useWindowDimensions();
   const [draftHour, setDraftHour] = useState<number | null>(null);
   const [draftMinute, setDraftMinute] = useState<number | null>(null);
   const selHour = draftHour ?? hour;
@@ -178,12 +176,6 @@ export function ReminderTimePickerSheet({
     setDraftHour(null);
     setDraftMinute(null);
   }, [onConfirm, selHour, selMinute]);
-
-  const preview = useMemo(
-    () => `${pad(selHour)}:${pad(selMinute)}`,
-    [selHour, selMinute]
-  );
-  const compact = screenHeight < 720;
 
   return (
     <Sheet
@@ -234,17 +226,6 @@ const makeStyles = (t: AppTheme) =>
       fontSize: 13,
       fontFamily: t.fonts.body,
       marginBottom: t.spacing[4]
-    },
-    preview: {
-      color: t.colors.accent,
-      fontSize: 40,
-      fontFamily: t.fonts.display,
-      textAlign: "center",
-      marginBottom: t.spacing[4]
-    },
-    previewCompact: {
-      fontSize: 34,
-      marginBottom: t.spacing[2]
     },
     columns: {
       flexDirection: "row",

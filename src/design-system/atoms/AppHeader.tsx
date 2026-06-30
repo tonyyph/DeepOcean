@@ -67,6 +67,3 @@ const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.body
     }
   });
-
-// Re-export for convenience
-export { GlowText };

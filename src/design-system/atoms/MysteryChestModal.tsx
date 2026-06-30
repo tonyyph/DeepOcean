@@ -21,9 +21,8 @@ import Animated, {
   withSpring,
   withTiming
 } from "react-native-reanimated";
-import { ParticleBurst } from "../";
+import { ParticleBurst } from "../animations";
 import type { AppTheme } from "../themes";
-import { useTheme } from "../useTheme";
 import { useThemedStyles } from "../useThemedStyles";
 import { GlowText } from "./GlowText";
 import { ModalFrame } from "./ModalFrame";
@@ -65,7 +64,6 @@ export const MysteryChestModal = React.memo(function MysteryChestModal({
   reward,
   onDismiss
 }: Props) {
-  const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
   const reducedMotion = useSettings((s) => s.reducedMotion);

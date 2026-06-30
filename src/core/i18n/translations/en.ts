@@ -216,6 +216,7 @@ export const en = {
     devEnablePremiumDesc: "Local test toggle for feature gates",
     developer: "DEVELOPER",
     about: "ABOUT",
+    legal: "LEGAL",
     appVersion: "Version",
     appVersionValue: "1.0.0",
     builtWith: "Built with care for the deep",

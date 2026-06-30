@@ -4,65 +4,26 @@ import type { AppTheme } from "@/design-system";
 export const makeStyles = (t: AppTheme) =>
   StyleSheet.create({
     flex: { flex: 1 },
+    container: { flex: 1, paddingHorizontal: t.spacing[5] },
     headerWrap: {
       gap: t.spacing[3]
     },
     filterTitle: {
       color: t.colors.textSecondary,
-      fontSize: 11,
+      fontSize: 14,
       letterSpacing: 1,
-      fontFamily: t.fonts.label,
+      fontFamily: t.fonts.mono,
       marginTop: t.spacing[1]
     },
     stickyFilterWrap: {
       marginBottom: t.spacing[2],
       gap: t.spacing[4]
     },
-    codexBlock: {
-      gap: t.spacing[1.5]
-    },
-    codexTitle: {
-      color: t.colors.textSecondary,
-      fontSize: 11,
-      letterSpacing: 1,
-      fontFamily: t.fonts.label,
-      marginTop: t.spacing[1]
-    },
-    codexRow: {
-      gap: t.spacing[2],
-      paddingRight: t.spacing[2]
-    },
-    codexCard: {
-      minWidth: 90,
-      paddingHorizontal: t.spacing[3],
-      paddingVertical: t.spacing[3],
-      borderRadius: t.radii.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.glass,
-      alignItems: "center",
-      gap: t.spacing[1]
-    },
-    codexZoneLabel: {
-      fontSize: 10,
-      fontFamily: t.fonts.label,
-      letterSpacing: 0.8,
-      color: t.colors.textSecondary
-    },
-    codexProgress: {
-      fontSize: 16,
-      fontFamily: t.fonts.display,
-      color: t.colors.text
-    },
-    codexComplete: {
-      fontSize: 9,
-      fontFamily: t.fonts.label,
-      letterSpacing: 1.2
-    },
     compactFilterBlock: {
       gap: t.spacing[1]
     },
     compactRow: {
+      marginVertical: t.spacing[1.5],
       gap: t.spacing[1.5],
       paddingRight: t.spacing[2]
     },
@@ -70,8 +31,11 @@ export const makeStyles = (t: AppTheme) =>
       borderRadius: t.radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.colors.panelEdge,
-      padding: t.spacing[3],
+      minWidth: 50,
       justifyContent: "center",
+      alignItems: "center",
+      paddingVertical: t.spacing[2],
+      paddingHorizontal: t.spacing[3],
       backgroundColor: t.colors.panelStrong
     },
     compactChipActive: {
@@ -80,7 +44,7 @@ export const makeStyles = (t: AppTheme) =>
     },
     compactChipText: {
       color: t.colors.textSecondary,
-      fontSize: 11,
+      fontSize: 13,
       fontFamily: t.fonts.label,
       letterSpacing: 0.4
     },

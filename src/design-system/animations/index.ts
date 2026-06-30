@@ -1,9 +1,7 @@
 export { useStaggerEntrance } from "./hooks/useStaggerEntrance";
 export { useCountUp } from "./hooks/useCountUp";
 export { usePulseGlow } from "./hooks/usePulseGlow";
-export { useShimmer } from "./hooks/useShimmer";
 export { useSpringPress } from "./hooks/useSpringPress";
-export { useScrollParallax } from "./hooks/useScrollParallax";
 export { CountUpText } from "./components/CountUpText";
 export { ShimmerOverlay } from "./components/ShimmerOverlay";
 export { FloatingLabel } from "./components/FloatingLabel";

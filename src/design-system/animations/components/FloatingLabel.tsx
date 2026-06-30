@@ -1,5 +1,5 @@
 // src/design-system/animations/components/FloatingLabel.tsx
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { StyleSheet, Text } from "react-native";
 import Animated, {
   Easing,

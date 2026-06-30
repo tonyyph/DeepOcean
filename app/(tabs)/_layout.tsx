@@ -1,7 +1,8 @@
-import { useTheme } from "@/design-system";
+import { ProTabBar, useTheme } from "@/design-system";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
+import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
 import { useMemo } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 
@@ -61,8 +62,17 @@ export default function TabsLayout() {
     [t]
   );
 
+  const renderProTabBar = useMemo(
+    () => (props: BottomTabBarProps) => <ProTabBar {...props} />,
+    []
+  );
+
   return (
-    <Tabs detachInactiveScreens screenOptions={screenOptions}>
+    <Tabs
+      detachInactiveScreens
+      screenOptions={screenOptions}
+      tabBar={renderProTabBar}
+    >
       <Tabs.Screen
         name="index"
         options={{

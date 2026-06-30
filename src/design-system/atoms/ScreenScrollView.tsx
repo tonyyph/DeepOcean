@@ -36,7 +36,6 @@ export const ScreenScrollView = React.forwardRef<ScrollView, Props>(
     ref
   ) {
     const t = useTheme();
-    const resolvedHorizontalInset = horizontalInset ?? t.spacing[5];
 
     return (
       <AnimatedScrollView
@@ -51,7 +50,7 @@ export const ScreenScrollView = React.forwardRef<ScrollView, Props>(
         contentContainerStyle={[
           {
             paddingTop: topInset ?? t.spacing[5],
-            paddingHorizontal: resolvedHorizontalInset,
+            paddingHorizontal: t.spacing[5],
             paddingBottom: bottomInset ?? t.spacing[24],
             gap: gap ?? t.spacing[4]
           },

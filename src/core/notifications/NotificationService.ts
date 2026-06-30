@@ -9,9 +9,9 @@ import { Platform } from "react-native";
  * NotificationRepository.
  */
 
-export const DIVE_REMINDER_CHANNEL = "dive-reminders";
-export const DIVE_COMPLETION_CHANNEL_PREFIX = "dive-completion";
-export const ACTIVE_DIVE_CHANNEL = "active-dive";
+const DIVE_REMINDER_CHANNEL = "dive-reminders";
+const DIVE_COMPLETION_CHANNEL_PREFIX = "dive-completion";
+const ACTIVE_DIVE_CHANNEL = "active-dive";
 
 export type DailyReminderInput = {
   hour: number;
