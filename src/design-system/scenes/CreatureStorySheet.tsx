@@ -1,16 +1,13 @@
 import { useTranslations } from "@/core/i18n";
 import type { Rarity } from "@/features/ocean";
 import { getLore } from "@/features/ocean";
-import { usePremium } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { MotiView } from "moti";
-import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowText } from "../atoms/GlowText";
-import { PremiumBadge } from "../atoms/PremiumBadge";
 import { PressableCard } from "../atoms/PressableCard";
 import { Sheet } from "../atoms/Sheet";
 import type { AppTheme } from "../themes";
@@ -33,8 +30,6 @@ type Props = {
   visible: boolean;
   onDismiss: () => void;
   row: StoryRow | null;
-  /** Triggered when locked Pro section is tapped. */
-  onRequestPaywall: () => void;
 };
 
 function rarityColor(rarity: Rarity, t: AppTheme): string {
@@ -66,25 +61,18 @@ function formatDate(ts: number, locale: string): string {
 
 /**
  * CreatureStorySheet — narrative detail for a collection entry.
- * Adds atmosphere (silhouette, whisper) for undiscovered rows, and gates the
- * deeper "expedition journal" passage behind Pro.
+ * Adds atmosphere (silhouette, whisper) for undiscovered rows and reveals the
+ * deeper expedition journal passage for discovered entries.
  */
 export function CreatureStorySheet({
   visible,
   onDismiss,
-  row,
-  onRequestPaywall
+  row
 }: Props) {
   const t = useTheme();
   const styles = useThemedStyles(makeStyles);
   const tr = useTranslations();
   const insets = useSafeAreaInsets();
-  const isPremium = usePremium((s) => s.isPremium);
-
-  const handlePaywall = useCallback(() => {
-    onDismiss();
-    setTimeout(onRequestPaywall, 220);
-  }, [onDismiss, onRequestPaywall]);
 
   if (!row) {
     return (
@@ -187,36 +175,13 @@ export function CreatureStorySheet({
                 )}
               </View>
 
-              {/* Pro section */}
               <View style={[styles.section, styles.proSection]}>
                 <View style={styles.proHeader}>
-                  <Text
-                    style={[styles.sectionLabel, { color: t.colors.premium }]}
-                  >
-                    {tr.collection.story.proTitle}
+                  <Text style={[styles.sectionLabel, { color: accent }]}>
+                    {tr.collection.story.journalTitle}
                   </Text>
-                  {!isPremium && <PremiumBadge variant="lock" />}
                 </View>
-                {isPremium ? (
-                  <Text style={styles.body}>{lore.proStory}</Text>
-                ) : (
-                  <>
-                    <Text style={styles.bodyMuted}>
-                      {tr.collection.story.proLocked}
-                    </Text>
-                    <PressableCard
-                      haptic="medium"
-                      onPress={handlePaywall}
-                      radius={t.radii.md}
-                      accessibilityRole="button"
-                      accessibilityLabel={tr.collection.story.proUnlockCta}
-                    >
-                      <Text style={styles.proCta}>
-                        {tr.collection.story.proUnlockCta}
-                      </Text>
-                    </PressableCard>
-                  </>
-                )}
+                <Text style={styles.body}>{lore.proStory}</Text>
               </View>
             </>
           ) : (
@@ -365,15 +330,6 @@ const makeStyles = (t: AppTheme) =>
       alignItems: "center",
       gap: t.spacing[2],
       marginTop: t.spacing[2]
-    },
-    proCta: {
-      color: t.colors.premium,
-      fontFamily: t.fonts.label,
-      letterSpacing: 1.5,
-      fontSize: 12,
-      textAlign: "center",
-      paddingVertical: t.spacing[2],
-      fontWeight: "700"
     },
     closeText: {
       color: t.colors.textSecondary,

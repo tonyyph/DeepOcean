@@ -1,25 +1,17 @@
-import { ProTabBar, useTheme } from "@/design-system";
-import { usePremium } from "@/stores";
+import { useTheme } from "@/design-system";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
-import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
 import { useMemo } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 
 /**
  * Bottom tabs.
- * - Free tier: themed translucent dock (theme-reactive).
- * - Pro tier: custom raised-pill ProTabBar with theme-accent fill.
- *
  * Reads the active theme via `useTheme()` so tab colors always match the
  * currently selected palette (was previously a static snapshot).
  */
 export default function TabsLayout() {
   const t = useTheme();
-  const isPremium = usePremium((s) => {
-    return s.isPremium;
-  });
 
   const screenOptions = useMemo(
     () => ({
@@ -69,17 +61,8 @@ export default function TabsLayout() {
     [t]
   );
 
-  const renderProTabBar = useMemo(
-    () => (props: BottomTabBarProps) => <ProTabBar {...props} />,
-    []
-  );
-
   return (
-    <Tabs
-      detachInactiveScreens
-      screenOptions={screenOptions}
-      tabBar={isPremium ? renderProTabBar : undefined}
-    >
+    <Tabs detachInactiveScreens screenOptions={screenOptions}>
       <Tabs.Screen
         name="index"
         options={{

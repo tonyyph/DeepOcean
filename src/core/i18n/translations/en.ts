@@ -33,11 +33,11 @@ export const en = {
           "Your Expedition Log starts empty and grows from completed dives. Locked entries tell you what to do next instead of leaving you guessing."
       },
       {
-        title: "Pro, quietly",
+        title: "Personal depth",
         depth: "TRENCH",
-        body: "Premium adds deeper themes, journals, and insights.",
+        body: "Deeper themes, journals, and insights are part of the dive.",
         detail:
-          "Pro should feel refined, not loud: more personal guidance, richer logs, and elegant themes when you want the ocean to feel more like yours."
+          "DeepOcean stays quiet and complete: personal guidance, richer logs, and elegant themes are available as part of the core experience."
       }
     ],
     pageLabel: "Onboarding page",
@@ -163,10 +163,10 @@ export const en = {
     themePickerSub:
       "Each theme reshapes the entire app — palette, typography, ambient field.",
     themePickerPremiumActive:
-      "Pro themes are available. Choose the atmosphere that best supports tonight's focus.",
+      "Choose the atmosphere that best supports tonight's focus.",
     themeLockedCount: (count: number) =>
-      `${count} premium theme${count === 1 ? "" : "s"} locked · upgrade to Pro`,
-    proOnly: "PRO",
+      `${count} theme${count === 1 ? "" : "s"} available`,
+    proOnly: "",
     themeFont: "Font",
     themeParticles: "Particles",
     themeColorIdentity: "Color identity",
@@ -180,19 +180,19 @@ export const en = {
     themeCombinationDescription: (names: string) =>
       `Combine with matching elements to form: ${names}.`,
     applyTheme: "Apply theme",
-    premium: "DeepOcean Pro",
-    premiumDesc: "Unlock themes, deep insights, and full field journals",
-    premiumActive: "All premium content unlocked. Thank you — dive on.",
-    premiumActiveBadge: "ACTIVE",
+    premium: "DeepOcean",
+    premiumDesc: "Themes, deep insights, and full field journals",
+    premiumActive: "All focus tools are available.",
+    premiumActiveBadge: "READY",
     premiumSignalPlan: "PLAN",
     premiumSignalPlanValue: "Personal workflow live",
     premiumSignalInsight: "INSIGHT",
     premiumSignalInsightValue: "Weekly pattern ready",
     premiumSignalTheme: "THEME",
-    premiumSignalThemeValue: "Pro visuals unlocked",
+    premiumSignalThemeValue: "Visuals ready",
     premiumPreviewPlan: "Preview: AI focus plans adapt to your chosen goals.",
     premiumPreviewInsight:
-      "Preview: streak, completion, and mood patterns unlock in Pro.",
+      "Preview: streak, completion, and mood patterns adapt over time.",
     changeGoals: "Change goals & workflow",
     changeGoalsDesc: "Rebuild your personal dive plan",
     confirm: "Confirm",
@@ -212,8 +212,8 @@ export const en = {
     showDiscoveries: "Discovery alerts",
     showDiscoveriesDesc: "Show pop-ups when you encounter something",
     notifications: "NOTIFICATIONS",
-    devEnablePremium: "Enable premium",
-    devEnablePremiumDesc: "Local test toggle for premium UI and feature gates",
+    devEnablePremium: "Enable all access",
+    devEnablePremiumDesc: "Local test toggle for feature gates",
     developer: "DEVELOPER",
     about: "ABOUT",
     appVersion: "Version",
@@ -283,7 +283,7 @@ export const en = {
     startFreeDive: "START FREE DIVE",
     guideTitle: "YOUR GUIDE SUGGESTS",
     personalPlanTitle: "PERSONAL DIVE PLAN",
-    personalPlanUnlock: "UNLOCK PRO PLAN",
+    personalPlanUnlock: "OPEN PLAN",
     streak: "Streak",
     dives: "Dives",
     level: "Level",
@@ -335,18 +335,15 @@ export const en = {
       sluggish: "Sluggish",
       overwhelmed: "Overwhelmed"
     },
-    proHeader: "DEEP INSIGHTS · PRO",
-    proLocked:
-      "Personal trend analysis, mood-correlated dive plans, and a private breathing guide — unlock with Pro.",
-    proUnlockCta: "UNLOCK DEEP INSIGHTS",
-    proPatternTitle: "DIVE PATTERN",
-    proPatternBody:
+    deepHeader: "DEEP INSIGHTS",
+    deepPatternTitle: "DIVE PATTERN",
+    deepPatternBody:
       "Your focus arcs longer in the evenings. Try a 25 → 12 minute split this week.",
-    proMoodTitle: "MOOD MAP",
-    proMoodBody:
+    deepMoodTitle: "MOOD MAP",
+    deepMoodBody:
       "Curious sessions correlate with your deepest reach. Lead with curiosity tomorrow.",
-    proRitualTitle: "BREATHING RITUAL",
-    proRitualBody:
+    deepRitualTitle: "BREATHING RITUAL",
+    deepRitualBody:
       "4 in · 7 hold · 8 out. Three rounds before descent stabilises your descent rate."
   },
   stats: {
@@ -405,7 +402,6 @@ export const en = {
       rare: "Rare",
       legendary: "Legendary",
       mythic: "Mythic",
-      proDetailsLabel: "Pro details",
       noResults:
         "No entries match this filter yet. Clear the filter or keep diving to unlock more of the log."
     },
@@ -417,10 +413,7 @@ export const en = {
       rarityLabel: "RARITY",
       zoneLabel: "ZONE",
       storyTitle: "FIELD ENTRY",
-      proTitle: "EXPEDITION JOURNAL · PRO",
-      proLocked:
-        "Pro divers unlock the full field journal: folklore, theories, sealed witness notes.",
-      proUnlockCta: "UNLOCK FIELD JOURNAL",
+      journalTitle: "EXPEDITION JOURNAL",
       lockedTitle: "Still in the dark",
       lockedBody:
         "This entry has not surfaced yet. Keep diving — every minute below shifts the odds.",
@@ -450,12 +443,12 @@ export const en = {
     completeCta: "Surface"
   },
   paywall: {
-    title: "Dive Deeper with Pro",
+    title: "DeepOcean Access",
     subtitle:
-      "Unlock premium themes, deeper AI insights, and full expedition journals. Support a small studio building calmly.",
-    compareTitle: "Standard vs Pro",
+      "Themes, deeper AI insights, and full expedition journals are included in this build.",
+    compareTitle: "Included tools",
     compareFree: "Standard",
-    comparePro: "Pro",
+    comparePro: "Included",
     compareThemesLabel: "Theme access",
     compareThemesFree: "1 theme",
     compareThemesPro: "All themes",
@@ -467,16 +460,16 @@ export const en = {
     compareAiPro: "Deep insights",
     unlockingTheme: (name: string) => `Unlocking "${name}"`,
     unlockingThemeHint:
-      "This theme is locked. Upgrade to Pro to apply it immediately.",
+      "This theme is available. Apply it from the theme picker.",
     benefits: [
       {
         icon: "water",
-        title: "Keep the Core Dive Free",
-        body: "The timer, XP, streaks, and basic expedition history stay open while Pro adds more depth."
+        title: "Core Dive Tools",
+        body: "Timer, XP, streaks, and expedition history stay open for every diver."
       },
       {
         icon: "diamond",
-        title: "8 Premium Themes",
+        title: "All Themes",
         body: "Unique app-wide visual identities with custom palettes, typography, particles, and depth fog."
       },
       {

@@ -131,14 +131,10 @@ export function DailyCompanionSkeleton() {
 export function PersonalizedPlanCard({
   recommendation,
   workflowId,
-  isPremium,
-  onUnlock,
   tr
 }: {
   recommendation: AIRecommendation | null;
   workflowId: RecommendedWorkflow["id"] | null;
-  isPremium: boolean;
-  onUnlock: () => void;
   tr: ReturnType<typeof useTranslations>;
 }) {
   const t = useTheme();
@@ -147,31 +143,24 @@ export function PersonalizedPlanCard({
     recommendation?.recommendedWorkflow ??
     (workflowId ? tr.onboarding.workflowOptions[workflowId] : null);
   if (!workflow) return null;
-  const previewItems = recommendation?.recommendedItems.slice(0, isPremium ? 3 : 2) ?? [];
+  const previewItems = recommendation?.recommendedItems.slice(0, 3) ?? [];
 
   return (
     <GlassCard
       radius={t.radii.md}
       padding={t.spacing[4]}
-      glow={isPremium}
       style={styles.personalPlanCard}
     >
       <View style={styles.personalPlanHeader}>
         <View style={styles.personalPlanTitleRow}>
           <Ionicons
-            name={isPremium ? "diamond" : "compass"}
+            name="compass"
             size={16}
-            color={isPremium ? t.colors.premium : t.colors.accent}
+            color={t.colors.accent}
           />
           <SectionLabel>{tr.home.personalPlanTitle}</SectionLabel>
         </View>
       </View>
-      {!isPremium && (
-        <View style={styles.personalPlanLock}>
-          <Ionicons name="lock-closed" size={12} color={t.colors.premium} />
-          <Text style={styles.personalPlanLockText}>{tr.profile.proOnly}</Text>
-        </View>
-      )}
       <Text style={styles.personalPlanName}>{workflow.title}</Text>
       <Text style={styles.companionBody}>{workflow.description}</Text>
       <View style={styles.personalPlanSteps}>
@@ -186,25 +175,11 @@ export function PersonalizedPlanCard({
         <View style={styles.personalPlanItems}>
           {previewItems.map((item) => (
             <Text key={item.id} style={styles.personalPlanItem} numberOfLines={1}>
-              {item.isPremium && !isPremium ? "* " : "- "}
+              -{" "}
               {item.title}
             </Text>
           ))}
         </View>
-      )}
-      {!isPremium && (
-        <>
-          <View style={styles.personalPlanFade} />
-          <ActionButton
-            label={tr.home.personalPlanUnlock}
-            icon="sparkles"
-            tone="premium"
-            size="sm"
-            fullWidth
-            onPress={onUnlock}
-            containerStyle={styles.personalPlanCta}
-          />
-        </>
       )}
     </GlassCard>
   );

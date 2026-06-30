@@ -6,8 +6,6 @@ import {
   LanguagePickerSheet,
   LevelUpModal,
   OptionPill,
-  PaywallSheet,
-  PremiumBadge,
   PressableCard,
   ReminderTimePickerSheet,
   ScreenSafeAreaView,
@@ -35,7 +33,6 @@ import { useDiveReminders } from "@/features/notifications";
 import {
   useAchievements,
   usePersonalization,
-  usePremium,
   useSettings,
   useThemeStore
 } from "@/stores";
@@ -51,7 +48,6 @@ import Animated, {
   useSharedValue,
   withTiming
 } from "react-native-reanimated";
-import { PremiumSection } from "./ProfileScreen.components";
 import { makeStyles } from "./ProfileScreen.styles";
 const PREFERRED_OPTIONS = [15, 25, 45, 60] as const;
 const SOUND_LEVELS = [
@@ -80,9 +76,6 @@ export default function ProfileScreen() {
   const preferredSessionMinutes = useSettings((s) => s.preferredSessionMinutes);
   const updateSettings = useSettings((s) => s.update);
   const themeId = useThemeStore((s) => s.themeId);
-  const isPremium = usePremium((s) => s.isPremium);
-  const debugPremiumEnabled = usePremium((s) => s.debugPremiumEnabled);
-  const setDebugPremiumEnabled = usePremium((s) => s.setDebugPremiumEnabled);
   const resetOnboarding = usePersonalization((s) => s.resetOnboarding);
   const alreadyUnlocked = useAchievements((s) => s.unlockedTitleAchievements);
   const persistTitleAchievements = useAchievements(
@@ -91,11 +84,7 @@ export default function ProfileScreen() {
   const reminders = useDiveReminders();
   const [langOpen, setLangOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
-  const [paywallOpen, setPaywallOpen] = useState(false);
   const [reminderTimeOpen, setReminderTimeOpen] = useState(false);
-  const [intentTheme, setIntentTheme] = useState<ThemeId | undefined>(
-    undefined
-  );
   const [isEditingName, setIsEditingName] = useState(false);
   const [draftName, setDraftName] = useState("");
   const nameInputRef = useRef<TextInput>(null);
@@ -176,11 +165,6 @@ export default function ProfileScreen() {
   }, []);
   const openTerms = useCallback(() => {
     void Linking.openURL("https://deepocean.co/terms");
-  }, []);
-  const openPaywall = useCallback((target?: ThemeId) => {
-    setIntentTheme(target);
-    setThemeOpen(false);
-    setTimeout(() => setPaywallOpen(true), 250); // let sheet finish dismissing
   }, []);
   const xpWidth = useSharedValue(0);
   useEffect(() => {
@@ -293,10 +277,6 @@ export default function ProfileScreen() {
               </Animated.View>
             </View>
           </GlassCard>
-          <PremiumSection
-            isPremium={isPremium}
-            onOpenPaywall={() => openPaywall(undefined)}
-          />
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.appearance}</SectionLabel>
             <SettingRow
@@ -305,7 +285,6 @@ export default function ProfileScreen() {
               subtitle={tr.profile.themeDesc}
               value={activeTheme.name}
               onPress={() => setThemeOpen(true)}
-              badge={activeTheme.premium && <PremiumBadge />}
             />
             <SettingRow
               type="nav"
@@ -426,19 +405,6 @@ export default function ProfileScreen() {
               }}
             />
           </GlassCard>
-          {__DEV__ && process.env.EXPO_PUBLIC_ENABLE_PREMIUM === "true" && (
-            <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
-              <SectionLabel>{tr.profile.developer}</SectionLabel>
-              <SettingRow
-                type="switch"
-                title={tr.profile.devEnablePremium}
-                subtitle={tr.profile.devEnablePremiumDesc}
-                value={debugPremiumEnabled}
-                onChange={setDebugPremiumEnabled}
-                divider={false}
-              />
-            </GlassCard>
-          )}
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.about}</SectionLabel>
             <View style={styles.aboutRow}>
@@ -468,7 +434,6 @@ export default function ProfileScreen() {
       <ThemePickerSheet
         visible={themeOpen}
         onDismiss={() => setThemeOpen(false)}
-        onRequestPaywall={(id) => openPaywall(id)}
       />
       <LanguagePickerSheet
         visible={langOpen}
@@ -488,11 +453,6 @@ export default function ProfileScreen() {
           setReminderTimeOpen(false);
         }}
         onDismiss={() => setReminderTimeOpen(false)}
-      />
-      <PaywallSheet
-        visible={paywallOpen}
-        onDismiss={() => setPaywallOpen(false)}
-        intentTheme={intentTheme}
       />
       <LevelUpModal
         visible={rewardQueue[0]?.type === "levelUp"}

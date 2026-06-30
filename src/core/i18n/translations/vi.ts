@@ -33,11 +33,11 @@ export const vi = {
           "Nhật ký thám hiểm ban đầu sẽ trống, rồi lớn dần sau mỗi chuyến lặn. Mục bị khóa cũng nói rõ bạn nên làm gì tiếp."
       },
       {
-        title: "Pro, thật nhẹ",
+        title: "Càng lặn càng riêng",
         depth: "RÃNH SÂU",
-        body: "Premium mở theme sâu hơn, nhật ký đầy đủ hơn và insight cá nhân hơn.",
+        body: "Theme sâu hơn, nhật ký đầy đủ và insight cá nhân nằm sẵn trong chuyến lặn.",
         detail:
-          "Pro nên tinh tế chứ không lòe loẹt: hướng dẫn riêng hơn, nhật ký giàu hơn và giao diện thanh lịch khi bạn muốn đại dương này giống mình hơn."
+          "DeepOcean giữ trải nghiệm yên tĩnh và trọn vẹn: hướng dẫn riêng, nhật ký giàu hơn và giao diện thanh lịch đều là một phần của app."
       }
     ],
     pageLabel: "Trang giới thiệu",
@@ -164,10 +164,10 @@ export const vi = {
     themePickerSub:
       "Mỗi theme thay đổi toàn bộ màu, chữ, hạt lơ lửng — cả cảm giác lặn cũng khác.",
     themePickerPremiumActive:
-      "Theme Pro đã sẵn sàng. Chọn bầu không khí hợp nhất với phiên tập trung tối nay.",
+      "Chọn bầu không khí hợp nhất với phiên tập trung tối nay.",
     themeLockedCount: (count: number) =>
-      `Đang khóa ${count} theme premium · nâng cấp Pro để mở`,
-    proOnly: "PRO",
+      `Có ${count} theme để chọn`,
+    proOnly: "",
     themeFont: "Font",
     themeParticles: "Hạt",
     themeColorIdentity: "Bản sắc màu",
@@ -181,19 +181,19 @@ export const vi = {
     themeCombinationDescription: (names: string) =>
       `Kết hợp với nguyên tố phù hợp để tạo: ${names}.`,
     applyTheme: "Áp dụng chủ đề",
-    premium: "DeepOcean Pro",
-    premiumDesc: "Mở theme, phân tích sâu và nhật ký thám hiểm đầy đủ",
-    premiumActive: "Đã mở khoá toàn bộ. Cảm ơn bạn — lặn vui nha!",
-    premiumActiveBadge: "ĐANG BẬT",
+    premium: "DeepOcean",
+    premiumDesc: "Theme, phân tích sâu và nhật ký thám hiểm đầy đủ",
+    premiumActive: "Toàn bộ công cụ tập trung đã sẵn sàng.",
+    premiumActiveBadge: "SẴN SÀNG",
     premiumSignalPlan: "KẾ HOẠCH",
     premiumSignalPlanValue: "Workflow cá nhân đang bật",
     premiumSignalInsight: "INSIGHT",
     premiumSignalInsightValue: "Pattern tuần đã sẵn sàng",
     premiumSignalTheme: "THEME",
-    premiumSignalThemeValue: "Visual Pro đã mở",
+    premiumSignalThemeValue: "Visual đã sẵn sàng",
     premiumPreviewPlan: "Xem trước: AI plan đổi theo mục tiêu bạn chọn.",
     premiumPreviewInsight:
-      "Xem trước: Pro mở streak, tỉ lệ hoàn thành và pattern tâm trạng.",
+      "Xem trước: streak, tỉ lệ hoàn thành và pattern tâm trạng sẽ thích nghi theo thời gian.",
     changeGoals: "Đổi mục tiêu & workflow",
     changeGoalsDesc: "Dựng lại kế hoạch lặn cá nhân",
     confirm: "Xác nhận",
@@ -213,9 +213,9 @@ export const vi = {
     showDiscoveries: "Thông báo khám phá",
     showDiscoveriesDesc: "Hiện pop-up khi bắt gặp sinh vật/cổ vật",
     notifications: "THÔNG BÁO",
-    devEnablePremium: "Bật premium",
+    devEnablePremium: "Bật toàn quyền",
     devEnablePremiumDesc:
-      "Bật nhanh premium cục bộ để test UI và các tính năng bị khóa",
+      "Bật nhanh toàn quyền cục bộ để test feature gate",
     developer: "NHÀ PHÁT TRIỂN",
     about: "VỀ ỨNG DỤNG",
     appVersion: "Phiên bản",
@@ -285,7 +285,7 @@ export const vi = {
     startFreeDive: "BẮT ĐẦU LẶN TỰ DO",
     guideTitle: "NGƯỜI HƯỚNG DẪN GỢI Ý",
     personalPlanTitle: "KẾ HOẠCH LẶN RIÊNG",
-    personalPlanUnlock: "MỞ KẾ HOẠCH PRO",
+    personalPlanUnlock: "MỞ KẾ HOẠCH",
     streak: "Liên tiếp",
     dives: "Lần lặn",
     level: "Cấp độ",
@@ -339,18 +339,15 @@ export const vi = {
       sluggish: "Uể oải",
       overwhelmed: "Quá tải"
     },
-    proHeader: "PHÂN TÍCH SÂU · PRO",
-    proLocked:
-      "Phân tích xu hướng cá nhân, kế hoạch lặn theo tâm trạng và bài thở riêng — chỉ có ở bản Pro.",
-    proUnlockCta: "MỞ PHÂN TÍCH SÂU",
-    proPatternTitle: "NHỊP LẶN",
-    proPatternBody:
+    deepHeader: "PHÂN TÍCH SÂU",
+    deepPatternTitle: "NHỊP LẶN",
+    deepPatternBody:
       "Buổi tối bạn lặn bền hơn. Thử chia 25 → 12 phút trong tuần này xem sao.",
-    proMoodTitle: "BẢN ĐỒ TÂM TRẠNG",
-    proMoodBody:
+    deepMoodTitle: "BẢN ĐỒ TÂM TRẠNG",
+    deepMoodBody:
       "Những hôm bạn thấy tò mò lại là những hôm lặn sâu nhất. Mai cứ lặn trong tinh thần đó.",
-    proRitualTitle: "NGHI THỨC HÍT THỞ",
-    proRitualBody:
+    deepRitualTitle: "NGHI THỨC HÍT THỞ",
+    deepRitualBody:
       "Hít 4 · giữ 7 · thở 8. Ba vòng trước khi lặn là tốc độ xuống ên như lụa."
   },
   stats: {
@@ -409,7 +406,6 @@ export const vi = {
       rare: "Hiếm",
       legendary: "Huyền thoại",
       mythic: "Thần thoại",
-      proDetailsLabel: "Chi tiết Pro",
       noResults:
         "Bộ lọc này chưa có mục nào. Xóa bộ lọc hoặc tiếp tục lặn để mở thêm nhật ký."
     },
@@ -420,10 +416,7 @@ export const vi = {
       rarityLabel: "ĐỘ HIẾM",
       zoneLabel: "VÙNG BIỂN",
       storyTitle: "GHI CHÉP CHUYẾN LẶN",
-      proTitle: "NHẬT KÝ MẬT · PRO",
-      proLocked:
-        "Diver Pro mới được mở trang nhật ký mật: truyền thuyết, giả thuyết, lời khai chưa công bố.",
-      proUnlockCta: "MỞ NHẬT KÝ MẬT",
+      journalTitle: "NHẬT KÝ MẬT",
       lockedTitle: "Vẫn còn ẩn mình",
       lockedBody:
         "Thứ này chưa từng lộ diện với bạn. Cứ lặn tiếp đi — mỗi phút dưới biển là một cơ hội mới.",
@@ -454,12 +447,12 @@ export const vi = {
     completeCta: "Nổi lên"
   },
   paywall: {
-    title: "Lặn sâu hơn với Pro",
+    title: "Quyền truy cập DeepOcean",
     subtitle:
-      "Mở theme premium, phân tích AI sâu hơn và nhật ký thám hiểm đầy đủ. Ủng hộ đội ngũ nhỏ đang làm app.",
-    compareTitle: "Bản thường vs Pro",
+      "Theme, phân tích AI sâu hơn và nhật ký thám hiểm đầy đủ đều có sẵn trong bản này.",
+    compareTitle: "Công cụ có sẵn",
     compareFree: "Bản thường",
-    comparePro: "Pro",
+    comparePro: "Có sẵn",
     compareThemesLabel: "Theme có thể dùng",
     compareThemesFree: "1 theme",
     compareThemesPro: "Toàn bộ",
@@ -470,16 +463,16 @@ export const vi = {
     compareAiFree: "Cơ bản",
     compareAiPro: "Phân tích sâu",
     unlockingTheme: (name: string) => `Mở khoá "${name}"`,
-    unlockingThemeHint: "Theme này đang bị khóa. Nâng cấp Pro để áp dụng ngay.",
+    unlockingThemeHint: "Theme này có sẵn. Áp dụng trong phần chọn chủ đề.",
     benefits: [
       {
         icon: "water",
-        title: "Giữ trải nghiệm lặn miễn phí",
-        body: "Timer, XP, streak và lịch sử cơ bản vẫn mở; Pro thêm chiều sâu cho người dùng gắn bó."
+        title: "Công cụ lặn cốt lõi",
+        body: "Timer, XP, streak và lịch sử thám hiểm luôn mở cho mọi thợ lặn."
       },
       {
         icon: "diamond",
-        title: "8 Theme Premium",
+        title: "Toàn bộ theme",
         body: "Giao diện riêng cho toàn app: bảng màu, font chữ, hạt lơ lửng và sương sâu."
       },
       {

@@ -5,8 +5,6 @@ import {
   CreatureStorySheet,
   GlassCard,
   GuidanceCard,
-  PaywallSheet,
-  PremiumBadge,
   ScreenSafeAreaView,
   SectionSkeleton,
   Skeleton,
@@ -27,7 +25,7 @@ import {
   rarityColor,
   type OceanZone
 } from "@/features/ocean";
-import { useAchievements, usePremium } from "@/stores";
+import { useAchievements } from "@/stores";
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -72,7 +70,6 @@ export default function CollectionScreen() {
   const t = useTheme();
   const tr = useTranslations();
   const styles = useThemedStyles(makeStyles);
-  const isPremium = usePremium((s) => s.isPremium);
   useScreenTransitionLoading(isLoading, "collection");
 
   const completedZoneSets = useAchievements((s) => s.completedZoneSets);
@@ -80,7 +77,6 @@ export default function CollectionScreen() {
 
   const [activeRow, setActiveRow] = useState<StoryRow | null>(null);
   const [storyOpen, setStoryOpen] = useState(false);
-  const [paywallOpen, setPaywallOpen] = useState(false);
   const [codexCompleteZone, setCodexCompleteZone] = useState<OceanZone | null>(null);
   const [rarityFilter, setRarityFilter] = useState<RarityFilter>("all");
 
@@ -195,10 +191,6 @@ export default function CollectionScreen() {
     setStoryOpen(true);
   }, []);
 
-  const handlePaywall = useCallback(() => {
-    setPaywallOpen(true);
-  }, []);
-
   const renderListHeader = useCallback(
     () => (
       <View style={styles.stickyFilterWrap}>
@@ -277,39 +269,17 @@ export default function CollectionScreen() {
             })}
           </ScrollView>
         </View>
-        {!isPremium && (
-          <Pressable
-            onPress={handlePaywall}
-            style={styles.proCallout}
-            accessibilityRole="button"
-            accessibilityLabel={tr.collection.story.proUnlockCta}
-          >
-            <PremiumBadge variant="lock" />
-            <Text style={styles.proCalloutText} numberOfLines={2}>
-              {tr.collection.story.proLocked}
-            </Text>
-            <Ionicons
-              name="chevron-forward"
-              size={16}
-              color={t.colors.textMuted}
-            />
-          </Pressable>
-        )}
       </View>
     ),
     [
-      handlePaywall,
-      isPremium,
       rarityFilter,
       rarityOptions,
       styles,
       t.colors.accent,
-      t.colors.textMuted,
       tr.codex.setsTitle,
       tr.codex.setProgress,
       tr.codex.setComplete,
       tr.collection.filters.rarity,
-      tr.collection.story.proLocked,
       zoneSets
     ]
   );
@@ -327,11 +297,10 @@ export default function CollectionScreen() {
       ) : (
         <CollectionRow
           row={item}
-          isPremium={isPremium}
           onPress={handleRowPress}
         />
       ),
-    [isPremium, handleRowPress]
+    [handleRowPress]
   );
 
   const getItemType = useCallback(
@@ -364,7 +333,6 @@ export default function CollectionScreen() {
           data={isLoading ? skeletonRows : filteredRows}
           keyExtractor={keyExtractor}
           drawDistance={height * 1.5}
-          extraData={isPremium}
           showsVerticalScrollIndicator={false}
           renderItem={renderItem}
           ListHeaderComponent={renderListHeader}
@@ -387,12 +355,6 @@ export default function CollectionScreen() {
         visible={storyOpen}
         onDismiss={() => setStoryOpen(false)}
         row={activeRow}
-        onRequestPaywall={handlePaywall}
-      />
-
-      <PaywallSheet
-        visible={paywallOpen}
-        onDismiss={() => setPaywallOpen(false)}
       />
 
       <ZoneSetCompleteModal
@@ -408,13 +370,11 @@ const Separator = () => <View style={separatorStyles.sep} />;
 
 type RowProps = {
   row: StoryRow;
-  isPremium: boolean;
   onPress: (row: StoryRow) => void;
 };
 
 const CollectionRow = React.memo(function CollectionRow({
   row,
-  isPremium,
   onPress
 }: RowProps) {
   const t = useTheme();
@@ -460,33 +420,15 @@ const CollectionRow = React.memo(function CollectionRow({
               >
                 {row.seen ? row.name : tr.collection.undiscovered}
               </Text>
-              {row.seen && !isPremium && (
-                <View style={styles.proHint}>
-                  <Ionicons
-                    name="lock-closed"
-                    size={10}
-                    color={t.colors.premium}
-                  />
-                </View>
-              )}
             </View>
             <Text style={styles.zoneLabel}>
               {row.seen ? row.zone : "???"} · {row.rarity.toUpperCase()}
               {row.count > 1 ? `  ×${row.count}` : ""}
             </Text>
-            {row.seen && isPremium ? (
+            {row.seen ? (
               <Text style={styles.desc} numberOfLines={2}>
                 {row.description}
               </Text>
-            ) : row.seen ? (
-              <View style={styles.premiumTeaserWrap}>
-                <Text style={styles.premiumRibbonText}>
-                  {tr.collection.filters.proDetailsLabel}
-                </Text>
-                <Text style={styles.premiumTeaser} numberOfLines={2}>
-                  {tr.collection.story.proLocked}
-                </Text>
-              </View>
             ) : (
               <Text style={styles.whisper} numberOfLines={2}>
                 {tr.collection.story.lockedBody}
@@ -506,7 +448,6 @@ const CollectionRow = React.memo(function CollectionRow({
 
 function areCollectionRowsEqual(prev: RowProps, next: RowProps): boolean {
   return (
-    prev.isPremium === next.isPremium &&
     prev.onPress === next.onPress &&
     prev.row.id === next.row.id &&
     prev.row.seen === next.row.seen &&
@@ -532,12 +473,6 @@ function CollectionRowSkeleton() {
         <View style={styles.flex}>
           <View style={styles.nameRow}>
             <Skeleton style={styles.nameSkeleton} />
-            <Skeleton
-              style={styles.lockSkeleton}
-              width={18}
-              height={18}
-              radius={9}
-            />
           </View>
           <Skeleton style={styles.metaSkeleton} />
           <SectionSkeleton

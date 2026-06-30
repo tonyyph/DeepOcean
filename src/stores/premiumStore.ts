@@ -15,14 +15,16 @@ import { create, StoreApi, UseBoundStore } from "zustand";
 
 /**
  * Premium store — reactive cache over the entitlement gateway (RevenueCat via
- * `container.premium`). The gateway is the source of truth; this store mirrors
- * the resolved snapshot so components can read premium state synchronously.
+ * `container.premium`). The gateway is the source of truth for real billing;
+ * free all-access mode forces the effective premium state locally.
  *
  * Free themes never appear in `unlockedThemes` — they are free for all.
  * `unlockedThemes` tracks ONLY individually-purchased premium themes.
  */
 
 const VALID_THEME_IDS = new Set<string>(THEME_IDS);
+// Product mode: the full app is available without a paid entitlement.
+const FREE_ALL_ACCESS_ENABLED = true;
 const LEGACY_THEME_IDS: Record<string, ThemeId> = {
   deep: "prismWater",
   reef: "prismNature",
@@ -65,7 +67,7 @@ type PremiumState = {
   activePlan: PlanId | null;
   /** Dev-only local override for fast premium UI testing. */
   debugPremiumEnabled: boolean;
-  /** True when a real billing provider is configured. */
+  /** True when billing is usable or the build is running in all-access mode. */
   isConfigured: boolean;
   /** Tracks in-flight purchase/restore calls for the paywall UI. */
   status: PurchaseStatus;
@@ -98,11 +100,14 @@ function applySnapshot(
   PremiumState,
   "entitlementPremium" | "isPremium" | "unlockedThemes" | "activePlan"
 > {
+  const isPremium =
+    FREE_ALL_ACCESS_ENABLED || snapshot.isPremium || debugPremiumEnabled;
+
   return {
     entitlementPremium: snapshot.isPremium,
-    isPremium: snapshot.isPremium || debugPremiumEnabled,
+    isPremium,
     unlockedThemes: narrowThemes(snapshot.unlockedThemes),
-    activePlan: snapshot.activePlan ?? null
+    activePlan: isPremium ? snapshot.activePlan ?? "lifetime" : null
   };
 }
 
@@ -111,6 +116,17 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
     async function runPurchase(
       op: () => Promise<EntitlementSnapshot>
     ): Promise<boolean> {
+      if (FREE_ALL_ACCESS_ENABLED) {
+        set({
+          ...applySnapshot(
+            container.premium.cached(),
+            get().debugPremiumEnabled
+          ),
+          status: "idle"
+        });
+        return true;
+      }
+
       set({ status: "loading" });
       try {
         const snapshot = await op();
@@ -132,7 +148,7 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
     return {
       ...applySnapshot(container.premium.cached(), false),
       debugPremiumEnabled: false,
-      isConfigured: container.premium.isConfigured,
+      isConfigured: FREE_ALL_ACCESS_ENABLED || container.premium.isConfigured,
       status: "idle",
       trialState: container.premium.activeTrial(),
 
@@ -145,6 +161,9 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
           ),
           trialState: container.premium.activeTrial()
         });
+        if (FREE_ALL_ACCESS_ENABLED) {
+          return;
+        }
         try {
           await container.premium.configure();
           const fresh = await container.premium.refresh();
@@ -168,6 +187,12 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
       restore: () => runPurchase(() => container.premium.restore()),
 
       startTrial: async (planId) => {
+        if (FREE_ALL_ACCESS_ENABLED) {
+          const trialState = container.premium.activeTrial();
+          set({ trialState, status: "idle" });
+          return trialState;
+        }
+
         set({ status: "loading" });
         try {
           const state = await container.premium.startTrial(planId);
@@ -205,7 +230,12 @@ export const usePremium: UseBoundStore<StoreApi<PremiumState>> =
       setDebugPremiumEnabled: (enabled) => {
         set((state) => ({
           debugPremiumEnabled: enabled,
-          isPremium: state.entitlementPremium || enabled
+          isPremium:
+            FREE_ALL_ACCESS_ENABLED || state.entitlementPremium || enabled,
+          activePlan:
+            FREE_ALL_ACCESS_ENABLED || state.entitlementPremium || enabled
+              ? state.activePlan ?? "lifetime"
+              : null
         }));
       }
     };

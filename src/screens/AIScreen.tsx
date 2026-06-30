@@ -7,7 +7,6 @@ import {
   GlassCard,
   GuidanceCard,
   OptionPill,
-  PaywallSheet,
   ScreenSafeAreaView,
   ScreenScrollView,
   SectionLabel,
@@ -20,7 +19,7 @@ import {
   type AppTheme
 } from "@/design-system";
 import { MOODS, type Language } from "@/domain/entities";
-import { buildAIContext, useAskAgainLimit } from "@/features/ai";
+import { buildAIContext } from "@/features/ai";
 import {
   useDailyMotivation,
   useDailyRecommendation,
@@ -28,11 +27,11 @@ import {
 } from "@/features/diver";
 import { diverKeys } from "@/features/diver/hooks";
 import { selectCurrentMood, useMoodRecord, useSetMood } from "@/features/mood";
-import { usePremium, useSettings } from "@/stores";
+import { useSettings } from "@/stores";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { ProInsights } from "./ai/ProInsights";
+import { DeepInsights } from "./ai/DeepInsights";
 
 function stableMoodRank(mood: string): number {
   let hash = 0;
@@ -67,13 +66,11 @@ export default function AIScreen() {
 
   const { mutate: setMood } = useSetMood();
   const selectedMood = selectCurrentMood(moodRecord);
-  const [paywallOpen, setPaywallOpen] = useState(false);
   const [manualRefreshing, setManualRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const manualRefreshingRef = useRef(false);
   const mountedRef = useRef(true);
   const tr = useTranslations();
-  const isPremium = usePremium((s) => s.isPremium);
   const language = useSettings((s) => s.language);
   const queryClient = useQueryClient();
 
@@ -97,21 +94,13 @@ export default function AIScreen() {
     };
   }, []);
 
-  const handleOpenPaywall = useCallback((_reason?: string) => {
-    setPaywallOpen(true);
-  }, []);
-  const { askAgainUsesLeft, consumeAskAgain } = useAskAgainLimit({
-    isPremium,
-    onLimitReached: handleOpenPaywall
-  });
   const aiRefreshInFlight =
     isFetching || motivationFetching || manualRefreshing;
   const canAskAgain = !aiRefreshInFlight;
 
   const runAIRefresh = useCallback(
-    (shouldConsumeAskAgain: boolean) => {
+    () => {
       if (manualRefreshingRef.current || aiRefreshInFlight) return;
-      if (shouldConsumeAskAgain && !consumeAskAgain()) return;
 
       manualRefreshingRef.current = true;
       setManualRefreshing(true);
@@ -148,17 +137,16 @@ export default function AIScreen() {
     },
     [
       aiRefreshInFlight,
-      consumeAskAgain,
       language,
       queryClient,
       tr.ai.refreshError
     ]
   );
   const handleRefreshAI = useCallback(() => {
-    runAIRefresh(true);
+    runAIRefresh();
   }, [runAIRefresh]);
   const handleMoodRefreshAI = useCallback(() => {
-    runAIRefresh(false);
+    runAIRefresh();
   }, [runAIRefresh]);
 
   const randomMoods = STABLE_RANDOM_MOODS;
@@ -201,11 +189,6 @@ export default function AIScreen() {
                 onPress={handleRefreshAI}
                 disabled={!canAskAgain}
               />
-              {!isPremium && (
-                <Text style={styles.askLimitText}>
-                  {tr.ai.askAgainRetriesLeft(askAgainUsesLeft)}
-                </Text>
-              )}
               {refreshError != null && (
                 <Text style={styles.refreshErrorText}>{refreshError}</Text>
               )}
@@ -234,10 +217,7 @@ export default function AIScreen() {
             )
           )}
 
-          {/* PRO INSIGHTS BLOCK */}
-          <ProInsights
-            isPremium={isPremium}
-            onUnlock={handleOpenPaywall}
+          <DeepInsights
             theme={t}
             tr={tr}
             selectedMood={selectedMood}
@@ -265,10 +245,6 @@ export default function AIScreen() {
         </ScreenScrollView>
       </ScreenSafeAreaView>
 
-      <PaywallSheet
-        visible={paywallOpen}
-        onDismiss={() => setPaywallOpen(false)}
-      />
     </ZoneBackground>
   );
 }
@@ -325,14 +301,6 @@ const makeStyles = (t: AppTheme) =>
     askWrap: { marginTop: t.spacing[4] },
     refreshErrorText: {
       color: t.colors.danger,
-      fontSize: 12,
-      lineHeight: 18,
-      textAlign: "center",
-      marginTop: t.spacing[2],
-      fontFamily: t.fonts.body
-    },
-    askLimitText: {
-      color: t.colors.textSecondary,
       fontSize: 12,
       lineHeight: 18,
       textAlign: "center",

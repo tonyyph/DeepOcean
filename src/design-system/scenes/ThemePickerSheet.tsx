@@ -1,5 +1,5 @@
 import { useTranslations } from "@/core/i18n";
-import { canUseTheme, usePremium, useThemeStore } from "@/stores";
+import { useThemeStore } from "@/stores";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { MotiView } from "moti";
 import { useCallback, useState } from "react";
@@ -7,7 +7,6 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowText } from "../atoms/GlowText";
-import { PremiumBadge } from "../atoms/PremiumBadge";
 import { PressableCard } from "../atoms/PressableCard";
 import { Sheet } from "../atoms/Sheet";
 import { ThemeSwatch } from "../atoms/ThemeSwatch";
@@ -22,18 +21,15 @@ const SWATCH_ITEM_WIDTH = 92;
 type Props = {
   visible: boolean;
   onDismiss: () => void;
-  /** Called when the user requests to open the paywall (locked theme tapped). */
-  onRequestPaywall: (themeId: ThemeId) => void;
 };
 
 /**
  * ThemePickerSheet — a horizontal carousel of theme swatches with a live
- * preview + descriptions. Tapping a locked premium theme triggers paywall.
+ * preview + descriptions.
  */
 export function ThemePickerSheet({
   visible,
-  onDismiss,
-  onRequestPaywall
+  onDismiss
 }: Props) {
   const styles = useThemedStyles(makeStyles);
   const t = useTheme();
@@ -41,8 +37,6 @@ export function ThemePickerSheet({
   const insets = useSafeAreaInsets();
   const activeId = useThemeStore((s) => s.themeId);
   const setTheme = useThemeStore((s) => s.setTheme);
-  const isPremium = usePremium((s) => s.isPremium);
-  const unlocked = usePremium((s) => s.unlockedThemes);
 
   const [draftTheme, setDraftTheme] = useState<ThemeId | null>(null);
   const selected = draftTheme ?? activeId;
@@ -53,14 +47,10 @@ export function ThemePickerSheet({
   }, [onDismiss]);
 
   const handlePick = useCallback(
-    (id: ThemeId, premium: boolean) => {
-      if (!canUseTheme(id, premium, isPremium, unlocked)) {
-        onRequestPaywall(id);
-        return;
-      }
+    (id: ThemeId) => {
       setDraftTheme(id);
     },
-    [isPremium, unlocked, onRequestPaywall]
+    []
   );
 
   const handleApply = useCallback(() => {
@@ -89,23 +79,6 @@ export function ThemePickerSheet({
           </GlowText>
           <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
         </View>
-        <View
-          style={[
-            styles.membershipBanner,
-            isPremium
-              ? styles.membershipBannerPremium
-              : styles.membershipBannerFree
-          ]}
-        >
-          <Text style={styles.membershipBannerTitle}>
-            {isPremium
-              ? tr.profile.themePickerPremiumActive
-              : tr.profile.themeLockedCount(
-                  THEME_LIST.filter((theme) => theme.premium).length
-                )}
-          </Text>
-        </View>
-
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -113,22 +86,18 @@ export function ThemePickerSheet({
           contentContainerStyle={styles.swatchRow}
         >
           {THEME_LIST.map((th) => {
-            const locked = !canUseTheme(th.id, th.premium, isPremium, unlocked);
             const isSelected = th.id === selected;
             return (
               <Pressable
                 key={th.id}
-                onPress={() => handlePick(th.id, th.premium)}
+                onPress={() => handlePick(th.id)}
                 style={[
                   styles.swatchItem,
-                  isSelected && styles.swatchItemSelected,
-                  locked && styles.swatchItemLocked
+                  isSelected && styles.swatchItemSelected
                 ]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
-                accessibilityLabel={`${th.name}${
-                  locked ? `, ${tr.profile.proOnly}` : ""
-                }`}
+                accessibilityLabel={th.name}
               >
                 <MotiView
                   from={{ scale: 0.96 }}
@@ -141,11 +110,6 @@ export function ThemePickerSheet({
                     size={SWATCH_SIZE}
                     active={isSelected}
                   />
-                  {locked && (
-                    <View style={styles.lockBadge}>
-                      <PremiumBadge variant="lock" label={tr.profile.proOnly} />
-                    </View>
-                  )}
                 </MotiView>
                 <Text
                   numberOfLines={1}
@@ -292,30 +256,6 @@ const makeStyles = (t: AppTheme) =>
     header: {
       gap: t.spacing[1]
     },
-    membershipBanner: {
-      borderRadius: t.radii.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      paddingHorizontal: t.spacing[4],
-      paddingVertical: t.spacing[3],
-      minHeight: 44,
-      justifyContent: "center"
-    },
-    membershipBannerPremium: {
-      borderColor: t.colors.borderStrong,
-      backgroundColor: t.colors.panelStrong
-    },
-    membershipBannerFree: {
-      borderColor: t.colors.borderStrong,
-      backgroundColor: t.colors.panelStrong
-    },
-    membershipBannerTitle: {
-      color: t.colors.text,
-      fontSize: 12,
-      lineHeight: 17,
-      letterSpacing: 0.6,
-      fontFamily: t.fonts.label,
-      textAlign: "center"
-    },
     title: {
       color: t.colors.text,
       fontSize: 20,
@@ -359,9 +299,6 @@ const makeStyles = (t: AppTheme) =>
       justifyContent: "center",
       minHeight: SWATCH_SIZE + 10
     },
-    swatchItemLocked: {
-      opacity: 0.72
-    },
     swatchLabel: {
       color: t.colors.textSecondary,
       fontSize: 12,
@@ -369,11 +306,6 @@ const makeStyles = (t: AppTheme) =>
       letterSpacing: 0.8,
       maxWidth: SWATCH_ITEM_WIDTH - t.spacing[3],
       textAlign: "center"
-    },
-    lockBadge: {
-      position: "absolute",
-      top: 2,
-      right: -8
     },
     previewCard: {
       padding: t.spacing[4],

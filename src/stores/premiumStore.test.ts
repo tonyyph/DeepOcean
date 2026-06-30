@@ -73,7 +73,7 @@ describe("premiumStore debug toggle", () => {
     return { usePremium: usePremium!, premiumGatewayMock };
   };
 
-  test("setDebugPremiumEnabled toggles effective premium when entitlement is false", async () => {
+  test("free all-access keeps premium enabled when entitlement is false", async () => {
     const { usePremium } = setup();
 
     usePremium.setState({ entitlementPremium: false, isPremium: false });
@@ -81,7 +81,8 @@ describe("premiumStore debug toggle", () => {
     expect(usePremium.getState().isPremium).toBe(true);
 
     usePremium.getState().setDebugPremiumEnabled(false);
-    expect(usePremium.getState().isPremium).toBe(false);
+    expect(usePremium.getState().isPremium).toBe(true);
+    expect(usePremium.getState().activePlan).toBe("lifetime");
   });
 
   test("setDebugPremiumEnabled does not disable paid entitlement", async () => {
@@ -97,14 +98,23 @@ describe("premiumStore debug toggle", () => {
     expect(usePremium.getState().isPremium).toBe(true);
   });
 
-  test("hydrate resolves gateway snapshot into store", async () => {
+  test("hydrate keeps free all-access without calling billing", async () => {
     const { usePremium, premiumGatewayMock } = setup();
 
     await usePremium.getState().hydrate();
 
-    expect(premiumGatewayMock.configure).toHaveBeenCalled();
-    expect(premiumGatewayMock.refresh).toHaveBeenCalled();
+    expect(premiumGatewayMock.configure).not.toHaveBeenCalled();
+    expect(premiumGatewayMock.refresh).not.toHaveBeenCalled();
     expect(usePremium.getState().isPremium).toBe(true);
-    expect(usePremium.getState().activePlan).toBe("annual");
+    expect(usePremium.getState().activePlan).toBe("lifetime");
+  });
+
+  test("startTrial is a no-op in free all-access mode", async () => {
+    const { usePremium, premiumGatewayMock } = setup();
+
+    await expect(usePremium.getState().startTrial("annual")).resolves.toBeNull();
+
+    expect(premiumGatewayMock.startTrial).not.toHaveBeenCalled();
+    expect(usePremium.getState().isPremium).toBe(true);
   });
 });

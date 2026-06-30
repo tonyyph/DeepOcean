@@ -460,9 +460,9 @@ function RecommendationItem({
     >
       <View style={styles.cardIcon}>
         <Ionicons
-          name={active ? "checkmark" : item.isPremium ? "diamond" : "sparkles"}
+          name={active ? "checkmark" : "sparkles"}
           size={16}
-          color={item.isPremium ? t.colors.premium : t.colors.accent}
+          color={t.colors.accent}
         />
       </View>
       <View style={styles.flex}>
@@ -502,7 +502,7 @@ function WorkflowCard({
         <Ionicons
           name={icon}
           size={18}
-          color={workflow.isPremium ? t.colors.premium : t.colors.accent}
+          color={t.colors.accent}
         />
       </View>
       <View style={styles.flex}>

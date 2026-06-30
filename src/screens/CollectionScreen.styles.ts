@@ -7,25 +7,6 @@ export const makeStyles = (t: AppTheme) =>
     headerWrap: {
       gap: t.spacing[3]
     },
-    proCallout: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: t.spacing[3],
-      paddingVertical: t.spacing[3],
-      paddingHorizontal: t.spacing[4],
-      borderRadius: t.radii.sm,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.premium,
-      backgroundColor: t.colors.glass,
-      marginBottom: t.spacing[2]
-    },
-    proCalloutText: {
-      flex: 1,
-      color: t.colors.text,
-      fontFamily: t.fonts.body,
-      fontSize: 12,
-      lineHeight: 17
-    },
     filterTitle: {
       color: t.colors.textSecondary,
       fontSize: 11,
@@ -149,16 +130,6 @@ export const makeStyles = (t: AppTheme) =>
       fontFamily: t.fonts.body,
       flexShrink: 1
     },
-    proHint: {
-      width: 18,
-      height: 18,
-      borderRadius: 9,
-      alignItems: "center",
-      justifyContent: "center",
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.colors.premium,
-      backgroundColor: t.colors.glass
-    },
     zoneLabel: {
       color: t.colors.textSecondary,
       fontSize: 11,
@@ -173,30 +144,6 @@ export const makeStyles = (t: AppTheme) =>
       lineHeight: 19,
       fontFamily: t.fonts.body
     },
-    premiumTeaser: {
-      color: t.colors.premium,
-      fontSize: 12,
-      marginTop: t.spacing[1.5],
-      lineHeight: 17,
-      fontFamily: t.fonts.body
-    },
-    premiumTeaserWrap: {
-      marginTop: t.spacing[1.5],
-      gap: t.spacing[1]
-    },
-    premiumRibbonText: {
-      alignSelf: "flex-start",
-      borderRadius: t.radii.pill,
-      overflow: "hidden",
-      color: t.colors.surface,
-      backgroundColor: t.colors.premium,
-      fontSize: 9,
-      letterSpacing: 0.7,
-      fontFamily: t.fonts.label,
-      paddingHorizontal: t.spacing[2],
-      paddingVertical: 2,
-      textTransform: "uppercase"
-    },
     whisper: {
       color: t.colors.textMuted,
       fontSize: 12,
@@ -209,9 +156,6 @@ export const makeStyles = (t: AppTheme) =>
       height: 16,
       width: "58%",
       borderRadius: t.radii.xs
-    },
-    lockSkeleton: {
-      marginLeft: t.spacing[1.5]
     },
     metaSkeleton: {
       width: "44%",
