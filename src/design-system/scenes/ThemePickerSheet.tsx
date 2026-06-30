@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EntranceView } from "../animations";
 import { GlowText } from "../atoms/GlowText";
 import { PressableCard } from "../atoms/PressableCard";
 import { Sheet } from "../atoms/Sheet";
@@ -67,61 +68,70 @@ export function ThemePickerSheet({ visible, onDismiss }: Props) {
         overScrollMode="never"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <GlowText shadow={false} size={20} style={styles.title}>
-            {tr.profile.themePickerTitle}
-          </GlowText>
-          <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
-        </View>
+        <EntranceView index={0} distance={8}>
+          <View style={styles.header}>
+            <GlowText shadow={false} size={20} style={styles.title}>
+              {tr.profile.themePickerTitle}
+            </GlowText>
+            <Text style={styles.subtitle}>{tr.profile.themePickerSub}</Text>
+          </View>
+        </EntranceView>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.swatchScroll}
           contentContainerStyle={styles.swatchRow}
         >
-          {THEME_LIST.map((th) => {
+          {THEME_LIST.map((th, index) => {
             const isSelected = th.id === selected;
             return (
-              <Pressable
+              <EntranceView
                 key={th.id}
-                onPress={() => handlePick(th.id)}
-                style={[
-                  styles.swatchItem,
-                  isSelected && styles.swatchItemSelected
-                ]}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isSelected }}
-                accessibilityLabel={th.name}
+                index={Math.min(index, 10)}
+                delayMs={24}
+                distance={8}
               >
-                <MotiView
-                  from={{ scale: 0.96 }}
-                  animate={{ scale: isSelected ? 1.05 : 1 }}
-                  transition={{ type: "spring", damping: 16, stiffness: 220 }}
-                  style={styles.swatchMotion}
-                >
-                  <ThemeSwatch
-                    theme={th}
-                    size={SWATCH_SIZE}
-                    active={isSelected}
-                  />
-                </MotiView>
-                <Text
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.82}
+                <Pressable
+                  onPress={() => handlePick(th.id)}
                   style={[
-                    styles.swatchLabel,
-                    isSelected && { color: th.colors.accent }
+                    styles.swatchItem,
+                    isSelected && styles.swatchItemSelected
                   ]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  accessibilityLabel={th.name}
                 >
-                  {th.name}
-                </Text>
-              </Pressable>
+                  <MotiView
+                    from={{ scale: 0.96 }}
+                    animate={{ scale: isSelected ? 1.05 : 1 }}
+                    transition={{ type: "spring", damping: 16, stiffness: 220 }}
+                    style={styles.swatchMotion}
+                  >
+                    <ThemeSwatch
+                      theme={th}
+                      size={SWATCH_SIZE}
+                      active={isSelected}
+                    />
+                  </MotiView>
+                  <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.82}
+                    style={[
+                      styles.swatchLabel,
+                      isSelected && { color: th.colors.accent }
+                    ]}
+                  >
+                    {th.name}
+                  </Text>
+                </Pressable>
+              </EntranceView>
             );
           })}
         </ScrollView>
 
-        <View style={styles.previewCard}>
+        <EntranceView index={2}>
+          <View style={styles.previewCard}>
           <View style={styles.previewHeader}>
             <View
               style={[
@@ -188,26 +198,29 @@ export function ThemePickerSheet({ visible, onDismiss }: Props) {
               </Text>
             </View>
           </View>
-        </View>
+          </View>
+        </EntranceView>
 
-        <View style={styles.actions}>
-          <PressableCard
-            haptic="medium"
-            onPress={handleApply}
-            accessibilityRole="button"
-            accessibilityLabel={tr.profile.applyTheme}
-          >
-            <Text style={styles.applyText}>{tr.profile.applyTheme}</Text>
-          </PressableCard>
-          <PressableCard
-            haptic="light"
-            onPress={onDismiss}
-            accessibilityRole="button"
-            accessibilityLabel={tr.profile.cancel}
-          >
-            <Text style={styles.cancelText}>{tr.profile.cancel}</Text>
-          </PressableCard>
-        </View>
+        <EntranceView index={3}>
+          <View style={styles.actions}>
+            <PressableCard
+              haptic="medium"
+              onPress={handleApply}
+              accessibilityRole="button"
+              accessibilityLabel={tr.profile.applyTheme}
+            >
+              <Text style={styles.applyText}>{tr.profile.applyTheme}</Text>
+            </PressableCard>
+            <PressableCard
+              haptic="light"
+              onPress={onDismiss}
+              accessibilityRole="button"
+              accessibilityLabel={tr.profile.cancel}
+            >
+              <Text style={styles.cancelText}>{tr.profile.cancel}</Text>
+            </PressableCard>
+          </View>
+        </EntranceView>
       </BottomSheetScrollView>
     </Sheet>
   );

@@ -3,6 +3,7 @@ import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLo
 import {
   ActionButton,
   DiscoveryTimeline,
+  EntranceView,
   GlassCard,
   GlowText,
   KpiCard,
@@ -51,21 +52,23 @@ export default function SessionDetailScreen() {
     <ZoneBackground zone={session?.zone ?? "abyss"}>
       <UnderwaterCanvas zone={session?.zone ?? "abyss"} />
       <ScreenSafeAreaView style={styles.flex}>
-        <View style={styles.topBar}>
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel={tr.sessionDetail.back}
-            style={styles.backBtn}
-          >
-            <Ionicons name="chevron-back" size={20} color={t.colors.text} />
-          </Pressable>
-          <GlowText shadow={false} size={20}>
-            {tr.sessionDetail.title}
-          </GlowText>
-          <View style={styles.backBtnNoColor} />
-        </View>
+        <EntranceView index={0} distance={8}>
+          <View style={styles.topBar}>
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel={tr.sessionDetail.back}
+              style={styles.backBtn}
+            >
+              <Ionicons name="chevron-back" size={20} color={t.colors.text} />
+            </Pressable>
+            <GlowText shadow={false} size={20}>
+              {tr.sessionDetail.title}
+            </GlowText>
+            <View style={styles.backBtnNoColor} />
+          </View>
+        </EntranceView>
 
         {!session ? (
           isLoading ? (
@@ -146,127 +149,141 @@ function Body({ session, locale }: { session: DiveSession; locale: string }) {
       bottomInset={t.spacing[12]}
       gap={t.spacing[4]}
     >
-      <GlassCard radius={t.radii.md} padding={0} glow>
-        <View style={styles.hero}>
-          <LinearGradient
-            pointerEvents="none"
-            colors={[t.colors.panelTint, "transparent"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
+      <EntranceView index={1}>
+        <GlassCard radius={t.radii.md} padding={0} glow>
+          <View style={styles.hero}>
+            <LinearGradient
+              pointerEvents="none"
+              colors={[t.colors.panelTint, "transparent"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
 
-          <View style={styles.heroTop}>
-            <View style={styles.zoneIcon}>
-              <Ionicons
-                name={ZONE_ICONS[session.zone]}
-                size={24}
-                color={t.colors.accent}
+            <View style={styles.heroTop}>
+              <View style={styles.zoneIcon}>
+                <Ionicons
+                  name={ZONE_ICONS[session.zone]}
+                  size={24}
+                  color={t.colors.accent}
+                />
+              </View>
+              <View style={styles.heroCopy}>
+                <Text style={styles.heroEyebrow}>{zone.label}</Text>
+                <Text style={styles.heroDepth}>
+                  {Math.round(session.depthMeters).toLocaleString(locale)}
+                  <Text style={styles.heroDepthUnit}> m</Text>
+                </Text>
+                <Text style={styles.date}>{dateLabel}</Text>
+              </View>
+            </View>
+
+            <View style={styles.heroSignals}>
+              <SignalPill
+                icon="time-outline"
+                value={formatDuration(session.elapsedSeconds)}
+              />
+              <SignalPill icon="sparkles-outline" value={`+${xpEarned} XP`} />
+              <SignalPill
+                icon="diamond-outline"
+                value={`${session.discoveries.length} ${tr.sessionDetail.discoveries}`}
               />
             </View>
-            <View style={styles.heroCopy}>
-              <Text style={styles.heroEyebrow}>{zone.label}</Text>
-              <Text style={styles.heroDepth}>
-                {Math.round(session.depthMeters).toLocaleString(locale)}
-                <Text style={styles.heroDepthUnit}> m</Text>
-              </Text>
-              <Text style={styles.date}>{dateLabel}</Text>
+          </View>
+        </GlassCard>
+      </EntranceView>
+
+      <EntranceView index={2}>
+        <View style={styles.kpiRow}>
+          <KpiCard
+            label={tr.sessionDetail.duration}
+            value={formatDuration(session.elapsedSeconds)}
+          />
+          <KpiCard
+            label={tr.sessionDetail.focusMinutes}
+            value={`${Math.round(session.elapsedSeconds / 60)}m`}
+          />
+        </View>
+      </EntranceView>
+      <EntranceView index={3}>
+        <View style={styles.kpiRow}>
+          <KpiCard label={tr.sessionDetail.xpEarned} value={`+${xpEarned}`} />
+          <KpiCard
+            label={tr.sessionDetail.maxDepth}
+            value={`${Math.round(session.depthMeters).toLocaleString(locale)} m`}
+          />
+        </View>
+      </EntranceView>
+
+      <EntranceView index={4}>
+        <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
+          <View style={styles.levelRow}>
+            <View
+              style={[
+                styles.levelIcon,
+                session.summary &&
+                  session.summary.levelsGained > 0 &&
+                  styles.levelIconActive
+              ]}
+            >
+              <Ionicons
+                name="trending-up"
+                size={18}
+                color={
+                  session.summary && session.summary.levelsGained > 0
+                    ? t.colors.accent
+                    : t.colors.textMuted
+                }
+              />
+            </View>
+            <View style={styles.levelCopy}>
+              <Text style={styles.levelLabel}>{tr.stats.level}</Text>
+              <Text style={styles.levelText}>{levelText}</Text>
+            </View>
+            <View style={styles.spacer} />
+            <View style={styles.discoveryCount}>
+              <Ionicons name="sparkles" size={13} color={t.colors.accentSoft} />
+              <Text style={styles.discCount}>{session.discoveries.length}</Text>
             </View>
           </View>
+        </GlassCard>
+      </EntranceView>
 
-          <View style={styles.heroSignals}>
-            <SignalPill
-              icon="time-outline"
-              value={formatDuration(session.elapsedSeconds)}
-            />
-            <SignalPill icon="sparkles-outline" value={`+${xpEarned} XP`} />
-            <SignalPill
-              icon="diamond-outline"
-              value={`${session.discoveries.length} ${tr.sessionDetail.discoveries}`}
-            />
-          </View>
-        </View>
-      </GlassCard>
+      <EntranceView index={5}>
+        <GlassCard radius={t.radii.lg} glow padding={t.spacing[4]}>
+          <SectionLabel hint={zone.label}>
+            {tr.sessionDetail.zoneJourney}
+          </SectionLabel>
+          <SessionTimeline
+            elapsedSeconds={session.elapsedSeconds}
+            finalZone={session.zone}
+          />
+        </GlassCard>
+      </EntranceView>
 
-      <View style={styles.kpiRow}>
-        <KpiCard
-          label={tr.sessionDetail.duration}
-          value={formatDuration(session.elapsedSeconds)}
-        />
-        <KpiCard
-          label={tr.sessionDetail.focusMinutes}
-          value={`${Math.round(session.elapsedSeconds / 60)}m`}
-        />
-      </View>
-      <View style={styles.kpiRow}>
-        <KpiCard label={tr.sessionDetail.xpEarned} value={`+${xpEarned}`} />
-        <KpiCard
-          label={tr.sessionDetail.maxDepth}
-          value={`${Math.round(session.depthMeters).toLocaleString(locale)} m`}
-        />
-      </View>
+      <EntranceView index={6}>
+        <GlassCard radius={t.radii.lg}>
+          <SectionLabel hint={String(session.discoveries.length)}>
+            {tr.sessionDetail.discoveryLog}
+          </SectionLabel>
+          <DiscoveryTimeline discoveries={session.discoveries} />
+        </GlassCard>
+      </EntranceView>
 
-      <GlassCard radius={t.radii.md} padding={t.spacing[4]}>
-        <View style={styles.levelRow}>
-          <View
-            style={[
-              styles.levelIcon,
-              session.summary &&
-                session.summary.levelsGained > 0 &&
-                styles.levelIconActive
-            ]}
-          >
-            <Ionicons
-              name="trending-up"
-              size={18}
-              color={
-                session.summary && session.summary.levelsGained > 0
-                  ? t.colors.accent
-                  : t.colors.textMuted
-              }
-            />
-          </View>
-          <View style={styles.levelCopy}>
-            <Text style={styles.levelLabel}>{tr.stats.level}</Text>
-            <Text style={styles.levelText}>{levelText}</Text>
-          </View>
-          <View style={styles.spacer} />
-          <View style={styles.discoveryCount}>
-            <Ionicons name="sparkles" size={13} color={t.colors.accentSoft} />
-            <Text style={styles.discCount}>{session.discoveries.length}</Text>
-          </View>
-        </View>
-      </GlassCard>
-
-      <GlassCard radius={t.radii.lg} glow padding={t.spacing[4]}>
-        <SectionLabel hint={zone.label}>
-          {tr.sessionDetail.zoneJourney}
-        </SectionLabel>
-        <SessionTimeline
-          elapsedSeconds={session.elapsedSeconds}
-          finalZone={session.zone}
-        />
-      </GlassCard>
-
-      <GlassCard radius={t.radii.lg}>
-        <SectionLabel hint={String(session.discoveries.length)}>
-          {tr.sessionDetail.discoveryLog}
-        </SectionLabel>
-        <DiscoveryTimeline discoveries={session.discoveries} />
-      </GlassCard>
-
-      <GlassCard radius={t.radii.lg}>
-        <SectionLabel>{tr.sessionDetail.shareTitle}</SectionLabel>
-        <ActionButton
-          label={tr.sessionDetail.shareCta}
-          icon="share-social-outline"
-          tone="secondary"
-          size="md"
-          fullWidth
-          onPress={handleShare}
-          containerStyle={styles.shareButton}
-        />
-      </GlassCard>
+      <EntranceView index={7}>
+        <GlassCard radius={t.radii.lg}>
+          <SectionLabel>{tr.sessionDetail.shareTitle}</SectionLabel>
+          <ActionButton
+            label={tr.sessionDetail.shareCta}
+            icon="share-social-outline"
+            tone="secondary"
+            size="md"
+            fullWidth
+            onPress={handleShare}
+            containerStyle={styles.shareButton}
+          />
+        </GlassCard>
+      </EntranceView>
     </ScreenScrollView>
   );
 }

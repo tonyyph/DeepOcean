@@ -1,6 +1,7 @@
 import { useTranslations, type Language } from "@/core/i18n";
 import { container } from "@/data/container";
 import {
+  EntranceView,
   GlassCard,
   GlowText,
   LanguagePickerSheet,
@@ -40,7 +41,14 @@ import * as Application from "expo-application";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Keyboard, Linking, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Keyboard,
+  Linking,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -160,26 +168,32 @@ export default function ProfileScreen() {
   const currentLangLabel = tr.profile.languageNames[language];
   const activeTheme = THEMES[themeId];
   const openPrivacyPolicy = useCallback(() => {
-    void Linking.openURL("https://deepocean.co/privacy");
+    void Linking.openURL("https://deepocean.io.vn/privacy");
   }, []);
+
   const openTerms = useCallback(() => {
-    void Linking.openURL("https://deepocean.co/terms");
+    void Linking.openURL("https://deepocean.io.vn/terms");
   }, []);
+
   const xpWidth = useSharedValue(0);
+
   useEffect(() => {
     xpWidth.value = withTiming(progress, {
       duration: 900,
       easing: Easing.bezier(0.16, 1, 0.3, 1)
     });
   }, [progress, xpWidth]);
+
   const xpStyle = useAnimatedStyle(() => ({
     width: `${xpWidth.value * 100}%`
   }));
+
   return (
     <ZoneBackground zone="trench">
       <UnderwaterCanvas zone="trench" />
       <ScreenSafeAreaView style={styles.flex}>
         <ScreenScrollView>
+          <EntranceView index={0}>
           <View style={styles.profileHeader}>
             {!isEditingName && (
               <Text style={styles.headerEyebrow}>{tr.profile.title}</Text>
@@ -261,6 +275,8 @@ export default function ProfileScreen() {
               {tr.profile.level(profile?.level ?? 1)}
             </Text>
           </View>
+          </EntranceView>
+          <EntranceView index={1}>
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel hint={`${profile?.xp ?? 0} / ${nextLevelXp}`}>
               {tr.profile.xp}
@@ -276,6 +292,8 @@ export default function ProfileScreen() {
               </Animated.View>
             </View>
           </GlassCard>
+          </EntranceView>
+          <EntranceView index={2}>
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.appearance}</SectionLabel>
             <SettingRow
@@ -301,6 +319,8 @@ export default function ProfileScreen() {
               divider={false}
             />
           </GlassCard>
+          </EntranceView>
+          <EntranceView index={3}>
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.settings}</SectionLabel>
             <SettingRow
@@ -361,6 +381,8 @@ export default function ProfileScreen() {
               </View>
             </View>
           </GlassCard>
+          </EntranceView>
+          <EntranceView index={4}>
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.notifications}</SectionLabel>
             <SettingRow
@@ -384,6 +406,8 @@ export default function ProfileScreen() {
               />
             )}
           </GlassCard>
+          </EntranceView>
+          <EntranceView index={5}>
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.account}</SectionLabel>
             <SettingRow
@@ -404,19 +428,8 @@ export default function ProfileScreen() {
               }}
             />
           </GlassCard>
-          <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
-            <SectionLabel>{tr.profile.about}</SectionLabel>
-            <View style={styles.aboutRow}>
-              <Text style={styles.aboutLabel}>{tr.profile.appVersion}</Text>
-              <Text style={styles.aboutValue}>
-                {Application.nativeApplicationVersion ??
-                  tr.profile.appVersionValue}
-              </Text>
-            </View>
-            <View style={[styles.aboutRow, { marginTop: t.spacing[2] }]}>
-              <Text style={styles.aboutTagline}>{tr.profile.builtWith}</Text>
-            </View>
-          </GlassCard>
+          </EntranceView>
+          <EntranceView index={6}>
           <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
             <SectionLabel>{tr.profile.legal}</SectionLabel>
             <SettingRow
@@ -431,6 +444,22 @@ export default function ProfileScreen() {
               divider={false}
             />
           </GlassCard>
+          </EntranceView>
+          <EntranceView index={7}>
+          <GlassCard radius={t.radii.md} padding={t.spacing[5]}>
+            <SectionLabel>{tr.profile.about}</SectionLabel>
+            <View style={styles.aboutRow}>
+              <Text style={styles.aboutLabel}>{tr.profile.appVersion}</Text>
+              <Text style={styles.aboutValue}>
+                {Application.nativeApplicationVersion ??
+                  tr.profile.appVersionValue}
+              </Text>
+            </View>
+            <View style={[styles.aboutRow, { marginTop: t.spacing[2] }]}>
+              <Text style={styles.aboutTagline}>{tr.profile.builtWith}</Text>
+            </View>
+          </GlassCard>
+          </EntranceView>
         </ScreenScrollView>
       </ScreenSafeAreaView>
       <ThemePickerSheet

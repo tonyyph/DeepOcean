@@ -3,6 +3,7 @@ import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLo
 import {
   AppHeader,
   CreatureStorySheet,
+  EntranceView,
   GlassCard,
   GuidanceCard,
   ScreenSafeAreaView,
@@ -263,11 +264,15 @@ export default function CollectionScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<StoryRow | number>) =>
+    ({ item, index }: ListRenderItemInfo<StoryRow | number>) =>
       typeof item === "number" ? (
         <CollectionRowSkeleton />
       ) : (
-        <CollectionRow row={item} onPress={handleRowPress} />
+        <CollectionRow
+          row={item}
+          index={index}
+          onPress={handleRowPress}
+        />
       ),
     [handleRowPress]
   );
@@ -283,19 +288,23 @@ export default function CollectionScreen() {
       <UnderwaterCanvas zone="abyss" particleCount={20} />
       <ScreenSafeAreaView style={styles.container}>
         <View style={styles.headerWrap}>
-          <AppHeader
-            title={tr.collection.title}
-            subtitle={tr.collection.catalogued(discoveredCount, rows.length)}
-            size={28}
-          />
-          {discoveredCount === 0 && !isLoading && (
-            <GuidanceCard
-              storageKey="guidance.collection.first"
-              title={tr.guidance.collection.title}
-              body={tr.guidance.collection.body}
-              dismissLabel={tr.common.dismiss}
-              icon="book-outline"
+          <EntranceView index={0}>
+            <AppHeader
+              title={tr.collection.title}
+              subtitle={tr.collection.catalogued(discoveredCount, rows.length)}
+              size={28}
             />
+          </EntranceView>
+          {discoveredCount === 0 && !isLoading && (
+            <EntranceView index={1}>
+              <GuidanceCard
+                storageKey="guidance.collection.first"
+                title={tr.guidance.collection.title}
+                body={tr.guidance.collection.body}
+                dismissLabel={tr.common.dismiss}
+                icon="book-outline"
+              />
+            </EntranceView>
           )}
         </View>
         <FlashList<StoryRow | number>
@@ -339,11 +348,13 @@ const Separator = () => <View style={separatorStyles.sep} />;
 
 type RowProps = {
   row: StoryRow;
+  index: number;
   onPress: (row: StoryRow) => void;
 };
 
 const CollectionRow = React.memo(function CollectionRow({
   row,
+  index,
   onPress
 }: RowProps) {
   const t = useTheme();
@@ -354,10 +365,13 @@ const CollectionRow = React.memo(function CollectionRow({
   const handlePress = useCallback(() => onPress(row), [onPress, row]);
 
   return (
-    <Pressable
-      onPress={handlePress}
-      accessibilityRole="button"
-      accessibilityLabel={row.seen ? row.name : tr.collection.story.lockedTitle}
+    <EntranceView index={Math.min(index, 8)} delayMs={28} distance={10}>
+      <Pressable
+        onPress={handlePress}
+        accessibilityRole="button"
+        accessibilityLabel={
+          row.seen ? row.name : tr.collection.story.lockedTitle
+        }
     >
       <GlassCard radius={t.radii.lg} blur={false}>
         <View style={styles.itemRow}>
@@ -411,7 +425,8 @@ const CollectionRow = React.memo(function CollectionRow({
           />
         </View>
       </GlassCard>
-    </Pressable>
+      </Pressable>
+    </EntranceView>
   );
 }, areCollectionRowsEqual);
 
@@ -419,6 +434,7 @@ function areCollectionRowsEqual(prev: RowProps, next: RowProps): boolean {
   return (
     prev.onPress === next.onPress &&
     prev.row.id === next.row.id &&
+    prev.index === next.index &&
     prev.row.seen === next.row.seen &&
     prev.row.count === next.row.count &&
     prev.row.rarity === next.row.rarity &&

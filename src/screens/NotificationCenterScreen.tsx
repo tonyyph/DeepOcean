@@ -2,6 +2,7 @@ import { useTranslations, type Translations } from "@/core/i18n";
 import type { AppTheme } from "@/design-system";
 import {
   ActionButton,
+  EntranceView,
   GlassCard,
   GlowText,
   PressableCard,
@@ -88,20 +89,22 @@ export default function NotificationCenterScreen() {
     <ZoneBackground zone="midnight">
       <UnderwaterCanvas zone="midnight" />
       <ScreenSafeAreaView style={styles.flex}>
-        <View style={styles.topBar}>
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={12}
-            accessibilityRole="button"
-            style={styles.backBtn}
-          >
-            <Ionicons name="chevron-back" size={20} color={t.colors.text} />
-          </Pressable>
-          <GlowText shadow={false} size={20}>
-            {tr.notifications.center.title}
-          </GlowText>
-          <View style={styles.backBtnNoColor} />
-        </View>
+        <EntranceView index={0} distance={8}>
+          <View style={styles.topBar}>
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={12}
+              accessibilityRole="button"
+              style={styles.backBtn}
+            >
+              <Ionicons name="chevron-back" size={20} color={t.colors.text} />
+            </Pressable>
+            <GlowText shadow={false} size={20}>
+              {tr.notifications.center.title}
+            </GlowText>
+            <View style={styles.backBtnNoColor} />
+          </View>
+        </EntranceView>
         <ScreenScrollView
           bottomInset={t.spacing[10]}
           refreshControl={
@@ -112,127 +115,142 @@ export default function NotificationCenterScreen() {
             />
           }
         >
-          <GlassCard radius={t.radii.lg} padding={0} glow>
-            <View style={styles.heroShell}>
-              <LinearGradient
-                pointerEvents="none"
-                colors={[t.colors.panelTint, "transparent"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={StyleSheet.absoluteFill}
-              />
-              <View style={styles.heroTop}>
-                <View style={styles.heroIcon}>
-                  <Ionicons
-                    name="notifications"
-                    size={22}
-                    color={t.colors.accent}
+          <EntranceView index={1}>
+            <GlassCard radius={t.radii.lg} padding={0} glow>
+              <View style={styles.heroShell}>
+                <LinearGradient
+                  pointerEvents="none"
+                  colors={[t.colors.panelTint, "transparent"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                />
+                <View style={styles.heroTop}>
+                  <View style={styles.heroIcon}>
+                    <Ionicons
+                      name="notifications"
+                      size={22}
+                      color={t.colors.accent}
+                    />
+                  </View>
+                  <View style={styles.heroCopy}>
+                    <Text style={styles.heroEyebrow}>
+                      {tr.notifications.center.signalLog}
+                    </Text>
+                    <Text style={styles.heroTitle}>
+                      {unreadCount > 0
+                        ? tr.notifications.center.unreadSummary(unreadCount)
+                        : tr.notifications.center.allReviewed}
+                    </Text>
+                    <Text style={styles.heroSubtitle} numberOfLines={2}>
+                      {latestMessage
+                        ? latestMessage.title
+                        : tr.notifications.center.fallbackLatest}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.heroStats}>
+                  <MetricPill
+                    label={tr.notifications.center.total}
+                    value={messages.length}
+                  />
+                  <MetricPill
+                    label={tr.notifications.center.unread}
+                    value={unreadCount}
+                  />
+                  <MetricPill
+                    label={tr.notifications.center.latest}
+                    value={
+                      latestMessage
+                        ? formatRelativeTime(
+                            latestMessage.createdAt,
+                            tr.notifications.center
+                          )
+                        : "--"
+                    }
                   />
                 </View>
-                <View style={styles.heroCopy}>
-                  <Text style={styles.heroEyebrow}>
-                    {tr.notifications.center.signalLog}
-                  </Text>
-                  <Text style={styles.heroTitle}>
-                    {unreadCount > 0
-                      ? tr.notifications.center.unreadSummary(unreadCount)
-                      : tr.notifications.center.allReviewed}
-                  </Text>
-                  <Text style={styles.heroSubtitle} numberOfLines={2}>
-                    {latestMessage
-                      ? latestMessage.title
-                      : tr.notifications.center.fallbackLatest}
-                  </Text>
-                </View>
               </View>
-              <View style={styles.heroStats}>
-                <MetricPill
-                  label={tr.notifications.center.total}
-                  value={messages.length}
-                />
-                <MetricPill
-                  label={tr.notifications.center.unread}
-                  value={unreadCount}
-                />
-                <MetricPill
-                  label={tr.notifications.center.latest}
-                  value={
-                    latestMessage
-                      ? formatRelativeTime(
-                          latestMessage.createdAt,
-                          tr.notifications.center
-                        )
-                      : "--"
-                  }
-                />
-              </View>
-            </View>
-          </GlassCard>
+            </GlassCard>
+          </EntranceView>
 
           {hasMessages ? (
-            <View style={styles.controlsRow}>
-              <View style={styles.segment}>
-                <FilterChip
-                  label={tr.notifications.center.all}
-                  active={filter === "all"}
-                  onPress={() => setFilter("all")}
-                />
-                <FilterChip
-                  label={tr.notifications.center.unread}
-                  active={filter === "unread"}
-                  onPress={() => setFilter("unread")}
-                />
-              </View>
-              {unreadCount > 0 ? (
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={markAllRead}
-                  style={({ pressed }) => [
-                    styles.markReadIcon,
-                    pressed && styles.pressed
-                  ]}
-                >
-                  <Ionicons
-                    name="checkmark-done"
-                    size={18}
-                    color={t.colors.accent}
+            <EntranceView index={2}>
+              <View style={styles.controlsRow}>
+                <View style={styles.segment}>
+                  <FilterChip
+                    label={tr.notifications.center.all}
+                    active={filter === "all"}
+                    onPress={() => setFilter("all")}
                   />
-                </Pressable>
-              ) : null}
-            </View>
+                  <FilterChip
+                    label={tr.notifications.center.unread}
+                    active={filter === "unread"}
+                    onPress={() => setFilter("unread")}
+                  />
+                </View>
+                {unreadCount > 0 ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={markAllRead}
+                    style={({ pressed }) => [
+                      styles.markReadIcon,
+                      pressed && styles.pressed
+                    ]}
+                  >
+                    <Ionicons
+                      name="checkmark-done"
+                      size={18}
+                      color={t.colors.accent}
+                    />
+                  </Pressable>
+                ) : null}
+              </View>
+            </EntranceView>
           ) : null}
 
-          {isLoading && messages.length === 0 ? <LoadingState /> : null}
+          {isLoading && messages.length === 0 ? (
+            <EntranceView index={3}>
+              <LoadingState />
+            </EntranceView>
+          ) : null}
 
           {error ? (
-            <GlassCard radius={t.radii.md}>
-              <View style={styles.stateRow}>
-                <Ionicons
-                  name="alert-circle"
-                  size={20}
-                  color={t.colors.danger}
+            <EntranceView index={3}>
+              <GlassCard radius={t.radii.md}>
+                <View style={styles.stateRow}>
+                  <Ionicons
+                    name="alert-circle"
+                    size={20}
+                    color={t.colors.danger}
+                  />
+                  <Text style={styles.errorText}>
+                    {tr.notifications.center.loadError}
+                  </Text>
+                </View>
+                <ActionButton
+                  label={tr.notifications.center.retry}
+                  icon="refresh"
+                  tone="secondary"
+                  size="sm"
+                  onPress={hydrate}
+                  containerStyle={styles.retryButton}
                 />
-                <Text style={styles.errorText}>
-                  {tr.notifications.center.loadError}
-                </Text>
-              </View>
-              <ActionButton
-                label={tr.notifications.center.retry}
-                icon="refresh"
-                tone="secondary"
-                size="sm"
-                onPress={hydrate}
-                containerStyle={styles.retryButton}
-              />
-            </GlassCard>
+              </GlassCard>
+            </EntranceView>
           ) : null}
 
           {filteredMessages.length > 0 ? (
             <FlatList
               data={filteredMessages}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <NotificationRow message={item} onPress={openMessage} tr={tr} />
+              renderItem={({ item, index }) => (
+                <NotificationRow
+                  message={item}
+                  index={index}
+                  onPress={openMessage}
+                  tr={tr}
+                />
               )}
               scrollEnabled={false}
               contentContainerStyle={contentContainerStyle}
@@ -246,10 +264,12 @@ export default function NotificationCenterScreen() {
 
 function NotificationRow({
   message,
+  index,
   onPress,
   tr
 }: {
   message: NotificationMessage;
+  index: number;
   onPress: (message: NotificationMessage) => void;
   tr: Translations;
 }) {
@@ -260,55 +280,60 @@ function NotificationRow({
   const color = colorForMessage(message, t);
 
   return (
-    <PressableCard
-      radius={t.radii.md}
-      padding={0}
-      onPress={() => onPress(message)}
-      containerStyle={styles.rowCard}
-      glow={unread}
-    >
-      <View style={styles.messageCardInner}>
-        <View style={[styles.messageAccent, { backgroundColor: color }]} />
-        <View style={styles.messageRow}>
-          <View
-            style={[
-              styles.messageIcon,
-              { borderColor: unread ? color : t.colors.panelEdge }
-            ]}
-          >
-            <Ionicons name={iconName} size={18} color={color} />
-          </View>
-          <View style={styles.messageText}>
-            <View style={styles.messageMetaRow}>
-              <View style={styles.sourcePill}>
-                <Text style={[styles.sourceText, { color }]}>
-                  {labelForMessage(message, tr)}
+    <EntranceView index={Math.min(index, 8)} delayMs={28} distance={10}>
+      <PressableCard
+        radius={t.radii.md}
+        padding={0}
+        onPress={() => onPress(message)}
+        containerStyle={styles.rowCard}
+        glow={unread}
+      >
+        <View style={styles.messageCardInner}>
+          <View style={[styles.messageAccent, { backgroundColor: color }]} />
+          <View style={styles.messageRow}>
+            <View
+              style={[
+                styles.messageIcon,
+                { borderColor: unread ? color : t.colors.panelEdge }
+              ]}
+            >
+              <Ionicons name={iconName} size={18} color={color} />
+            </View>
+            <View style={styles.messageText}>
+              <View style={styles.messageMetaRow}>
+                <View style={styles.sourcePill}>
+                  <Text style={[styles.sourceText, { color }]}>
+                    {labelForMessage(message, tr)}
+                  </Text>
+                </View>
+                <Text style={styles.messageTime}>
+                  {formatRelativeTime(
+                    message.createdAt,
+                    tr.notifications.center
+                  )}
                 </Text>
               </View>
-              <Text style={styles.messageTime}>
-                {formatRelativeTime(message.createdAt, tr.notifications.center)}
-              </Text>
+              <Text style={styles.messageTitle}>{message.title}</Text>
+              {message.body ? (
+                <Text style={styles.messageBody} numberOfLines={3}>
+                  {message.body}
+                </Text>
+              ) : null}
             </View>
-            <Text style={styles.messageTitle}>{message.title}</Text>
-            {message.body ? (
-              <Text style={styles.messageBody} numberOfLines={3}>
-                {message.body}
-              </Text>
+            {unread ? (
+              <View style={[styles.unreadBadge, { backgroundColor: color }]} />
+            ) : null}
+            {message.deepLink ? (
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={t.colors.textMuted}
+              />
             ) : null}
           </View>
-          {unread ? (
-            <View style={[styles.unreadBadge, { backgroundColor: color }]} />
-          ) : null}
-          {message.deepLink ? (
-            <Ionicons
-              name="chevron-forward"
-              size={18}
-              color={t.colors.textMuted}
-            />
-          ) : null}
         </View>
-      </View>
-    </PressableCard>
+      </PressableCard>
+    </EntranceView>
   );
 }
 

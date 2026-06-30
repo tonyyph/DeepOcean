@@ -3,6 +3,7 @@ import { useScreenTransitionLoading } from "@/core/navigation/screenTransitionLo
 import {
   ActionButton,
   AppHeader,
+  EntranceView,
   GlassCard,
   KpiCard,
   ScreenSafeAreaView,
@@ -57,121 +58,137 @@ export default function StatsScreen() {
 
       <ScreenSafeAreaView style={styles.flex}>
         <ScreenScrollView>
-          <AppHeader
-            title={tr.stats.title}
-            subtitle={tr.stats.subtitle}
-            size={28}
-          />
+          <EntranceView index={0}>
+            <AppHeader
+              title={tr.stats.title}
+              subtitle={tr.stats.subtitle}
+              size={28}
+            />
+          </EntranceView>
 
-          <View style={styles.kpiRow}>
-            <KpiCard
-              label={tr.stats.maxDepth}
-              value={`${Math.round(maxDepth).toLocaleString()} m`}
-              loading={isLoading}
-            />
-            <KpiCard
-              label={tr.stats.totalFocus}
-              value={`${Math.round(totalMinutes)} min`}
-              loading={isLoading}
-            />
-          </View>
-          <View style={styles.kpiRow}>
-            <KpiCard
-              label={tr.stats.dives}
-              value={String(profile?.totalDives ?? 0)}
-              loading={isLoading}
-            />
-            <KpiCard
-              label={tr.stats.level}
-              value={String(profile?.level ?? 1)}
-              loading={isLoading}
-            />
-          </View>
-
-          <GlassCard radius={t.radii.md}>
-            <SectionLabel>{tr.stats.weeklyHeatmap}</SectionLabel>
-            {isLoading ? <HeatmapSkeleton /> : <Heatmap data={last7Days} />}
-            <View style={styles.heatLegend}>
-              <Text style={styles.legendText}>{tr.stats.less}</Text>
-              <View style={styles.legendCells}>
-                {[0.1, 0.3, 0.55, 0.8, 1].map((v, i) => (
-                  <View key={i} style={[styles.legendCell, { opacity: v }]} />
-                ))}
-              </View>
-              <Text style={styles.legendText}>{tr.stats.more}</Text>
+          <EntranceView index={1}>
+            <View style={styles.kpiRow}>
+              <KpiCard
+                label={tr.stats.maxDepth}
+                value={`${Math.round(maxDepth).toLocaleString()} m`}
+                loading={isLoading}
+              />
+              <KpiCard
+                label={tr.stats.totalFocus}
+                value={`${Math.round(totalMinutes)} min`}
+                loading={isLoading}
+              />
             </View>
-          </GlassCard>
+          </EntranceView>
+          <EntranceView index={2}>
+            <View style={styles.kpiRow}>
+              <KpiCard
+                label={tr.stats.dives}
+                value={String(profile?.totalDives ?? 0)}
+                loading={isLoading}
+              />
+              <KpiCard
+                label={tr.stats.level}
+                value={String(profile?.level ?? 1)}
+                loading={isLoading}
+              />
+            </View>
+          </EntranceView>
 
-          <GlassCard radius={t.radii.md}>
-            <SectionLabel>{tr.stats.recentExpeditions}</SectionLabel>
-            {isLoading ? (
-              <RecentSessionsSkeleton />
-            ) : sessions.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Ionicons
-                  name="compass-outline"
-                  size={24}
-                  color={t.colors.accent}
-                />
-                <Text style={styles.emptyTitle}>{tr.stats.noDivesTitle}</Text>
-                <Text style={styles.empty}>{tr.stats.noDives}</Text>
-                <ActionButton
-                  label={tr.home.beginDive}
-                  icon="water"
-                  tone="secondary"
-                  size="sm"
-                  fullWidth
-                  onPress={() => router.push("/dive")}
-                  containerStyle={styles.emptyCta}
-                />
+          <EntranceView index={3}>
+            <GlassCard radius={t.radii.md}>
+              <SectionLabel>{tr.stats.weeklyHeatmap}</SectionLabel>
+              {isLoading ? <HeatmapSkeleton /> : <Heatmap data={last7Days} />}
+              <View style={styles.heatLegend}>
+                <Text style={styles.legendText}>{tr.stats.less}</Text>
+                <View style={styles.legendCells}>
+                  {[0.1, 0.3, 0.55, 0.8, 1].map((v, i) => (
+                    <View key={i} style={[styles.legendCell, { opacity: v }]} />
+                  ))}
+                </View>
+                <Text style={styles.legendText}>{tr.stats.more}</Text>
               </View>
-            ) : (
-              sessions.map((s, index) => {
-                const isLast = index === sessions.length - 1;
+            </GlassCard>
+          </EntranceView>
 
-                return (
-                  <Pressable
-                    key={s.id}
-                    onPress={() => router.push(`/session/${s.id}`)}
-                    style={[
-                      styles.sessionRow,
-                      isLast && {
-                        borderBottomWidth: 0
-                      }
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${tr.sessionDetail.title}: ${Math.round(
-                      s.elapsedSeconds / 60
-                    )}m, ${Math.round(s.depthMeters)}m`}
-                  >
-                    <Text style={styles.sessionDate}>
-                      {new Date(s.startedAt).toLocaleDateString()}
-                    </Text>
+          <EntranceView index={4}>
+            <GlassCard radius={t.radii.md}>
+              <SectionLabel>{tr.stats.recentExpeditions}</SectionLabel>
+              {isLoading ? (
+                <RecentSessionsSkeleton />
+              ) : sessions.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Ionicons
+                    name="compass-outline"
+                    size={24}
+                    color={t.colors.accent}
+                  />
+                  <Text style={styles.emptyTitle}>{tr.stats.noDivesTitle}</Text>
+                  <Text style={styles.empty}>{tr.stats.noDives}</Text>
+                  <ActionButton
+                    label={tr.home.beginDive}
+                    icon="water"
+                    tone="secondary"
+                    size="sm"
+                    fullWidth
+                    onPress={() => router.push("/dive")}
+                    containerStyle={styles.emptyCta}
+                  />
+                </View>
+              ) : (
+                sessions.map((s, index) => {
+                  const isLast = index === sessions.length - 1;
 
-                    <Text style={styles.sessionMeta}>
-                      {Math.round(s.elapsedSeconds / 60)}m ·{" "}
-                      {Math.round(s.depthMeters)}m
-                    </Text>
-
-                    <Text
-                      style={[
-                        styles.sessionMeta,
-                        { color: t.colors.accentSoft }
-                      ]}
+                  return (
+                    <EntranceView
+                      key={s.id}
+                      index={Math.min(index, 6)}
+                      delayMs={35}
+                      distance={10}
                     >
-                      ✦ {s.discoveries.length}
-                    </Text>
+                      <Pressable
+                        onPress={() => router.push(`/session/${s.id}`)}
+                        style={[
+                          styles.sessionRow,
+                          isLast && {
+                            borderBottomWidth: 0
+                          }
+                        ]}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${tr.sessionDetail.title}: ${Math.round(
+                          s.elapsedSeconds / 60
+                        )}m, ${Math.round(s.depthMeters)}m`}
+                      >
+                        <Text style={styles.sessionDate}>
+                          {new Date(s.startedAt).toLocaleDateString()}
+                        </Text>
 
-                    <Ionicons
-                      name="chevron-forward"
-                      size={16}
-                      color={t.colors.textMuted}
-                    />
-                  </Pressable>
-                );
-              })
-            )}
-          </GlassCard>
+                        <Text style={styles.sessionMeta}>
+                          {Math.round(s.elapsedSeconds / 60)}m ·{" "}
+                          {Math.round(s.depthMeters)}m
+                        </Text>
+
+                        <Text
+                          style={[
+                            styles.sessionMeta,
+                            { color: t.colors.accentSoft }
+                          ]}
+                        >
+                          ✦ {s.discoveries.length}
+                        </Text>
+
+                        <Ionicons
+                          name="chevron-forward"
+                          size={16}
+                          color={t.colors.textMuted}
+                        />
+                      </Pressable>
+                    </EntranceView>
+                  );
+                })
+              )}
+            </GlassCard>
+          </EntranceView>
         </ScreenScrollView>
       </ScreenSafeAreaView>
     </ZoneBackground>
@@ -218,11 +235,17 @@ const Heatmap = React.memo(function Heatmap({
   const max = Math.max(1, ...data.map((d) => d.minutes));
   return (
     <View style={styles.heatRow}>
-      {data.map((d) => {
+      {data.map((d, index) => {
         const intensity = d.minutes / max;
         const height = 12 + intensity * 60;
         return (
-          <View key={d.day} style={styles.heatCol}>
+          <EntranceView
+            key={d.day}
+            index={index}
+            delayMs={35}
+            distance={8}
+            style={styles.heatCol}
+          >
             <View
               style={styles.heatBarTrack}
               accessible
@@ -240,7 +263,7 @@ const Heatmap = React.memo(function Heatmap({
               />
             </View>
             <Text style={styles.dayLabel}>{d.label}</Text>
-          </View>
+          </EntranceView>
         );
       })}
     </View>

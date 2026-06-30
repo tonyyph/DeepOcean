@@ -28,6 +28,11 @@ const nativeModule = NativeModules.DeepOceanLiveActivity as
   | NativeLiveActivity
   | undefined;
 
+const LIVE_ACTIVITY_UPDATE_THROTTLE_MS = 15_000;
+let lastLiveActivitySync:
+  | { sessionId: string; signature: string; updatedAt: number }
+  | null = null;
+
 function canUseLiveActivity(): boolean {
   return Platform.OS === "ios" && nativeModule != null;
 }
@@ -43,6 +48,51 @@ function effectiveStartedAt(
   return session.startedAt + Math.max(0, pausedAccumulatedMs);
 }
 
+function liveActivitySignature(
+  session: DiveSession,
+  pausedAccumulatedMs: number
+): string {
+  return [
+    session.id,
+    session.status,
+    session.targetSeconds ?? "free",
+    effectiveStartedAt(session, pausedAccumulatedMs),
+    session.zone
+  ].join("|");
+}
+
+function shouldSkipLiveActivityUpdate(
+  session: DiveSession,
+  pausedAccumulatedMs: number
+): boolean {
+  if (!lastLiveActivitySync || lastLiveActivitySync.sessionId !== session.id) {
+    return false;
+  }
+
+  const signature = liveActivitySignature(session, pausedAccumulatedMs);
+  if (lastLiveActivitySync.signature !== signature) return false;
+
+  return Date.now() - lastLiveActivitySync.updatedAt <
+    LIVE_ACTIVITY_UPDATE_THROTTLE_MS;
+}
+
+function rememberLiveActivitySync(
+  session: DiveSession,
+  pausedAccumulatedMs: number
+): void {
+  lastLiveActivitySync = {
+    sessionId: session.id,
+    signature: liveActivitySignature(session, pausedAccumulatedMs),
+    updatedAt: Date.now()
+  };
+}
+
+function clearLiveActivitySync(sessionId?: string | null): void {
+  if (!sessionId || lastLiveActivitySync?.sessionId === sessionId) {
+    lastLiveActivitySync = null;
+  }
+}
+
 export const DeepOceanLiveActivity = {
   async start(
     session: DiveSession,
@@ -50,7 +100,7 @@ export const DeepOceanLiveActivity = {
   ): Promise<boolean> {
     if (!canUseLiveActivity()) return false;
     try {
-      return Boolean(
+      const started = Boolean(
         await nativeModule!.start(
           session.id,
           session.status,
@@ -61,6 +111,8 @@ export const DeepOceanLiveActivity = {
           session.zone
         )
       );
+      if (started) rememberLiveActivitySync(session, pausedAccumulatedMs);
+      return started;
     } catch {
       return false;
     }
@@ -71,8 +123,11 @@ export const DeepOceanLiveActivity = {
     pausedAccumulatedMs = 0
   ): Promise<boolean> {
     if (!canUseLiveActivity()) return false;
+    if (shouldSkipLiveActivityUpdate(session, pausedAccumulatedMs)) {
+      return true;
+    }
     try {
-      return Boolean(
+      const updated = Boolean(
         await nativeModule!.update(
           session.id,
           session.status,
@@ -83,7 +138,14 @@ export const DeepOceanLiveActivity = {
           session.zone
         )
       );
+      if (updated) {
+        rememberLiveActivitySync(session, pausedAccumulatedMs);
+      } else {
+        clearLiveActivitySync(session.id);
+      }
+      return updated;
     } catch {
+      clearLiveActivitySync(session.id);
       return false;
     }
   },
@@ -102,6 +164,7 @@ export const DeepOceanLiveActivity = {
     if (!canUseLiveActivity() || !sessionId) return;
     try {
       await nativeModule!.end(sessionId);
+      clearLiveActivitySync(sessionId);
     } catch {
       // silent — native module absent or bridge error
     }
@@ -111,6 +174,7 @@ export const DeepOceanLiveActivity = {
     if (!canUseLiveActivity()) return;
     try {
       await nativeModule!.endAll();
+      clearLiveActivitySync();
     } catch {
       // silent — native module absent or bridge error
     }

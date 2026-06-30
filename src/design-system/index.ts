@@ -82,6 +82,7 @@ export {
   usePulseGlow,
   useSpringPress,
   CountUpText,
+  EntranceView,
   ShimmerOverlay,
   FloatingLabel,
   ParticleBurst,

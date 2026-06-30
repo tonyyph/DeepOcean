@@ -2,6 +2,7 @@ import { useTranslations, type Language } from "@/core/i18n";
 import { useCallback, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
+import { EntranceView } from "../animations";
 import { GlowText } from "../atoms/GlowText";
 import { PressableCard } from "../atoms/PressableCard";
 import { Sheet } from "../atoms/Sheet";
@@ -45,44 +46,49 @@ export function LanguagePickerSheet({
 
   return (
     <Sheet visible={visible} onDismiss={dismiss}>
-      <GlowText size={20} style={styles.title}>
-        {tr.profile.language}
-      </GlowText>
-      <Text style={styles.subtitle}>{tr.profile.languageDesc}</Text>
+      <EntranceView index={0} distance={8}>
+        <GlowText size={20} style={styles.title}>
+          {tr.profile.language}
+        </GlowText>
+        <Text style={styles.subtitle}>{tr.profile.languageDesc}</Text>
+      </EntranceView>
 
       <View style={styles.list}>
-        {LANGUAGES.map(({ code, native }) => {
+        {LANGUAGES.map(({ code, native }, index) => {
           const active = selected === code;
           const label = tr.profile.languageNames[code];
           return (
-            <Pressable
-              key={code}
-              onPress={() => setDraft(code)}
-              style={[styles.row, active && styles.rowActive]}
-            >
-              <View style={[styles.radio, active && styles.radioActive]}>
-                {active && <View style={styles.radioDot} />}
-              </View>
-              <Text
-                style={[styles.label, active && { color: t.colors.accent }]}
+            <EntranceView key={code} index={index + 1} delayMs={45}>
+              <Pressable
+                onPress={() => setDraft(code)}
+                style={[styles.row, active && styles.rowActive]}
               >
-                {label}
-              </Text>
-              <Text
-                style={[styles.native, active && { color: t.colors.accent }]}
-              >
-                {native}
-              </Text>
-            </Pressable>
+                <View style={[styles.radio, active && styles.radioActive]}>
+                  {active && <View style={styles.radioDot} />}
+                </View>
+                <Text
+                  style={[styles.label, active && { color: t.colors.accent }]}
+                >
+                  {label}
+                </Text>
+                <Text
+                  style={[styles.native, active && { color: t.colors.accent }]}
+                >
+                  {native}
+                </Text>
+              </Pressable>
+            </EntranceView>
           );
         })}
       </View>
 
-      <View style={styles.actions}>
-        <PressableCard haptic="medium" onPress={confirm} glow>
-          <Text style={styles.confirmText}>{tr.profile.confirm}</Text>
-        </PressableCard>
-      </View>
+      <EntranceView index={3}>
+        <View style={styles.actions}>
+          <PressableCard haptic="medium" onPress={confirm} glow>
+            <Text style={styles.confirmText}>{tr.profile.confirm}</Text>
+          </PressableCard>
+        </View>
+      </EntranceView>
     </Sheet>
   );
 }

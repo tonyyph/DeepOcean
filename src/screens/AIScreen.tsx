@@ -4,6 +4,7 @@ import { container } from "@/data/container";
 import {
   ActionButton,
   AppHeader,
+  EntranceView,
   GlassCard,
   GuidanceCard,
   OptionPill,
@@ -159,89 +160,107 @@ export default function AIScreen() {
       />
       <ScreenSafeAreaView style={styles.flex}>
         <ScreenScrollView>
-          <AppHeader title={tr.ai.title} subtitle={tr.ai.subtitle} size={28} />
+          <EntranceView index={0}>
+            <AppHeader title={tr.ai.title} subtitle={tr.ai.subtitle} size={28} />
+          </EntranceView>
           {sessions.length === 0 && (
-            <GuidanceCard
-              storageKey="guidance.ai.first"
-              title={tr.guidance.ai.title}
-              body={tr.guidance.ai.body}
-              dismissLabel={tr.common.dismiss}
-              icon="sparkles-outline"
-            />
+            <EntranceView index={1}>
+              <GuidanceCard
+                storageKey="guidance.ai.first"
+                title={tr.guidance.ai.title}
+                body={tr.guidance.ai.body}
+                dismissLabel={tr.common.dismiss}
+                icon="sparkles-outline"
+              />
+            </EntranceView>
           )}
 
-          <GlassCard radius={t.radii.md}>
-            <SectionLabel>{tr.ai.today}</SectionLabel>
-            {recommendationLoading ? (
-              <AiTextSkeleton />
-            ) : (
-              <Text style={styles.body}>
-                {isFetching ? tr.ai.listening : (recommendation ?? "—")}
-              </Text>
-            )}
-            <View style={styles.askWrap}>
-              <ActionButton
-                label={tr.ai.askAgain}
-                icon="sparkles"
-                tone="secondary"
-                size="sm"
-                fullWidth
-                onPress={handleRefreshAI}
-                disabled={!canAskAgain}
-              />
-              {refreshError != null && (
-                <Text style={styles.refreshErrorText}>{refreshError}</Text>
+          <EntranceView index={2}>
+            <GlassCard radius={t.radii.md}>
+              <SectionLabel>{tr.ai.today}</SectionLabel>
+              {recommendationLoading ? (
+                <AiTextSkeleton />
+              ) : (
+                <Text style={styles.body}>
+                  {isFetching ? tr.ai.listening : (recommendation ?? "—")}
+                </Text>
               )}
-            </View>
-          </GlassCard>
+              <View style={styles.askWrap}>
+                <ActionButton
+                  label={tr.ai.askAgain}
+                  icon="sparkles"
+                  tone="secondary"
+                  size="sm"
+                  fullWidth
+                  onPress={handleRefreshAI}
+                  disabled={!canAskAgain}
+                />
+                {refreshError != null && (
+                  <Text style={styles.refreshErrorText}>{refreshError}</Text>
+                )}
+              </View>
+            </GlassCard>
+          </EntranceView>
 
           {motivationLoading ? (
-            <AiCardSkeleton />
+            <EntranceView index={3}>
+              <AiCardSkeleton />
+            </EntranceView>
           ) : (
             motivation && (
-              <GlassCard radius={t.radii.md}>
-                <SectionLabel>{tr.ai.nudge}</SectionLabel>
-                <Text style={styles.nudge}>{motivation}</Text>
-              </GlassCard>
+              <EntranceView index={3}>
+                <GlassCard radius={t.radii.md}>
+                  <SectionLabel>{tr.ai.nudge}</SectionLabel>
+                  <Text style={styles.nudge}>{motivation}</Text>
+                </GlassCard>
+              </EntranceView>
             )
           )}
 
           {summaryLoading ? (
-            <AiCardSkeleton />
+            <EntranceView index={4}>
+              <AiCardSkeleton />
+            </EntranceView>
           ) : (
             lastSummary && (
-              <GlassCard radius={t.radii.md}>
-                <SectionLabel>{tr.ai.lastExpedition}</SectionLabel>
-                <Text style={styles.body}>{lastSummary}</Text>
-              </GlassCard>
+              <EntranceView index={4}>
+                <GlassCard radius={t.radii.md}>
+                  <SectionLabel>{tr.ai.lastExpedition}</SectionLabel>
+                  <Text style={styles.body}>{lastSummary}</Text>
+                </GlassCard>
+              </EntranceView>
             )
           )}
 
-          <DeepInsights
-            theme={t}
-            tr={tr}
-            selectedMood={selectedMood}
-            randomMoods={randomMoods}
-          />
+          <EntranceView index={5}>
+            <DeepInsights
+              theme={t}
+              tr={tr}
+              selectedMood={selectedMood}
+              randomMoods={randomMoods}
+            />
+          </EntranceView>
 
-          <GlassCard radius={t.radii.md}>
-            <SectionLabel>{tr.ai.mood}</SectionLabel>
-            <Text style={styles.bodyMuted}>{tr.ai.moodPrompt}</Text>
-            <View style={styles.moodGrid}>
-              {randomMoods.map((m) => (
-                <OptionPill
-                  key={m}
-                  label={tr.ai.moodLabels[m]}
-                  active={selectedMood === m}
-                  onPress={() => {
-                    setMood(m);
-                    if (canAskAgain) handleMoodRefreshAI();
-                  }}
-                  containerStyle={styles.moodItem}
-                />
-              ))}
-            </View>
-          </GlassCard>
+          <EntranceView index={6}>
+            <GlassCard radius={t.radii.md}>
+              <SectionLabel>{tr.ai.mood}</SectionLabel>
+              <Text style={styles.bodyMuted}>{tr.ai.moodPrompt}</Text>
+              <View style={styles.moodGrid}>
+                {randomMoods.map((m) => (
+                  <OptionPill
+                    key={m}
+                    label={tr.ai.moodLabels[m]}
+                    active={selectedMood === m}
+                    onPress={() => {
+                      setMood(m);
+                      if (canAskAgain) handleMoodRefreshAI();
+                    }}
+                    containerStyle={styles.moodItem}
+                  />
+                ))}
+              </View>
+            </GlassCard>
+          </EntranceView>
         </ScreenScrollView>
       </ScreenSafeAreaView>
 
