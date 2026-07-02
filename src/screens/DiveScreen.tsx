@@ -19,8 +19,10 @@ import {
   ZoneBackground,
   type AppTheme
 } from "@/design-system";
-import { ZoneTransitionFlash, type ZoneTransitionFlashRef } from "@/design-system/atoms/ZoneTransitionFlash";
-import { Colors } from "@/theme";
+import {
+  ZoneTransitionFlash,
+  type ZoneTransitionFlashRef
+} from "@/design-system/atoms/ZoneTransitionFlash";
 import type { ChestReward } from "@/domain/entities";
 import { useDiveAudio } from "@/features/audio/useDiveAudio";
 import { useDiveEventEngine } from "@/features/discovery";
@@ -29,6 +31,7 @@ import { buildChestReward } from "@/features/diver/chestReward";
 import type { TitleAchievement } from "@/features/diver/titleAchievements";
 import type { OceanZone } from "@/features/ocean/zones";
 import { useAchievements, useDiveSession } from "@/stores";
+import { Colors } from "@/theme";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BackHandler, StyleSheet, Switch, Text, View } from "react-native";
@@ -350,7 +353,7 @@ export default function DiveScreen() {
             accessibilityRole="button"
             accessibilityLabel={isPaused ? tr.dive.resumeDive : tr.dive.pause}
           >
-            <GlassCard glow={isPaused}>
+            <GlassCard glow={isPaused} radius={t.radii.pill}>
               <Text style={styles.primaryText}>
                 {isPaused ? tr.dive.resumeDive : tr.dive.pause}
               </Text>
@@ -363,7 +366,7 @@ export default function DiveScreen() {
               accessibilityRole="button"
               accessibilityLabel={tr.dive.surface}
             >
-              <GlassCard>
+              <GlassCard radius={t.radii.pill}>
                 <Text style={styles.secondaryText}>{tr.dive.surface}</Text>
               </GlassCard>
             </Pressable>
@@ -373,7 +376,7 @@ export default function DiveScreen() {
               accessibilityRole="button"
               accessibilityLabel={tr.dive.abort}
             >
-              <GlassCard>
+              <GlassCard radius={t.radii.pill}>
                 <Text
                   style={[styles.secondaryText, { color: t.colors.danger }]}
                 >
@@ -484,6 +487,7 @@ const makeStyles = (t: AppTheme) =>
     flex: { flex: 1 },
     safe: {
       flex: 1,
+      paddingHorizontal: t.spacing[5],
       justifyContent: "space-between"
     },
     topBlock: { alignItems: "center", gap: t.spacing[3] },

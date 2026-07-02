@@ -5,6 +5,7 @@ import { dispatchWidgetCommand } from "./dispatch";
 import { WIDGET_ACTION_CONTRACTS } from "./actionContract";
 import {
   createSessionActionSignature,
+  isAlreadyAtTarget,
   resetSessionActionRouterForTests,
   shouldIgnoreAction,
   type ActionSource,
@@ -122,7 +123,8 @@ export function discardStalePendingExternalAction(now = Date.now()): void {
 
 export async function routeWidgetActionUrl(
   url: string,
-  now = Date.now()
+  now = Date.now(),
+  currentRoute?: { pathname: string } | null
 ): Promise<WidgetRouteResult> {
   const command = parseWidgetActionUrl(url);
   const source = sourceFromUrl(url);
@@ -138,6 +140,33 @@ export async function routeWidgetActionUrl(
   };
   const signature = createSessionActionSignature(payload);
   const actionId = actionIdFromUrl(url, signature, source, now);
+
+  // The user is already looking at (and controlling) this exact dive
+  // session — a stale Live Activity/Dynamic Island/widget tap must not
+  // pause/resume it out from under them or restart the music loop.
+  const requiresExistingSession =
+    command?.action === "pause_session" ||
+    command?.action === "resume_current" ||
+    command?.action === "skip_break";
+  if (
+    command &&
+    requiresExistingSession &&
+    currentRoute &&
+    isAlreadyAtTarget(payload, {
+      pathname: currentRoute.pathname,
+      sessionId: activeSessionId
+    })
+  ) {
+    return {
+      status: "ignored",
+      action: command.action,
+      actionId,
+      target: WIDGET_ACTION_CONTRACTS[command.action].target,
+      reason: "already-on-dive-screen",
+      duplicate: false
+    };
+  }
+
   setPendingExternalAction({
     actionId,
     receivedAt: now,
@@ -173,10 +202,6 @@ export async function routeWidgetActionUrl(
   }
 
   const hydratedSessionId = useDiveSession.getState().session?.id;
-  const requiresExistingSession =
-    command.action === "pause_session" ||
-    command.action === "resume_current" ||
-    command.action === "skip_break";
   if (
     requiresExistingSession &&
     sessionId &&

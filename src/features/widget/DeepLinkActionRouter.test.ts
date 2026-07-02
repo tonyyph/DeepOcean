@@ -117,6 +117,51 @@ describe("DeepLinkActionRouter", () => {
     expect(mockEndLiveActivity).toHaveBeenCalledWith("dive_stale");
   });
 
+  test("ignores a pause/resume tap when already viewing that dive session", async () => {
+    mockSession = { id: "dive_current", status: "diving" };
+
+    const result = await routeWidgetActionUrl(
+      "deepocean-widget://widget?action=pause_session&source=live_activity&sessionId=dive_current&actionId=dive_current:pause_session",
+      1_000,
+      { pathname: "/dive" }
+    );
+
+    expect(result).toMatchObject({
+      status: "ignored",
+      target: "dive",
+      reason: "already-on-dive-screen"
+    });
+    expect(mockPause).not.toHaveBeenCalled();
+    expect(mockWriteSnapshot).not.toHaveBeenCalled();
+    expect(storage.getString(StorageKeys.pendingExternalAction)).toBeUndefined();
+  });
+
+  test("still starts a new dive from the widget even while already on /dive (e.g. surfaced/idle)", async () => {
+    mockSession = null;
+
+    const result = await routeWidgetActionUrl(
+      "deepocean-widget://widget?action=start_focus&minutes=25",
+      1_000,
+      { pathname: "/dive" }
+    );
+
+    expect(result).toMatchObject({ status: "success", target: "dive" });
+    expect(mockStart).toHaveBeenCalledTimes(1);
+  });
+
+  test("still dispatches pause/resume when the dive screen is not the active route", async () => {
+    mockSession = { id: "dive_current", status: "diving" };
+
+    const result = await routeWidgetActionUrl(
+      "deepocean-widget://widget?action=pause_session&source=live_activity&sessionId=dive_current&actionId=dive_current:pause_session",
+      1_000,
+      { pathname: "/(tabs)" }
+    );
+
+    expect(result).toMatchObject({ status: "success", target: "dive" });
+    expect(mockPause).toHaveBeenCalledTimes(1);
+  });
+
   test("clears a pending action left by an older app process", () => {
     storage.set(
       StorageKeys.pendingExternalAction,

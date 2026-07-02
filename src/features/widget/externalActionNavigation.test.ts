@@ -4,7 +4,8 @@ import {
   handleExternalActionNavigation,
   resetExternalNavigationForTests,
   resolveDeepLinkNavigationTarget,
-  resolveWidgetNavigationTarget
+  resolveWidgetNavigationTarget,
+  shouldTrackAsActiveRoute
 } from "./externalActionNavigation";
 
 describe("external action navigation", () => {
@@ -137,5 +138,15 @@ describe("external action navigation", () => {
         pathname: "/session/abc",
         params: { source: "notification" }
       });
+  });
+
+  // Regression guard for a real device bug: the transient "/widget" ingress
+  // screen must never overwrite the tracked "last route the user was
+  // actually on", or a stale/repeat widget tap loses track of where to
+  // dismiss back to and ends up pushing a duplicate screen instead.
+  test("tracks real screens as the active route but excludes the widget ingress screen", () => {
+    expect(shouldTrackAsActiveRoute("/dive")).toBe(true);
+    expect(shouldTrackAsActiveRoute("/(tabs)/stats")).toBe(true);
+    expect(shouldTrackAsActiveRoute("/widget")).toBe(false);
   });
 });

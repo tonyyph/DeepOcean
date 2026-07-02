@@ -11,7 +11,7 @@ function firstParam(value: string | string[] | undefined): string | undefined {
 }
 
 export default function WidgetRoute() {
-  const { navigateToTarget } = useExternalActionNavigation();
+  const { navigateToTarget, ingressPrevious } = useExternalActionNavigation();
   const params = useLocalSearchParams<{
     action?: string | string[];
     actionId?: string | string[];
@@ -34,7 +34,11 @@ export default function WidgetRoute() {
     if (sessionId) search.set("sessionId", sessionId);
     if (source) search.set("source", source);
 
-    void routeWidgetActionUrl(`deepocean://widget?${search}`).then((result) => {
+    void routeWidgetActionUrl(
+      `deepocean://widget?${search}`,
+      undefined,
+      ingressPrevious
+    ).then((result) => {
       if (!active) return;
       navigateToTarget({
         actionId: result.actionId,
@@ -46,6 +50,7 @@ export default function WidgetRoute() {
       active = false;
     };
   }, [
+    ingressPrevious,
     navigateToTarget,
     params.action,
     params.actionId,

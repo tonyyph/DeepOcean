@@ -1,7 +1,6 @@
 import {
   useGlobalSearchParams,
   usePathname,
-  useRootNavigationState,
   useRouter,
   type Href
 } from "expo-router";
@@ -40,6 +39,35 @@ type RouterAdapter = {
   replace: (href: Href) => void;
 };
 
+// Tracks the last route the user was actually looking at, excluding the
+// transient "/widget" ingress screen itself. Deriving this from
+// useRootNavigationState() instead is racy: its nested Stack state (widget
+// and dive live one level under an implicit "__root" wrapper) can still
+// report the pre-push route as "current" on the very render where the
+// ingress screen mounts, since expo-router's usePathname() and the
+// navigator's own state settle in different render passes. A plain
+// app-root-level tracker sidesteps that entirely — it records "/dive" the
+// moment it's live, well before any widget tap ever pushes "/widget".
+let lastKnownRoute: CurrentRoute | null = null;
+
+export function shouldTrackAsActiveRoute(pathname: string): boolean {
+  return normalizePathname(pathname) !== "/widget";
+}
+
+export function useTrackActiveRoute(): void {
+  const pathname = usePathname();
+  const params = useGlobalSearchParams();
+  useEffect(() => {
+    if (shouldTrackAsActiveRoute(pathname)) {
+      lastKnownRoute = { pathname, params: routeParams(params) };
+    }
+  }, [pathname, params]);
+}
+
+export function resetActiveRouteTrackerForTests(): void {
+  lastKnownRoute = null;
+}
+
 const NAVIGATION_DEDUPLICATION_MS = 1_500;
 const recentNavigationIds = new Map<string, number>();
 
@@ -58,10 +86,6 @@ function normalizePathname(pathname: string): string {
     .join("/");
   if (!withoutGroups || withoutGroups === "index") return "/";
   return `/${withoutGroups.replace(/\/+$/, "")}`;
-}
-
-function routeNameToPathname(name: string): string {
-  return normalizePathname(name.startsWith("/") ? name : `/${name}`);
 }
 
 function routeParams(
@@ -237,30 +261,11 @@ export function useExternalActionNavigation() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useGlobalSearchParams();
-  const rootState = useRootNavigationState();
   const currentRouteRef = useRef<CurrentRoute>({ pathname, params });
-  const previousRoute = rootState.routes
-    .slice(0, rootState.index)
-    .reverse()
-    .find((route) => routeNameToPathname(route.name) !== "/widget");
-  const previousRouteRef = useRef<CurrentRoute | null>(
-    previousRoute
-      ? {
-          pathname: routeNameToPathname(previousRoute.name),
-          params: routeParams(previousRoute.params)
-        }
-      : null
-  );
 
   useEffect(() => {
     currentRouteRef.current = { pathname, params };
-    previousRouteRef.current = previousRoute
-      ? {
-          pathname: routeNameToPathname(previousRoute.name),
-          params: routeParams(previousRoute.params)
-        }
-      : null;
-  }, [params, pathname, previousRoute]);
+  }, [params, pathname]);
 
   const navigateToTarget = useCallback(
     (input: {
@@ -271,7 +276,7 @@ export function useExternalActionNavigation() {
       handleExternalActionNavigation({
         actionId: input.actionId,
         current: currentRouteRef.current,
-        ingressPrevious: previousRouteRef.current,
+        ingressPrevious: lastKnownRoute,
         mode: input.mode ?? "push",
         router,
         target: input.target
@@ -296,7 +301,7 @@ export function useExternalActionNavigation() {
     [navigateToTarget]
   );
 
-  return { navigateToDeepLink, navigateToTarget };
+  return { navigateToDeepLink, navigateToTarget, ingressPrevious: lastKnownRoute };
 }
 
 export function resetExternalNavigationForTests(): void {

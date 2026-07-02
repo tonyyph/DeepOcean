@@ -12,6 +12,7 @@ import {
 import {
   discardStalePendingExternalAction,
   installWidgetSnapshotSync,
+  useTrackActiveRoute,
   writeWidgetSnapshot
 } from "@/features/widget";
 import { useDiveSession, usePremium, useSettings } from "@/stores";
@@ -79,6 +80,7 @@ async function syncDiveReminders(): Promise<void> {
 }
 
 export default function RootLayout() {
+  useTrackActiveRoute();
   const ambientVolume = useSettings((s) => s.ambientVolume);
   const [fontsLoaded] = useFonts({
     Sora_400Regular,

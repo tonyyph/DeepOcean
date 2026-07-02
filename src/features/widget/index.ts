@@ -8,7 +8,9 @@ export {
   handleExternalActionNavigation,
   resolveDeepLinkNavigationTarget,
   resolveWidgetNavigationTarget,
-  useExternalActionNavigation
+  shouldTrackAsActiveRoute,
+  useExternalActionNavigation,
+  useTrackActiveRoute
 } from "./externalActionNavigation";
 export { installWidgetSnapshotSync, writeWidgetSnapshot } from "./snapshot";
 export { getWidgetPrimaryAction } from "./policy";
